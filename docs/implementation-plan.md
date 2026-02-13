@@ -46,12 +46,18 @@ Implemented in this repo:
   - `src/astrodyn_core/propagation/spacecraft.py`
   - `src/astrodyn_core/propagation/attitude.py`
   - `src/astrodyn_core/propagation/assembly.py`
+- YAML configuration loader:
+  - `src/astrodyn_core/propagation/config.py`
+  - `src/astrodyn_core/data/__init__.py`
+  - `src/astrodyn_core/data/propagation_models/` (5 bundled presets)
 - Public exports:
   - `src/astrodyn_core/__init__.py`
   - `src/astrodyn_core/propagation/__init__.py`
-- Tests scaffold:
+- Tests and examples:
   - `tests/test_specs.py`
   - `tests/test_registry_factory.py`
+  - `examples/demo_propagation.py`
+  - `examples/demo_orbit_plot.py` (3D orbit, ground track, altitude/velocity plots)
 - Architecture notes:
   - `docs/phase1-architecture.md`
 
@@ -135,7 +141,7 @@ Use these files as migration and design references.
 
 ## 5) Phased Roadmap
 
-## Phase 1 (in progress) - Core Orekit-native propagation
+## Phase 1 (complete) - Core Orekit-native propagation
 
 Goal: stable builder-first foundation.
 
@@ -144,16 +150,16 @@ Goal: stable builder-first foundation.
 - [x] spec + context + registry + factory
 - [x] default providers for numerical/keplerian/dsst/tle
 - [x] root package exports
-- [ ] robust test environment and CI
-- [ ] concrete Orekit example scripts
-- [ ] improve error messages around missing Orekit runtime/JVM state
+- [x] concrete Orekit example scripts (`demo_propagation.py`, `demo_orbit_plot.py`)
+- [ ] robust test environment and CI (deferred — low priority)
+- [ ] improve error messages around missing Orekit runtime/JVM state (deferred)
 
 ### Phase 1 completion criteria
 
 - Can instantiate all four provider kinds through factory.
 - Can import package root in external project (`from astrodyn_core import ...`).
-- Documentation includes usage examples and constraints.
-- Unit tests pass in CI for non-Orekit logic.
+- Example scripts demonstrate full propagation workflows with force models, spacecraft, and plotting.
+- Unit tests pass locally for non-Orekit logic.
 
 ## Phase 1.1 (complete) - Declarative force-model and attitude assembly
 
@@ -382,5 +388,11 @@ from astrodyn_core import PropagatorFactory, PropagatorSpec, PropagatorKind
 - **2026-02-13**: Force specs live on PropagatorSpec (declarative), with backward-compatible fallback to raw context.force_models.
 - **2026-02-13**: Maneuver specs deferred to Phase 2+.
 - **2026-02-13**: Estimation parameter drivers (cd/cr) deferred to Phase 3+.
+- **2026-02-13**: YAML config loader added: dynamics and spacecraft configs are separate files (same dynamics reused across satellites).
+- **2026-02-13**: Five bundled propagation presets shipped as package data (j2, low/medium/high/very_high fidelity).
+- **2026-02-13**: pyyaml added as a core dependency.
+
+- **2026-02-13**: demo_orbit_plot.py verified working end-to-end (medium fidelity preset, 3-orbit LEO propagation with 4-panel plot).
+- **2026-02-13**: Orekit 13.x discoveries: TLEPropagatorBuilder needs 4-arg constructor, use FrameAlignedProvider instead of InertialProvider, IERSConventions imported from org.orekit.utils.
 
 Keep appending key decisions here in future sessions.

@@ -1,0 +1,16 @@
+# Low fidelity — 10x10 gravity, no drag/SRP
+# Good for fast iterative loops where precision is secondary.
+
+propagator:
+  kind: numerical
+
+integrator:
+  kind: dp54
+  min_step: 1.0e-10
+  max_step: 600.0
+  position_tolerance: 1.0e-2
+
+forces:
+  gravity:
+    degree: 10
+    order: 10

@@ -1,0 +1,26 @@
+# Medium fidelity — 30x30 gravity, drag (DTM2000), SRP, Sun+Moon
+# Reasonable trade-off between accuracy and speed for LEO objects.
+
+propagator:
+  kind: numerical
+
+integrator:
+  kind: dp54
+  min_step: 1.0e-6
+  max_step: 300.0
+  position_tolerance: 1.0e-3
+
+attitude:
+  mode: nadir
+
+forces:
+  gravity:
+    degree: 30
+    order: 30
+  drag:
+    atmosphere_model: dtm2000
+    space_weather_source: cssi
+    solar_activity_strength: strong
+  srp: true
+  third_body:
+    bodies: [sun, moon]

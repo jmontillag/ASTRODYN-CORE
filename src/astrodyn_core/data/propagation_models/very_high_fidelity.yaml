@@ -1,0 +1,33 @@
+# Very high fidelity — 150x150 gravity, full atmosphere, all perturbations
+# Maximum accuracy for precise ephemeris generation and validation studies.
+
+propagator:
+  kind: numerical
+
+integrator:
+  kind: dp853
+  min_step: 1.0e-14
+  max_step: 300.0
+  position_tolerance: 1.0e-9
+
+attitude:
+  mode: nadir
+
+forces:
+  gravity:
+    degree: 150
+    order: 150
+  drag:
+    atmosphere_model: nrlmsise00
+    space_weather_source: cssi
+    solar_activity_strength: average
+  srp:
+    enable_moon_eclipse: true
+    enable_albedo: true
+  third_body:
+    bodies: [sun, moon, venus, mars, jupiter]
+  relativity: true
+  solid_tides: true
+  ocean_tides:
+    degree: 30
+    order: 30

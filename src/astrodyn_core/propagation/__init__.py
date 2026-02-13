@@ -2,6 +2,12 @@
 
 from astrodyn_core.propagation.assembly import assemble_attitude_provider, assemble_force_models
 from astrodyn_core.propagation.attitude import AttitudeSpec
+from astrodyn_core.propagation.config import (
+    load_dynamics_config,
+    load_dynamics_from_dict,
+    load_spacecraft_config,
+    load_spacecraft_from_dict,
+)
 from astrodyn_core.propagation.capabilities import CapabilityDescriptor
 from astrodyn_core.propagation.factory import PropagatorFactory
 from astrodyn_core.propagation.forces import (
@@ -22,6 +28,10 @@ from astrodyn_core.propagation.specs import IntegratorSpec, PropagatorKind, Prop
 
 __all__ = [
     "AttitudeSpec",
+    "load_dynamics_config",
+    "load_dynamics_from_dict",
+    "load_spacecraft_config",
+    "load_spacecraft_from_dict",
     "BuildContext",
     "CapabilityDescriptor",
     "DragSpec",

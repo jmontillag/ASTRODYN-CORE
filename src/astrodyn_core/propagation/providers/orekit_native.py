@@ -176,6 +176,7 @@ class TLEOrekitProvider:
             tle,
             _position_angle_type(spec.position_angle_type),
             context.position_tolerance,
+            None,  # DataContext — use default
         )
 
     def build_propagator(self, spec: PropagatorSpec, context: BuildContext) -> Any:

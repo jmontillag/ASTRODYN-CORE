@@ -1,0 +1,29 @@
+# High fidelity — 50x50 gravity, drag (NRLMSISE00), SRP+albedo, tides
+# Suitable for operational orbit determination and precise prediction.
+
+propagator:
+  kind: numerical
+
+integrator:
+  kind: dp853
+  min_step: 1.0e-9
+  max_step: 300.0
+  position_tolerance: 1.0e-5
+
+attitude:
+  mode: nadir
+
+forces:
+  gravity:
+    degree: 50
+    order: 50
+  drag:
+    atmosphere_model: nrlmsise00
+    space_weather_source: msafe
+    solar_activity_strength: average
+  srp:
+    enable_albedo: true
+  third_body:
+    bodies: [sun, moon]
+  solid_tides: true
+  ocean_tides: true

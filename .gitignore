@@ -36,3 +36,8 @@ orekit-data/
 # Secrets / credentials
 .env
 *.secret
+secrets.ini
+secrets*.ini
+
+# Generated outputs
+*.png

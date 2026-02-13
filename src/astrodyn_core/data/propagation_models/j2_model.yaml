@@ -1,0 +1,16 @@
+# J2 only — minimal perturbation model
+# Suitable for quick feasibility checks and coarse trajectory analysis.
+
+propagator:
+  kind: numerical
+
+integrator:
+  kind: dp853
+  min_step: 1.0e-3
+  max_step: 200.0
+  position_tolerance: 1.0e-3
+
+forces:
+  gravity:
+    degree: 2
+    order: 0

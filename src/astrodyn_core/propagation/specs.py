@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from enum import Enum
 from typing import Any, Mapping, Sequence
 
@@ -78,3 +78,7 @@ class PropagatorSpec:
 
         if self.kind == PropagatorKind.TLE and self.tle is None:
             raise ValueError("tle is required for kind=tle.")
+
+    def with_spacecraft(self, spacecraft: SpacecraftSpec) -> PropagatorSpec:
+        """Return a copy of this spec with the given spacecraft attached."""
+        return replace(self, spacecraft=spacecraft)

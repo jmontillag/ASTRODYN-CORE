@@ -1,5 +1,6 @@
 """ASTRODYN-CORE public package API."""
 
+from astrodyn_core.data import get_propagation_model, list_propagation_models
 from astrodyn_core.propagation import (
     AttitudeSpec,
     BuildContext,
@@ -21,6 +22,10 @@ from astrodyn_core.propagation import (
     ThirdBodySpec,
     assemble_attitude_provider,
     assemble_force_models,
+    load_dynamics_config,
+    load_dynamics_from_dict,
+    load_spacecraft_config,
+    load_spacecraft_from_dict,
     register_default_orekit_providers,
 )
 
@@ -45,5 +50,11 @@ __all__ = [
     "ThirdBodySpec",
     "assemble_attitude_provider",
     "assemble_force_models",
+    "get_propagation_model",
+    "list_propagation_models",
+    "load_dynamics_config",
+    "load_dynamics_from_dict",
+    "load_spacecraft_config",
+    "load_spacecraft_from_dict",
     "register_default_orekit_providers",
 ]
