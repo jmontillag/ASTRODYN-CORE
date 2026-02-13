@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "astrodyn-core"
+version = "0.1.0"
+description = "Builder-first astrodynamics propagation core with Orekit-native semantics."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [
+  { name = "ASTRODYN Team" }
+]
+dependencies = ["orekit>=13.1"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.8.0", "mypy>=1.12"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/astrodyn_core"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

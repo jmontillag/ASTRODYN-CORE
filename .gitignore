@@ -1,0 +1,38 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.venv/
+env/
+
+# Tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Orekit data (large runtime files, not source)
+orekit-data.zip
+orekit-data/
+
+# Secrets / credentials
+.env
+*.secret

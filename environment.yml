@@ -1,0 +1,19 @@
+name: astrodyn-core-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - orekit=13.1
+  - numpy
+  - scipy
+  - pandas
+  - matplotlib
+  - plotly
+  - pyyaml
+  - requests
+  - fastparquet
+  - h5py
+  - pip
+  - pip:
+      - spacetrack
