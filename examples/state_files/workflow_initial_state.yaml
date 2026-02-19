@@ -1,0 +1,15 @@
+schema_version: 1
+initial_state:
+  epoch: '2026-02-19T00:00:00Z'
+  frame: GCRF
+  representation: cartesian
+  mu_m3_s2: WGS84
+  position_m:
+  - -5041993.95947494
+  - 2698239.603484781
+  - 3806979.856209175
+  velocity_mps:
+  - -204.41826394193376
+  - -6341.152768004886
+  - 4223.629881348357
+  mass_kg: 450.0

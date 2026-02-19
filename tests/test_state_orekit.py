@@ -1,12 +1,14 @@
 import pytest
 
-from astrodyn_core.states import OrbitStateRecord, to_orekit_orbit
+from astrodyn_core.states import OrbitStateRecord, StateFileClient
 
 orekit = pytest.importorskip("orekit")
 orekit.initVM()
 from orekit.pyhelpers import setup_orekit_curdir  # noqa: E402
 
 setup_orekit_curdir()
+
+CLIENT = StateFileClient()
 
 
 def test_cartesian_state_conversion_round_trip() -> None:
@@ -19,7 +21,7 @@ def test_cartesian_state_conversion_round_trip() -> None:
         mu_m3_s2="WGS84",
     )
 
-    orbit = to_orekit_orbit(record)
+    orbit = CLIENT.to_orekit_orbit(record)
     pv = orbit.getPVCoordinates()
     pos = pv.getPosition()
     vel = pv.getVelocity()

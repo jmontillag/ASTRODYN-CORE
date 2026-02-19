@@ -19,10 +19,12 @@ This document proposes a flexible state load/save subsystem for `astrodyn-core`.
 
 - `src/astrodyn_core/states/models.py`
   - Dataclasses for serializable state schemas.
+- `src/astrodyn_core/states/client.py`
+  - High-level class API (`StateFileClient`) for state-file workflows.
 - `src/astrodyn_core/states/io.py`
-  - YAML/JSON load/save functions.
+  - YAML/JSON/HDF5 low-level load/save functions.
 - `src/astrodyn_core/states/orekit.py`
-  - Conversion layer to Orekit objects.
+  - Low-level conversion layer to Orekit objects.
 - `src/astrodyn_core/states/validation.py`
   - Cross-field validation (frames, element sets, maneuver references).
 
@@ -113,11 +115,11 @@ This keeps file format stable even if Orekit internals evolve.
 
 - New helper:
   - `BuildContext.from_state_record(record, universe=None, metadata=None)`
-- New helper:
-  - `load_initial_state(path) -> OrbitStateRecord`
+- High-level state API:
+  - `client = StateFileClient(...)`
 - Example flow:
-  1. `record = load_initial_state("states/leo_case.yaml")`
-  2. `orbit = to_orekit_orbit(record, universe=...)`
+  1. `record = client.load_initial_state("states/leo_case.yaml")`
+  2. `orbit = client.to_orekit_orbit(record, universe=...)`
   3. `ctx = BuildContext(initial_orbit=orbit, universe=...)`
   4. Existing factory path unchanged.
 
@@ -135,14 +137,14 @@ This keeps file format stable even if Orekit internals evolve.
 4. v4 interoperability:
    - Import/export bridges for OEM/CCSDS where practical.
 
-## Immediate next coding tasks
+## Implementation status
 
-- Add `states/models.py` with `OrbitStateRecord`.
-- Add `states/io.py` with `load_state_file` / `save_state_file`.
-- Add `states/orekit.py` with `to_orekit_orbit`.
-- Add tests:
-  - valid keplerian parse
-  - invalid frame/representation
-  - cartesian conversion round-trip tolerance
-- Add example:
-  - `examples/demo_state_file_numerical.py`
+Implemented:
+
+- `states/models.py`, `states/io.py`, `states/orekit.py`, `states/client.py`
+- YAML/JSON state I/O + compact series export
+- HDF5 series I/O with compressed columnar datasets
+- Orekit conversion helpers including `state_series -> Ephemeris`
+- Unified class entrypoint `StateFileClient` for state file operations
+- Tests for parsing, Orekit conversion, and interpolation workflow
+- Unified example: `examples/demo_state_file_workflow.py`

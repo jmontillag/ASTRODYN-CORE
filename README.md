@@ -63,6 +63,14 @@ propagator = builder.buildPropagator(builder.getSelectedNormalizedParameters())
 
 See `src/astrodyn_core/propagation` for the core interfaces and default Orekit-native providers.
 
+State-file operations (load/save/conversion/export) are available through a single class API:
+
+```python
+from astrodyn_core import StateFileClient
+
+states = StateFileClient()
+```
+
 ## Examples
 
 Run from the project root:
@@ -73,12 +81,18 @@ python examples/demo_orbit_plot.py
 python examples/demo_keplerian_builder.py
 python examples/demo_dsst_builder.py
 python examples/demo_tle_propagation.py
-python examples/demo_state_file_numerical.py
+python examples/demo_state_file_workflow.py
+python examples/demo_scenario_object_uses.py
 ```
 
 State-file driven example input lives at:
 
 - `examples/state_files/leo_initial_state.yaml`
+- `examples/state_files/leo_state_series.yaml`
+- `examples/state_files/leo_mission_timeline.yaml`
+- `examples/state_files/workflow_initial_state.yaml` (created by demo script)
+- `examples/state_files/workflow_cartesian_series.yaml` (created by demo script)
+- `examples/state_files/workflow_cartesian_series.h5` (created by demo script)
 
 ## Development planning
 

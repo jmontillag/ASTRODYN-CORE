@@ -1,0 +1,50 @@
+schema_version: 1
+
+metadata:
+  mission: "demo-timeline"
+  note: "Maneuver and attitude sections are parsed and available for orchestration."
+
+initial_state:
+  epoch: "2026-02-19T00:00:00Z"
+  frame: "GCRF"
+  representation: "keplerian"
+  elements:
+    a_m: 6878137.0
+    e: 0.0012
+    i_deg: 51.6
+    argp_deg: 45.0
+    raan_deg: 120.0
+    anomaly_deg: 0.0
+    anomaly_type: "MEAN"
+  mu_m3_s2: "WGS84"
+  mass_kg: 450.0
+
+maneuvers:
+  - name: "raise-perigee-burn"
+    trigger:
+      type: "epoch"
+      epoch: "2026-02-19T00:45:00Z"
+    model:
+      type: "impulsive"
+      dv_mps: [0.0, 8.0, 0.0]
+      frame: "TNW"
+      isp_s: 220.0
+  - name: "drag-makeup"
+    trigger:
+      type: "epoch"
+      epoch: "2026-02-19T01:30:00Z"
+    model:
+      type: "finite"
+      duration_s: 120.0
+      acceleration_mps2: [0.0, 0.0008, 0.0]
+      frame: "TNW"
+
+attitude_timeline:
+  - mode: "nadir"
+    frame: "GCRF"
+    params:
+      start_epoch: "2026-02-19T00:00:00Z"
+  - mode: "lof"
+    frame: "TNW"
+    params:
+      start_epoch: "2026-02-19T01:20:00Z"

@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import timedelta
 from typing import Any, Mapping, Sequence
 
-from astrodyn_core.states.validation import normalize_orbit_state
+from astrodyn_core.states.validation import normalize_orbit_state, parse_epoch_utc
 
 
 @dataclass(frozen=True, slots=True)
@@ -78,12 +79,89 @@ class OrbitStateRecord:
 
 
 @dataclass(frozen=True, slots=True)
+class OutputEpochSpec:
+    """Epoch selection for trajectory export wrappers."""
+
+    explicit_epochs: Sequence[str] = field(default_factory=tuple)
+    start_epoch: str | None = None
+    end_epoch: str | None = None
+    step_seconds: float | None = None
+    count: int | None = None
+    include_end: bool = True
+
+    def __post_init__(self) -> None:
+        explicit = tuple(self.explicit_epochs)
+        object.__setattr__(self, "explicit_epochs", explicit)
+
+        if explicit:
+            if any(
+                value is not None
+                for value in (self.start_epoch, self.end_epoch, self.step_seconds, self.count)
+            ):
+                raise ValueError(
+                    "OutputEpochSpec cannot mix explicit_epochs with start/end/step/count fields."
+                )
+            if len(explicit) == 0:
+                raise ValueError("OutputEpochSpec.explicit_epochs cannot be empty.")
+            for epoch in explicit:
+                parse_epoch_utc(str(epoch))
+            return
+
+        if self.start_epoch is None or self.end_epoch is None:
+            raise ValueError("OutputEpochSpec requires start_epoch and end_epoch when explicit_epochs is not set.")
+        parse_epoch_utc(self.start_epoch)
+        parse_epoch_utc(self.end_epoch)
+        if parse_epoch_utc(self.end_epoch) < parse_epoch_utc(self.start_epoch):
+            raise ValueError("OutputEpochSpec.end_epoch must be >= start_epoch.")
+
+        if (self.step_seconds is None) == (self.count is None):
+            raise ValueError("OutputEpochSpec requires exactly one of step_seconds or count.")
+
+        if self.step_seconds is not None and float(self.step_seconds) <= 0:
+            raise ValueError("OutputEpochSpec.step_seconds must be positive.")
+
+        if self.count is not None and int(self.count) < 2:
+            raise ValueError("OutputEpochSpec.count must be >= 2.")
+
+    def epochs(self) -> tuple[str, ...]:
+        """Return the concrete output epochs as ISO-8601 UTC strings."""
+        if self.explicit_epochs:
+            return tuple(str(epoch) for epoch in self.explicit_epochs)
+
+        start = parse_epoch_utc(self.start_epoch or "")
+        end = parse_epoch_utc(self.end_epoch or "")
+
+        if self.step_seconds is not None:
+            step = timedelta(seconds=float(self.step_seconds))
+            epochs: list[str] = []
+            current = start
+            while current < end:
+                epochs.append(current.isoformat().replace("+00:00", "Z"))
+                current = current + step
+            if self.include_end and (not epochs or parse_epoch_utc(epochs[-1]) != end):
+                epochs.append(end.isoformat().replace("+00:00", "Z"))
+            return tuple(epochs)
+
+        count = int(self.count or 0)
+        span_s = (end - start).total_seconds()
+        step_s = span_s / float(count - 1)
+        epochs = []
+        for idx in range(count):
+            current = start + timedelta(seconds=idx * step_s)
+            epochs.append(current.isoformat().replace("+00:00", "Z"))
+        if self.include_end and epochs:
+            epochs[-1] = end.isoformat().replace("+00:00", "Z")
+        return tuple(epochs)
+
+
+@dataclass(frozen=True, slots=True)
 class StateSeries:
     """Ordered state timeline for future bounded/interpolated use."""
 
     name: str
     states: Sequence[OrbitStateRecord]
     interpolation_hint: str | None = None
+    interpolation: Mapping[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if not self.name.strip():
@@ -91,23 +169,39 @@ class StateSeries:
         if not self.states:
             raise ValueError("StateSeries.states cannot be empty.")
         object.__setattr__(self, "states", tuple(self.states))
+        object.__setattr__(self, "interpolation", dict(self.interpolation))
         for record in self.states:
             if not isinstance(record, OrbitStateRecord):
                 raise TypeError("StateSeries.states must contain OrbitStateRecord values.")
 
     @classmethod
     def from_mapping(cls, data: Mapping[str, Any]) -> StateSeries:
-        states = tuple(OrbitStateRecord.from_mapping(item) for item in data.get("states", []))
+        interpolation = data.get("interpolation", {})
+        if not isinstance(interpolation, Mapping):
+            raise TypeError("StateSeries.interpolation must be a mapping when provided.")
+        interpolation_hint = data.get("interpolation_hint")
+        if interpolation_hint is None and "method" in interpolation:
+            interpolation_hint = str(interpolation["method"])
+
+        if "states" in data:
+            states = tuple(OrbitStateRecord.from_mapping(item) for item in data.get("states", []))
+        elif "rows" in data:
+            states = _parse_compact_state_rows(data)
+        else:
+            states = ()
         return cls(
             name=str(data.get("name", "series")),
             states=states,
-            interpolation_hint=data.get("interpolation_hint"),
+            interpolation_hint=interpolation_hint,
+            interpolation=interpolation,
         )
 
     def to_mapping(self) -> dict[str, Any]:
         payload = {"name": self.name, "states": [record.to_mapping() for record in self.states]}
         if self.interpolation_hint:
             payload["interpolation_hint"] = self.interpolation_hint
+        if self.interpolation:
+            payload["interpolation"] = dict(self.interpolation)
         return payload
 
 
@@ -268,3 +362,116 @@ class ScenarioStateFile:
         if self.metadata:
             payload["metadata"] = dict(self.metadata)
         return payload
+
+
+def _parse_compact_state_rows(data: Mapping[str, Any]) -> tuple[OrbitStateRecord, ...]:
+    rows = data.get("rows", [])
+    defaults_raw = data.get("defaults", {})
+    columns_raw = data.get("columns")
+
+    if not isinstance(defaults_raw, Mapping):
+        raise TypeError("state_series.defaults must be a mapping when provided.")
+    defaults = dict(defaults_raw)
+
+    columns: list[str] | None = None
+    if columns_raw is not None:
+        if isinstance(columns_raw, (str, bytes)):
+            raise TypeError("state_series.columns must be a sequence of field names.")
+        columns = [str(item) for item in columns_raw]
+        if not columns:
+            raise ValueError("state_series.columns cannot be empty when provided.")
+
+    items: list[OrbitStateRecord] = []
+    for idx, row in enumerate(rows):
+        row_data: dict[str, Any]
+        if isinstance(row, Mapping):
+            row_data = dict(row)
+        elif columns is not None and not isinstance(row, (str, bytes)):
+            if len(row) != len(columns):
+                raise ValueError(
+                    f"state_series row #{idx} length {len(row)} does not match columns {len(columns)}."
+                )
+            row_data = dict(zip(columns, row))
+        else:
+            raise TypeError(
+                "Each state_series row must be a mapping, or a sequence when columns are provided."
+            )
+
+        merged = _merge_state_row(defaults, row_data)
+        merged = _normalize_compact_state_shape(merged)
+        items.append(OrbitStateRecord.from_mapping(merged))
+
+    return tuple(items)
+
+
+def _merge_state_row(defaults: Mapping[str, Any], row: Mapping[str, Any]) -> dict[str, Any]:
+    merged: dict[str, Any] = dict(defaults)
+    base_elements = merged.get("elements")
+    if isinstance(base_elements, Mapping):
+        merged["elements"] = dict(base_elements)
+
+    for key, value in row.items():
+        key_str = str(key)
+        if "." in key_str:
+            parts = key_str.split(".")
+            _set_dotted(merged, parts, value)
+            continue
+
+        if key_str == "elements" and isinstance(value, Mapping):
+            current = merged.get("elements")
+            if isinstance(current, Mapping):
+                next_elements = dict(current)
+                next_elements.update(dict(value))
+                merged["elements"] = next_elements
+            else:
+                merged["elements"] = dict(value)
+            continue
+
+        merged[key_str] = value
+
+    return merged
+
+
+def _set_dotted(target: dict[str, Any], path: Sequence[str], value: Any) -> None:
+    node: dict[str, Any] = target
+    for part in path[:-1]:
+        existing = node.get(part)
+        if not isinstance(existing, dict):
+            existing = {}
+            node[part] = existing
+        node = existing
+    node[path[-1]] = value
+
+
+def _normalize_compact_state_shape(raw: Mapping[str, Any]) -> dict[str, Any]:
+    data = dict(raw)
+    representation = str(data.get("representation", "")).strip().lower()
+
+    if representation == "cartesian":
+        if "position_m" not in data and all(key in data for key in ("x_m", "y_m", "z_m")):
+            data["position_m"] = [data.pop("x_m"), data.pop("y_m"), data.pop("z_m")]
+        if "velocity_mps" not in data and all(key in data for key in ("vx_mps", "vy_mps", "vz_mps")):
+            data["velocity_mps"] = [data.pop("vx_mps"), data.pop("vy_mps"), data.pop("vz_mps")]
+        return data
+
+    if representation == "keplerian":
+        if "elements" not in data:
+            keys = ("a_m", "e", "i_deg", "argp_deg", "raan_deg", "anomaly_deg", "anomaly_type")
+            if any(key in data for key in keys):
+                data["elements"] = {}
+            for key in keys:
+                if key in data:
+                    data["elements"][key] = data.pop(key)
+        return data
+
+    if representation == "equinoctial":
+        if "elements" not in data:
+            keys = ("a_m", "ex", "ey", "hx", "hy", "l_deg", "anomaly_type")
+            if any(key in data for key in keys):
+                data["elements"] = {}
+            for key in keys:
+                if key in data:
+                    data["elements"][key] = data.pop(key)
+        return data
+
+    return data

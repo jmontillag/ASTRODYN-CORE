@@ -35,9 +35,9 @@ class BuildContext:
         metadata: Mapping[str, Any] | None = None,
     ) -> BuildContext:
         """Construct a BuildContext from a serializable state record."""
-        from astrodyn_core.states.orekit import to_orekit_orbit
+        from astrodyn_core.states import StateFileClient
 
-        initial_orbit = to_orekit_orbit(state_record, universe=universe)
+        initial_orbit = StateFileClient(universe=universe).to_orekit_orbit(state_record)
         merged_metadata = dict(metadata or {})
         if state_record.mass_kg is not None:
             merged_metadata.setdefault("initial_mass_kg", state_record.mass_kg)

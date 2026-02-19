@@ -1,0 +1,27 @@
+schema_version: 1
+
+metadata:
+  case: "LEO series checkpoints"
+
+state_series:
+  - name: "leo_reference_arc"
+    interpolation_hint: "lagrange"
+    defaults:
+      frame: "GCRF"
+      representation: "keplerian"
+      mu_m3_s2: "WGS84"
+      mass_kg: 450.0
+      elements:
+        a_m: 6878137.0
+        e: 0.0012
+        i_deg: 51.6
+        argp_deg: 45.0
+        raan_deg: 120.0
+        anomaly_type: "MEAN"
+    columns:
+      - epoch
+      - elements.anomaly_deg
+    rows:
+      - ["2026-02-19T00:00:00Z", 0.0]
+      - ["2026-02-19T00:30:00Z", 115.0]
+      - ["2026-02-19T01:00:00Z", 230.0]
