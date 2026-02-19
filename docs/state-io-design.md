@@ -1,150 +1,140 @@
-# State I/O Design (Draft)
+# State I/O and Scenario Design
 
-This document proposes a flexible state load/save subsystem for `astrodyn-core`.
+Last updated: 2026-02-19
 
-## Goals
+This document describes the implemented state-file architecture and the planned extensions.
 
-- Define orbital states in files instead of hardcoding them in scripts.
-- Support single-epoch and multi-epoch state definitions.
-- Keep schema independent from Orekit classes, then convert to Orekit at runtime.
-- Leave room for mission events (maneuvers) and attitude directives.
+## 1) Goals
 
-## Non-Goals (initial versions)
+- Define mission/scenario inputs in files (not hardcoded scripts).
+- Keep serialization independent from Orekit runtime classes.
+- Support:
+  - single state
+  - state time series
+  - scenario timeline and maneuver directives.
+- Keep a single high-level API entrypoint for users.
 
-- Full maneuver execution engine in v1.
-- OEM/CCSDS round-trip fidelity in v1.
-- Estimation-ready covariance/process-noise model in v1.
+## 2) Implemented Architecture
 
-## Proposed module layout
+## Modules
 
 - `src/astrodyn_core/states/models.py`
-  - Dataclasses for serializable state schemas.
-- `src/astrodyn_core/states/client.py`
-  - High-level class API (`StateFileClient`) for state-file workflows.
+  - typed dataclasses (`OrbitStateRecord`, `StateSeries`, `ScenarioStateFile`, timeline/maneuver records)
 - `src/astrodyn_core/states/io.py`
-  - YAML/JSON/HDF5 low-level load/save functions.
+  - YAML/JSON/HDF5 read/write
 - `src/astrodyn_core/states/orekit.py`
-  - Low-level conversion layer to Orekit objects.
+  - conversion helpers to/from Orekit objects, ephemeris conversion, trajectory export helpers
 - `src/astrodyn_core/states/validation.py`
-  - Cross-field validation (frames, element sets, maneuver references).
+  - schema/date parsing validation helpers
+- `src/astrodyn_core/states/client.py`
+  - `StateFileClient` facade for end-to-end workflows
 
-## Core data model
+## User entrypoint
 
-### `OrbitStateRecord`
+```python
+from astrodyn_core import StateFileClient
 
-- `epoch: str` (ISO-8601 UTC)
-- `frame: str` (ex: `GCRF`, `EME2000`, `ITRF_2020`)
-- `representation: str` (`cartesian`, `keplerian`, `equinoctial`)
-- `position_m: [x, y, z]` and `velocity_mps: [vx, vy, vz]` for cartesian
-- `elements: {...}` for non-cartesian
-- `mu_m3_s2: float | str` (float or predefined keyword like `WGS84`)
-- `mass_kg: float | None`
-- `metadata: dict[str, Any]`
-
-### `StateSeries`
-
-- `name: str`
-- `states: list[OrbitStateRecord]` (sorted by epoch)
-- `interpolation_hint: str | None` (future bounded propagator support)
-
-### `ManeuverRecord` (v1 schema, execution later)
-
-- `name: str`
-- `trigger: {type, epoch|condition}`
-- `model: {type, parameters...}` (impulsive/finite placeholder)
-- `frame: str | None`
-
-### `AttitudeRecord`
-
-- `mode: str` (`nadir`, `lof`, `inertial`, `custom`)
-- `frame: str | None`
-- `params: dict[str, Any]`
-
-### `ScenarioStateFile`
-
-- `schema_version: int`
-- `universe: dict | None`
-- `spacecraft: dict | None`
-- `initial_state: OrbitStateRecord | None`
-- `state_series: list[StateSeries]`
-- `maneuvers: list[ManeuverRecord]`
-- `attitude_timeline: list[AttitudeRecord]`
-
-## Minimal YAML shape (v1)
-
-```yaml
-schema_version: 1
-
-initial_state:
-  epoch: "2026-02-19T00:00:00Z"
-  frame: "GCRF"
-  representation: "keplerian"
-  elements:
-    a_m: 6878137.0
-    e: 0.0012
-    i_deg: 51.6
-    argp_deg: 45.0
-    raan_deg: 120.0
-    anomaly_deg: 0.0
-    anomaly_type: "MEAN"
-  mu_m3_s2: "WGS84"
-  mass_kg: 450.0
-
-maneuvers:
-  - name: "dv-1"
-    trigger:
-      type: "epoch"
-      epoch: "2026-02-19T06:00:00Z"
-    model:
-      type: "impulsive"
-      dv_mps: [0.0, 0.1, 0.0]
+client = StateFileClient()
 ```
 
-## Conversion strategy to Orekit
+This class centralizes loading/saving, Orekit conversions, trajectory export, scenario export, and plotting hooks.
 
-- Parse file -> typed dataclasses (`states/models.py`).
-- Validate schema + cross-field consistency.
-- Convert `OrbitStateRecord` to Orekit `Orbit` using:
-  - `KeplerianOrbit`, `CartesianOrbit`, or `EquinoctialOrbit`.
-- Resolve frame via `FramesFactory` + current universe config.
-- Resolve `mu` via existing `get_mu(...)` helper.
+## 3) Schema Coverage (Current)
 
-This keeps file format stable even if Orekit internals evolve.
+## Core records
 
-## Integration points with current propagation API
+- `OrbitStateRecord`
+  - `epoch`, `frame`, `representation`, orbit values, `mu_m3_s2`, optional `mass_kg`
+- `StateSeries`
+  - ordered states with optional interpolation metadata
+- `ManeuverRecord`
+  - trigger + model mapping (impulsive and intent forms)
+- `AttitudeRecord`
+  - stored for timeline/schema completeness (execution support is still limited)
+- `TimelineEventRecord`
+  - named event references used by maneuvers
+- `ScenarioStateFile`
+  - top-level scenario container
 
-- New helper:
-  - `BuildContext.from_state_record(record, universe=None, metadata=None)`
-- High-level state API:
-  - `client = StateFileClient(...)`
-- Example flow:
-  1. `record = client.load_initial_state("states/leo_case.yaml")`
-  2. `orbit = client.to_orekit_orbit(record, universe=...)`
-  3. `ctx = BuildContext(initial_orbit=orbit, universe=...)`
-  4. Existing factory path unchanged.
+## Timeline support currently implemented
 
-## Incremental implementation plan
+Timeline `point.type` supports:
 
-1. v1 read/write:
-   - Dataclasses + YAML parser + validation for `initial_state` only.
-   - Orekit conversion for cartesian + keplerian.
-2. v2 timeline:
-   - Multi-epoch `state_series` support.
-   - Optional interpolation helper.
-3. v3 mission events:
-   - Parse maneuver/attitude timelines.
-   - Attach to propagation builders where supported.
-4. v4 interoperability:
-   - Import/export bridges for OEM/CCSDS where practical.
+- `epoch`
+- `elapsed` (relative to another event)
+- `apogee`
+- `perigee`
+- `ascending_node`
+- `descending_node`
 
-## Implementation status
+Maneuver triggers can directly reference timeline events (`trigger.type: event`).
+
+## 4) State-Series Formats
+
+## YAML/JSON compact format
+
+Implemented compact schema:
+
+- `defaults` block for invariant series fields
+- `columns` list
+- `rows` matrix
+
+This avoids repeating full keys for every sample while staying readable for onboarding.
+
+## HDF5 format
+
+Implemented with `h5py`:
+
+- columnar datasets
+- compressed numeric arrays
+- schema/interpolation/defaults metadata in file attributes
+
+This is the preferred path for large trajectory datasets.
+
+## 5) Orekit Integration
 
 Implemented:
 
-- `states/models.py`, `states/io.py`, `states/orekit.py`, `states/client.py`
-- YAML/JSON state I/O + compact series export
-- HDF5 series I/O with compressed columnar datasets
-- Orekit conversion helpers including `state_series -> Ephemeris`
-- Unified class entrypoint `StateFileClient` for state file operations
-- Tests for parsing, Orekit conversion, and interpolation workflow
-- Unified example: `examples/demo_state_file_workflow.py`
+- state record -> Orekit `Orbit`
+- state series -> Orekit ephemeris
+- scenario series export from propagator
+- scenario maneuver compilation and mission-series export hooks
+
+Date conversion policy:
+
+- use Orekit wrapper helpers (`orekit.pyhelpers`) in the conversion layer
+- keep file schema dates in UTC ISO-8601 strings.
+
+## 6) Mission Execution Scope (Current vs Next)
+
+## Current
+
+- Fast Keplerian approximation for intent maneuver solving.
+- Scenario export path that applies compiled impulses through propagation replay.
+- Good for rapid mission design iteration and file-generation workflows.
+
+## Next
+
+- Detector-driven maneuver execution integrated with numerical propagation.
+- Trigger recurrence/window policies in schema (`every`, bounded occurrence, active windows).
+- Per-event execution reporting for traceability.
+
+## 7) Near-Term Change Plan
+
+1. Add detector execution mode to mission workflow while preserving current fast mode.
+2. Extend scenario schema with recurrence/window constraints.
+3. Add integration tests for closed-loop semimajor-axis maintenance logic.
+4. Document recommended file choices:
+   - YAML compact for learning/debugging
+   - HDF5 for large production trajectories.
+
+## 8) Example Files
+
+Reference scenarios in `examples/state_files/`:
+
+- `leo_initial_state.yaml`
+- `leo_state_series.yaml`
+- `leo_mission_timeline.yaml`
+- `leo_intent_mission.yaml`
+- `leo_sma_maintenance_timeline.yaml`
+- `generated_scenario_enriched.yaml`

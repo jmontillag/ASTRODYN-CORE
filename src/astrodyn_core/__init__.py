@@ -6,6 +6,11 @@ from astrodyn_core.data import (
     list_propagation_models,
     list_spacecraft_models,
 )
+from astrodyn_core.mission import (
+    CompiledManeuver,
+    compile_scenario_maneuvers,
+    plot_orbital_elements_series,
+)
 from astrodyn_core.propagation import (
     AttitudeSpec,
     BuildContext,
@@ -41,6 +46,7 @@ from astrodyn_core.states import (
     ScenarioStateFile,
     StateFileClient,
     StateSeries,
+    TimelineEventRecord,
 )
 
 __all__ = [
@@ -48,6 +54,7 @@ __all__ = [
     "AttitudeRecord",
     "BuildContext",
     "CapabilityDescriptor",
+    "CompiledManeuver",
     "DragSpec",
     "ForceSpec",
     "GravitySpec",
@@ -66,10 +73,12 @@ __all__ = [
     "SpacecraftSpec",
     "StateFileClient",
     "StateSeries",
+    "TimelineEventRecord",
     "TLESpec",
     "ThirdBodySpec",
     "assemble_attitude_provider",
     "assemble_force_models",
+    "compile_scenario_maneuvers",
     "get_propagation_model",
     "get_spacecraft_model",
     "list_propagation_models",
@@ -79,5 +88,6 @@ __all__ = [
     "load_spacecraft_config",
     "load_spacecraft_from_dict",
     "ManeuverRecord",
+    "plot_orbital_elements_series",
     "register_default_orekit_providers",
 ]

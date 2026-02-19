@@ -280,6 +280,42 @@ class AttitudeRecord:
 
 
 @dataclass(frozen=True, slots=True)
+class TimelineEventRecord:
+    """Named timeline event used to schedule mission actions."""
+
+    id: str
+    point: Mapping[str, Any]
+    metadata: Mapping[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        event_id = self.id.strip()
+        if not event_id:
+            raise ValueError("TimelineEventRecord.id cannot be empty.")
+        if not isinstance(self.point, Mapping):
+            raise TypeError("TimelineEventRecord.point must be a mapping.")
+        object.__setattr__(self, "id", event_id)
+        object.__setattr__(self, "point", dict(self.point))
+        object.__setattr__(self, "metadata", dict(self.metadata))
+
+    @classmethod
+    def from_mapping(cls, data: Mapping[str, Any]) -> TimelineEventRecord:
+        return cls(
+            id=str(data.get("id", "")).strip(),
+            point=data.get("point", {}),
+            metadata=data.get("metadata", {}),
+        )
+
+    def to_mapping(self) -> dict[str, Any]:
+        payload = {
+            "id": self.id,
+            "point": dict(self.point),
+        }
+        if self.metadata:
+            payload["metadata"] = dict(self.metadata)
+        return payload
+
+
+@dataclass(frozen=True, slots=True)
 class ScenarioStateFile:
     """Top-level state-file model."""
 
@@ -287,6 +323,7 @@ class ScenarioStateFile:
     universe: Mapping[str, Any] | None = None
     spacecraft: Mapping[str, Any] | None = None
     initial_state: OrbitStateRecord | None = None
+    timeline: Sequence[TimelineEventRecord] = field(default_factory=tuple)
     state_series: Sequence[StateSeries] = field(default_factory=tuple)
     maneuvers: Sequence[ManeuverRecord] = field(default_factory=tuple)
     attitude_timeline: Sequence[AttitudeRecord] = field(default_factory=tuple)
@@ -305,11 +342,19 @@ class ScenarioStateFile:
         if self.initial_state is not None and not isinstance(self.initial_state, OrbitStateRecord):
             raise TypeError("ScenarioStateFile.initial_state must be an OrbitStateRecord.")
 
+        object.__setattr__(self, "timeline", tuple(self.timeline))
         object.__setattr__(self, "state_series", tuple(self.state_series))
         object.__setattr__(self, "maneuvers", tuple(self.maneuvers))
         object.__setattr__(self, "attitude_timeline", tuple(self.attitude_timeline))
         object.__setattr__(self, "metadata", dict(self.metadata))
 
+        seen_event_ids: set[str] = set()
+        for item in self.timeline:
+            if not isinstance(item, TimelineEventRecord):
+                raise TypeError("timeline must contain TimelineEventRecord values.")
+            if item.id in seen_event_ids:
+                raise ValueError(f"timeline contains duplicate event id '{item.id}'.")
+            seen_event_ids.add(item.id)
         for item in self.state_series:
             if not isinstance(item, StateSeries):
                 raise TypeError("state_series must contain StateSeries values.")
@@ -328,6 +373,7 @@ class ScenarioStateFile:
             if isinstance(initial_state_data, Mapping)
             else None
         )
+        timeline = tuple(TimelineEventRecord.from_mapping(item) for item in data.get("timeline", []))
         state_series = tuple(StateSeries.from_mapping(item) for item in data.get("state_series", []))
         maneuvers = tuple(ManeuverRecord.from_mapping(item) for item in data.get("maneuvers", []))
         attitude_timeline = tuple(
@@ -339,6 +385,7 @@ class ScenarioStateFile:
             universe=data.get("universe"),
             spacecraft=data.get("spacecraft"),
             initial_state=initial_state,
+            timeline=timeline,
             state_series=state_series,
             maneuvers=maneuvers,
             attitude_timeline=attitude_timeline,
@@ -353,6 +400,8 @@ class ScenarioStateFile:
             payload["spacecraft"] = dict(self.spacecraft)
         if self.initial_state is not None:
             payload["initial_state"] = self.initial_state.to_mapping()
+        if self.timeline:
+            payload["timeline"] = [item.to_mapping() for item in self.timeline]
         if self.state_series:
             payload["state_series"] = [series.to_mapping() for series in self.state_series]
         if self.maneuvers:

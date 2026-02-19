@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Mapping
-
+from typing import TYPE_CHECKING, Any, Mapping
 from astrodyn_core.states.io import (
     load_initial_state as _load_initial_state,
     load_state_file as _load_state_file,
@@ -24,6 +23,9 @@ from astrodyn_core.states.orekit import (
     to_orekit_date as _to_orekit_date,
     to_orekit_orbit as _to_orekit_orbit,
 )
+
+if TYPE_CHECKING:
+    from astrodyn_core.mission import CompiledManeuver
 
 
 @dataclass(slots=True)
@@ -155,6 +157,70 @@ class StateFileClient:
             dense_yaml=dense_yaml,
             universe=self._resolve_universe(universe),
             default_mass_kg=self._resolve_default_mass(default_mass_kg),
+        )
+
+    def compile_scenario_maneuvers(
+        self,
+        scenario: ScenarioStateFile,
+        initial_state: Any,
+    ) -> tuple[CompiledManeuver, ...]:
+        from astrodyn_core.mission.maneuvers import compile_scenario_maneuvers
+
+        return compile_scenario_maneuvers(scenario, initial_state)
+
+    def export_trajectory_from_scenario(
+        self,
+        propagator: Any,
+        scenario: ScenarioStateFile,
+        epoch_spec: OutputEpochSpec,
+        output_path: str | Path,
+        *,
+        series_name: str = "trajectory",
+        representation: str = "cartesian",
+        frame: str = "GCRF",
+        mu_m3_s2: float | str = "WGS84",
+        interpolation_samples: int | None = None,
+        dense_yaml: bool = True,
+        universe: Mapping[str, Any] | None = None,
+        default_mass_kg: float | None = None,
+    ) -> tuple[Path, tuple[CompiledManeuver, ...]]:
+        from astrodyn_core.mission.maneuvers import export_scenario_series
+
+        return export_scenario_series(
+            propagator,
+            scenario,
+            epoch_spec,
+            output_path,
+            series_name=series_name,
+            representation=representation,
+            frame=frame,
+            mu_m3_s2=mu_m3_s2,
+            interpolation_samples=self._resolve_required_interpolation_samples(interpolation_samples),
+            dense_yaml=dense_yaml,
+            universe=self._resolve_universe(universe),
+            default_mass_kg=self._resolve_default_mass(default_mass_kg),
+        )
+
+    def plot_orbital_elements(
+        self,
+        series_or_path: StateSeries | str | Path,
+        output_png: str | Path,
+        *,
+        series_name: str | None = None,
+        universe: Mapping[str, Any] | None = None,
+        title: str | None = None,
+    ) -> Path:
+        from astrodyn_core.mission.plotting import plot_orbital_elements_series
+
+        if isinstance(series_or_path, StateSeries):
+            series = series_or_path
+        else:
+            series = self.load_state_series(series_or_path, series_name=series_name)
+        return plot_orbital_elements_series(
+            series,
+            output_png,
+            universe=self._resolve_universe(universe),
+            title=title,
         )
 
     def _resolve_universe(self, universe: Mapping[str, Any] | None) -> Mapping[str, Any] | None:

@@ -1,0 +1,43 @@
+schema_version: 1
+
+metadata:
+  mission: "leo-intent-demo"
+  note: "Intent maneuvers solved with Keplerian approximation."
+
+initial_state:
+  epoch: "2026-02-19T00:00:00Z"
+  frame: "GCRF"
+  representation: "keplerian"
+  elements:
+    a_m: 6878137.0
+    e: 0.0012
+    i_deg: 51.6
+    argp_deg: 45.0
+    raan_deg: 120.0
+    anomaly_deg: 0.0
+    anomaly_type: "MEAN"
+  mu_m3_s2: "WGS84"
+  mass_kg: 450.0
+
+maneuvers:
+  - name: "raise-perigee-burn"
+    trigger:
+      type: "apogee"
+    model:
+      type: "intent"
+      intent: "raise_perigee"
+      delta_perigee_m: 2616.8
+
+  - name: "change-plane-at-node"
+    trigger:
+      type: "ascending_node"
+    model:
+      type: "intent"
+      intent: "change_inclination"
+      target_i_deg: 53.0
+
+attitude_timeline:
+  - mode: "nadir"
+    frame: "GCRF"
+    params:
+      start_epoch: "2026-02-19T00:00:00Z"

@@ -1,0 +1,17 @@
+"""Mission-profile helpers (maneuver execution and analysis plotting)."""
+
+from astrodyn_core.mission.maneuvers import (
+    CompiledManeuver,
+    compile_scenario_maneuvers,
+    export_scenario_series,
+    simulate_scenario_series,
+)
+from astrodyn_core.mission.plotting import plot_orbital_elements_series
+
+__all__ = [
+    "CompiledManeuver",
+    "compile_scenario_maneuvers",
+    "export_scenario_series",
+    "plot_orbital_elements_series",
+    "simulate_scenario_series",
+]

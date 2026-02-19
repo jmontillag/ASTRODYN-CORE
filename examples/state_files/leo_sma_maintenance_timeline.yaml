@@ -1,0 +1,92 @@
+schema_version: 1
+
+metadata:
+  mission: "leo-sma-maintenance"
+  note: "Timeline events + recurring maintenance maneuvers."
+
+initial_state:
+  epoch: "2026-02-19T00:00:00Z"
+  frame: "GCRF"
+  representation: "keplerian"
+  elements:
+    a_m: 6878137.0
+    e: 0.0012
+    i_deg: 51.6
+    argp_deg: 45.0
+    raan_deg: 120.0
+    anomaly_deg: 0.0
+    anomaly_type: "MEAN"
+  mu_m3_s2: "WGS84"
+  mass_kg: 450.0
+
+timeline:
+  - id: mission_start
+    point:
+      type: epoch
+      epoch: "2026-02-19T00:00:00Z"
+
+  - id: degrade_epoch
+    point:
+      type: elapsed
+      from: mission_start
+      dt: "20m"
+
+  - id: maintenance_apogee_1
+    point:
+      type: apogee
+      after: degrade_epoch
+      occurrence: first
+
+  - id: maintenance_apogee_2
+    point:
+      type: apogee
+      after: degrade_epoch
+      occurrence: nth
+      n: 2
+
+  - id: maintenance_apogee_3
+    point:
+      type: apogee
+      after: degrade_epoch
+      occurrence: nth
+      n: 3
+
+maneuvers:
+  - name: "degrade-a"
+    trigger:
+      type: event
+      event: degrade_epoch
+    model:
+      type: impulsive
+      frame: TNW
+      dv_mps: [-18.0, 0.0, 0.0]
+
+  - name: "maintain-a-1"
+    trigger:
+      type: event
+      event: maintenance_apogee_1
+    model:
+      type: intent
+      intent: maintain_semimajor_axis_above
+      min_a_m: 6876000.0
+      target_a_m: 6879000.0
+
+  - name: "maintain-a-2"
+    trigger:
+      type: event
+      event: maintenance_apogee_2
+    model:
+      type: intent
+      intent: maintain_semimajor_axis_above
+      min_a_m: 6876000.0
+      target_a_m: 6879000.0
+
+  - name: "maintain-a-3"
+    trigger:
+      type: event
+      event: maintenance_apogee_3
+    model:
+      type: intent
+      intent: maintain_semimajor_axis_above
+      min_a_m: 6876000.0
+      target_a_m: 6879000.0

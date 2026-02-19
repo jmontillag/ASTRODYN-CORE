@@ -8,6 +8,7 @@ from astrodyn_core.states.models import (
     OutputEpochSpec,
     ScenarioStateFile,
     StateSeries,
+    TimelineEventRecord,
 )
 
 __all__ = [
@@ -18,4 +19,5 @@ __all__ = [
     "ScenarioStateFile",
     "StateFileClient",
     "StateSeries",
+    "TimelineEventRecord",
 ]

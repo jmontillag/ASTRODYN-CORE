@@ -1,398 +1,193 @@
-# ASTRODYN-CORE Detailed Implementation Plan
+# ASTRODYN-CORE Implementation Plan
 
-This document is the long-term execution plan for building `astrodyn-core` as a single repository with Orekit-native semantics and a builder-first architecture.
+Last updated: 2026-02-19
 
-It is written to let a new agent or developer continue work in a fresh session without losing context.
-
----
-
-## 1) Product Direction and Non-Goals
-
-### Product direction
-
-- Build a modern, extensible astrodynamics propagation package that preserves direct Orekit usage.
-- Keep `PropagatorBuilder` as a first-class concept, not hidden behind heavy wrappers.
-- Support declarative configuration while still allowing direct Orekit objects when needed.
-- Keep one repo (`ASTRODYN-CORE`) for now; split later only if necessary.
-
-### Non-goals (for now)
-
-- No adapter layer for old MOSAIC APIs.
-- No full backward compatibility with legacy config schema.
-- No immediate multi-repo split between propagation and ephemeris parsing.
-- No production-grade remote data client in Phase 1.
-
----
-
-## 2) Current Status (Already Implemented)
-
-Implemented in this repo:
-
-- Packaging and project scaffolding:
-  - `pyproject.toml`
-  - `README.md`
-  - `.gitignore`
-- Propagation core primitives:
-  - `src/astrodyn_core/propagation/specs.py`
-  - `src/astrodyn_core/propagation/interfaces.py`
-  - `src/astrodyn_core/propagation/capabilities.py`
-  - `src/astrodyn_core/propagation/registry.py`
-  - `src/astrodyn_core/propagation/factory.py`
-- Orekit-native default providers:
-  - `src/astrodyn_core/propagation/providers/integrators.py`
-  - `src/astrodyn_core/propagation/providers/orekit_native.py`
-- Phase 1.1 force/attitude/spacecraft specs and assembly:
-  - `src/astrodyn_core/propagation/forces.py`
-  - `src/astrodyn_core/propagation/spacecraft.py`
-  - `src/astrodyn_core/propagation/attitude.py`
-  - `src/astrodyn_core/propagation/assembly.py`
-- YAML configuration loader:
-  - `src/astrodyn_core/propagation/config.py`
-  - `src/astrodyn_core/data/__init__.py`
-  - `src/astrodyn_core/data/propagation_models/` (5 bundled presets)
-- Public exports:
-  - `src/astrodyn_core/__init__.py`
-  - `src/astrodyn_core/propagation/__init__.py`
-- Tests and examples:
-  - `tests/test_specs.py`
-  - `tests/test_registry_factory.py`
-  - `examples/demo_propagation.py`
-  - `examples/demo_orbit_plot.py` (3D orbit, ground track, altitude/velocity plots)
-- Architecture notes:
-  - `docs/phase1-architecture.md`
-
-Top-level import pattern is already supported via root exports.
-
----
-
-## 3) Guiding Architecture
-
-### 3.1 Dual-lane model
-
-- **Orekit-native lane**
-  - Providers return real Orekit `PropagatorBuilder` and/or `Propagator` objects.
-  - No abstraction should remove access to native Orekit methods.
-- **Extension lane**
-  - Plugin providers for custom analytical models and experimental propagators.
-  - Plugins should still publish Orekit-like capability contracts.
-
-### 3.2 Core building blocks
-
-- `PropagatorSpec`: declarative requested behavior.
-- `BuildContext`: runtime input objects (initial orbit, force models, attitude, metadata).
-- `ProviderRegistry`: registration and discovery by `PropagatorKind`.
-- `PropagatorFactory`: orchestration for builder/progator construction.
-- `CapabilityDescriptor`: feature support metadata.
-
-### 3.3 Public API strategy
-
-- Keep common APIs at package root (`astrodyn_core`).
-- Keep advanced internals in namespaced modules.
-- Add new symbols to root exports only when stable.
+This document tracks current implementation status and the forward plan for propagation, state I/O, and mission-profile capabilities.
 
----
+## 1) Product Direction
 
-## 4) External Context Sources (Reference Map)
+- Keep Orekit-native builder/propagator access first-class.
+- Keep declarative specs as orchestration and validation layers, not as a replacement for Orekit APIs.
+- Provide a practical mission workflow from:
+  - scenario/state files
+  - propagation
+  - trajectory export
+  - basic analysis plots.
 
-Use these files as migration and design references.
+## 2) Current Stage
 
-### MOSAIC references
+The project is past the original "Phase 1 propagation foundation" and is now in an early mission-execution stage.
 
-- Propagation core and config:
-  - `/home/astror/Projects/MOSAIC/src/mosaicpy/propagation/config.py`
-  - `/home/astror/Projects/MOSAIC/src/mosaicpy/propagation/core.py`
-  - `/home/astror/Projects/MOSAIC/src/mosaicpy/propagation/auxiliary.py`
-  - `/home/astror/Projects/MOSAIC/src/mosaicpy/propagation/output.py`
-  - `/home/astror/Projects/MOSAIC/src/mosaicpy/propagation/orbit_utils.py`
-- GEQOE analytical logic:
-  - `/home/astror/Projects/MOSAIC/src/mosaicpy/geqoe_utils/propagator.py`
-  - `/home/astror/Projects/MOSAIC/src/mosaicpy/geqoe_utils/conversion.py`
-  - `/home/astror/Projects/MOSAIC/src/mosaicpy/geqoe_utils/jacobians.py`
-  - `/home/astror/Projects/MOSAIC/src/mosaicpy/geqoe_utils/utils.py`
-- Estimation integration patterns:
-  - `/home/astror/Projects/MOSAIC/src/mosaicpy/estimation/bls/strategies/propagation.py`
-  - `/home/astror/Projects/MOSAIC/src/mosaicpy/estimation/bls/interfaces.py`
-  - `/home/astror/Projects/MOSAIC/src/mosaicpy/estimation/bls/problem.py`
-  - `/home/astror/Projects/MOSAIC/src/mosaicpy/estimation/bls_factory.py`
+### Completed baseline
 
-### ASTROR references
+- Propagation core:
+  - `PropagatorSpec`, `BuildContext`, `ProviderRegistry`, `PropagatorFactory`
+  - Orekit-native providers: numerical, keplerian, dsst, tle
+- Assembly/config:
+  - force-model specs and assembly
+  - spacecraft specs and assembly
+  - attitude specs and assembly
+  - YAML config loading and packaged presets
+- DSST builder integration:
+  - explicit `dsst_propagation_type` and `dsst_state_type`
+- State I/O:
+  - typed state/scenario models
+  - YAML/JSON load/save
+  - compact state-series format (`defaults` + `columns` + `rows`)
+  - HDF5 columnar series I/O with compression
+  - Orekit conversion (`state -> orbit`, `state series -> ephemeris`)
+  - unified facade: `StateFileClient`
+- Mission profile helpers:
+  - timeline events in scenario files
+  - event-referenced maneuver triggers
+  - intent maneuvers with fast Keplerian approximation
+  - increment and absolute target support for raise intents
+  - orbital-element plot export to PNG
+- Tests:
+  - full local suite passing (`38` tests currently)
+  - scenario maneuver and timeline maintenance tests included
 
-- Declarative source-based propagation:
-  - `/home/astror/Projects/ASTROR/src/astror/propagation/spec.py`
-  - `/home/astror/Projects/ASTROR/src/astror/propagation/factory.py`
-  - `/home/astror/Projects/ASTROR/src/astror/propagation/README.md`
-- TLE subsystem:
-  - `/home/astror/Projects/ASTROR/src/astror/tle/models.py`
-  - `/home/astror/Projects/ASTROR/src/astror/tle/downloader.py`
-  - `/home/astror/Projects/ASTROR/src/astror/tle/parser.py`
-  - `/home/astror/Projects/ASTROR/src/astror/tle/propagator.py`
-- Ephemeris parsing wrappers:
-  - `/home/astror/Projects/ASTROR/src/astror/parsing/ephemeris/readers.py`
+### Current limitation (intentional for now)
 
-### Orekit references
+- Maneuver planning is Keplerian (fast approximation), then impulses are applied during propagation replay.
+- No fully detector-driven closed-loop maneuver execution integrated in `NumericalPropagator` yet.
 
-- `https://www.orekit.org/site-orekit-latest/apidocs/org/orekit/propagation/package-summary.html`
-- `https://www.orekit.org/site-orekit-latest/apidocs/org/orekit/propagation/conversion/package-summary.html`
-- `https://www.orekit.org/site-orekit-latest/apidocs/org/orekit/propagation/analytical/package-summary.html`
-- `https://www.orekit.org/site-orekit-latest/apidocs/org/orekit/propagation/numerical/package-summary.html`
-- `https://www.orekit.org/site-orekit-latest/apidocs/org/orekit/propagation/semianalytical/dsst/package-summary.html`
+## 3) Architecture Snapshot
 
----
+### Lane A: Propagation core
 
-## 5) Phased Roadmap
+- `src/astrodyn_core/propagation/*`
+- Responsibility: builder/propagator construction and Orekit-native provider access.
 
-## Phase 1 (complete) - Core Orekit-native propagation
+### Lane B: State I/O and conversions
 
-Goal: stable builder-first foundation.
+- `src/astrodyn_core/states/*`
+- Responsibility: scenario/state schema, persistence formats, date/orbit conversion helpers, ephemeris conversion.
 
-### Deliverables
+### Lane C: Mission helpers
 
-- [x] spec + context + registry + factory
-- [x] default providers for numerical/keplerian/dsst/tle
-- [x] root package exports
-- [x] concrete Orekit example scripts (`demo_propagation.py`, `demo_orbit_plot.py`)
-- [ ] robust test environment and CI (deferred — low priority)
-- [ ] improve error messages around missing Orekit runtime/JVM state (deferred)
+- `src/astrodyn_core/mission/*`
+- Responsibility: scenario maneuver compilation/execution helpers and analysis plotting.
 
-### Phase 1 completion criteria
+### Public ergonomic entrypoint
 
-- Can instantiate all four provider kinds through factory.
-- Can import package root in external project (`from astrodyn_core import ...`).
-- Example scripts demonstrate full propagation workflows with force models, spacecraft, and plotting.
-- Unit tests pass locally for non-Orekit logic.
+- `StateFileClient` centralizes file + conversion + scenario-export operations.
 
-## Phase 1.1 (complete) - Declarative force-model and attitude assembly
+## 4) Roadmap
 
-Goal: move practical setup logic from ad-hoc context into typed specs.
+## Phase 1 (complete) - Orekit-native propagation foundation
 
-### Tasks
+- Stable provider registry/factory and typed specs
+- Numerical/Keplerian/DSST/TLE providers
 
-- [x] Add `forces.py` specs (`GravitySpec`, `DragSpec`, `SRPSpec`, `ThirdBodySpec`, `RelativitySpec`, `SolidTidesSpec`, `OceanTidesSpec`).
-- [x] Add `spacecraft.py` spec (`SpacecraftSpec` with isotropic + box-wing models).
-- [x] Add `attitude.py` specs (LOF/Nadir/Inertial/custom provider hook via `AttitudeSpec`).
-- [x] Add `assembly.py` Orekit translation module (`assemble_force_models`, `assemble_attitude_provider`).
-- [x] Wire assembly into providers (`orekit_native.py`) with backward-compatible fallback.
-- [x] Add `force_specs`, `spacecraft`, `attitude` fields to `PropagatorSpec`.
-- [x] Update root package exports.
-- [ ] Add validation for incompatible combinations (deferred to hardening).
+## Phase 1.1 (complete) - Declarative force/spacecraft/attitude assembly
 
-### Atmosphere models supported
+- Practical dynamics setup through typed specs
+- YAML-driven dynamics model loading
 
-- NRLMSISE00, DTM2000, JB2008 (with CSSI / MSAFE space weather)
-- HarrisPriester
-- SimpleExponentialAtmosphere
+## Phase 1.2 (complete) - State I/O and ephemeris bridge
 
-### Reference implementation source
+- Unified state-file subsystem
+- Compact and HDF5 series formats
+- Orekit ephemeris conversion paths
 
-- `/home/astror/Projects/MOSAIC/src/mosaicpy/propagation/auxiliary.py`
+## Phase 1.3 (in progress) - Scenario timeline and maneuver intents
 
-## Phase 2 - Ephemeris and source-spec lane (still same repo)
+Done:
 
-Goal: unify numerical/analytical/TLE with local/remote ephemeris inputs.
+- timeline events (`epoch`, `elapsed`, `apogee/perigee`, nodes)
+- event-triggered maneuver references
+- intent maneuver support:
+  - `raise_perigee` (absolute or increment)
+  - `raise_semimajor_axis` / `maintain_semimajor_axis_above` (absolute or increment)
+  - `change_inclination`
+- mission-profile plotting
 
-### Tasks
+Remaining for phase completion:
 
-- Add `SourceSpec` hierarchy:
-  - local OEM/OCM
-  - remote CPF/SP3
-  - TLE retrieval policy
-- Add `bounded propagator` creation pathways.
-- Add optional data clients and caching abstractions.
-- Add aggregate bounded propagator composition.
+- detector-driven execution mode with Orekit event detectors in numerical propagation
+- recurrence/window semantics in timeline (for robust mission operations)
+- clearer mission schema docs and validation for edge cases
 
-### Reference implementation source
+## Phase 2 (next) - Closed-loop maneuver execution
 
-- `/home/astror/Projects/ASTROR/src/astror/propagation/spec.py`
-- `/home/astror/Projects/ASTROR/src/astror/propagation/factory.py`
-- `/home/astror/Projects/ASTROR/src/astror/parsing/ephemeris/readers.py`
+Goal: drive mission actions from propagation events directly, not only precompiled Keplerian times.
 
-## Phase 3 - GEQOE plugin extraction and extension lane
+Planned deliverables:
 
-Goal: integrate custom analytical propagation without polluting core.
+- Detector integration layer for numerical propagation:
+  - apside/node-based triggers
+  - epoch/elapsed timeline triggers
+  - trigger occurrence policies (`first`, `every`, `nth`, optional limits)
+- Maneuver guard evaluation at trigger time:
+  - example: maintain semimajor axis floor using on-trigger checks
+- Scenario execution report:
+  - which events fired, which maneuvers were skipped/applied, applied delta-v summary
 
-### Tasks
+## Phase 3 (future) - Source-spec lane and interoperability
 
-- Create plugin namespace `astrodyn_core.plugins.geqoe`.
-- Refactor legacy GEQOE logic into clear model + state transition modules.
-- Provide provider implementation with explicit capabilities.
-- Document STM/Jacobian policy for non-native Orekit harvesters.
+- External ephemeris/source specs (OEM/OCM/other bridges)
+- bounded propagator composition and caching strategy
 
-### Reference implementation source
+## Phase 4 (future) - Multi-satellite orchestration and advanced derivatives
 
-- `/home/astror/Projects/MOSAIC/src/mosaicpy/geqoe_utils/propagator.py`
-- `/home/astror/Projects/MOSAIC/src/mosaicpy/geqoe_utils/jacobians.py`
+- Parallel propagation orchestration
+- optional field-based/derivative lanes where practical
 
-## Phase 4 - Multi-satellite and field-based derivatives
+## 5) Immediate Backlog (next sessions)
 
-Goal: enable modern advanced workflows.
+1. Implement detector-driven mission execution prototype in `mission` module.
+2. Add scenario schema fields for trigger recurrence/window constraints.
+3. Add integration tests for detector mode (including guard-based maintenance cases).
+4. Expand docs and examples for:
+   - timeline reference patterns
+   - maintenance mission profiles
+   - expected approximation limits of intent solvers.
+5. Add CI pipeline for lint + tests.
 
-### Tasks
+## 6) Risks and Mitigations
 
-- Multi-sat orchestration API (Orekit `PropagatorsParallelizer` integration).
-- Field-based propagation lane prototypes.
-- Capability flags and runtime checks for field/STM support.
-
-## Phase 5 - Hardening and release readiness
-
-Goal: package reliability and adoption.
-
-### Tasks
-
-- Comprehensive docs and examples.
-- Versioning policy and changelog.
-- Benchmarks and performance reports.
-- Release automation and distribution strategy.
-
----
-
-## 6) Detailed Backlog for Next Sessions (Actionable)
-
-These are immediate high-value tasks in execution order.
-
-1. **Set up local dev environment**
-   - Use `python setup_env.py` to create/update env from `environment.yml`.
-   - Activate with `conda activate astrodyn-core-env`.
-   - Editable package install with dev deps is handled by the script.
-   - Verify `pytest` and lint tooling available.
-
-2. **Add CI pipeline**
-   - GitHub Actions for `ruff`, `pytest`, and package build.
-   - Matrix for Python versions if desired.
-
-3. **Strengthen provider tests**
-   - Unit test registry and validation edge cases.
-   - Mock Orekit imports for graceful failure paths.
-   - Add integration tests that run with Orekit in CI.
-
-4. **Improve error ergonomics**
-   - Standardize custom exceptions (`errors.py`).
-   - Include context-rich messages (kind, missing fields, import status).
-
-5. **Add example scripts**
-   - Minimal numerical builder example.
-   - TLE direct propagator example.
-   - DSST builder example.
-
-6. **~~Start Phase 1.1 specs~~ (DONE)**
-   - Typed force/attitude/spacecraft specs implemented.
-   - Assembly module implemented with full MOSAIC force model parity.
-
-7. **Public API contract file**
-   - Add `docs/public-api.md` listing root-exported symbols and compatibility policy.
-
----
-
-## 7) Technical Conventions
-
-### Code style
-
-- Python 3.11+ features allowed.
-- `src` layout with explicit exports.
-- Keep comments only where logic is non-obvious.
-- Keep provider methods small and composable.
-
-### API design
-
-- Prefer explicit dataclasses/enums over loosely typed dict config.
-- Keep `orekit_options: Mapping[str, Any]` for escape hatches.
-- Validate early in `__post_init__`.
-
-### Dependency strategy
-
-- Keep dependencies minimal but explicit.
-- Orekit is a mandatory runtime dependency (`orekit>=13.1`).
-- Run Orekit-dependent tests in CI by default.
-
----
-
-## 8) Risks and Mitigations
-
-### Risk: Orekit wrapper edge cases for custom analytical classes
-
-- Observed caveat: matrix harvester support may not be available automatically for Python-subclassed analytical propagators.
-- Mitigation:
-  - Expose capability flags clearly.
-  - Provide fallback Jacobian interfaces for plugin models.
-  - Avoid claiming native Orekit harvester support unless verified.
-
-### Risk: Over-abstraction hides Orekit semantics
+### Risk: Overpromising physical fidelity of intent maneuvers
 
 - Mitigation:
-  - Keep return types Orekit-native.
-  - Preserve builder/progator direct access in public API.
-  - Limit wrapper logic to orchestration and validation.
+  - keep Keplerian intent solver explicitly documented as approximation
+  - provide detector-driven execution option for operational behavior.
 
-### Risk: Config sprawl
+### Risk: Timeline schema complexity
 
 - Mitigation:
-  - Introduce specs incrementally.
-  - Keep strict ownership per module.
-  - Avoid one giant config dataclass.
+  - define a minimal stable core first
+  - add recurrence/window features incrementally with strict validation.
 
----
+### Risk: Orekit wrapper differences across environments
 
-## 9) Session Bootstrap Checklist for New Agent
+- Mitigation:
+  - keep converters/test coverage around date/orbit conversions
+  - favor explicit helper paths and integration tests.
 
-When starting a new session, do this first:
+## 7) Session Bootstrap Checklist
 
-1. Open this file and `docs/phase1-architecture.md`.
-2. Read current package exports:
+When resuming development:
+
+1. Read this file and `docs/phase1-architecture.md`.
+2. Inspect root exports:
    - `src/astrodyn_core/__init__.py`
-   - `src/astrodyn_core/propagation/__init__.py`
-3. Inspect provider implementation:
-   - `src/astrodyn_core/propagation/providers/orekit_native.py`
-4. Run local sanity checks:
-   - `python -m compileall src tests`
-   - `python -m pytest` (if installed)
-5. Pick next backlog item from Section 6 and implement.
-6. Update this document with progress and decisions.
+   - `src/astrodyn_core/states/__init__.py`
+3. Inspect mission helpers:
+   - `src/astrodyn_core/mission/maneuvers.py`
+   - `src/astrodyn_core/mission/plotting.py`
+4. Run tests:
+   - `conda run -n astrodyn-core-env pytest -q`
+5. Execute one mission scenario example:
+   - `python examples/demo_mission_maneuver_profile.py`
 
----
+## 8) Decision Log
 
-## 10) How to Use ASTRODYN-CORE from Another Project
-
-### Option A: Editable local path install (recommended during active development)
-
-From consumer project environment:
-
-```bash
-pip install -e /home/astror/Projects/ASTRODYN-CORE
-```
-
-Orekit is installed automatically because it is a core dependency.
-
-### Option B: Git submodule + editable install
-
-If included as submodule, still install package path in the environment:
-
-```bash
-pip install -e path/to/submodule/ASTRODYN-CORE
-```
-
-Then root imports are available:
-
-```python
-from astrodyn_core import PropagatorFactory, PropagatorSpec, PropagatorKind
-```
-
----
-
-## 11) Decision Log
-
-- **2026-02-13**: single repository selected over multi-repo split.
-- **2026-02-13**: architecture must remain Orekit-native and builder-first.
-- **2026-02-13**: top-level import ergonomics (`from astrodyn_core import ...`) is a requirement.
-
-- **2026-02-13**: Phase 1.1 completed: force specs, spacecraft spec, attitude spec, and assembly module.
-- **2026-02-13**: SpacecraftSpec is a separate top-level spec (not nested in PropagatorSpec).
-- **2026-02-13**: Force specs live on PropagatorSpec (declarative), with backward-compatible fallback to raw context.force_models.
-- **2026-02-13**: Maneuver specs deferred to Phase 2+.
-- **2026-02-13**: Estimation parameter drivers (cd/cr) deferred to Phase 3+.
-- **2026-02-13**: YAML config loader added: dynamics and spacecraft configs are separate files (same dynamics reused across satellites).
-- **2026-02-13**: Five bundled propagation presets shipped as package data (j2, low/medium/high/very_high fidelity).
-- **2026-02-13**: pyyaml added as a core dependency.
-
-- **2026-02-13**: demo_orbit_plot.py verified working end-to-end (medium fidelity preset, 3-orbit LEO propagation with 4-panel plot).
-- **2026-02-13**: Orekit 13.x discoveries: TLEPropagatorBuilder needs 4-arg constructor, use FrameAlignedProvider instead of InertialProvider, IERSConventions imported from org.orekit.utils.
-
-Keep appending key decisions here in future sessions.
+- 2026-02-13: Single-repo architecture selected.
+- 2026-02-13: Orekit-native and builder-first design locked as core policy.
+- 2026-02-13: Phase 1.1 (force/spacecraft/attitude assembly) completed.
+- 2026-02-19: State I/O subsystem and `StateFileClient` consolidated as the default user entrypoint.
+- 2026-02-19: Scenario timeline events and event-triggered maneuvers introduced.
+- 2026-02-19: Intent maneuvers support both absolute targets and increments for raise cases.
+- 2026-02-19: Semimajor-axis maintenance example/tests added using timeline-driven events.
+- 2026-02-19: Numerical detector-driven closed-loop mission execution kept as next major implementation target.
