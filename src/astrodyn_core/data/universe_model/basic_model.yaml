@@ -1,0 +1,46 @@
+# ---------------------------------------------------------------------------
+# Mosaicpy Universe Configuration
+# ---------------------------------------------------------------------------
+
+# IERS Conventions: Defines the Earth Orientation Parameters (EOP) and tidal models.
+# Supported values: "IERS_2010", "IERS_2003", "IERS_1996"
+iers_conventions: "IERS_2010"
+
+# ITRF Version: The specific realization of the International Terrestrial Reference Frame.
+# Supported values: "ITRF_2020", "ITRF_2014", "ITRF_2008"
+itrf_version: "ITRF_2020"
+
+# Use Simple EOP: If true, uses a simplified model for Earth Orientation Parameters.
+use_simple_eop: true
+
+# ---------------------------------------------------------------------------
+# Earth Shape Model Configuration
+# ---------------------------------------------------------------------------
+# This can be a simple string for a predefined model, or a dictionary for a custom one.
+#
+# Option 1: Use a predefined model string.
+# Supported values: "WGS84", "GRS80", "IERS96", "IERS2003", "IERS2010"
+earth_shape_model: "WGS84"
+
+# Option 2: Define a custom ellipsoid (example below, commented out).
+# To use this, comment out the line above and uncomment the block below.
+# ---
+# earth_shape_model:
+#   type: "custom"
+#   equatorial_radius: 6378137.0
+#   flattening: 0.0033528106647474805 # 1.0 / 298.257223563
+#
+
+# ---------------------------------------------------------------------------
+# Gravitational Parameter (mu) Configuration
+# ---------------------------------------------------------------------------
+# This defines the gravitational parameter (mu = G * M) for the central body.
+#
+# Option 1: Use a predefined model string.
+# Supported values: "WGS84", "GRS80", "EGM96", "EIGEN5C", "IERS2010"
+gravitational_parameter: "WGS84"
+
+# Option 2: Define a custom mu value in m^3/s^2 (example below).
+# ---
+# gravitational_parameter: 3.986004415e14
+#
