@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Mapping
+from typing import TYPE_CHECKING, Any, Mapping, Sequence
+
+import numpy as np
+
 from astrodyn_core.states.io import (
     load_initial_state as _load_initial_state,
     load_state_file as _load_state_file,
@@ -25,7 +28,10 @@ from astrodyn_core.states.orekit import (
 )
 
 if TYPE_CHECKING:
-    from astrodyn_core.mission import CompiledManeuver
+    from astrodyn_core.mission import CompiledManeuver, MissionExecutionReport
+    from astrodyn_core.uncertainty.models import CovarianceSeries
+    from astrodyn_core.uncertainty.propagator import STMCovariancePropagator
+    from astrodyn_core.uncertainty.spec import UncertaintySpec
 
 
 @dataclass(slots=True)
@@ -222,6 +228,222 @@ class StateFileClient:
             universe=self._resolve_universe(universe),
             title=title,
         )
+
+    # ------------------------------------------------------------------
+    # Covariance / Uncertainty propagation
+    # ------------------------------------------------------------------
+
+    def create_covariance_propagator(
+        self,
+        propagator: Any,
+        initial_covariance: np.ndarray | Sequence[Sequence[float]],
+        *,
+        spec: UncertaintySpec | None = None,
+        frame: str = "GCRF",
+        mu_m3_s2: float | str = "WGS84",
+        default_mass_kg: float | None = None,
+    ) -> STMCovariancePropagator:
+        """Create a covariance propagator from a numerical Orekit propagator.
+
+        Parameters
+        ----------
+        propagator:
+            Orekit NumericalPropagator (or DSST) instance. Must not have been
+            used for propagation yet (``setupMatricesComputation`` must be
+            called before the first ``propagate()`` call).
+        initial_covariance:
+            Initial covariance matrix, shape (6, 6) or (7, 7) if
+            ``spec.include_mass=True``.
+        spec:
+            :class:`~astrodyn_core.uncertainty.spec.UncertaintySpec`.
+            Defaults to ``UncertaintySpec(method='stm')``.
+        frame:
+            Output frame name for state records (default ``"GCRF"``).
+        mu_m3_s2:
+            Gravitational parameter for output state records.
+        default_mass_kg:
+            Fallback mass. Uses ``self.default_mass_kg`` when not provided.
+        """
+        from astrodyn_core.uncertainty.propagator import create_covariance_propagator
+        from astrodyn_core.uncertainty.spec import UncertaintySpec as _UncertaintySpec
+
+        resolved_spec = spec if spec is not None else _UncertaintySpec()
+        return create_covariance_propagator(
+            propagator,
+            initial_covariance,
+            resolved_spec,
+            frame=frame,
+            mu_m3_s2=mu_m3_s2,
+            default_mass_kg=self._resolve_default_mass(default_mass_kg),
+        )
+
+    def propagate_with_covariance(
+        self,
+        propagator: Any,
+        initial_covariance: np.ndarray | Sequence[Sequence[float]],
+        epoch_spec: OutputEpochSpec,
+        *,
+        spec: UncertaintySpec | None = None,
+        frame: str = "GCRF",
+        mu_m3_s2: float | str = "WGS84",
+        series_name: str = "trajectory",
+        covariance_name: str = "covariance",
+        state_output_path: str | Path | None = None,
+        covariance_output_path: str | Path | None = None,
+        default_mass_kg: float | None = None,
+    ) -> tuple[StateSeries, CovarianceSeries]:
+        """Propagate state + covariance over a set of epochs.
+
+        Configures the propagator with STM computation, propagates over all
+        epochs in ``epoch_spec``, and returns both the state trajectory and the
+        propagated covariance series.
+
+        Parameters
+        ----------
+        propagator:
+            Orekit NumericalPropagator (or DSST) instance.
+        initial_covariance:
+            Initial covariance matrix, shape (6, 6).
+        epoch_spec:
+            Output epoch specification.
+        spec:
+            Uncertainty method configuration. Defaults to STM, Cartesian.
+        frame:
+            Output frame name.
+        mu_m3_s2:
+            Gravitational parameter for output state records.
+        series_name:
+            Name for the state :class:`~astrodyn_core.states.models.StateSeries`.
+        covariance_name:
+            Name for the :class:`~astrodyn_core.uncertainty.models.CovarianceSeries`.
+        state_output_path:
+            Optional path to save the state series (auto-detects YAML/HDF5).
+        covariance_output_path:
+            Optional path to save the covariance series (auto-detects YAML/HDF5).
+        default_mass_kg:
+            Fallback spacecraft mass.
+
+        Returns
+        -------
+        tuple[StateSeries, CovarianceSeries]
+        """
+        cov_propagator = self.create_covariance_propagator(
+            propagator,
+            initial_covariance,
+            spec=spec,
+            frame=frame,
+            mu_m3_s2=mu_m3_s2,
+            default_mass_kg=default_mass_kg,
+        )
+        state_series, cov_series = cov_propagator.propagate_series(
+            epoch_spec,
+            series_name=series_name,
+            covariance_name=covariance_name,
+        )
+
+        if state_output_path is not None:
+            self.save_state_series(state_output_path, state_series)
+        if covariance_output_path is not None:
+            self.save_covariance_series(covariance_output_path, cov_series)
+
+        return state_series, cov_series
+
+    def save_covariance_series(
+        self,
+        path: str | Path,
+        series: CovarianceSeries,
+        **kwargs: Any,
+    ) -> Path:
+        """Save a covariance series to YAML or HDF5 (auto-detected from extension)."""
+        from astrodyn_core.uncertainty.io import save_covariance_series as _save_cov
+
+        return _save_cov(path, series, **kwargs)
+
+    def load_covariance_series(self, path: str | Path) -> CovarianceSeries:
+        """Load a covariance series from YAML or HDF5 (auto-detected from extension)."""
+        from astrodyn_core.uncertainty.io import load_covariance_series as _load_cov
+
+        return _load_cov(path)
+
+    # ------------------------------------------------------------------
+    # Detector-driven scenario execution
+    # ------------------------------------------------------------------
+
+    def run_scenario_detector_mode(
+        self,
+        propagator: Any,
+        scenario: ScenarioStateFile,
+        epoch_spec: OutputEpochSpec,
+        *,
+        series_name: str = "trajectory",
+        representation: str = "cartesian",
+        frame: str = "GCRF",
+        mu_m3_s2: float | str = "WGS84",
+        output_path: str | Path | None = None,
+        dense_yaml: bool = True,
+        universe: Mapping[str, Any] | None = None,
+        default_mass_kg: float | None = None,
+    ) -> tuple[StateSeries, MissionExecutionReport]:
+        """Execute scenario maneuvers using Orekit event detectors (closed-loop mode).
+
+        Unlike ``export_trajectory_from_scenario`` (which uses Keplerian-approximation
+        timing + propagation replay), this method binds each maneuver trigger to a
+        real Orekit ``EventDetector`` attached to the numerical propagator. Maneuvers
+        fire precisely when the detector condition is met during integration.
+
+        Parameters
+        ----------
+        propagator:
+            Orekit NumericalPropagator instance. Event detectors will be added
+            to it before propagation.
+        scenario:
+            Scenario file with timeline, maneuvers, and optional guard/occurrence
+            fields in each maneuver's trigger dict.
+        epoch_spec:
+            Output epoch specification.
+        series_name:
+            Name for the returned :class:`~astrodyn_core.states.models.StateSeries`.
+        representation:
+            Output orbit representation (``"cartesian"``, ``"keplerian"``, or
+            ``"equinoctial"``).
+        frame:
+            Output frame name.
+        mu_m3_s2:
+            Gravitational parameter for output records.
+        output_path:
+            Optional path to save the state series.
+        dense_yaml:
+            Whether to use dense YAML row format.
+        universe:
+            Optional universe configuration override.
+        default_mass_kg:
+            Fallback spacecraft mass.
+
+        Returns
+        -------
+        tuple[StateSeries, MissionExecutionReport]
+            The sampled trajectory and a report of which maneuvers fired.
+        """
+        from astrodyn_core.mission.executor import ScenarioExecutor
+
+        executor = ScenarioExecutor(
+            propagator,
+            scenario,
+            universe=self._resolve_universe(universe),
+        )
+        state_series, report = executor.run_and_sample(
+            epoch_spec,
+            series_name=series_name,
+            representation=representation,
+            frame=frame,
+            mu_m3_s2=mu_m3_s2,
+            default_mass_kg=self._resolve_default_mass(default_mass_kg),
+        )
+
+        if output_path is not None:
+            self.save_state_series(output_path, state_series)
+
+        return state_series, report
 
     def _resolve_universe(self, universe: Mapping[str, Any] | None) -> Mapping[str, Any] | None:
         if universe is not None:

@@ -1,6 +1,6 @@
 # ASTRODYN-CORE Implementation Plan
 
-Last updated: 2026-02-19
+Last updated: 2026-02-19 (rev 2)
 
 This document tracks current implementation status and the forward plan for propagation, state I/O, and mission-profile capabilities.
 
@@ -28,6 +28,19 @@ The project is past the original "Phase 1 propagation foundation" and is now in 
   - spacecraft specs and assembly
   - attitude specs and assembly
   - YAML config loading and packaged presets
+- Detector-driven mission execution (Phase 2 prototype):
+  - `mission/detectors.py`: Orekit EventDetector factory (apogee, perigee, node, epoch triggers)
+  - `mission/executor.py`: `ScenarioExecutor`, `MissionExecutionReport`, `ManeuverFiredEvent`
+  - Occurrence policies: `first`, `every`, `nth`, `limited`
+  - Guard conditions: `sma_above_m`, `sma_below_m`, `altitude_above_m`, `altitude_below_m`
+  - Active window constraints: `active_window.start` / `active_window.end`
+- Uncertainty propagation (Lane D):
+  - `uncertainty/spec.py`: `UncertaintySpec` (method: stm | unscented-future)
+  - `uncertainty/models.py`: `CovarianceRecord`, `CovarianceSeries`
+  - `uncertainty/io.py`: YAML and HDF5 covariance I/O
+  - `uncertainty/propagator.py`: `STMCovariancePropagator` via `setupMatricesComputation`
+  - `UnscentedCovariancePropagator` stub (raises NotImplementedError, planned)
+  - `StateFileClient.propagate_with_covariance()` and covariance save/load methods
 - DSST builder integration:
   - explicit `dsst_propagation_type` and `dsst_state_type`
 - State I/O:
@@ -91,7 +104,7 @@ The project is past the original "Phase 1 propagation foundation" and is now in 
 - Compact and HDF5 series formats
 - Orekit ephemeris conversion paths
 
-## Phase 1.3 (in progress) - Scenario timeline and maneuver intents
+## Phase 1.3 (complete) - Scenario timeline and maneuver intents
 
 Done:
 
@@ -103,26 +116,40 @@ Done:
   - `change_inclination`
 - mission-profile plotting
 
-Remaining for phase completion:
-
-- detector-driven execution mode with Orekit event detectors in numerical propagation
-- recurrence/window semantics in timeline (for robust mission operations)
-- clearer mission schema docs and validation for edge cases
-
-## Phase 2 (next) - Closed-loop maneuver execution
+## Phase 2 (complete) - Closed-loop detector-driven maneuver execution
 
 Goal: drive mission actions from propagation events directly, not only precompiled Keplerian times.
 
-Planned deliverables:
+Delivered:
 
-- Detector integration layer for numerical propagation:
-  - apside/node-based triggers
-  - epoch/elapsed timeline triggers
-  - trigger occurrence policies (`first`, `every`, `nth`, optional limits)
-- Maneuver guard evaluation at trigger time:
-  - example: maintain semimajor axis floor using on-trigger checks
-- Scenario execution report:
-  - which events fired, which maneuvers were skipped/applied, applied delta-v summary
+- Detector integration layer (`mission/detectors.py`):
+  - `ApsideDetector` for apogee/perigee triggers
+  - `NodeDetector` for ascending/descending node triggers
+  - `DateDetector` for epoch/elapsed/event-reference triggers
+  - Python `EventHandler` subclass applied as Orekit handler via JPype
+- Occurrence policies in trigger dict (`occurrence: first | every | nth | limited`)
+- Guard conditions in trigger dict (`guard: {sma_above_m, sma_below_m, altitude_above_m, altitude_below_m}`)
+- Active window constraints (`active_window: {start, end}`)
+- `ScenarioExecutor` class: configure + run + sample trajectory
+- `MissionExecutionReport`: fired events, applied/skipped summary, total Δv
+- `StateFileClient.run_scenario_detector_mode()` entrypoint
+- Example: `leo_detector_mission.yaml`, `demo_detector_mission.py`
+
+## Phase 2.5 (complete) - Uncertainty / Covariance Propagation
+
+Goal: propagate orbital state covariance alongside trajectories using the STM method.
+
+Delivered:
+
+- `uncertainty/` module (new Lane D):
+  - `UncertaintySpec`: configuration (method, stm_name, orbit_type, include_mass)
+  - `CovarianceRecord` / `CovarianceSeries`: typed frozen dataclasses with numpy bridge
+  - `STMCovariancePropagator`: wraps `setupMatricesComputation` + `MatricesHarvester`
+  - `UnscentedCovariancePropagator`: stub (planned, raises `NotImplementedError`)
+  - `create_covariance_propagator()` factory
+  - YAML and HDF5 I/O (`save_covariance_series_*`, `load_covariance_series_*`)
+- `StateFileClient` additions: `propagate_with_covariance()`, `save_covariance_series()`, `load_covariance_series()`
+- Example: `demo_covariance_propagation.py`
 
 ## Phase 3 (future) - Source-spec lane and interoperability
 
@@ -136,14 +163,14 @@ Planned deliverables:
 
 ## 5) Immediate Backlog (next sessions)
 
-1. Implement detector-driven mission execution prototype in `mission` module.
-2. Add scenario schema fields for trigger recurrence/window constraints.
-3. Add integration tests for detector mode (including guard-based maintenance cases).
-4. Expand docs and examples for:
-   - timeline reference patterns
-   - maintenance mission profiles
-   - expected approximation limits of intent solvers.
-5. Add CI pipeline for lint + tests.
+1. Validate detector-driven execution against Keplerian-mode results for known maneuver scenarios.
+2. Implement Unscented Transform covariance propagation (`UnscentedCovariancePropagator`).
+3. Add recurrence / `every-Nth-orbit` timeline semantics using Orekit's event occurrence filtering.
+4. Add CI pipeline for lint + tests.
+5. Expand docs:
+   - detector vs. Keplerian mode trade-offs
+   - covariance interpretation guide (orbit type, frame conventions)
+   - maintenance mission profiles with guard conditions.
 
 ## 6) Risks and Mitigations
 
@@ -190,4 +217,7 @@ When resuming development:
 - 2026-02-19: Scenario timeline events and event-triggered maneuvers introduced.
 - 2026-02-19: Intent maneuvers support both absolute targets and increments for raise cases.
 - 2026-02-19: Semimajor-axis maintenance example/tests added using timeline-driven events.
-- 2026-02-19: Numerical detector-driven closed-loop mission execution kept as next major implementation target.
+- 2026-02-19: Detector-driven execution implemented via `mission/detectors.py` + `mission/executor.py`.
+- 2026-02-19: Occurrence/guard/window trigger extensions kept backward-compatible (additive dict keys).
+- 2026-02-19: Uncertainty lane (Lane D) added with STM covariance propagation.
+- 2026-02-19: Unscented Transform covariance propagation reserved as planned-but-not-yet-implemented stub.

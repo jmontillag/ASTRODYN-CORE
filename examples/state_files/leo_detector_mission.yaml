@@ -1,0 +1,77 @@
+schema_version: 1
+metadata:
+  mission: "leo-detector-mission-demo"
+  description: >
+    Demonstrates detector-driven (closed-loop) maneuver execution.
+    Maneuver triggers bind directly to Orekit EventDetectors during numerical
+    propagation — no Keplerian pre-approximation.
+    Guard conditions, occurrence policies, and active windows are shown.
+
+initial_state:
+  epoch: "2026-02-19T00:00:00Z"
+  frame: "GCRF"
+  representation: "keplerian"
+  elements:
+    a_m: 6878137.0
+    e: 0.012
+    i_deg: 51.6
+    argp_deg: 45.0
+    raan_deg: 120.0
+    anomaly_deg: 0.0
+    anomaly_type: "MEAN"
+  mu_m3_s2: "WGS84"
+  mass_kg: 450.0
+
+timeline:
+  - id: "mission-start"
+    point:
+      type: "epoch"
+      epoch: "2026-02-19T00:00:00Z"
+
+  - id: "first-apogee"
+    point:
+      type: "apogee"
+      after: "mission-start"
+      occurrence: "first"
+
+maneuvers:
+  # Maneuver 1: Raise perigee at the first apogee (detector fires exactly at apogee)
+  # occurrence: first → fires only once
+  - name: "raise-perigee"
+    trigger:
+      type: "apogee"
+      occurrence: "first"
+    model:
+      type: "intent"
+      intent: "raise_perigee"
+      delta_perigee_m: 5000.0
+
+  # Maneuver 2: Small SMA maintenance at every perigee crossing.
+  # Guard: skips if SMA is already above the floor (min_a_m handled inside intent).
+  # occurrence: limited + max: 3 → fires at most 3 times.
+  - name: "sma-maintenance"
+    trigger:
+      type: "perigee"
+      occurrence: "limited"
+      max: 3
+      guard:
+        sma_above_m: 6890000.0   # skip if SMA is already comfortable
+    model:
+      type: "intent"
+      intent: "maintain_semimajor_axis_above"
+      min_a_m: 6878137.0
+      delta_a_m: 2000.0
+
+  # Maneuver 3: Epoch-triggered attitude adjustment burn (impulsive, TNW frame).
+  # Active window: only fires within the first 4 hours.
+  - name: "trim-burn"
+    trigger:
+      type: "epoch"
+      epoch: "2026-02-19T01:30:00Z"
+      active_window:
+        start: "2026-02-19T00:00:00Z"
+        end: "2026-02-19T04:00:00Z"
+    model:
+      type: "impulsive"
+      dv_mps: [0.5, 0.0, 0.0]
+      frame: "TNW"

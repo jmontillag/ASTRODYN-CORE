@@ -8,6 +8,9 @@ from astrodyn_core.data import (
 )
 from astrodyn_core.mission import (
     CompiledManeuver,
+    MissionExecutionReport,
+    ManeuverFiredEvent,
+    ScenarioExecutor,
     compile_scenario_maneuvers,
     plot_orbital_elements_series,
 )
@@ -48,6 +51,15 @@ from astrodyn_core.states import (
     StateSeries,
     TimelineEventRecord,
 )
+from astrodyn_core.uncertainty import (
+    CovarianceRecord,
+    CovarianceSeries,
+    STMCovariancePropagator,
+    UncertaintySpec,
+    create_covariance_propagator,
+    load_covariance_series,
+    save_covariance_series,
+)
 
 __all__ = [
     "AttitudeSpec",
@@ -55,6 +67,8 @@ __all__ = [
     "BuildContext",
     "CapabilityDescriptor",
     "CompiledManeuver",
+    "CovarianceRecord",
+    "CovarianceSeries",
     "DragSpec",
     "ForceSpec",
     "GravitySpec",
@@ -88,6 +102,14 @@ __all__ = [
     "load_spacecraft_config",
     "load_spacecraft_from_dict",
     "ManeuverRecord",
+    "ManeuverFiredEvent",
+    "MissionExecutionReport",
+    "STMCovariancePropagator",
+    "ScenarioExecutor",
+    "UncertaintySpec",
+    "create_covariance_propagator",
+    "load_covariance_series",
     "plot_orbital_elements_series",
     "register_default_orekit_providers",
+    "save_covariance_series",
 ]
