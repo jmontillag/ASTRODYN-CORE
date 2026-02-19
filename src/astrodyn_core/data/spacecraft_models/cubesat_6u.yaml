@@ -1,0 +1,14 @@
+# Structured spacecraft preset (schema_version 1)
+schema_version: 1
+
+spacecraft:
+  name: cubesat_6u
+  mass: 12.0
+  model:
+    type: isotropic
+    drag:
+      area: 0.11
+      coeff: 2.3
+    srp:
+      area: 0.11
+      coeff: 1.3

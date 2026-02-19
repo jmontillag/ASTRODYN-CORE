@@ -17,6 +17,7 @@ class BuildContext:
     position_tolerance: float = 10.0
     attitude_provider: Any | None = None
     force_models: Sequence[Any] = field(default_factory=tuple)
+    universe: Mapping[str, Any] | None = None
     metadata: Mapping[str, Any] = field(default_factory=dict)
 
     def require_initial_orbit(self) -> Any:

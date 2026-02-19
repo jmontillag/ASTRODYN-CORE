@@ -1,6 +1,11 @@
 """ASTRODYN-CORE public package API."""
 
-from astrodyn_core.data import get_propagation_model, list_propagation_models
+from astrodyn_core.data import (
+    get_propagation_model,
+    get_spacecraft_model,
+    list_propagation_models,
+    list_spacecraft_models,
+)
 from astrodyn_core.propagation import (
     AttitudeSpec,
     BuildContext,
@@ -51,7 +56,9 @@ __all__ = [
     "assemble_attitude_provider",
     "assemble_force_models",
     "get_propagation_model",
+    "get_spacecraft_model",
     "list_propagation_models",
+    "list_spacecraft_models",
     "load_dynamics_config",
     "load_dynamics_from_dict",
     "load_spacecraft_config",

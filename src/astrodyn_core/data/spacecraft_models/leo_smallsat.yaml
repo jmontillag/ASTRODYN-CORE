@@ -1,0 +1,14 @@
+# Structured spacecraft preset (schema_version 1)
+schema_version: 1
+
+spacecraft:
+  name: leo_smallsat
+  mass: 450.0
+  model:
+    type: isotropic
+    drag:
+      area: 4.0
+      coeff: 2.2
+    srp:
+      area: 4.0
+      coeff: 1.5

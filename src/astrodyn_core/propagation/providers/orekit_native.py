@@ -7,6 +7,7 @@ from typing import Any
 
 from astrodyn_core.propagation.assembly import assemble_attitude_provider, assemble_force_models
 from astrodyn_core.propagation.capabilities import CapabilityDescriptor
+from astrodyn_core.propagation.config import get_mu
 from astrodyn_core.propagation.interfaces import BuildContext
 from astrodyn_core.propagation.providers.integrators import create_orekit_integrator_builder
 from astrodyn_core.propagation.registry import ProviderRegistry
@@ -17,7 +18,7 @@ from astrodyn_core.propagation.specs import PropagatorKind, PropagatorSpec
 def _resolve_attitude(spec: PropagatorSpec, context: BuildContext, orbit: Any) -> Any | None:
     """Resolve attitude: typed spec takes priority over raw context."""
     if spec.attitude is not None:
-        return assemble_attitude_provider(spec.attitude, orbit)
+        return assemble_attitude_provider(spec.attitude, orbit, universe=context.universe)
     return context.attitude_provider
 
 
@@ -25,7 +26,7 @@ def _resolve_force_models(spec: PropagatorSpec, context: BuildContext, orbit: An
     """Resolve force models: typed specs take priority over raw context."""
     if spec.force_specs:
         sc = spec.spacecraft if spec.spacecraft is not None else SpacecraftSpec()
-        return assemble_force_models(spec.force_specs, sc, orbit)
+        return assemble_force_models(spec.force_specs, sc, orbit, universe=context.universe)
     return list(context.force_models)
 
 
@@ -98,7 +99,8 @@ class KeplerianOrekitProvider:
         orbit = context.require_initial_orbit()
         position_angle_type = _position_angle_type(spec.position_angle_type)
 
-        builder = KeplerianPropagatorBuilder(orbit, position_angle_type, orbit.getMu())
+        mu = get_mu(context.universe) if context.universe is not None else orbit.getMu()
+        builder = KeplerianPropagatorBuilder(orbit, position_angle_type, mu)
 
         mass = spec.spacecraft.mass if spec.spacecraft else spec.mass_kg
         builder.setMass(mass)

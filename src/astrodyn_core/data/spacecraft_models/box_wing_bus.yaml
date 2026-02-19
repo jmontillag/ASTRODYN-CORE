@@ -1,0 +1,20 @@
+# Structured spacecraft preset (schema_version 1)
+schema_version: 1
+
+spacecraft:
+  name: box_wing_bus
+  mass: 900.0
+  model:
+    type: box_wing
+    box:
+      dimensions_m:
+        x: 2.2
+        y: 1.8
+        z: 1.6
+      drag_coeff: 2.2
+      lift_coeff: 0.0
+      abs_coeff: 0.7
+      ref_coeff: 0.3
+    solar_array:
+      area_m2: 12.0
+      axis: [0.0, 1.0, 0.0]

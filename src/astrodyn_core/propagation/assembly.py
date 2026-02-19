@@ -10,9 +10,16 @@ without a running JVM.  The public entry points are:
 from __future__ import annotations
 
 import logging
-from typing import Any, Sequence
+from typing import Any, Mapping, Sequence
 
 from astrodyn_core.propagation.attitude import AttitudeSpec
+from astrodyn_core.propagation.config import (
+    get_earth_shape,
+    get_iers_conventions,
+    get_mu,
+    get_universe_config,
+    load_universe_from_dict,
+)
 from astrodyn_core.propagation.forces import (
     DragSpec,
     ForceSpec,
@@ -38,6 +45,7 @@ def assemble_force_models(
     spacecraft: SpacecraftSpec,
     initial_orbit: Any,
     mu: float | None = None,
+    universe: Mapping[str, Any] | None = None,
 ) -> list[Any]:
     """Translate a sequence of ``ForceSpec`` objects into Orekit force models.
 
@@ -59,7 +67,10 @@ def assemble_force_models(
         Orekit ``ForceModel`` instances ready to be added to a builder.
     """
     if mu is None:
-        mu = float(initial_orbit.getMu())
+        if universe is None:
+            mu = float(initial_orbit.getMu())
+        else:
+            mu = float(get_mu(universe))
 
     models: list[Any] = []
     # Track gravity model for tides (they may need the tide system)
@@ -67,16 +78,16 @@ def assemble_force_models(
 
     for spec in force_specs:
         if isinstance(spec, GravitySpec):
-            model = _build_gravity(spec)
+            model = _build_gravity(spec, universe)
             if model is not None:
                 gravity_model = model
                 models.append(model)
         elif isinstance(spec, DragSpec):
-            model = _build_drag(spec, spacecraft)
+            model = _build_drag(spec, spacecraft, universe)
             if model is not None:
                 models.append(model)
         elif isinstance(spec, SRPSpec):
-            model = _build_srp(spec, spacecraft)
+            model = _build_srp(spec, spacecraft, universe)
             if model is not None:
                 models.append(model)
         elif isinstance(spec, ThirdBodySpec):
@@ -84,11 +95,11 @@ def assemble_force_models(
         elif isinstance(spec, RelativitySpec):
             models.append(_build_relativity(mu))
         elif isinstance(spec, SolidTidesSpec):
-            model = _build_solid_tides(gravity_model, mu)
+            model = _build_solid_tides(gravity_model, mu, universe)
             if model is not None:
                 models.append(model)
         elif isinstance(spec, OceanTidesSpec):
-            model = _build_ocean_tides(spec, mu)
+            model = _build_ocean_tides(spec, mu, universe)
             if model is not None:
                 models.append(model)
         else:
@@ -100,6 +111,7 @@ def assemble_force_models(
 def assemble_attitude_provider(
     attitude: AttitudeSpec,
     initial_orbit: Any,
+    universe: Mapping[str, Any] | None = None,
 ) -> Any | None:
     """Translate an ``AttitudeSpec`` into an Orekit ``AttitudeProvider``.
 
@@ -127,7 +139,7 @@ def assemble_attitude_provider(
     if mode == "tnw":
         return LofOffset(frame, LOFType.TNW)
     if mode == "nadir":
-        earth_shape = _get_earth_shape()
+        earth_shape = _get_earth_shape(universe)
         return NadirPointing(frame, earth_shape)
     if mode == "inertial":
         return FrameAlignedProvider(frame)
@@ -141,18 +153,9 @@ def assemble_attitude_provider(
 # ============================================================================
 
 
-def _get_earth_shape() -> Any:
-    """Return the default Earth body shape (OneAxisEllipsoid on ITRF)."""
-    from org.orekit.bodies import OneAxisEllipsoid
-    from org.orekit.frames import FramesFactory
-    from org.orekit.utils import Constants, IERSConventions
-
-    itrf = FramesFactory.getITRF(IERSConventions.IERS_2010, True)
-    return OneAxisEllipsoid(
-        Constants.WGS84_EARTH_EQUATORIAL_RADIUS,
-        Constants.WGS84_EARTH_FLATTENING,
-        itrf,
-    )
+def _get_earth_shape(universe: Mapping[str, Any] | None = None) -> Any:
+    """Return configured Earth body shape."""
+    return get_earth_shape(universe)
 
 
 def _get_celestial_body(name: str) -> Any:
@@ -184,10 +187,16 @@ def _get_moon() -> Any:
     return _get_celestial_body("moon")
 
 
-def _get_iers_conventions() -> Any:
-    from org.orekit.utils import IERSConventions
+def _get_iers_conventions(universe: Mapping[str, Any] | None = None) -> Any:
+    return get_iers_conventions(universe)
 
-    return IERSConventions.IERS_2010
+
+def _get_use_simple_eop(universe: Mapping[str, Any] | None = None) -> bool:
+    if universe is None:
+        cfg = get_universe_config()
+    else:
+        cfg = load_universe_from_dict(universe)
+    return bool(cfg.get("use_simple_eop", True))
 
 
 # ---------------------------------------------------------------------------
@@ -195,14 +204,14 @@ def _get_iers_conventions() -> Any:
 # ---------------------------------------------------------------------------
 
 
-def _build_gravity(spec: GravitySpec) -> Any | None:
+def _build_gravity(spec: GravitySpec, universe: Mapping[str, Any] | None = None) -> Any | None:
     if spec.degree == 0 and spec.order == 0:
         return None  # point mass — handled by Keplerian term in Orekit
 
     from org.orekit.forces.gravity import HolmesFeatherstoneAttractionModel
     from org.orekit.forces.gravity.potential import GravityFieldFactory
 
-    earth_shape = _get_earth_shape()
+    earth_shape = _get_earth_shape(universe)
     if spec.normalized:
         provider = GravityFieldFactory.getNormalizedProvider(spec.degree, spec.order)
     else:
@@ -216,10 +225,10 @@ def _build_gravity(spec: GravitySpec) -> Any | None:
 # ---------------------------------------------------------------------------
 
 
-def _build_drag(spec: DragSpec, sc: SpacecraftSpec) -> Any | None:
+def _build_drag(spec: DragSpec, sc: SpacecraftSpec, universe: Mapping[str, Any] | None = None) -> Any | None:
     from org.orekit.forces.drag import DragForce, IsotropicDrag
 
-    atmosphere = _build_atmosphere(spec)
+    atmosphere = _build_atmosphere(spec, universe)
     if atmosphere is None:
         return None
 
@@ -258,10 +267,10 @@ def _build_spacecraft_drag_shape(sc: SpacecraftSpec) -> Any | None:
     )
 
 
-def _build_atmosphere(spec: DragSpec) -> Any | None:
+def _build_atmosphere(spec: DragSpec, universe: Mapping[str, Any] | None = None) -> Any | None:
     """Create the Orekit atmosphere model from a DragSpec."""
     model = spec.atmosphere_model
-    earth_shape = _get_earth_shape()
+    earth_shape = _get_earth_shape(universe)
     sun = _get_sun()
 
     if model == "simpleexponential":
@@ -363,14 +372,14 @@ def _build_weather_atmosphere(model: str, atmos_params: Any, sun: Any, earth_sha
 # ---------------------------------------------------------------------------
 
 
-def _build_srp(spec: SRPSpec, sc: SpacecraftSpec) -> Any:
+def _build_srp(spec: SRPSpec, sc: SpacecraftSpec, universe: Mapping[str, Any] | None = None) -> Any:
     from org.orekit.forces.radiation import (
         IsotropicRadiationSingleCoefficient,
         SolarRadiationPressure,
     )
 
     sun = _get_sun()
-    earth_shape = _get_earth_shape()
+    earth_shape = _get_earth_shape(universe)
 
     srp_shape = _build_spacecraft_drag_shape(sc)
     if srp_shape is None:
@@ -448,13 +457,16 @@ def _build_relativity(mu: float) -> Any:
 # ---------------------------------------------------------------------------
 
 
-def _build_solid_tides(gravity_model: Any, mu: float) -> Any:
+def _build_solid_tides(
+    gravity_model: Any, mu: float, universe: Mapping[str, Any] | None = None
+) -> Any:
     from org.orekit.forces.gravity import SolidTides
     from org.orekit.time import TimeScalesFactory
 
-    earth_shape = _get_earth_shape()
-    iers = _get_iers_conventions()
-    ut1 = TimeScalesFactory.getUT1(iers, True)
+    earth_shape = _get_earth_shape(universe)
+    iers = _get_iers_conventions(universe)
+    use_simple_eop = _get_use_simple_eop(universe)
+    ut1 = TimeScalesFactory.getUT1(iers, use_simple_eop)
 
     # Determine tide system from gravity model if available
     if gravity_model is not None:
@@ -478,13 +490,14 @@ def _build_solid_tides(gravity_model: Any, mu: float) -> Any:
     )
 
 
-def _build_ocean_tides(spec: OceanTidesSpec, mu: float) -> Any:
+def _build_ocean_tides(spec: OceanTidesSpec, mu: float, universe: Mapping[str, Any] | None = None) -> Any:
     from org.orekit.forces.gravity import OceanTides
     from org.orekit.time import TimeScalesFactory
 
-    earth_shape = _get_earth_shape()
-    iers = _get_iers_conventions()
-    ut1 = TimeScalesFactory.getUT1(iers, True)
+    earth_shape = _get_earth_shape(universe)
+    iers = _get_iers_conventions(universe)
+    use_simple_eop = _get_use_simple_eop(universe)
+    ut1 = TimeScalesFactory.getUT1(iers, use_simple_eop)
 
     return OceanTides(
         earth_shape.getBodyFrame(),

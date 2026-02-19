@@ -3,10 +3,19 @@
 from astrodyn_core.propagation.assembly import assemble_attitude_provider, assemble_force_models
 from astrodyn_core.propagation.attitude import AttitudeSpec
 from astrodyn_core.propagation.config import (
+    get_earth_shape,
+    get_iers_conventions,
+    get_itrf_frame,
+    get_itrf_version,
+    get_mu,
+    get_universe_config,
+    load_default_universe_config,
     load_dynamics_config,
     load_dynamics_from_dict,
     load_spacecraft_config,
     load_spacecraft_from_dict,
+    load_universe_config,
+    load_universe_from_dict,
 )
 from astrodyn_core.propagation.capabilities import CapabilityDescriptor
 from astrodyn_core.propagation.factory import PropagatorFactory
@@ -28,10 +37,19 @@ from astrodyn_core.propagation.specs import IntegratorSpec, PropagatorKind, Prop
 
 __all__ = [
     "AttitudeSpec",
+    "get_earth_shape",
+    "get_iers_conventions",
+    "get_itrf_frame",
+    "get_itrf_version",
+    "get_mu",
+    "get_universe_config",
+    "load_default_universe_config",
     "load_dynamics_config",
     "load_dynamics_from_dict",
     "load_spacecraft_config",
     "load_spacecraft_from_dict",
+    "load_universe_config",
+    "load_universe_from_dict",
     "BuildContext",
     "CapabilityDescriptor",
     "DragSpec",

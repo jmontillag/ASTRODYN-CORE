@@ -4,7 +4,7 @@
 This script shows the typical ASTRODYN-CORE workflow:
 
   1. Pick a dynamics model from a bundled YAML preset
-  2. Define your spacecraft
+  2. Pick a spacecraft model from a bundled YAML preset
   3. Build the propagator through the factory
   4. Propagate and collect position samples
   5. Plot the ground-track and 3-D orbit
@@ -41,9 +41,10 @@ from astrodyn_core import (  # noqa: E402
     BuildContext,
     PropagatorFactory,
     ProviderRegistry,
-    SpacecraftSpec,
     get_propagation_model,
+    get_spacecraft_model,
     load_dynamics_config,
+    load_spacecraft_config,
     register_default_orekit_providers,
 )
 
@@ -77,22 +78,17 @@ print(
 print(f"Inclination    : {math.degrees(initial_orbit.getI()):.1f} deg")
 
 # ═══════════════════════════════════════════════════════════════════════════
-# 2. Load a dynamics model and define the spacecraft
+# 2. Load dynamics + spacecraft YAML presets
 # ═══════════════════════════════════════════════════════════════════════════
 
-preset_name = "medium_fidelity"
+preset_name = "high_fidelity"
+spacecraft_name = "leo_smallsat"
 spec = load_dynamics_config(get_propagation_model(preset_name))
-
-spacecraft = SpacecraftSpec(
-    mass=450.0,
-    drag_area=4.0,
-    drag_coeff=2.2,
-    srp_area=4.0,
-    srp_coeff=1.5,
-)
+spacecraft = load_spacecraft_config(get_spacecraft_model(spacecraft_name))
 spec = spec.with_spacecraft(spacecraft)
 
 print(f"\nDynamics model : {preset_name}")
+print(f"Spacecraft cfg : {spacecraft_name}")
 print(
     f"Spacecraft     : {spacecraft.mass} kg, Cd={spacecraft.drag_coeff}, Cr={spacecraft.srp_coeff}"
 )
