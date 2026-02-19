@@ -315,7 +315,7 @@ def load_dynamics_from_dict(data: dict[str, Any]) -> PropagatorSpec:
 
     Expected top-level keys (all optional except ``propagator``):
 
-    - ``propagator``  — ``{kind, position_angle_type}``
+    - ``propagator``  — ``{kind, position_angle_type, dsst_propagation_type, dsst_state_type}``
     - ``integrator``  — ``{kind, min_step, max_step, ...}``
     - ``attitude``    — ``{mode}`` or ``{mode, provider}``
     - ``forces``      — mapping of force-name -> params or bool
@@ -328,6 +328,8 @@ def load_dynamics_from_dict(data: dict[str, Any]) -> PropagatorSpec:
     kind_str = prop_raw.get("kind", "numerical")
     kind = PropagatorKind(kind_str.strip().lower())
     position_angle_type = prop_raw.get("position_angle_type", "MEAN")
+    dsst_propagation_type = prop_raw.get("dsst_propagation_type", "MEAN")
+    dsst_state_type = prop_raw.get("dsst_state_type", "OSCULATING")
     mass_kg = prop_raw.get("mass_kg", 1000.0)
 
     # --- integrator section ---
@@ -351,6 +353,8 @@ def load_dynamics_from_dict(data: dict[str, Any]) -> PropagatorSpec:
         kind=kind,
         mass_kg=mass_kg,
         position_angle_type=position_angle_type,
+        dsst_propagation_type=dsst_propagation_type,
+        dsst_state_type=dsst_state_type,
         integrator=integrator,
         tle=tle,
         force_specs=force_specs,

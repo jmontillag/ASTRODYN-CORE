@@ -1,0 +1,16 @@
+schema_version: 1
+
+initial_state:
+  epoch: "2026-02-19T00:00:00Z"
+  frame: "GCRF"
+  representation: "keplerian"
+  elements:
+    a_m: 6878137.0
+    e: 0.0012
+    i_deg: 51.6
+    argp_deg: 45.0
+    raan_deg: 120.0
+    anomaly_deg: 0.0
+    anomaly_type: "MEAN"
+  mu_m3_s2: "WGS84"
+  mass_kg: 450.0

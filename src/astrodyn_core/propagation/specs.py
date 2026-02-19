@@ -58,6 +58,8 @@ class PropagatorSpec:
     kind: PropagatorKind
     mass_kg: float = 1000.0
     position_angle_type: str = "MEAN"
+    dsst_propagation_type: str = "MEAN"
+    dsst_state_type: str = "OSCULATING"
     integrator: IntegratorSpec | None = None
     tle: TLESpec | None = None
     force_specs: Sequence[ForceSpec] = field(default_factory=tuple)
@@ -71,6 +73,10 @@ class PropagatorSpec:
 
         position_angle = self.position_angle_type.strip().upper()
         object.__setattr__(self, "position_angle_type", position_angle)
+        dsst_propagation_type = self.dsst_propagation_type.strip().upper()
+        dsst_state_type = self.dsst_state_type.strip().upper()
+        object.__setattr__(self, "dsst_propagation_type", dsst_propagation_type)
+        object.__setattr__(self, "dsst_state_type", dsst_state_type)
 
         if self.kind in (PropagatorKind.NUMERICAL, PropagatorKind.DSST):
             if self.integrator is None:
@@ -78,6 +84,17 @@ class PropagatorSpec:
 
         if self.kind == PropagatorKind.TLE and self.tle is None:
             raise ValueError("tle is required for kind=tle.")
+
+        if self.kind == PropagatorKind.DSST:
+            valid = {"MEAN", "OSCULATING"}
+            if dsst_propagation_type not in valid:
+                raise ValueError(
+                    "dsst_propagation_type must be one of {'MEAN', 'OSCULATING'} for kind=dsst."
+                )
+            if dsst_state_type not in valid:
+                raise ValueError(
+                    "dsst_state_type must be one of {'MEAN', 'OSCULATING'} for kind=dsst."
+                )
 
     def with_spacecraft(self, spacecraft: SpacecraftSpec) -> PropagatorSpec:
         """Return a copy of this spec with the given spacecraft attached."""

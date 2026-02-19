@@ -40,6 +40,16 @@ def _position_angle_type(name: str):
     return getattr(PositionAngleType, name)
 
 
+def _propagation_type(name: str):
+    try:
+        from org.orekit.propagation import PropagationType
+    except Exception as exc:
+        raise RuntimeError(
+            "Orekit classes are unavailable. Install package dependencies (orekit>=13.1)."
+        ) from exc
+    return getattr(PropagationType, name)
+
+
 @dataclass(frozen=True, slots=True)
 class NumericalOrekitProvider:
     kind: PropagatorKind = PropagatorKind.NUMERICAL
@@ -133,14 +143,16 @@ class DSSTOrekitProvider:
         if integrator_spec is None:
             raise ValueError("integrator is required for DSST propagation.")
         integrator_builder = create_orekit_integrator_builder(integrator_spec)
-        position_angle_type = _position_angle_type(spec.position_angle_type)
+        propagation_type = _propagation_type(spec.dsst_propagation_type)
+        state_type = _propagation_type(spec.dsst_state_type)
 
         dsst_builder_cls: Any = DSSTPropagatorBuilder
         builder = dsst_builder_cls(
             orbit,
             integrator_builder,
             context.position_tolerance,
-            position_angle_type,
+            propagation_type,
+            state_type,
         )
 
         mass = spec.spacecraft.mass if spec.spacecraft else spec.mass_kg

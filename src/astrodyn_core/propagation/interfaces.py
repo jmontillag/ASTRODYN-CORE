@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Mapping, Protocol, Sequence
+from typing import TYPE_CHECKING, Any, Mapping, Protocol, Sequence
 
 from astrodyn_core.propagation.capabilities import CapabilityDescriptor
 from astrodyn_core.propagation.specs import PropagatorKind, PropagatorSpec
+
+if TYPE_CHECKING:
+    from astrodyn_core.states.models import OrbitStateRecord
 
 
 @dataclass(slots=True)
@@ -19,6 +22,34 @@ class BuildContext:
     force_models: Sequence[Any] = field(default_factory=tuple)
     universe: Mapping[str, Any] | None = None
     metadata: Mapping[str, Any] = field(default_factory=dict)
+
+    @classmethod
+    def from_state_record(
+        cls,
+        state_record: OrbitStateRecord,
+        *,
+        universe: Mapping[str, Any] | None = None,
+        position_tolerance: float = 10.0,
+        attitude_provider: Any | None = None,
+        force_models: Sequence[Any] = (),
+        metadata: Mapping[str, Any] | None = None,
+    ) -> BuildContext:
+        """Construct a BuildContext from a serializable state record."""
+        from astrodyn_core.states.orekit import to_orekit_orbit
+
+        initial_orbit = to_orekit_orbit(state_record, universe=universe)
+        merged_metadata = dict(metadata or {})
+        if state_record.mass_kg is not None:
+            merged_metadata.setdefault("initial_mass_kg", state_record.mass_kg)
+
+        return cls(
+            initial_orbit=initial_orbit,
+            position_tolerance=position_tolerance,
+            attitude_provider=attitude_provider,
+            force_models=force_models,
+            universe=universe,
+            metadata=merged_metadata,
+        )
 
     def require_initial_orbit(self) -> Any:
         if self.initial_orbit is None:
