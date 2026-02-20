@@ -6,6 +6,16 @@ Scenario maneuver planning, execution, and mission-level analysis helpers.
 
 The `mission` module consumes scenario definitions from `states` and applies mission logic on top of propagators.
 
+The implementation is decomposed across focused submodules and surfaced through compatibility/public façades.
+
+Primary submodules:
+- `models.py`: core mission dataclasses and normalization helpers.
+- `timeline.py`: timeline trigger parsing and validation.
+- `intents.py`: maneuver intent compilation to inertial events.
+- `kinematics.py`: frame/kinematics utilities.
+- `simulation.py`: replay/sampling execution support.
+- `maneuvers.py`: compatibility façade + primary mission helper exports.
+
 It supports two mission-execution styles:
 
 1. **Compiled/approximate flow** (`maneuvers.py`)

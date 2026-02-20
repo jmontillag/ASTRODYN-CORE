@@ -2,6 +2,14 @@
 
 This folder uses three entry points.
 
+## Recommended API style
+
+Examples are façade-first by default:
+
+- Start with `AstrodynClient`
+- Use domain façades (`app.propagation`, `app.state`, `app.mission`, `app.uncertainty`, `app.tle`)
+- Keep low-level factory/registry wiring for advanced Orekit-native control only
+
 ## 1) Quickstart
 
 Run broad propagation capabilities in one script:

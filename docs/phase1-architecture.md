@@ -1,8 +1,8 @@
 # Architecture Snapshot (Phase 1+)
 
-Last updated: 2026-02-19
+Last updated: 2026-02-20
 
-The repository started as a propagation-only Phase 1 core and now includes state-file and mission-profile lanes.
+The repository started as a propagation-only Phase 1 core and now includes state-file, mission, uncertainty, and façade-governed API lanes.
 
 ## 1) Propagation lane (stable)
 
@@ -48,7 +48,7 @@ Formats:
 - YAML/JSON (scenario + compact series schema)
 - HDF5 (compressed columnar state-series storage)
 
-## 3) Mission helper lane (in progress)
+## 3) Mission helper lane (stable)
 
 Purpose:
 
@@ -56,7 +56,12 @@ Purpose:
 
 Main modules:
 
-- `astrodyn_core.mission.maneuvers`
+- `astrodyn_core.mission.maneuvers` (compatibility façade)
+- `astrodyn_core.mission.models`
+- `astrodyn_core.mission.timeline`
+- `astrodyn_core.mission.intents`
+- `astrodyn_core.mission.kinematics`
+- `astrodyn_core.mission.simulation`
 - `astrodyn_core.mission.plotting`
 
 Current behavior:
@@ -64,15 +69,32 @@ Current behavior:
 - timeline/event-driven maneuver scheduling
 - fast Keplerian intent solving
 - impulse application during propagation replay
+- detector-driven closed-loop execution (`ScenarioExecutor`)
 - orbital-element plot export
 
-## 4) Public API strategy
+## 4) Uncertainty lane (stable)
+
+Main modules:
+
+- `astrodyn_core.uncertainty.propagator` (compatibility façade)
+- `astrodyn_core.uncertainty.matrix_io`
+- `astrodyn_core.uncertainty.transforms`
+- `astrodyn_core.uncertainty.records`
+- `astrodyn_core.uncertainty.stm`
+- `astrodyn_core.uncertainty.factory`
+
+Current behavior:
+
+- STM covariance propagation with YAML/HDF5 persistence
+- Unscented path scaffold retained as planned future work
+
+## 5) Public API strategy
 
 - Keep common symbols at package root (`astrodyn_core`).
 - Expose an app-level unified façade (`AstrodynClient`) for most users.
-- Keep domain façades available for focused workflows (`StateFileClient`, `MissionClient`, `UncertaintyClient`, `TLEClient`).
+- Keep domain façades available for focused workflows (`PropagationClient`, `StateFileClient`, `MissionClient`, `UncertaintyClient`, `TLEClient`).
 - Preserve direct access to Orekit-native builders/propagators for advanced users.
 
-## 5) Next architectural step
+## 6) Next architectural step
 
-Add a detector-driven mission execution path that binds scenario triggers to Orekit event detectors for closed-loop maneuver execution in numerical propagation.
+Complete Phase C API governance hardening: maintain stable façade-first user paths, enforce private-import boundaries, and document deprecation/stability policy.

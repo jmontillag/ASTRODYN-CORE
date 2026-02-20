@@ -1,6 +1,6 @@
 # State I/O and Scenario Design
 
-Last updated: 2026-02-19
+Last updated: 2026-02-20
 
 This document describes the implemented state-file architecture and the planned extensions.
 
@@ -23,7 +23,9 @@ This document describes the implemented state-file architecture and the planned 
 - `src/astrodyn_core/states/io.py`
   - YAML/JSON/HDF5 read/write
 - `src/astrodyn_core/states/orekit.py`
-  - conversion helpers to/from Orekit objects, ephemeris conversion, trajectory export helpers
+  - compatibility façade for Orekit conversion and trajectory helpers
+- `src/astrodyn_core/states/orekit_dates.py`, `orekit_resolvers.py`, `orekit_convert.py`, `orekit_ephemeris.py`, `orekit_export.py`
+  - decomposed Orekit helper layers (Phase B)
 - `src/astrodyn_core/states/validation.py`
   - schema/date parsing validation helpers
 - `src/astrodyn_core/states/client.py`
@@ -111,19 +113,20 @@ Date conversion policy:
 
 - Fast Keplerian approximation for intent maneuver solving.
 - Scenario export path that applies compiled impulses through propagation replay.
+- Detector-driven maneuver execution integrated with numerical propagation (`ScenarioExecutor`).
 - Good for rapid mission design iteration and file-generation workflows.
 
 ## Next
 
-- Detector-driven maneuver execution integrated with numerical propagation.
-- Trigger recurrence/window policies in schema (`every`, bounded occurrence, active windows).
-- Per-event execution reporting for traceability.
+- Trigger recurrence/window semantics expansion in schema.
+- Continued execution reporting/traceability refinements.
+- API-governance hardening so façade-tier workflows remain the default user path.
 
 ## 7) Near-Term Change Plan
 
-1. Add detector execution mode to mission workflow while preserving current fast mode.
-2. Extend scenario schema with recurrence/window constraints.
-3. Add integration tests for closed-loop semimajor-axis maintenance logic.
+1. Extend scenario schema with recurrence/window constraints.
+2. Add/expand integration tests for recurring closed-loop maintenance scenarios.
+3. Document stability/deprecation expectations for state-file and Orekit conversion APIs.
 4. Document recommended file choices:
    - YAML compact for learning/debugging
    - HDF5 for large production trajectories.

@@ -4,6 +4,12 @@ Last updated: 2026-02-20
 Status: In progress
 Depends on: docs/maintainability-cleanup-roadmap.md (Phase B complete)
 
+Progress snapshot:
+
+- API tier policy published in root docs (`README.md`, `src/astrodyn_core/README.md`)
+- Import-boundary hygiene test active (`tests/test_api_boundary_hygiene.py`)
+- Examples migrated to façade-first propagation path (`app.propagation`)
+
 ## 1) Goal
 
 Keep the API easier for users after refactors by enforcing a clear public/internal contract and validating import hygiene.

@@ -1,6 +1,6 @@
 # ASTRODYN-CORE Implementation Plan
 
-Last updated: 2026-02-19 (rev 2)
+Last updated: 2026-02-20 (rev 3)
 
 This document tracks current implementation status and the forward plan for propagation, state I/O, and mission-profile capabilities.
 
@@ -16,12 +16,13 @@ This document tracks current implementation status and the forward plan for prop
 
 ## 2) Current Stage
 
-The project is past the original "Phase 1 propagation foundation" and is now in an early mission-execution stage.
+The project is past Phase 1/2 feature delivery and is now in API-governance hardening (Phase C) after a full Phase B module decomposition.
 
 ### Completed baseline
 
 - Propagation core:
   - `PropagatorSpec`, `BuildContext`, `ProviderRegistry`, `PropagatorFactory`
+  - `PropagationClient` façade for ergonomic builder/propagator workflows
   - Orekit-native providers: numerical, keplerian, dsst, tle
 - Assembly/config:
   - force-model specs and assembly
@@ -38,7 +39,7 @@ The project is past the original "Phase 1 propagation foundation" and is now in 
   - `uncertainty/spec.py`: `UncertaintySpec` (method: stm | unscented-future)
   - `uncertainty/models.py`: `CovarianceRecord`, `CovarianceSeries`
   - `uncertainty/io.py`: YAML and HDF5 covariance I/O
-  - `uncertainty/propagator.py`: `STMCovariancePropagator` via `setupMatricesComputation`
+  - split implementation modules (`matrix_io.py`, `transforms.py`, `records.py`, `stm.py`, `factory.py`) with compatibility façade in `uncertainty/propagator.py`
   - `UnscentedCovariancePropagator` stub (raises NotImplementedError, planned)
   - `StateFileClient.propagate_with_covariance()` and covariance save/load methods
 - DSST builder integration:
@@ -48,7 +49,7 @@ The project is past the original "Phase 1 propagation foundation" and is now in 
   - YAML/JSON load/save
   - compact state-series format (`defaults` + `columns` + `rows`)
   - HDF5 columnar series I/O with compression
-  - Orekit conversion (`state -> orbit`, `state series -> ephemeris`)
+  - split Orekit helper modules (`orekit_dates.py`, `orekit_resolvers.py`, `orekit_convert.py`, `orekit_ephemeris.py`, `orekit_export.py`) with compatibility façade in `states/orekit.py`
   - unified facade: `StateFileClient`
 - Mission profile helpers:
   - timeline events in scenario files
@@ -56,14 +57,18 @@ The project is past the original "Phase 1 propagation foundation" and is now in 
   - intent maneuvers with fast Keplerian approximation
   - increment and absolute target support for raise intents
   - orbital-element plot export to PNG
+- Maintainability decomposition (Phase B complete):
+  - mission split via compatibility façade (`mission/maneuvers.py`)
+  - uncertainty split via compatibility façade (`uncertainty/propagator.py`)
+  - states orekit split via compatibility façade (`states/orekit.py`)
+  - propagation config split via compatibility façade (`propagation/config.py`)
 - Tests:
-  - full local suite passing (`38` tests currently)
-  - scenario maneuver and timeline maintenance tests included
+  - focused regression suites and representative examples passing for all decomposition slices
 
 ### Current limitation (intentional for now)
 
 - Maneuver planning is Keplerian (fast approximation), then impulses are applied during propagation replay.
-- No fully detector-driven closed-loop maneuver execution integrated in `NumericalPropagator` yet.
+- Detector-driven closed-loop execution is available via `mission.executor.ScenarioExecutor`; direct in-builder maneuver injection remains out of scope.
 
 ## 3) Architecture Snapshot
 
@@ -86,6 +91,7 @@ The project is past the original "Phase 1 propagation foundation" and is now in 
 
 - `AstrodynClient` is the façade-first app entrypoint.
 - Domain clients remain available for focused usage:
+  - `PropagationClient`
   - `StateFileClient`
   - `MissionClient`
   - `UncertaintyClient`
@@ -156,6 +162,28 @@ Delivered:
 - `StateFileClient` additions: `propagate_with_covariance()`, `save_covariance_series()`, `load_covariance_series()`
 - Example: `examples/uncertainty.py`
 
+## Phase B (complete) - Module decomposition and compatibility façades
+
+Goal: reduce large-module coupling while preserving all existing public import paths.
+
+Delivered:
+
+- mission split: `models.py`, `timeline.py`, `intents.py`, `kinematics.py`, `simulation.py`
+- uncertainty split: `matrix_io.py`, `transforms.py`, `records.py`, `stm.py`, `factory.py`
+- states split: `orekit_dates.py`, `orekit_resolvers.py`, `orekit_convert.py`, `orekit_ephemeris.py`, `orekit_export.py`
+- propagation split: `universe.py`, `parsers/dynamics.py`, `parsers/forces.py`, `parsers/spacecraft.py`
+- legacy compatibility façades maintained in original module paths
+
+## Phase C (in progress) - API governance and boundary hardening
+
+Goal: keep refactoring gains user-visible and stable.
+
+In progress:
+
+- public/internal boundary policy (`docs/phasec-api-governance.md`)
+- import hygiene test gate (`tests/test_api_boundary_hygiene.py`)
+- façade-first examples with reduced boilerplate (`app.propagation`, `app.state`, etc.)
+
 ## Phase 3 (future) - Source-spec lane and interoperability
 
 - External ephemeris/source specs (OEM/OCM/other bridges)
@@ -168,11 +196,11 @@ Delivered:
 
 ## 5) Immediate Backlog (next sessions)
 
-1. Validate detector-driven execution against Keplerian-mode results for known maneuver scenarios.
-2. Implement Unscented Transform covariance propagation (`UnscentedCovariancePropagator`).
-3. Add recurrence / `every-Nth-orbit` timeline semantics using Orekit's event occurrence filtering.
-4. Add CI pipeline for lint + tests.
-5. Continue maintainability cleanup roadmap (`docs/maintainability-cleanup-roadmap.md`), including module decomposition for large files.
+1. Finalize root export policy language for stable façade vs advanced low-level tiers.
+2. Add API stability/deprecation notes to release process docs.
+3. Implement Unscented Transform covariance propagation (`UnscentedCovariancePropagator`).
+4. Add recurrence / `every-Nth-orbit` timeline semantics using Orekit event occurrence filtering.
+5. Add CI pipeline for lint + tests.
 6. Expand docs:
    - detector vs. Keplerian mode trade-offs
    - covariance interpretation guide (orbit type, frame conventions)
@@ -219,7 +247,7 @@ When resuming development:
 - 2026-02-13: Single-repo architecture selected.
 - 2026-02-13: Orekit-native and builder-first design locked as core policy.
 - 2026-02-13: Phase 1.1 (force/spacecraft/attitude assembly) completed.
-- 2026-02-19: State I/O subsystem and `StateFileClient` consolidated as the default user entrypoint.
+- 2026-02-19: State I/O subsystem and `StateFileClient` consolidated.
 - 2026-02-19: Scenario timeline events and event-triggered maneuvers introduced.
 - 2026-02-19: Intent maneuvers support both absolute targets and increments for raise cases.
 - 2026-02-19: Semimajor-axis maintenance example/tests added using timeline-driven events.
@@ -227,3 +255,6 @@ When resuming development:
 - 2026-02-19: Occurrence/guard/window trigger extensions kept backward-compatible (additive dict keys).
 - 2026-02-19: Uncertainty lane (Lane D) added with STM covariance propagation.
 - 2026-02-19: Unscented Transform covariance propagation reserved as planned-but-not-yet-implemented stub.
+- 2026-02-20: Phase B module decomposition completed with compatibility façades preserved.
+- 2026-02-20: `PropagationClient` added and composed in `AstrodynClient` as the preferred propagation façade path.
+- 2026-02-20: Phase C API governance started with import hygiene checks and façade-tier policy docs.

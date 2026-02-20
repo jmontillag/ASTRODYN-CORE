@@ -11,7 +11,11 @@ Core pieces:
 - **Factory/Registry**: `PropagatorFactory` + `ProviderRegistry`.
 - **Providers**: default Orekit-native implementations for numerical, Keplerian, DSST, and TLE.
 - **Assembly**: converts force and attitude specs into Orekit objects.
-- **Config loading**: YAML/dict loaders for dynamics, spacecraft, and universe models.
+- **Config loading**: compatibility façade in `config.py` backed by `universe.py` and `parsers/` modules (`dynamics.py`, `forces.py`, `spacecraft.py`).
+
+## Façade-first entrypoint
+
+For most users, start with `PropagationClient` (`client.py`) rather than composing factory + providers manually. The low-level factory path remains fully supported for advanced cases.
 
 ## Internal flow
 
@@ -24,6 +28,7 @@ Core pieces:
 ## Key public API
 
 Common entry points:
+- `PropagationClient`
 - `PropagatorFactory`
 - `register_default_orekit_providers(registry)`
 - `PropagatorSpec`, `PropagatorKind`, `IntegratorSpec`, `TLESpec`

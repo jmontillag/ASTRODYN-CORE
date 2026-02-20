@@ -10,7 +10,8 @@ Main layers:
 - `models.py`: typed dataclasses (`OrbitStateRecord`, `StateSeries`, `ScenarioStateFile`, etc.).
 - `validation.py`: normalization and strict validation of epochs, frames, representations, and elements.
 - `io.py`: YAML/JSON/HDF5 load/save utilities.
-- `orekit.py`: conversion between state records/series and Orekit types.
+- `orekit.py`: compatibility façade for Orekit conversion helpers.
+- `orekit_dates.py`, `orekit_resolvers.py`, `orekit_convert.py`, `orekit_ephemeris.py`, `orekit_export.py`: decomposed Orekit helper layers.
 - `client.py`: high-level façade (`StateFileClient`) used by examples and most user code.
 
 ## Key model concepts

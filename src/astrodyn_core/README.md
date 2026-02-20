@@ -71,4 +71,20 @@ See: `examples/uncertainty.py`.
 from astrodyn_core import AstrodynClient, PropagatorSpec, PropagationClient, StateFileClient, TLEClient, UncertaintySpec
 ```
 
+## API surface policy (compact)
+
+The root package intentionally exposes two public tiers:
+
+- **Stable façade tier**
+   - `AstrodynClient` and domain façades (`PropagationClient`, `StateFileClient`, `MissionClient`, `UncertaintyClient`, `TLEClient`)
+   - Target for most user code and examples
+
+- **Advanced low-level tier**
+   - Provider/factory/spec/assembly primitives for Orekit-native control
+   - Intended for specialized and expert usage
+
+Maintenance rule:
+- Backward-compatible façade modules preserve legacy paths during refactors.
+- New user-facing workflows should prefer façade-tier entrypoints.
+
 For module-level details, read the local `README.md` files in each subfolder.

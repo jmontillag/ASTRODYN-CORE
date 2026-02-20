@@ -2,7 +2,7 @@
 
 Builder-first astrodynamics tooling that keeps Orekit APIs first-class while adding typed configuration, state-file workflows, and mission-profile helpers.
 
-## Current status (2026-02-19)
+## Current status (2026-02-20)
 
 Implemented:
 
@@ -25,9 +25,9 @@ Implemented:
 
 In progress / next:
 
-- detector-driven maneuver execution in the numerical propagation loop (closed-loop mission control)
-- richer timeline semantics for recurrence, windows, and event dependencies
-- expanded mission schema and validation hardening
+- Phase C API governance and boundary hardening
+- public API tier curation (stable façade path vs advanced low-level path)
+- deprecation/stability documentation for future API evolution
 
 ## Design principles
 
@@ -35,6 +35,23 @@ In progress / next:
 - Builder-first API: `PropagatorSpec` drives provider selection and construction.
 - Registry-based extensibility: new providers can be plugged in without editing core factory logic.
 - Single-repo architecture for now (propagation + state/mission workflows).
+
+## API tiers (recommended)
+
+Use one of two API tiers based on your goal:
+
+1. **Stable façade tier (recommended for most users)**
+    - Start with `AstrodynClient`
+    - Use domain façades via `app.propagation`, `app.state`, `app.mission`, `app.uncertainty`, `app.tle`
+    - Preferred for notebooks, scripts, and long-lived user code
+
+2. **Advanced low-level tier (power users)**
+    - Use `PropagatorFactory`, `ProviderRegistry`, `BuildContext`, typed specs, and assembly helpers directly
+    - Best when you need fine-grained Orekit-native control
+
+Compatibility note:
+- New features should appear in the façade tier first when practical.
+- Low-level APIs remain supported for expert workflows.
 
 ## Quick start
 

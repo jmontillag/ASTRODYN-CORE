@@ -15,7 +15,8 @@ Planned/partial capability:
 ## Core components
 
 - `spec.py`: `UncertaintySpec` (method, state dimension, orbit type, angle convention).
-- `propagator.py`: `STMCovariancePropagator` and factory helpers.
+- `propagator.py`: compatibility façade + primary covariance entrypoint exports.
+- `matrix_io.py`, `transforms.py`, `records.py`, `stm.py`, `factory.py`: decomposed covariance helper layers.
 - `models.py`: `CovarianceRecord` / `CovarianceSeries` typed containers.
 - `io.py`: YAML/HDF5 save/load with extension-based auto-dispatch.
 
