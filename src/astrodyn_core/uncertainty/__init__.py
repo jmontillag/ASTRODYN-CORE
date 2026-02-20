@@ -1,5 +1,6 @@
 """Uncertainty propagation module: covariance via STM (with Unscented Transform planned)."""
 
+from astrodyn_core.uncertainty.client import UncertaintyClient
 from astrodyn_core.uncertainty.io import (
     load_covariance_series,
     load_covariance_series_hdf5,
@@ -21,6 +22,7 @@ __all__ = [
     "CovarianceRecord",
     "CovarianceSeries",
     "STMCovariancePropagator",
+    "UncertaintyClient",
     "UncertaintySpec",
     "UnscentedCovariancePropagator",
     "create_covariance_propagator",

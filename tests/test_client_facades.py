@@ -7,6 +7,7 @@ from astrodyn_core import AstrodynClient
 from astrodyn_core.mission import MissionClient
 from astrodyn_core.states import StateFileClient
 from astrodyn_core.tle import TLEClient
+from astrodyn_core.uncertainty import UncertaintyClient
 
 
 def _write_month_file(path: Path, line_pairs: list[tuple[str, str]]) -> None:
@@ -43,9 +44,11 @@ def test_astrodyn_client_composes_state_and_tle_clients(tmp_path: Path) -> None:
     )
     assert isinstance(app.state, StateFileClient)
     assert isinstance(app.mission, MissionClient)
+    assert isinstance(app.uncertainty, UncertaintyClient)
     assert isinstance(app.tle, TLEClient)
     assert app.state.default_mass_kg == 777.0
     assert app.mission.default_mass_kg == 777.0
+    assert app.uncertainty.default_mass_kg == 777.0
     assert Path(app.tle.base_dir) == tmp_path
 
 

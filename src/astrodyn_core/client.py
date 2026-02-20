@@ -9,11 +9,12 @@ from typing import Any, Mapping
 from astrodyn_core.mission import MissionClient
 from astrodyn_core.states import StateFileClient
 from astrodyn_core.tle import TLEClient
+from astrodyn_core.uncertainty import UncertaintyClient
 
 
 @dataclass(slots=True)
 class AstrodynClient:
-    """Unified app-level façade for common state and TLE workflows."""
+    """Unified app-level façade for common state, mission, uncertainty, and TLE workflows."""
 
     universe: Mapping[str, Any] | None = None
     default_mass_kg: float = 1000.0
@@ -24,6 +25,7 @@ class AstrodynClient:
 
     state: StateFileClient = field(init=False)
     mission: MissionClient = field(init=False)
+    uncertainty: UncertaintyClient = field(init=False)
     tle: TLEClient = field(init=False)
 
     def __post_init__(self) -> None:
@@ -36,6 +38,9 @@ class AstrodynClient:
             universe=self.universe,
             default_mass_kg=self.default_mass_kg,
             interpolation_samples=self.interpolation_samples,
+        )
+        self.uncertainty = UncertaintyClient(
+            default_mass_kg=self.default_mass_kg,
         )
         self.tle = TLEClient(
             base_dir=self.tle_base_dir,

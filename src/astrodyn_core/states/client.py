@@ -258,17 +258,13 @@ class StateFileClient:
         default_mass_kg:
             Fallback mass. Uses ``self.default_mass_kg`` when not provided.
         """
-        from astrodyn_core.uncertainty.propagator import create_covariance_propagator
-        from astrodyn_core.uncertainty.spec import UncertaintySpec as _UncertaintySpec
-
-        resolved_spec = spec if spec is not None else _UncertaintySpec()
-        return create_covariance_propagator(
+        return self._uncertainty_client().create_covariance_propagator(
             propagator,
             initial_covariance,
-            resolved_spec,
+            spec=spec,
             frame=frame,
             mu_m3_s2=mu_m3_s2,
-            default_mass_kg=self._resolve_default_mass(default_mass_kg),
+            default_mass_kg=default_mass_kg,
         )
 
     def propagate_with_covariance(
@@ -321,18 +317,16 @@ class StateFileClient:
         -------
         tuple[StateSeries, CovarianceSeries]
         """
-        cov_propagator = self.create_covariance_propagator(
+        state_series, cov_series = self._uncertainty_client().propagate_with_covariance(
             propagator,
             initial_covariance,
+            epoch_spec,
             spec=spec,
             frame=frame,
             mu_m3_s2=mu_m3_s2,
-            default_mass_kg=default_mass_kg,
-        )
-        state_series, cov_series = cov_propagator.propagate_series(
-            epoch_spec,
             series_name=series_name,
             covariance_name=covariance_name,
+            default_mass_kg=default_mass_kg,
         )
 
         if state_output_path is not None:
@@ -349,15 +343,11 @@ class StateFileClient:
         **kwargs: Any,
     ) -> Path:
         """Save a covariance series to YAML or HDF5 (auto-detected from extension)."""
-        from astrodyn_core.uncertainty.io import save_covariance_series as _save_cov
-
-        return _save_cov(path, series, **kwargs)
+        return self._uncertainty_client().save_covariance_series(path, series, **kwargs)
 
     def load_covariance_series(self, path: str | Path) -> CovarianceSeries:
         """Load a covariance series from YAML or HDF5 (auto-detected from extension)."""
-        from astrodyn_core.uncertainty.io import load_covariance_series as _load_cov
-
-        return _load_cov(path)
+        return self._uncertainty_client().load_covariance_series(path)
 
     # ------------------------------------------------------------------
     # Detector-driven scenario execution
@@ -447,6 +437,13 @@ class StateFileClient:
             universe=self.universe,
             default_mass_kg=self.default_mass_kg,
             interpolation_samples=self.interpolation_samples,
+        )
+
+    def _uncertainty_client(self):
+        from astrodyn_core.uncertainty import UncertaintyClient
+
+        return UncertaintyClient(
+            default_mass_kg=self.default_mass_kg,
         )
 
     def _resolve_default_mass(self, default_mass_kg: float | None) -> float:

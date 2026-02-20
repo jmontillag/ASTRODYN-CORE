@@ -25,6 +25,7 @@ This folder contains the core Python package used by the examples and tests.
 
 5. **`uncertainty/`**
    - Covariance propagation around trajectories (STM today; unscented scaffold present).
+   - `UncertaintyClient` is the orchestration entry point for covariance workflows.
    - Saves/loads covariance series in YAML/HDF5.
 
 6. **`tle/`**
@@ -33,7 +34,7 @@ This folder contains the core Python package used by the examples and tests.
    - Resolves NORAD+epoch requests into line-pair `TLESpec` used by `propagation/`.
 
 7. **`client.py`**
-   - `AstrodynClient` composes `state`, `mission`, and `tle` clients into one app-level façade.
+   - `AstrodynClient` composes `state`, `mission`, `uncertainty`, and `tle` clients into one app-level façade.
 
 ## Typical workflow paths
 
