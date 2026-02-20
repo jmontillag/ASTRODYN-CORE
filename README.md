@@ -77,14 +77,9 @@ states = StateFileClient()
 Run from the project root:
 
 ```bash
-python examples/demo_propagation.py
-python examples/demo_orbit_plot.py
-python examples/demo_keplerian_builder.py
-python examples/demo_dsst_builder.py
-python examples/demo_tle_propagation.py
-python examples/demo_state_file_workflow.py
-python examples/demo_scenario_object_uses.py
-python examples/demo_mission_maneuver_profile.py
+python examples/quickstart.py --mode all
+python examples/scenario_missions.py --mode all
+python examples/uncertainty.py
 ```
 
 State-file examples:
@@ -93,12 +88,12 @@ State-file examples:
 - `examples/state_files/leo_state_series.yaml`
 - `examples/state_files/leo_mission_timeline.yaml`
 - `examples/state_files/leo_intent_mission.yaml`
+- `examples/state_files/leo_detector_mission.yaml`
 - `examples/state_files/leo_sma_maintenance_timeline.yaml`
-- `examples/state_files/generated_scenario_enriched.yaml`
-- `examples/state_files/workflow_initial_state.yaml` (generated)
-- `examples/state_files/workflow_cartesian_series.yaml` (generated)
-- `examples/state_files/workflow_cartesian_series.h5` (generated)
-- `examples/state_files/mission_profile_series.yaml` (generated)
+
+Generated artifacts from examples are written to:
+
+- `examples/generated/`
 
 ## Planning docs
 

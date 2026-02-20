@@ -13,6 +13,7 @@ from astrodyn_core.uncertainty.propagator import (
     STMCovariancePropagator,
     UnscentedCovariancePropagator,
     create_covariance_propagator,
+    setup_stm_propagator,
 )
 from astrodyn_core.uncertainty.spec import UncertaintySpec
 
@@ -23,6 +24,7 @@ __all__ = [
     "UncertaintySpec",
     "UnscentedCovariancePropagator",
     "create_covariance_propagator",
+    "setup_stm_propagator",
     "load_covariance_series",
     "load_covariance_series_hdf5",
     "load_covariance_series_yaml",

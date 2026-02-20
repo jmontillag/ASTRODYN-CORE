@@ -133,7 +133,7 @@ Delivered:
 - `ScenarioExecutor` class: configure + run + sample trajectory
 - `MissionExecutionReport`: fired events, applied/skipped summary, total Δv
 - `StateFileClient.run_scenario_detector_mode()` entrypoint
-- Example: `leo_detector_mission.yaml`, `demo_detector_mission.py`
+- Example: `leo_detector_mission.yaml` via `examples/scenario_missions.py --mode detector`
 
 ## Phase 2.5 (complete) - Uncertainty / Covariance Propagation
 
@@ -149,7 +149,7 @@ Delivered:
   - `create_covariance_propagator()` factory
   - YAML and HDF5 I/O (`save_covariance_series_*`, `load_covariance_series_*`)
 - `StateFileClient` additions: `propagate_with_covariance()`, `save_covariance_series()`, `load_covariance_series()`
-- Example: `demo_covariance_propagation.py`
+- Example: `examples/uncertainty.py`
 
 ## Phase 3 (future) - Source-spec lane and interoperability
 
@@ -206,7 +206,7 @@ When resuming development:
 4. Run tests:
    - `conda run -n astrodyn-core-env pytest -q`
 5. Execute one mission scenario example:
-   - `python examples/demo_mission_maneuver_profile.py`
+   - `python examples/scenario_missions.py --mode intent`
 
 ## 8) Decision Log
 

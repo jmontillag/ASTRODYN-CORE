@@ -59,6 +59,7 @@ from astrodyn_core.uncertainty import (
     create_covariance_propagator,
     load_covariance_series,
     save_covariance_series,
+    setup_stm_propagator,
 )
 
 __all__ = [
@@ -112,4 +113,5 @@ __all__ = [
     "plot_orbital_elements_series",
     "register_default_orekit_providers",
     "save_covariance_series",
+    "setup_stm_propagator",
 ]
