@@ -243,7 +243,6 @@ def run_plot() -> None:
     init_orekit()
 
     from astrodyn_core import AstrodynClient, BuildContext, OutputEpochSpec, PropagatorKind, PropagatorSpec
-    from astrodyn_core.states.orekit import from_orekit_date
 
     orbit, epoch, _frame = make_leo_orbit()
     app = AstrodynClient()
@@ -254,9 +253,9 @@ def run_plot() -> None:
     propagator = builder.buildPropagator(builder.getSelectedNormalizedParameters())
 
     period_s = 2.0 * math.pi * math.sqrt(orbit.getA() ** 3 / orbit.getMu())
-    end_epoch = from_orekit_date(epoch.shiftedBy(3.0 * period_s))
+    end_epoch = app.state.from_orekit_date(epoch.shiftedBy(3.0 * period_s))
     epoch_spec = OutputEpochSpec(
-        start_epoch=from_orekit_date(epoch),
+        start_epoch=app.state.from_orekit_date(epoch),
         end_epoch=end_epoch,
         step_seconds=60.0,
     )
@@ -274,7 +273,7 @@ def run_plot() -> None:
         frame="GCRF",
     )
     series = app.state.load_state_series(series_path)
-    app.state.plot_orbital_elements(series, plot_path, title="Quickstart: Orbital Elements")
+    app.mission.plot_orbital_elements_series(series, plot_path, title="Quickstart: Orbital Elements")
     print(f"Saved trajectory: {series_path}")
     print(f"Saved plot: {plot_path}")
 

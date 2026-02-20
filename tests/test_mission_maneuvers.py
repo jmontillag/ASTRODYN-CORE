@@ -8,6 +8,7 @@ from astrodyn_core import (
     BuildContext,
     IntegratorSpec,
     ManeuverRecord,
+    MissionClient,
     OutputEpochSpec,
     PropagatorFactory,
     PropagatorKind,
@@ -17,7 +18,7 @@ from astrodyn_core import (
     StateFileClient,
     register_default_orekit_providers,
 )
-from astrodyn_core.states.validation import parse_epoch_utc
+from astrodyn_core.states import parse_epoch_utc
 
 orekit = pytest.importorskip("orekit")
 orekit.initVM()
@@ -27,11 +28,12 @@ setup_orekit_curdir()
 
 from org.orekit.propagation import SpacecraftState  # noqa: E402
 
-CLIENT = StateFileClient()
+STATE_CLIENT = StateFileClient()
+MISSION_CLIENT = MissionClient()
 
 
 def _build_numerical_from_scenario(scenario_path: Path):
-    scenario = CLIENT.load_state_file(scenario_path)
+    scenario = STATE_CLIENT.load_state_file(scenario_path)
     if scenario.initial_state is None:
         raise RuntimeError("Scenario needs initial_state for propagation tests.")
 
@@ -70,14 +72,14 @@ def _a_m(record) -> float:
 
 def test_compile_intent_maneuvers_keplerian() -> None:
     scenario_path = Path("examples/state_files/leo_intent_mission.yaml")
-    scenario = CLIENT.load_state_file(scenario_path)
+    scenario = STATE_CLIENT.load_state_file(scenario_path)
     assert scenario.initial_state is not None
 
     ctx = BuildContext.from_state_record(scenario.initial_state, universe=scenario.universe)
     initial_mass = float(scenario.initial_state.mass_kg or 450.0)
     initial_state = SpacecraftState(ctx.initial_orbit, initial_mass)
 
-    compiled = CLIENT.compile_scenario_maneuvers(scenario, initial_state)
+    compiled = MISSION_CLIENT.compile_scenario_maneuvers(scenario, initial_state)
     assert len(compiled) == 2
     assert compiled[0].trigger_type == "apogee"
     assert compiled[1].trigger_type == "ascending_node"
@@ -91,7 +93,7 @@ def test_compile_intent_maneuvers_keplerian() -> None:
 
 
 def test_increment_targets_supported_for_raise_intents() -> None:
-    seed = CLIENT.load_state_file(Path("examples/state_files/leo_intent_mission.yaml"))
+    seed = STATE_CLIENT.load_state_file(Path("examples/state_files/leo_intent_mission.yaml"))
     assert seed.initial_state is not None
     scenario = ScenarioStateFile(
         initial_state=seed.initial_state,
@@ -119,7 +121,7 @@ def test_increment_targets_supported_for_raise_intents() -> None:
 
     ctx = BuildContext.from_state_record(scenario.initial_state, universe=scenario.universe)
     initial_state = SpacecraftState(ctx.initial_orbit, float(scenario.initial_state.mass_kg or 450.0))
-    compiled = CLIENT.compile_scenario_maneuvers(scenario, initial_state)
+    compiled = MISSION_CLIENT.compile_scenario_maneuvers(scenario, initial_state)
     assert len(compiled) == 2
     for item in compiled:
         norm = (item.dv_inertial_mps[0] ** 2 + item.dv_inertial_mps[1] ** 2 + item.dv_inertial_mps[2] ** 2) ** 0.5
@@ -140,7 +142,7 @@ def test_export_scenario_with_maneuvers_and_plot(tmp_path: Path) -> None:
         step_seconds=180.0,
     )
     out_series = tmp_path / "mission_series.yaml"
-    saved_path, compiled = CLIENT.export_trajectory_from_scenario(
+    saved_path, compiled = MISSION_CLIENT.export_trajectory_from_scenario(
         propagator,
         scenario,
         epoch_spec,
@@ -152,7 +154,7 @@ def test_export_scenario_with_maneuvers_and_plot(tmp_path: Path) -> None:
     assert saved_path.exists()
     assert len(compiled) == 2
 
-    series = CLIENT.load_state_series(saved_path)
+    series = STATE_CLIENT.load_state_series(saved_path)
     initial = series.states[0]
     final = series.states[-1]
     assert _perigee_m(final) > _perigee_m(initial)
@@ -161,7 +163,7 @@ def test_export_scenario_with_maneuvers_and_plot(tmp_path: Path) -> None:
     assert final_i > initial_i
 
     out_png = tmp_path / "elements.png"
-    saved_png = CLIENT.plot_orbital_elements(series, out_png)
+    saved_png = MISSION_CLIENT.plot_orbital_elements_series(series, out_png)
     assert saved_png.exists()
     assert saved_png.stat().st_size > 0
 
@@ -177,7 +179,7 @@ def test_timeline_maintenance_semimajor_axis_floor(tmp_path: Path) -> None:
         step_seconds=180.0,
     )
     out_series = tmp_path / "maintenance_series.yaml"
-    saved_path, compiled = CLIENT.export_trajectory_from_scenario(
+    saved_path, compiled = MISSION_CLIENT.export_trajectory_from_scenario(
         propagator,
         scenario,
         epoch_spec,
@@ -194,7 +196,7 @@ def test_timeline_maintenance_semimajor_axis_floor(tmp_path: Path) -> None:
     norm1 = (dv1[0] ** 2 + dv1[1] ** 2 + dv1[2] ** 2) ** 0.5
     assert norm1 > 0.0
 
-    series = CLIENT.load_state_series(saved_path)
+    series = STATE_CLIENT.load_state_series(saved_path)
     floor_a = 6_876_000.0
     t_maint_1 = parse_epoch_utc(by_name["maintain-a-1"].epoch)
     post_maint_a = [_a_m(item) for item in series.states if parse_epoch_utc(item.epoch) >= t_maint_1]

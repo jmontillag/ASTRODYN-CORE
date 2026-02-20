@@ -23,11 +23,17 @@ Implemented:
   - increment and absolute target support (for raise intents)
 - Orbital-element mission plotting to PNG
 
-In progress / next:
+Completed governance:
 
-- Phase C API governance and boundary hardening
-- public API tier curation (stable façade path vs advanced low-level path)
-- deprecation/stability documentation for future API evolution
+- Phase C API governance and boundary hardening (complete)
+- Root API organized into three tiers (facade, models, advanced)
+- Deprecation warnings on legacy compatibility facades and cross-domain methods
+- Import hygiene enforced in tests
+
+Next:
+
+- Remove deprecated compatibility facades (next cleanup cycle)
+- Phase 3 source-spec lane and interoperability
 
 ## Design principles
 
@@ -119,3 +125,5 @@ Generated artifacts from examples are written to:
 - Long-term implementation plan: `docs/implementation-plan.md`
 - Current architecture snapshot: `docs/phase1-architecture.md`
 - State I/O and scenario schema plan: `docs/state-io-design.md`
+- API governance and deprecation policy: `docs/phasec-api-governance.md`
+- Maintainability roadmap: `docs/maintainability-cleanup-roadmap.md`

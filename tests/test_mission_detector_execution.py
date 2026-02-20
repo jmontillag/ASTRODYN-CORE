@@ -10,6 +10,7 @@ from astrodyn_core import (
     BuildContext,
     IntegratorSpec,
     ManeuverRecord,
+    MissionClient,
     OrbitStateRecord,
     OutputEpochSpec,
     PropagatorFactory,
@@ -33,7 +34,8 @@ from orekit.pyhelpers import setup_orekit_curdir  # noqa: E402
 
 setup_orekit_curdir()
 
-CLIENT = StateFileClient()
+STATE_CLIENT = StateFileClient()
+MISSION_CLIENT = MissionClient()
 
 _EPOCH_START = "2026-02-19T00:00:00Z"
 _EPOCH_3H = "2026-02-19T03:00:00Z"
@@ -288,7 +290,7 @@ class TestScenarioExecutor:
             end_epoch="2026-02-19T00:30:00Z",
             step_seconds=900.0,
         )
-        series, report = CLIENT.run_scenario_detector_mode(propagator, scenario, epoch_spec)
+        series, report = MISSION_CLIENT.run_scenario_detector_mode(propagator, scenario, epoch_spec)
 
         assert isinstance(series.states[0], OrbitStateRecord)
         assert isinstance(report, MissionExecutionReport)
@@ -306,7 +308,7 @@ class TestDetectorModeWithScenarioFiles:
         if not scenario_path.exists():
             pytest.skip("leo_intent_mission.yaml not found")
 
-        scenario = CLIENT.load_state_file(scenario_path)
+        scenario = STATE_CLIENT.load_state_file(scenario_path)
         assert scenario.initial_state is not None
 
         propagator = _build_numerical_propagator(scenario.initial_state)
@@ -315,7 +317,7 @@ class TestDetectorModeWithScenarioFiles:
             end_epoch="2026-02-19T02:00:00Z",
             step_seconds=600.0,
         )
-        series, report = CLIENT.run_scenario_detector_mode(
+        series, report = MISSION_CLIENT.run_scenario_detector_mode(
             propagator, scenario, epoch_spec, representation="keplerian"
         )
 

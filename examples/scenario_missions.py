@@ -248,7 +248,7 @@ def run_intent() -> None:
     init_orekit()
 
     from astrodyn_core import AstrodynClient, OutputEpochSpec
-    from astrodyn_core.states.validation import parse_epoch_utc
+    from astrodyn_core.states import parse_epoch_utc
 
     base_dir = Path(__file__).resolve().parent
     scenario_path = base_dir / "state_files" / "leo_intent_mission.yaml"
@@ -275,7 +275,7 @@ def run_intent() -> None:
         step_seconds=120.0,
     )
 
-    saved_path, compiled = app.state.export_trajectory_from_scenario(
+    saved_path, compiled = app.mission.export_trajectory_from_scenario(
         propagator,
         scenario,
         epoch_spec,
@@ -286,7 +286,7 @@ def run_intent() -> None:
         dense_yaml=True,
     )
     series = app.state.load_state_series(saved_path)
-    app.state.plot_orbital_elements(series, out_plot, title="Mission Profile: Orbital Elements")
+    app.mission.plot_orbital_elements_series(series, out_plot, title="Mission Profile: Orbital Elements")
 
     print(f"Saved trajectory: {saved_path}")
     print(f"Saved plot: {out_plot}")
@@ -332,12 +332,11 @@ def run_detector() -> None:
         step_seconds=300.0,
     )
 
-    state_series, report = app.state.run_scenario_detector_mode(
+    state_series, report = app.mission.run_scenario_detector_mode(
         propagator,
         scenario,
         epoch_spec,
         representation="keplerian",
-        output_path=out_states,
     )
 
     print(f"Events fired: {len(report.events)}")
@@ -363,7 +362,8 @@ def run_detector() -> None:
             print(f"  - {count}x {reason}")
 
     if state_series.states:
-        app.state.plot_orbital_elements(state_series, out_plot)
+        app.state.save_state_series(out_states, state_series)
+        app.mission.plot_orbital_elements_series(state_series, out_plot)
         print(f"Saved plot: {out_plot}")
     print(f"Saved trajectory: {out_states}")
 

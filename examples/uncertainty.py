@@ -58,9 +58,8 @@ from astrodyn_core import (
     PropagatorKind,
     PropagatorSpec,
     UncertaintySpec,
-    setup_stm_propagator,
 )
-from astrodyn_core.uncertainty.propagator import _change_covariance_type
+from astrodyn_core.uncertainty import change_covariance_type, setup_stm_propagator
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -221,7 +220,7 @@ print(
 from org.orekit.orbits import OrbitType, PositionAngleType  # noqa: E402 (needs JVM running)
 
 _initial_orekit_state = _build_propagator().getInitialState()
-INITIAL_COV_KEP = _change_covariance_type(
+INITIAL_COV_KEP = change_covariance_type(
     INITIAL_COV_CART,
     _initial_orekit_state.getOrbit(),
     _initial_orekit_state.getDate(),
@@ -383,7 +382,7 @@ for label, epoch_str in _check_epoch_strs.items():
 
     # Run 2: Keplerian record converted back to Cartesian
     P_kep_t = cov_series_kep.records[idx].to_numpy()
-    P_cart_from_kep = _change_covariance_type(
+    P_cart_from_kep = change_covariance_type(
         P_kep_t,
         state_t.getOrbit(),
         state_t.getDate(),

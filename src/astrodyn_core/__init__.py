@@ -1,21 +1,42 @@
-"""ASTRODYN-CORE public package API."""
+"""ASTRODYN-CORE public package API.
 
+Exports are organized into three tiers:
+
+Tier 1 -- Facade clients (recommended for most users)
+    AstrodynClient, PropagationClient, StateFileClient, MissionClient,
+    UncertaintyClient, TLEClient
+
+Tier 2 -- Data models and specs (needed for configuration)
+    PropagatorSpec, PropagatorKind, IntegratorSpec, BuildContext,
+    force/spacecraft/attitude specs, state/scenario models,
+    mission models, uncertainty models, TLE models
+
+Tier 3 -- Advanced low-level helpers (expert Orekit-native usage)
+    PropagatorFactory, ProviderRegistry, register_default_orekit_providers,
+    assembly helpers, config loaders, data preset lookups
+
+Symbols that were previously exported at root but belong to domain-specific
+workflows (e.g. compile_scenario_maneuvers, setup_stm_propagator, individual
+TLE parser functions) have been moved to subpackage exports only.  They remain
+importable via their subpackage paths (e.g. ``from astrodyn_core.mission import
+compile_scenario_maneuvers``).
+"""
+
+# ---------------------------------------------------------------------------
+# Tier 1: Facade clients
+# ---------------------------------------------------------------------------
 from astrodyn_core.client import AstrodynClient
-from astrodyn_core.data import (
-    get_propagation_model,
-    get_spacecraft_model,
-    list_propagation_models,
-    list_spacecraft_models,
-)
-from astrodyn_core.mission import (
-    CompiledManeuver,
-    MissionClient,
-    MissionExecutionReport,
-    ManeuverFiredEvent,
-    ScenarioExecutor,
-    compile_scenario_maneuvers,
-    plot_orbital_elements_series,
-)
+from astrodyn_core.mission import MissionClient
+from astrodyn_core.propagation import PropagationClient
+from astrodyn_core.states import StateFileClient
+from astrodyn_core.tle import TLEClient
+from astrodyn_core.uncertainty import UncertaintyClient
+
+# ---------------------------------------------------------------------------
+# Tier 2: Data models and specs
+# ---------------------------------------------------------------------------
+
+# Propagation specs
 from astrodyn_core.propagation import (
     AttitudeSpec,
     BuildContext,
@@ -25,17 +46,55 @@ from astrodyn_core.propagation import (
     GravitySpec,
     IntegratorSpec,
     OceanTidesSpec,
-    PropagatorFactory,
     PropagatorKind,
-    PropagationClient,
     PropagatorSpec,
-    ProviderRegistry,
     RelativitySpec,
     SRPSpec,
     SolidTidesSpec,
     SpacecraftSpec,
     TLESpec,
     ThirdBodySpec,
+)
+
+# State and scenario models
+from astrodyn_core.states import (
+    AttitudeRecord,
+    ManeuverRecord,
+    OrbitStateRecord,
+    OutputEpochSpec,
+    ScenarioStateFile,
+    StateSeries,
+    TimelineEventRecord,
+)
+
+# Mission models
+from astrodyn_core.mission import (
+    CompiledManeuver,
+    ManeuverFiredEvent,
+    MissionExecutionReport,
+    ScenarioExecutor,
+)
+
+# Uncertainty models
+from astrodyn_core.uncertainty import (
+    CovarianceRecord,
+    CovarianceSeries,
+    UncertaintySpec,
+)
+
+# TLE models
+from astrodyn_core.tle import (
+    TLEDownloadResult,
+    TLEQuery,
+    TLERecord,
+)
+
+# ---------------------------------------------------------------------------
+# Tier 3: Advanced low-level helpers
+# ---------------------------------------------------------------------------
+from astrodyn_core.propagation import (
+    PropagatorFactory,
+    ProviderRegistry,
     assemble_attitude_provider,
     assemble_force_models,
     load_dynamics_config,
@@ -44,112 +103,75 @@ from astrodyn_core.propagation import (
     load_spacecraft_from_dict,
     register_default_orekit_providers,
 )
-from astrodyn_core.states import (
-    AttitudeRecord,
-    ManeuverRecord,
-    OrbitStateRecord,
-    OutputEpochSpec,
-    ScenarioStateFile,
-    StateFileClient,
-    StateSeries,
-    TimelineEventRecord,
-)
-from astrodyn_core.uncertainty import (
-    CovarianceRecord,
-    CovarianceSeries,
-    STMCovariancePropagator,
-    UncertaintyClient,
-    UncertaintySpec,
-    create_covariance_propagator,
-    load_covariance_series,
-    save_covariance_series,
-    setup_stm_propagator,
-)
-from astrodyn_core.tle import (
-    TLEClient,
-    TLEDownloadResult,
-    TLEQuery,
-    TLERecord,
-    download_tles_for_month,
-    ensure_tles_available,
-    find_best_tle,
-    find_best_tle_in_file,
-    get_tle_file_path,
-    parse_norad_id,
-    parse_tle_epoch,
-    parse_tle_file,
-    resolve_tle_record,
-    resolve_tle_spec,
+from astrodyn_core.data import (
+    get_propagation_model,
+    get_spacecraft_model,
+    list_propagation_models,
+    list_spacecraft_models,
 )
 
+# ---------------------------------------------------------------------------
+# __all__ — curated public API
+# ---------------------------------------------------------------------------
 __all__ = [
+    # -- Tier 1: Facade clients --
     "AstrodynClient",
-    "AttitudeSpec",
-    "AttitudeRecord",
+    "PropagationClient",
+    "StateFileClient",
+    "MissionClient",
+    "UncertaintyClient",
+    "TLEClient",
+    # -- Tier 2: Data models and specs --
+    # Propagation
+    "PropagatorSpec",
+    "PropagatorKind",
+    "IntegratorSpec",
     "BuildContext",
+    "AttitudeSpec",
     "CapabilityDescriptor",
-    "CompiledManeuver",
-    "CovarianceRecord",
-    "CovarianceSeries",
     "DragSpec",
     "ForceSpec",
     "GravitySpec",
-    "IntegratorSpec",
     "OceanTidesSpec",
-    "OrbitStateRecord",
-    "OutputEpochSpec",
-    "PropagatorFactory",
-    "PropagatorKind",
-    "PropagationClient",
-    "PropagatorSpec",
-    "ProviderRegistry",
     "RelativitySpec",
-    "ScenarioStateFile",
     "SRPSpec",
     "SolidTidesSpec",
     "SpacecraftSpec",
-    "StateFileClient",
-    "StateSeries",
-    "TimelineEventRecord",
-    "TLEClient",
-    "TLEDownloadResult",
-    "TLEQuery",
-    "TLERecord",
     "TLESpec",
     "ThirdBodySpec",
-    "assemble_attitude_provider",
+    # States / Scenario
+    "OrbitStateRecord",
+    "StateSeries",
+    "ScenarioStateFile",
+    "OutputEpochSpec",
+    "ManeuverRecord",
+    "TimelineEventRecord",
+    "AttitudeRecord",
+    # Mission
+    "CompiledManeuver",
+    "MissionExecutionReport",
+    "ManeuverFiredEvent",
+    "ScenarioExecutor",
+    # Uncertainty
+    "UncertaintySpec",
+    "CovarianceRecord",
+    "CovarianceSeries",
+    # TLE
+    "TLEQuery",
+    "TLERecord",
+    "TLEDownloadResult",
+    # -- Tier 3: Advanced low-level --
+    "PropagatorFactory",
+    "ProviderRegistry",
+    "register_default_orekit_providers",
     "assemble_force_models",
-    "compile_scenario_maneuvers",
-    "get_propagation_model",
-    "get_spacecraft_model",
-    "list_propagation_models",
-    "list_spacecraft_models",
+    "assemble_attitude_provider",
     "load_dynamics_config",
     "load_dynamics_from_dict",
     "load_spacecraft_config",
     "load_spacecraft_from_dict",
-    "ManeuverRecord",
-    "ManeuverFiredEvent",
-    "MissionClient",
-    "MissionExecutionReport",
-    "STMCovariancePropagator",
-    "UncertaintyClient",
-    "ScenarioExecutor",
-    "UncertaintySpec",
-    "create_covariance_propagator",
-    "load_covariance_series",
-    "plot_orbital_elements_series",
-    "register_default_orekit_providers",
-    "resolve_tle_record",
-    "resolve_tle_spec",
-    "save_covariance_series",
-    "setup_stm_propagator",
-    "download_tles_for_month",
-    "ensure_tles_available",
-    "find_best_tle",
-    "find_best_tle_in_file",
-    "get_tle_file_path",
-    "parse_norad_id",
-    "parse_tle_epoch",
-    "parse_tle_file",
+    "get_propagation_model",
+    "get_spacecraft_model",
+    "list_propagation_models",
+    "list_spacecraft_models",
 ]

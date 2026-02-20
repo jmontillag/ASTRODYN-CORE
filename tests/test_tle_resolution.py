@@ -6,16 +6,10 @@ from pathlib import Path
 import pytest
 
 from astrodyn_core.propagation.specs import TLESpec
-from astrodyn_core.tle import (
-    TLEQuery,
-    download_tles_for_month,
-    find_best_tle_in_file,
-    get_tle_file_path,
-    parse_tle_epoch,
-    parse_tle_file,
-    resolve_tle_record,
-    resolve_tle_spec,
-)
+from astrodyn_core.tle import TLEQuery
+from astrodyn_core.tle.downloader import download_tles_for_month, get_tle_file_path
+from astrodyn_core.tle.parser import find_best_tle_in_file, parse_tle_epoch, parse_tle_file
+from astrodyn_core.tle.resolver import resolve_tle_record, resolve_tle_spec
 
 
 def _write_month_file(path: Path, line_pairs: list[tuple[str, str]]) -> None:

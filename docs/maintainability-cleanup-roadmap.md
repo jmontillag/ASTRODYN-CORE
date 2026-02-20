@@ -5,9 +5,9 @@ Status: In progress
 
 Progress snapshot:
 
-- Phase A: completed (examples, façade integration test, delegation caching, docs sync)
+- Phase A: completed (examples, facade integration test, delegation caching, docs sync)
 - Phase B: completed (Slices 1 mission, 2 uncertainty, 3 states/orekit, 4 propagation/config)
-- Phase C: in progress (API boundary policy + import hygiene checks + propagation façade ergonomics)
+- Phase C: completed (API tiering, deprecation warnings, import hygiene enforcement, example/test migration)
 
 ## 1) Purpose and Intent
 
@@ -214,9 +214,12 @@ Phase B complete when:
 
 Phase C complete when:
 
-- Public/internal boundary policy is documented and enforced in CI/review checks.
-- Root API curation decision is documented and applied.
-- Deprecation workflow exists for future cleanup cycles.
+- Public/internal boundary policy is documented and enforced in CI/review checks. **Done.**
+- Root API curation decision is documented and applied. **Done.**
+- Deprecation workflow exists for future cleanup cycles. **Done.**
+- Compatibility facade modules emit deprecation warnings. **Done.**
+- StateFileClient cross-domain methods emit deprecation warnings. **Done.**
+- Examples and tests migrated to facade-first public API paths. **Done.**
 
 ## 10) Assumed Final State (Target Architecture)
 

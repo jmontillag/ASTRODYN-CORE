@@ -1,24 +1,39 @@
-"""Propagation core public API."""
+"""Propagation core public API.
+
+Public API
+----------
+PropagationClient          Facade for ergonomic builder/propagator workflows.
+PropagatorFactory          Low-level factory for building propagators from specs.
+ProviderRegistry           Registry of propagation backend providers.
+BuildContext               Context for propagator construction (orbit, universe, metadata).
+
+Specs and models:
+    PropagatorSpec, PropagatorKind, IntegratorSpec, TLESpec,
+    AttitudeSpec, SpacecraftSpec,
+    ForceSpec, GravitySpec, DragSpec, SRPSpec, ThirdBodySpec,
+    RelativitySpec, SolidTidesSpec, OceanTidesSpec,
+    CapabilityDescriptor
+
+Assembly and config helpers:
+    assemble_force_models, assemble_attitude_provider,
+    load_dynamics_config, load_dynamics_from_dict,
+    load_spacecraft_config, load_spacecraft_from_dict,
+    register_default_orekit_providers
+
+Universe config helpers (available via ``propagation.config`` or ``propagation.universe``):
+    get_mu, get_earth_shape, get_iers_conventions, get_itrf_frame, etc.
+"""
 
 from astrodyn_core.propagation.assembly import assemble_attitude_provider, assemble_force_models
 from astrodyn_core.propagation.attitude import AttitudeSpec
+from astrodyn_core.propagation.capabilities import CapabilityDescriptor
 from astrodyn_core.propagation.client import PropagationClient
 from astrodyn_core.propagation.config import (
-    get_earth_shape,
-    get_iers_conventions,
-    get_itrf_frame,
-    get_itrf_version,
-    get_mu,
-    get_universe_config,
-    load_default_universe_config,
     load_dynamics_config,
     load_dynamics_from_dict,
     load_spacecraft_config,
     load_spacecraft_from_dict,
-    load_universe_config,
-    load_universe_from_dict,
 )
-from astrodyn_core.propagation.capabilities import CapabilityDescriptor
 from astrodyn_core.propagation.factory import PropagatorFactory
 from astrodyn_core.propagation.forces import (
     DragSpec,
@@ -37,39 +52,35 @@ from astrodyn_core.propagation.spacecraft import SpacecraftSpec
 from astrodyn_core.propagation.specs import IntegratorSpec, PropagatorKind, PropagatorSpec, TLESpec
 
 __all__ = [
-    "AttitudeSpec",
+    # Facade
     "PropagationClient",
-    "get_earth_shape",
-    "get_iers_conventions",
-    "get_itrf_frame",
-    "get_itrf_version",
-    "get_mu",
-    "get_universe_config",
-    "load_default_universe_config",
+    # Factory / Registry
+    "PropagatorFactory",
+    "ProviderRegistry",
+    "register_default_orekit_providers",
+    # Specs and models
+    "PropagatorSpec",
+    "PropagatorKind",
+    "IntegratorSpec",
+    "TLESpec",
+    "AttitudeSpec",
+    "SpacecraftSpec",
+    "CapabilityDescriptor",
+    "BuildContext",
+    # Force specs
+    "ForceSpec",
+    "GravitySpec",
+    "DragSpec",
+    "SRPSpec",
+    "ThirdBodySpec",
+    "RelativitySpec",
+    "SolidTidesSpec",
+    "OceanTidesSpec",
+    # Assembly and config
+    "assemble_force_models",
+    "assemble_attitude_provider",
     "load_dynamics_config",
     "load_dynamics_from_dict",
     "load_spacecraft_config",
     "load_spacecraft_from_dict",
-    "load_universe_config",
-    "load_universe_from_dict",
-    "BuildContext",
-    "CapabilityDescriptor",
-    "DragSpec",
-    "ForceSpec",
-    "GravitySpec",
-    "IntegratorSpec",
-    "OceanTidesSpec",
-    "PropagatorFactory",
-    "PropagatorKind",
-    "PropagatorSpec",
-    "ProviderRegistry",
-    "RelativitySpec",
-    "SRPSpec",
-    "SolidTidesSpec",
-    "SpacecraftSpec",
-    "TLESpec",
-    "ThirdBodySpec",
-    "assemble_attitude_provider",
-    "assemble_force_models",
-    "register_default_orekit_providers",
 ]

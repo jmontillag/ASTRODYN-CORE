@@ -22,15 +22,6 @@ def init_orekit() -> None:
     _OREKIT_INITIALIZED = True
 
 
-def build_factory():
-    """Return a PropagatorFactory with default Orekit providers registered."""
-    from astrodyn_core import PropagatorFactory, ProviderRegistry, register_default_orekit_providers
-
-    registry = ProviderRegistry()
-    register_default_orekit_providers(registry)
-    return PropagatorFactory(registry=registry)
-
-
 def make_generated_dir() -> Path:
     """Return the examples generated-output directory, creating it if needed."""
     out = Path(__file__).resolve().parent / "generated"

@@ -97,4 +97,8 @@ Current behavior:
 
 ## 6) Next architectural step
 
-Complete Phase C API governance hardening: maintain stable façade-first user paths, enforce private-import boundaries, and document deprecation/stability policy.
+Phase C API governance is complete.  Next steps:
+
+- Remove deprecated compatibility facades and StateFileClient cross-domain methods.
+- Implement Phase 3 source-spec lane and interoperability features.
+- Add CI pipeline for automated lint + test enforcement.

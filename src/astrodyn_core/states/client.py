@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Mapping, Sequence
@@ -34,15 +35,47 @@ if TYPE_CHECKING:
     from astrodyn_core.uncertainty.spec import UncertaintySpec
 
 
+def _cross_domain_deprecation(method_name: str, target_client: str, stacklevel: int = 3) -> None:
+    """Emit a deprecation warning for cross-domain delegation methods."""
+    warnings.warn(
+        f"StateFileClient.{method_name}() is deprecated. "
+        f"Use {target_client} directly, or access it via AstrodynClient. "
+        "This method will be removed in a future release.",
+        DeprecationWarning,
+        stacklevel=stacklevel,
+    )
+
+
 @dataclass(slots=True)
 class StateFileClient:
-    """Single entrypoint for state-file workflows and Orekit conversion."""
+    """Single entrypoint for state-file workflows and Orekit conversion.
+
+    Core responsibilities (stable):
+        - load/save state files, initial states, state series
+        - Orekit date/orbit conversion
+        - ephemeris conversion from state series
+        - trajectory export from propagator
+
+    Cross-domain methods (deprecated, use AstrodynClient or domain clients):
+        - compile_scenario_maneuvers -> MissionClient
+        - export_trajectory_from_scenario -> MissionClient
+        - plot_orbital_elements -> MissionClient
+        - create_covariance_propagator -> UncertaintyClient
+        - propagate_with_covariance -> UncertaintyClient
+        - save_covariance_series -> UncertaintyClient
+        - load_covariance_series -> UncertaintyClient
+        - run_scenario_detector_mode -> MissionClient
+    """
 
     universe: Mapping[str, Any] | None = None
     default_mass_kg: float = 1000.0
     interpolation_samples: int | None = None
     _cached_mission_client: Any | None = field(init=False, default=None, repr=False)
     _cached_uncertainty_client: Any | None = field(init=False, default=None, repr=False)
+
+    # ------------------------------------------------------------------
+    # Core state-file operations (stable)
+    # ------------------------------------------------------------------
 
     def load_state_file(self, path: str | Path) -> ScenarioStateFile:
         return _load_state_file(path)
@@ -93,6 +126,10 @@ class StateFileClient:
             if series.name == series_name:
                 return series
         raise ValueError(f"State series '{series_name}' was not found in '{input_path}'.")
+
+    # ------------------------------------------------------------------
+    # Orekit conversion helpers (stable)
+    # ------------------------------------------------------------------
 
     def to_orekit_date(self, epoch: str):
         return _to_orekit_date(epoch)
@@ -167,11 +204,17 @@ class StateFileClient:
             default_mass_kg=self._resolve_default_mass(default_mass_kg),
         )
 
+    # ------------------------------------------------------------------
+    # Cross-domain: Mission delegation (deprecated)
+    # ------------------------------------------------------------------
+
     def compile_scenario_maneuvers(
         self,
         scenario: ScenarioStateFile,
         initial_state: Any,
     ) -> tuple[CompiledManeuver, ...]:
+        """.. deprecated:: Use ``MissionClient.compile_scenario_maneuvers()`` instead."""
+        _cross_domain_deprecation("compile_scenario_maneuvers", "MissionClient")
         return self._mission_client().compile_scenario_maneuvers(scenario, initial_state)
 
     def export_trajectory_from_scenario(
@@ -190,6 +233,8 @@ class StateFileClient:
         universe: Mapping[str, Any] | None = None,
         default_mass_kg: float | None = None,
     ) -> tuple[Path, tuple[CompiledManeuver, ...]]:
+        """.. deprecated:: Use ``MissionClient.export_trajectory_from_scenario()`` instead."""
+        _cross_domain_deprecation("export_trajectory_from_scenario", "MissionClient")
         return self._mission_client().export_trajectory_from_scenario(
             propagator,
             scenario,
@@ -214,6 +259,8 @@ class StateFileClient:
         universe: Mapping[str, Any] | None = None,
         title: str | None = None,
     ) -> Path:
+        """.. deprecated:: Use ``MissionClient.plot_orbital_elements_series()`` instead."""
+        _cross_domain_deprecation("plot_orbital_elements", "MissionClient")
         if isinstance(series_or_path, StateSeries):
             series = series_or_path
         else:
@@ -226,7 +273,7 @@ class StateFileClient:
         )
 
     # ------------------------------------------------------------------
-    # Covariance / Uncertainty propagation
+    # Cross-domain: Uncertainty delegation (deprecated)
     # ------------------------------------------------------------------
 
     def create_covariance_propagator(
@@ -239,27 +286,8 @@ class StateFileClient:
         mu_m3_s2: float | str = "WGS84",
         default_mass_kg: float | None = None,
     ) -> STMCovariancePropagator:
-        """Create a covariance propagator from a numerical Orekit propagator.
-
-        Parameters
-        ----------
-        propagator:
-            Orekit NumericalPropagator (or DSST) instance. Must not have been
-            used for propagation yet (``setupMatricesComputation`` must be
-            called before the first ``propagate()`` call).
-        initial_covariance:
-            Initial covariance matrix, shape (6, 6) or (7, 7) if
-            ``spec.include_mass=True``.
-        spec:
-            :class:`~astrodyn_core.uncertainty.spec.UncertaintySpec`.
-            Defaults to ``UncertaintySpec(method='stm')``.
-        frame:
-            Output frame name for state records (default ``"GCRF"``).
-        mu_m3_s2:
-            Gravitational parameter for output state records.
-        default_mass_kg:
-            Fallback mass. Uses ``self.default_mass_kg`` when not provided.
-        """
+        """.. deprecated:: Use ``UncertaintyClient.create_covariance_propagator()`` instead."""
+        _cross_domain_deprecation("create_covariance_propagator", "UncertaintyClient")
         return self._uncertainty_client().create_covariance_propagator(
             propagator,
             initial_covariance,
@@ -284,41 +312,8 @@ class StateFileClient:
         covariance_output_path: str | Path | None = None,
         default_mass_kg: float | None = None,
     ) -> tuple[StateSeries, CovarianceSeries]:
-        """Propagate state + covariance over a set of epochs.
-
-        Configures the propagator with STM computation, propagates over all
-        epochs in ``epoch_spec``, and returns both the state trajectory and the
-        propagated covariance series.
-
-        Parameters
-        ----------
-        propagator:
-            Orekit NumericalPropagator (or DSST) instance.
-        initial_covariance:
-            Initial covariance matrix, shape (6, 6).
-        epoch_spec:
-            Output epoch specification.
-        spec:
-            Uncertainty method configuration. Defaults to STM, Cartesian.
-        frame:
-            Output frame name.
-        mu_m3_s2:
-            Gravitational parameter for output state records.
-        series_name:
-            Name for the state :class:`~astrodyn_core.states.models.StateSeries`.
-        covariance_name:
-            Name for the :class:`~astrodyn_core.uncertainty.models.CovarianceSeries`.
-        state_output_path:
-            Optional path to save the state series (auto-detects YAML/HDF5).
-        covariance_output_path:
-            Optional path to save the covariance series (auto-detects YAML/HDF5).
-        default_mass_kg:
-            Fallback spacecraft mass.
-
-        Returns
-        -------
-        tuple[StateSeries, CovarianceSeries]
-        """
+        """.. deprecated:: Use ``UncertaintyClient.propagate_with_covariance()`` instead."""
+        _cross_domain_deprecation("propagate_with_covariance", "UncertaintyClient")
         state_series, cov_series = self._uncertainty_client().propagate_with_covariance(
             propagator,
             initial_covariance,
@@ -344,15 +339,17 @@ class StateFileClient:
         series: CovarianceSeries,
         **kwargs: Any,
     ) -> Path:
-        """Save a covariance series to YAML or HDF5 (auto-detected from extension)."""
+        """.. deprecated:: Use ``UncertaintyClient.save_covariance_series()`` instead."""
+        _cross_domain_deprecation("save_covariance_series", "UncertaintyClient")
         return self._uncertainty_client().save_covariance_series(path, series, **kwargs)
 
     def load_covariance_series(self, path: str | Path) -> CovarianceSeries:
-        """Load a covariance series from YAML or HDF5 (auto-detected from extension)."""
+        """.. deprecated:: Use ``UncertaintyClient.load_covariance_series()`` instead."""
+        _cross_domain_deprecation("load_covariance_series", "UncertaintyClient")
         return self._uncertainty_client().load_covariance_series(path)
 
     # ------------------------------------------------------------------
-    # Detector-driven scenario execution
+    # Cross-domain: Detector-driven scenario execution (deprecated)
     # ------------------------------------------------------------------
 
     def run_scenario_detector_mode(
@@ -370,46 +367,8 @@ class StateFileClient:
         universe: Mapping[str, Any] | None = None,
         default_mass_kg: float | None = None,
     ) -> tuple[StateSeries, MissionExecutionReport]:
-        """Execute scenario maneuvers using Orekit event detectors (closed-loop mode).
-
-        Unlike ``export_trajectory_from_scenario`` (which uses Keplerian-approximation
-        timing + propagation replay), this method binds each maneuver trigger to a
-        real Orekit ``EventDetector`` attached to the numerical propagator. Maneuvers
-        fire precisely when the detector condition is met during integration.
-
-        Parameters
-        ----------
-        propagator:
-            Orekit NumericalPropagator instance. Event detectors will be added
-            to it before propagation.
-        scenario:
-            Scenario file with timeline, maneuvers, and optional guard/occurrence
-            fields in each maneuver's trigger dict.
-        epoch_spec:
-            Output epoch specification.
-        series_name:
-            Name for the returned :class:`~astrodyn_core.states.models.StateSeries`.
-        representation:
-            Output orbit representation (``"cartesian"``, ``"keplerian"``, or
-            ``"equinoctial"``).
-        frame:
-            Output frame name.
-        mu_m3_s2:
-            Gravitational parameter for output records.
-        output_path:
-            Optional path to save the state series.
-        dense_yaml:
-            Whether to use dense YAML row format.
-        universe:
-            Optional universe configuration override.
-        default_mass_kg:
-            Fallback spacecraft mass.
-
-        Returns
-        -------
-        tuple[StateSeries, MissionExecutionReport]
-            The sampled trajectory and a report of which maneuvers fired.
-        """
+        """.. deprecated:: Use ``MissionClient.run_scenario_detector_mode()`` instead."""
+        _cross_domain_deprecation("run_scenario_detector_mode", "MissionClient")
         state_series, report = self._mission_client().run_scenario_detector_mode(
             propagator,
             scenario,
@@ -426,6 +385,10 @@ class StateFileClient:
             self.save_state_series(output_path, state_series)
 
         return state_series, report
+
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
 
     def _resolve_universe(self, universe: Mapping[str, Any] | None) -> Mapping[str, Any] | None:
         if universe is not None:

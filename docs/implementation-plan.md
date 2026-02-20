@@ -16,7 +16,7 @@ This document tracks current implementation status and the forward plan for prop
 
 ## 2) Current Stage
 
-The project is past Phase 1/2 feature delivery and is now in API-governance hardening (Phase C) after a full Phase B module decomposition.
+The project is past Phase 1/2 feature delivery and Phase C API governance hardening is complete.  The next step is Phase 3 (source-spec lane and interoperability).
 
 ### Completed baseline
 
@@ -174,15 +174,21 @@ Delivered:
 - propagation split: `universe.py`, `parsers/dynamics.py`, `parsers/forces.py`, `parsers/spacecraft.py`
 - legacy compatibility façades maintained in original module paths
 
-## Phase C (in progress) - API governance and boundary hardening
+## Phase C (complete) - API governance and boundary hardening
 
 Goal: keep refactoring gains user-visible and stable.
 
-In progress:
+Delivered:
 
-- public/internal boundary policy (`docs/phasec-api-governance.md`)
-- import hygiene test gate (`tests/test_api_boundary_hygiene.py`)
-- façade-first examples with reduced boilerplate (`app.propagation`, `app.state`, etc.)
+- Root `__all__` curated into three tiers (facade, models, advanced)
+- Subpackage `__init__.py` files reduced to curated public API
+- Compatibility facade modules (`maneuvers.py`, `propagator.py`, `orekit.py`, `config.py`) emit `DeprecationWarning` for private alias access via `__getattr__`
+- `StateFileClient` cross-domain delegation methods deprecated in favor of domain clients
+- `change_covariance_type` and `parse_epoch_utc` promoted to public API
+- All examples migrated to facade-first public API paths (`app.mission`, `app.uncertainty`, etc.)
+- All tests migrated away from deprecated API paths
+- Import hygiene test suite extended with 5 checks: private imports, root `__all__` consistency, example import audit, internal module path audit, facade `__getattr__` enforcement
+- Full deprecation policy documented in `docs/phasec-api-governance.md`
 
 ## Phase 3 (future) - Source-spec lane and interoperability
 
@@ -196,12 +202,11 @@ In progress:
 
 ## 5) Immediate Backlog (next sessions)
 
-1. Finalize root export policy language for stable façade vs advanced low-level tiers.
-2. Add API stability/deprecation notes to release process docs.
-3. Implement Unscented Transform covariance propagation (`UnscentedCovariancePropagator`).
-4. Add recurrence / `every-Nth-orbit` timeline semantics using Orekit event occurrence filtering.
-5. Add CI pipeline for lint + tests.
-6. Expand docs:
+1. Remove deprecated compatibility facades and StateFileClient cross-domain methods (next cleanup cycle).
+2. Implement Unscented Transform covariance propagation (`UnscentedCovariancePropagator`).
+3. Add recurrence / `every-Nth-orbit` timeline semantics using Orekit event occurrence filtering.
+4. Add CI pipeline for lint + tests.
+5. Expand docs:
    - detector vs. Keplerian mode trade-offs
    - covariance interpretation guide (orbit type, frame conventions)
    - maintenance mission profiles with guard conditions.
@@ -257,4 +262,5 @@ When resuming development:
 - 2026-02-19: Unscented Transform covariance propagation reserved as planned-but-not-yet-implemented stub.
 - 2026-02-20: Phase B module decomposition completed with compatibility façades preserved.
 - 2026-02-20: `PropagationClient` added and composed in `AstrodynClient` as the preferred propagation façade path.
-- 2026-02-20: Phase C API governance started with import hygiene checks and façade-tier policy docs.
+- 2026-02-20: Phase C API governance started with import hygiene checks and facade-tier policy docs.
+- 2026-02-20: Phase C completed: root API tiering, deprecation warnings, example/test migration, hygiene enforcement.

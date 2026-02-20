@@ -440,10 +440,8 @@ class TestSTMCovariancePropagator:
           3. Propagating P₀_kep (= P₀ in Keplerian coords) directly → P_kep_direct.
           4. Asserting P_kep_from_cart ≈ P_kep_direct.
         """
-        from astrodyn_core.uncertainty.propagator import (
-            _change_covariance_type,
-            create_covariance_propagator,
-        )
+        from astrodyn_core.uncertainty.propagator import create_covariance_propagator
+        from astrodyn_core.uncertainty.transforms import change_covariance_type
 
         target_epoch = "2026-02-19T00:20:00Z"
         p0_cart = np.asarray(_INITIAL_COV_6x6)
@@ -455,7 +453,7 @@ class TestSTMCovariancePropagator:
         state_t, rec_cart = cov_cart_prop.propagate_with_covariance(target_epoch)
 
         from org.orekit.orbits import OrbitType, PositionAngleType
-        P_kep_from_cart = _change_covariance_type(
+        P_kep_from_cart = change_covariance_type(
             rec_cart.to_numpy(),
             state_t.getOrbit(),
             state_t.getDate(),
@@ -468,7 +466,7 @@ class TestSTMCovariancePropagator:
 
         # --- path 2: convert P₀ to Keplerian, propagate, get Keplerian output ---
         initial_state = _build_numerical_propagator().getInitialState()
-        p0_kep = _change_covariance_type(
+        p0_kep = change_covariance_type(
             p0_cart,
             initial_state.getOrbit(),
             initial_state.getDate(),
@@ -537,7 +535,9 @@ class TestSTMCovariancePropagator:
 
     def test_requested_output_frame_transforms_state_and_covariance(self):
         """Output frame should change state and covariance values, not just metadata labels."""
-        client = StateFileClient()
+        from astrodyn_core.uncertainty import UncertaintyClient
+
+        client = UncertaintyClient()
         p0_cart = np.asarray(_INITIAL_COV_6x6)
         epoch_spec = OutputEpochSpec(
             start_epoch="2026-02-19T00:00:00Z",
