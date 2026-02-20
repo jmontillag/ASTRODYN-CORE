@@ -20,6 +20,7 @@ This folder contains the core Python package used by the examples and tests.
 
 4. **`mission/`**
    - Scenario maneuver planning and detector-driven mission execution.
+   - `MissionClient` is the orchestration entry point for mission workflows.
    - Includes mission profile plotting utilities.
 
 5. **`uncertainty/`**
@@ -32,7 +33,7 @@ This folder contains the core Python package used by the examples and tests.
    - Resolves NORAD+epoch requests into line-pair `TLESpec` used by `propagation/`.
 
 7. **`client.py`**
-   - `AstrodynClient` composes `state` and `tle` clients into one app-level façade.
+   - `AstrodynClient` composes `state`, `mission`, and `tle` clients into one app-level façade.
 
 ## Typical workflow paths
 

@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from astrodyn_core import AstrodynClient
+from astrodyn_core.mission import MissionClient
 from astrodyn_core.states import StateFileClient
 from astrodyn_core.tle import TLEClient
 
@@ -41,6 +42,40 @@ def test_astrodyn_client_composes_state_and_tle_clients(tmp_path: Path) -> None:
         tle_base_dir=tmp_path,
     )
     assert isinstance(app.state, StateFileClient)
+    assert isinstance(app.mission, MissionClient)
     assert isinstance(app.tle, TLEClient)
     assert app.state.default_mass_kg == 777.0
+    assert app.mission.default_mass_kg == 777.0
     assert Path(app.tle.base_dir) == tmp_path
+
+
+def test_mission_client_simulate_delegates_with_defaults(monkeypatch) -> None:
+    captured: dict[str, object] = {}
+
+    def _fake_simulate(
+        propagator,
+        scenario,
+        epoch_spec,
+        *,
+        series_name,
+        representation,
+        frame,
+        mu_m3_s2,
+        interpolation_samples,
+        universe,
+        default_mass_kg,
+    ):
+        captured["interpolation_samples"] = interpolation_samples
+        captured["default_mass_kg"] = default_mass_kg
+        captured["universe"] = universe
+        return "series", tuple()
+
+    monkeypatch.setattr("astrodyn_core.mission.client._simulate_scenario_series", _fake_simulate)
+
+    client = MissionClient(universe={"earth": {}}, default_mass_kg=321.0, interpolation_samples=11)
+    result = client.simulate_scenario_series("prop", "scenario", "epoch_spec")
+
+    assert result == ("series", tuple())
+    assert captured["interpolation_samples"] == 11
+    assert captured["default_mass_kg"] == 321.0
+    assert captured["universe"] == {"earth": {}}

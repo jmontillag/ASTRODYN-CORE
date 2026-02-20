@@ -170,9 +170,7 @@ class StateFileClient:
         scenario: ScenarioStateFile,
         initial_state: Any,
     ) -> tuple[CompiledManeuver, ...]:
-        from astrodyn_core.mission.maneuvers import compile_scenario_maneuvers
-
-        return compile_scenario_maneuvers(scenario, initial_state)
+        return self._mission_client().compile_scenario_maneuvers(scenario, initial_state)
 
     def export_trajectory_from_scenario(
         self,
@@ -190,9 +188,7 @@ class StateFileClient:
         universe: Mapping[str, Any] | None = None,
         default_mass_kg: float | None = None,
     ) -> tuple[Path, tuple[CompiledManeuver, ...]]:
-        from astrodyn_core.mission.maneuvers import export_scenario_series
-
-        return export_scenario_series(
+        return self._mission_client().export_trajectory_from_scenario(
             propagator,
             scenario,
             epoch_spec,
@@ -201,10 +197,10 @@ class StateFileClient:
             representation=representation,
             frame=frame,
             mu_m3_s2=mu_m3_s2,
-            interpolation_samples=self._resolve_required_interpolation_samples(interpolation_samples),
+            interpolation_samples=interpolation_samples,
             dense_yaml=dense_yaml,
-            universe=self._resolve_universe(universe),
-            default_mass_kg=self._resolve_default_mass(default_mass_kg),
+            universe=universe,
+            default_mass_kg=default_mass_kg,
         )
 
     def plot_orbital_elements(
@@ -216,16 +212,14 @@ class StateFileClient:
         universe: Mapping[str, Any] | None = None,
         title: str | None = None,
     ) -> Path:
-        from astrodyn_core.mission.plotting import plot_orbital_elements_series
-
         if isinstance(series_or_path, StateSeries):
             series = series_or_path
         else:
             series = self.load_state_series(series_or_path, series_name=series_name)
-        return plot_orbital_elements_series(
+        return self._mission_client().plot_orbital_elements_series(
             series,
             output_png,
-            universe=self._resolve_universe(universe),
+            universe=universe,
             title=title,
         )
 
@@ -424,20 +418,16 @@ class StateFileClient:
         tuple[StateSeries, MissionExecutionReport]
             The sampled trajectory and a report of which maneuvers fired.
         """
-        from astrodyn_core.mission.executor import ScenarioExecutor
-
-        executor = ScenarioExecutor(
+        state_series, report = self._mission_client().run_scenario_detector_mode(
             propagator,
             scenario,
-            universe=self._resolve_universe(universe),
-        )
-        state_series, report = executor.run_and_sample(
             epoch_spec,
             series_name=series_name,
             representation=representation,
             frame=frame,
             mu_m3_s2=mu_m3_s2,
-            default_mass_kg=self._resolve_default_mass(default_mass_kg),
+            universe=universe,
+            default_mass_kg=default_mass_kg,
         )
 
         if output_path is not None:
@@ -449,6 +439,15 @@ class StateFileClient:
         if universe is not None:
             return universe
         return self.universe
+
+    def _mission_client(self):
+        from astrodyn_core.mission import MissionClient
+
+        return MissionClient(
+            universe=self.universe,
+            default_mass_kg=self.default_mass_kg,
+            interpolation_samples=self.interpolation_samples,
+        )
 
     def _resolve_default_mass(self, default_mass_kg: float | None) -> float:
         if default_mass_kg is not None:

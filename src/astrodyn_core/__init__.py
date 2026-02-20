@@ -9,6 +9,7 @@ from astrodyn_core.data import (
 )
 from astrodyn_core.mission import (
     CompiledManeuver,
+    MissionClient,
     MissionExecutionReport,
     ManeuverFiredEvent,
     ScenarioExecutor,
@@ -126,6 +127,7 @@ __all__ = [
     "load_spacecraft_from_dict",
     "ManeuverRecord",
     "ManeuverFiredEvent",
+    "MissionClient",
     "MissionExecutionReport",
     "STMCovariancePropagator",
     "ScenarioExecutor",

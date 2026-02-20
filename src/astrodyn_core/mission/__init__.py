@@ -1,5 +1,6 @@
 """Mission-profile helpers (maneuver execution and analysis plotting)."""
 
+from astrodyn_core.mission.client import MissionClient
 from astrodyn_core.mission.executor import (
     ManeuverFiredEvent,
     MissionExecutionReport,
@@ -16,6 +17,7 @@ from astrodyn_core.mission.plotting import plot_orbital_elements_series
 __all__ = [
     "CompiledManeuver",
     "ManeuverFiredEvent",
+    "MissionClient",
     "MissionExecutionReport",
     "ScenarioExecutor",
     "compile_scenario_maneuvers",

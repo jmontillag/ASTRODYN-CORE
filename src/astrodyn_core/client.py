@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Mapping
 
+from astrodyn_core.mission import MissionClient
 from astrodyn_core.states import StateFileClient
 from astrodyn_core.tle import TLEClient
 
@@ -22,10 +23,16 @@ class AstrodynClient:
     space_track_client: Any | None = None
 
     state: StateFileClient = field(init=False)
+    mission: MissionClient = field(init=False)
     tle: TLEClient = field(init=False)
 
     def __post_init__(self) -> None:
         self.state = StateFileClient(
+            universe=self.universe,
+            default_mass_kg=self.default_mass_kg,
+            interpolation_samples=self.interpolation_samples,
+        )
+        self.mission = MissionClient(
             universe=self.universe,
             default_mass_kg=self.default_mass_kg,
             interpolation_samples=self.interpolation_samples,
