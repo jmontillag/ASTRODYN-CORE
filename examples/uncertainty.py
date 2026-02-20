@@ -52,6 +52,7 @@ from orekit.pyhelpers import setup_orekit_curdir  # noqa: E402
 setup_orekit_curdir()
 
 from astrodyn_core import (
+    AstrodynClient,
     BuildContext,
     IntegratorSpec,
     OrbitStateRecord,
@@ -60,7 +61,6 @@ from astrodyn_core import (
     PropagatorKind,
     PropagatorSpec,
     ProviderRegistry,
-    StateFileClient,
     UncertaintySpec,
     register_default_orekit_providers,
     setup_stm_propagator,
@@ -117,7 +117,7 @@ _CHECK_IDX: dict[str, int] = {
     "2026-02-22T00:00:00Z": 144,  # +72 h
 }
 
-client = StateFileClient()
+app = AstrodynClient()
 
 
 # ---------------------------------------------------------------------------
@@ -188,7 +188,7 @@ print("─" * 72)
 
 cart_spec = UncertaintySpec(method="stm", orbit_type="CARTESIAN")
 
-state_series_cart, cov_series_cart = client.propagate_with_covariance(
+state_series_cart, cov_series_cart = app.uncertainty.propagate_with_covariance(
     _build_propagator(),
     INITIAL_COV_CART,
     EPOCH_SPEC,
@@ -196,9 +196,9 @@ state_series_cart, cov_series_cart = client.propagate_with_covariance(
     frame="GCRF",
     series_name="trajectory-cartesian",
     covariance_name="covariance-cartesian",
-    state_output_path=OUTPUT_DIR / "cov_cart_trajectory.yaml",
-    covariance_output_path=OUTPUT_DIR / "cov_cart_series.yaml",
 )
+app.state.save_state_series(OUTPUT_DIR / "cov_cart_trajectory.yaml", state_series_cart)
+app.uncertainty.save_covariance_series(OUTPUT_DIR / "cov_cart_series.yaml", cov_series_cart)
 
 print(f"  Saved: {OUTPUT_DIR / 'cov_cart_trajectory.yaml'}")
 print(f"  Saved: {OUTPUT_DIR / 'cov_cart_series.yaml'}")
@@ -259,7 +259,7 @@ print()
 
 kep_spec = UncertaintySpec(method="stm", orbit_type="KEPLERIAN", position_angle="MEAN")
 
-state_series_kep, cov_series_kep = client.propagate_with_covariance(
+state_series_kep, cov_series_kep = app.uncertainty.propagate_with_covariance(
     _build_propagator(),
     INITIAL_COV_KEP,
     EPOCH_SPEC,
@@ -267,9 +267,9 @@ state_series_kep, cov_series_kep = client.propagate_with_covariance(
     frame="GCRF",
     series_name="trajectory-keplerian",
     covariance_name="covariance-keplerian",
-    state_output_path=OUTPUT_DIR / "cov_kep_trajectory.yaml",
-    covariance_output_path=OUTPUT_DIR / "cov_kep_series.yaml",
 )
+app.state.save_state_series(OUTPUT_DIR / "cov_kep_trajectory.yaml", state_series_kep)
+app.uncertainty.save_covariance_series(OUTPUT_DIR / "cov_kep_series.yaml", cov_series_kep)
 
 print(f"  Saved: {OUTPUT_DIR / 'cov_kep_trajectory.yaml'}")
 print(f"  Saved: {OUTPUT_DIR / 'cov_kep_series.yaml'}")
@@ -277,7 +277,7 @@ print()
 
 # HDF5 output (optional)
 try:
-    client.save_covariance_series(OUTPUT_DIR / "cov_kep_series.h5", cov_series_kep)
+    app.uncertainty.save_covariance_series(OUTPUT_DIR / "cov_kep_series.h5", cov_series_kep)
     print(f"  Saved: {OUTPUT_DIR / 'cov_kep_series.h5'}  (HDF5)")
 except ImportError:
     print("  [Note] h5py not available — HDF5 output skipped.")
@@ -466,7 +466,7 @@ for series_name, path, series in [
     ("Cartesian", OUTPUT_DIR / "cov_cart_series.yaml", cov_series_cart),
     ("Keplerian", OUTPUT_DIR / "cov_kep_series.yaml",  cov_series_kep),
 ]:
-    loaded = client.load_covariance_series(path)
+    loaded = app.uncertainty.load_covariance_series(path)
     np.testing.assert_array_almost_equal(
         series.matrices_numpy(),
         loaded.matrices_numpy(),

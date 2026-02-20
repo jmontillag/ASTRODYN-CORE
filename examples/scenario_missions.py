@@ -76,16 +76,16 @@ def run_io() -> None:
     init_orekit()
 
     from astrodyn_core import (
+        AstrodynClient,
         BuildContext,
         OrbitStateRecord,
         OutputEpochSpec,
         PropagatorKind,
         PropagatorSpec,
-        StateFileClient,
     )
 
     out_dir = make_generated_dir()
-    client = StateFileClient()
+    app = AstrodynClient()
 
     orbit, _epoch, gcrf = make_leo_orbit()
     factory = build_factory()
@@ -96,7 +96,7 @@ def run_io() -> None:
     propagator = builder.buildPropagator(builder.getSelectedNormalizedParameters())
 
     initial_epoch = "2026-02-19T00:00:00Z"
-    state0 = propagator.propagate(client.to_orekit_date(initial_epoch))
+    state0 = propagator.propagate(app.state.to_orekit_date(initial_epoch))
     pv0 = state0.getPVCoordinates(gcrf)
     initial_record = OrbitStateRecord(
         epoch=initial_epoch,
@@ -112,8 +112,8 @@ def run_io() -> None:
     yaml_series_file = out_dir / "workflow_cartesian_series.yaml"
     h5_series_file = out_dir / "workflow_cartesian_series.h5"
 
-    client.save_initial_state(initial_file, initial_record)
-    loaded_initial = client.load_state_file(initial_file).initial_state
+    app.state.save_initial_state(initial_file, initial_record)
+    loaded_initial = app.state.load_state_file(initial_file).initial_state
     if loaded_initial is None:
         raise RuntimeError("Failed to load initial state from generated file.")
 
@@ -125,7 +125,7 @@ def run_io() -> None:
         step_seconds=120.0,
     )
 
-    client.export_trajectory_from_propagator(
+    app.state.export_trajectory_from_propagator(
         propagator,
         epoch_spec,
         yaml_series_file,
@@ -134,7 +134,7 @@ def run_io() -> None:
         frame="GCRF",
         dense_yaml=True,
     )
-    client.export_trajectory_from_propagator(
+    app.state.export_trajectory_from_propagator(
         propagator,
         epoch_spec,
         h5_series_file,
@@ -143,10 +143,10 @@ def run_io() -> None:
         frame="GCRF",
     )
 
-    yaml_scenario = client.load_state_file(yaml_series_file)
-    yaml_ephemeris = client.scenario_to_ephemeris(yaml_scenario)
-    h5_series = client.load_state_series(h5_series_file)
-    h5_ephemeris = client.state_series_to_ephemeris(h5_series)
+    yaml_scenario = app.state.load_state_file(yaml_series_file)
+    yaml_ephemeris = app.state.scenario_to_ephemeris(yaml_scenario)
+    h5_series = app.state.load_state_series(h5_series_file)
+    h5_ephemeris = app.state.state_series_to_ephemeris(h5_series)
 
     sample_step_s = 120
     off_grid_offsets = [60, 300, 780, 1500, 2460]
@@ -157,7 +157,7 @@ def run_io() -> None:
         if offset_s % sample_step_s == 0:
             continue
         epoch_str = (start_dt + timedelta(seconds=offset_s)).isoformat().replace("+00:00", "Z")
-        date = client.to_orekit_date(epoch_str)
+        date = app.state.to_orekit_date(epoch_str)
         truth = propagator.propagate(date).getPVCoordinates(gcrf).getPosition()
         from_yaml = yaml_ephemeris.propagate(date).getPVCoordinates(gcrf).getPosition()
         from_h5 = h5_ephemeris.propagate(date).getPVCoordinates(gcrf).getPosition()
@@ -178,19 +178,19 @@ def run_inspect() -> None:
     init_orekit()
 
     from astrodyn_core import (
+        AstrodynClient,
         BuildContext,
         PropagatorKind,
         PropagatorSpec,
         ScenarioStateFile,
-        StateFileClient,
     )
 
     base_dir = Path(__file__).resolve().parent
     scenario_path = base_dir / "state_files" / "leo_mission_timeline.yaml"
     out_path = make_generated_dir() / "scenario_enriched.yaml"
 
-    client = StateFileClient()
-    scenario = client.load_state_file(scenario_path)
+    app = AstrodynClient()
+    scenario = app.state.load_state_file(scenario_path)
     if scenario.initial_state is None:
         raise RuntimeError("Scenario requires initial_state.")
 
@@ -218,7 +218,7 @@ def run_inspect() -> None:
             continue
 
         epoch_dt = _parse_epoch_utc(epoch_raw)
-        state = propagator.propagate(client.to_orekit_date(epoch_raw))
+        state = propagator.propagate(app.state.to_orekit_date(epoch_raw))
         r_km = state.getPVCoordinates().getPosition().getNorm() / 1000.0
         mode = _active_attitude_mode_at(scenario, epoch_dt)
         print(f"{maneuver.name}: epoch={epoch_raw}, |r|={r_km:.3f} km, attitude={mode}")
@@ -239,7 +239,7 @@ def run_inspect() -> None:
         attitude_timeline=scenario.attitude_timeline,
         metadata=enriched_metadata,
     )
-    client.save_state_file(out_path, enriched)
+    app.state.save_state_file(out_path, enriched)
     print(f"Saved enriched scenario: {out_path}")
 
 
@@ -247,7 +247,7 @@ def run_intent() -> None:
     _header("Scenario Missions · Intent Maneuvers")
     init_orekit()
 
-    from astrodyn_core import OutputEpochSpec, StateFileClient
+    from astrodyn_core import AstrodynClient, OutputEpochSpec
     from astrodyn_core.states.validation import parse_epoch_utc
 
     base_dir = Path(__file__).resolve().parent
@@ -256,8 +256,8 @@ def run_intent() -> None:
     out_series = out_dir / "mission_profile_series.yaml"
     out_plot = out_dir / "mission_profile_elements.png"
 
-    client = StateFileClient()
-    scenario = client.load_state_file(scenario_path)
+    app = AstrodynClient()
+    scenario = app.state.load_state_file(scenario_path)
     if scenario.initial_state is None:
         raise RuntimeError("Scenario must define initial_state.")
 
@@ -275,7 +275,7 @@ def run_intent() -> None:
         step_seconds=120.0,
     )
 
-    saved_path, compiled = client.export_trajectory_from_scenario(
+    saved_path, compiled = app.state.export_trajectory_from_scenario(
         propagator,
         scenario,
         epoch_spec,
@@ -285,8 +285,8 @@ def run_intent() -> None:
         frame="GCRF",
         dense_yaml=True,
     )
-    series = client.load_state_series(saved_path)
-    client.plot_orbital_elements(series, out_plot, title="Mission Profile: Orbital Elements")
+    series = app.state.load_state_series(saved_path)
+    app.state.plot_orbital_elements(series, out_plot, title="Mission Profile: Orbital Elements")
 
     print(f"Saved trajectory: {saved_path}")
     print(f"Saved plot: {out_plot}")
@@ -307,7 +307,7 @@ def run_detector() -> None:
     _header("Scenario Missions · Detector-Driven Execution")
     init_orekit()
 
-    from astrodyn_core import OutputEpochSpec, StateFileClient
+    from astrodyn_core import AstrodynClient, OutputEpochSpec
 
     base_dir = Path(__file__).resolve().parent
     scenario_path = base_dir / "state_files" / "leo_detector_mission.yaml"
@@ -315,8 +315,8 @@ def run_detector() -> None:
     out_states = out_dir / "detector_mission_trajectory.yaml"
     out_plot = out_dir / "detector_mission_elements.png"
 
-    client = StateFileClient()
-    scenario = client.load_state_file(scenario_path)
+    app = AstrodynClient()
+    scenario = app.state.load_state_file(scenario_path)
     if scenario.initial_state is None:
         raise RuntimeError("Scenario must define initial_state.")
 
@@ -332,7 +332,7 @@ def run_detector() -> None:
         step_seconds=300.0,
     )
 
-    state_series, report = client.run_scenario_detector_mode(
+    state_series, report = app.state.run_scenario_detector_mode(
         propagator,
         scenario,
         epoch_spec,
@@ -363,7 +363,7 @@ def run_detector() -> None:
             print(f"  - {count}x {reason}")
 
     if state_series.states:
-        client.plot_orbital_elements(state_series, out_plot)
+        app.state.plot_orbital_elements(state_series, out_plot)
         print(f"Saved plot: {out_plot}")
     print(f"Saved trajectory: {out_states}")
 

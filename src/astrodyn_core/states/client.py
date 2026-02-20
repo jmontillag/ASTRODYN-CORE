@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Mapping, Sequence
 
@@ -41,6 +41,8 @@ class StateFileClient:
     universe: Mapping[str, Any] | None = None
     default_mass_kg: float = 1000.0
     interpolation_samples: int | None = None
+    _cached_mission_client: Any | None = field(init=False, default=None, repr=False)
+    _cached_uncertainty_client: Any | None = field(init=False, default=None, repr=False)
 
     def load_state_file(self, path: str | Path) -> ScenarioStateFile:
         return _load_state_file(path)
@@ -431,20 +433,24 @@ class StateFileClient:
         return self.universe
 
     def _mission_client(self):
-        from astrodyn_core.mission import MissionClient
+        if self._cached_mission_client is None:
+            from astrodyn_core.mission import MissionClient
 
-        return MissionClient(
-            universe=self.universe,
-            default_mass_kg=self.default_mass_kg,
-            interpolation_samples=self.interpolation_samples,
-        )
+            self._cached_mission_client = MissionClient(
+                universe=self.universe,
+                default_mass_kg=self.default_mass_kg,
+                interpolation_samples=self.interpolation_samples,
+            )
+        return self._cached_mission_client
 
     def _uncertainty_client(self):
-        from astrodyn_core.uncertainty import UncertaintyClient
+        if self._cached_uncertainty_client is None:
+            from astrodyn_core.uncertainty import UncertaintyClient
 
-        return UncertaintyClient(
-            default_mass_kg=self.default_mass_kg,
-        )
+            self._cached_uncertainty_client = UncertaintyClient(
+                default_mass_kg=self.default_mass_kg,
+            )
+        return self._cached_uncertainty_client
 
     def _resolve_default_mass(self, default_mass_kg: float | None) -> float:
         if default_mass_kg is not None:

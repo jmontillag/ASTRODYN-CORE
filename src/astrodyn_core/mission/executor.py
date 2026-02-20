@@ -148,13 +148,13 @@ class ScenarioExecutor:
         Calling it explicitly allows inspecting the detectors before propagation.
         """
         from astrodyn_core.mission.detectors import build_detectors_from_scenario
-        from astrodyn_core.mission.maneuvers import _resolve_timeline_events
+        from astrodyn_core.mission.timeline import resolve_timeline_events
 
         self._execution_log.clear()
         initial_state = self._propagator.getInitialState()
 
         # Resolve timeline events with Keplerian approximation (for date-based detectors)
-        resolved_timeline = _resolve_timeline_events(
+        resolved_timeline = resolve_timeline_events(
             self._scenario.timeline, initial_state
         )
 

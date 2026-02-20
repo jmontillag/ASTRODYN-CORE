@@ -183,11 +183,10 @@ def run_tle_resolve() -> None:
     from spacetrack import SpaceTrackClient
 
     from astrodyn_core import (
+        AstrodynClient,
         BuildContext,
         PropagatorKind,
         PropagatorSpec,
-        TLEQuery,
-        resolve_tle_spec,
     )
 
     out_dir = make_generated_dir()
@@ -213,13 +212,13 @@ def run_tle_resolve() -> None:
     norad_id = 25544
     target_epoch = datetime.now(timezone.utc)
 
-    query = TLEQuery(
-        norad_id=norad_id,
-        target_epoch=target_epoch,
-        base_dir=tle_cache_dir,
-        allow_download=True,
+    app = AstrodynClient(
+        tle_base_dir=tle_cache_dir,
+        tle_allow_download=True,
+        space_track_client=space_track_client,
     )
-    tle_spec = resolve_tle_spec(query, space_track_client=space_track_client)
+    query = app.tle.build_query(norad_id=norad_id, target_epoch=target_epoch)
+    tle_spec = app.tle.resolve_tle_spec(query)
 
     factory = build_factory()
     propagator = factory.build_propagator(
@@ -241,7 +240,7 @@ def run_plot() -> None:
     _header("Quickstart · Export + Plot")
     init_orekit()
 
-    from astrodyn_core import BuildContext, OutputEpochSpec, PropagatorKind, PropagatorSpec, StateFileClient
+    from astrodyn_core import AstrodynClient, BuildContext, OutputEpochSpec, PropagatorKind, PropagatorSpec
     from astrodyn_core.states.orekit import from_orekit_date
 
     orbit, epoch, _frame = make_leo_orbit()
@@ -264,8 +263,8 @@ def run_plot() -> None:
     series_path = out_dir / "quickstart_orbit_series.yaml"
     plot_path = out_dir / "quickstart_orbit_elements.png"
 
-    client = StateFileClient()
-    client.export_trajectory_from_propagator(
+    app = AstrodynClient()
+    app.state.export_trajectory_from_propagator(
         propagator,
         epoch_spec,
         series_path,
@@ -273,8 +272,8 @@ def run_plot() -> None:
         representation="keplerian",
         frame="GCRF",
     )
-    series = client.load_state_series(series_path)
-    client.plot_orbital_elements(series, plot_path, title="Quickstart: Orbital Elements")
+    series = app.state.load_state_series(series_path)
+    app.state.plot_orbital_elements(series, plot_path, title="Quickstart: Orbital Elements")
     print(f"Saved trajectory: {series_path}")
     print(f"Saved plot: {plot_path}")
 

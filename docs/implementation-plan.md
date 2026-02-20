@@ -84,7 +84,12 @@ The project is past the original "Phase 1 propagation foundation" and is now in 
 
 ### Public ergonomic entrypoint
 
-- `StateFileClient` centralizes file + conversion + scenario-export operations.
+- `AstrodynClient` is the façade-first app entrypoint.
+- Domain clients remain available for focused usage:
+  - `StateFileClient`
+  - `MissionClient`
+  - `UncertaintyClient`
+  - `TLEClient`
 
 ## 4) Roadmap
 
@@ -167,7 +172,8 @@ Delivered:
 2. Implement Unscented Transform covariance propagation (`UnscentedCovariancePropagator`).
 3. Add recurrence / `every-Nth-orbit` timeline semantics using Orekit's event occurrence filtering.
 4. Add CI pipeline for lint + tests.
-5. Expand docs:
+5. Continue maintainability cleanup roadmap (`docs/maintainability-cleanup-roadmap.md`), including module decomposition for large files.
+6. Expand docs:
    - detector vs. Keplerian mode trade-offs
    - covariance interpretation guide (orbit type, frame conventions)
    - maintenance mission profiles with guard conditions.

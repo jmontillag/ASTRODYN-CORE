@@ -162,10 +162,10 @@ def _apply_impulse(state: Any, dv_inertial: tuple[float, float, float]) -> Any:
 
 
 def _resolve_dv(model: Mapping[str, Any], state: Any, trigger_type: str) -> Any:
-    """Delegate to maneuvers._resolve_delta_v_vector at detector fire time."""
-    from astrodyn_core.mission.maneuvers import _resolve_delta_v_vector
+    """Delegate to mission intent delta-v resolver at detector fire time."""
+    from astrodyn_core.mission.intents import resolve_delta_v_vector
 
-    return _resolve_delta_v_vector(model, state, trigger_type)
+    return resolve_delta_v_vector(model, state, trigger_type)
 
 
 # ---------------------------------------------------------------------------
@@ -317,9 +317,9 @@ def _resolved_epoch_for_event_trigger(
         return str(trigger["epoch"])
 
     if trigger_type == "elapsed":
-        from astrodyn_core.mission.maneuvers import _parse_duration_seconds
+        from astrodyn_core.mission.timeline import parse_duration_seconds
         from_epoch = str(trigger.get("from_epoch", ""))
-        dt_s = _parse_duration_seconds(trigger.get("dt"), key_name="trigger.dt")
+        dt_s = parse_duration_seconds(trigger.get("dt"), key_name="trigger.dt")
         base_date = to_orekit_date(from_epoch) if from_epoch else initial_state.getDate()
         return from_orekit_date(base_date.shiftedBy(dt_s))
 
@@ -354,7 +354,7 @@ def build_detectors_from_scenario(
         Orekit ``SpacecraftState`` at the mission start epoch.
     resolved_timeline:
         Mapping ``{event_id: ResolvedTimelineEvent}`` as returned by
-        ``mission.maneuvers._resolve_timeline_events``.
+        ``mission.timeline.resolve_timeline_events``.
     execution_log:
         Mutable list that each handler appends log-entry dicts to during
         propagation. Converted to ``ManeuverFiredEvent`` objects by the executor.

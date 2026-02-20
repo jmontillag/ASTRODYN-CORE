@@ -69,7 +69,8 @@ Current behavior:
 ## 4) Public API strategy
 
 - Keep common symbols at package root (`astrodyn_core`).
-- Expose a single user-friendly state/mission facade (`StateFileClient`).
+- Expose an app-level unified façade (`AstrodynClient`) for most users.
+- Keep domain façades available for focused workflows (`StateFileClient`, `MissionClient`, `UncertaintyClient`, `TLEClient`).
 - Preserve direct access to Orekit-native builders/propagators for advanced users.
 
 ## 5) Next architectural step
