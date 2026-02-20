@@ -7,7 +7,8 @@ Covers the most common first-day workflows in one script:
 3. Numerical propagation with YAML dynamics + spacecraft presets
 4. DSST propagation
 5. TLE propagation
-6. Trajectory export + orbital-elements plot
+6. TLE cache resolution (NORAD + epoch -> TLESpec)
+7. Trajectory export + orbital-elements plot
 
 Run from project root:
     python examples/quickstart.py --mode all
@@ -170,6 +171,72 @@ def run_tle() -> None:
     print(f"Position after 45 min (km): ({pos.getX()/1e3:.1f}, {pos.getY()/1e3:.1f}, {pos.getZ()/1e3:.1f})")
 
 
+def run_tle_resolve() -> None:
+    _header("Quickstart · TLE Resolve (Download + Cache)")
+    init_orekit()
+
+    from configparser import ConfigParser
+    from datetime import datetime, timezone
+
+    from org.orekit.frames import FramesFactory
+    from org.orekit.propagation.analytical.tle import TLE as OrekitTLE
+    from spacetrack import SpaceTrackClient
+
+    from astrodyn_core import (
+        BuildContext,
+        PropagatorKind,
+        PropagatorSpec,
+        TLEQuery,
+        resolve_tle_spec,
+    )
+
+    out_dir = make_generated_dir()
+    tle_cache_dir = out_dir / "tle_cache"
+
+    repo_root = Path(__file__).resolve().parents[1]
+    secrets_path = repo_root / "secrets.ini"
+    if not secrets_path.exists():
+        raise RuntimeError(f"Missing credentials file: {secrets_path}")
+
+    cfg = ConfigParser()
+    cfg.read(secrets_path)
+    identity = cfg.get("credentials", "spacetrack_identity", fallback="").strip()
+    password = cfg.get("credentials", "spacetrack_password", fallback="").strip()
+    if not identity or not password:
+        raise RuntimeError(
+            "secrets.ini is missing credentials.spacetrack_identity or credentials.spacetrack_password."
+        )
+
+    space_track_client = SpaceTrackClient(identity=identity, password=password)
+
+    # Download-backed resolution for ISS/NORAD 25544.
+    norad_id = 25544
+    target_epoch = datetime.now(timezone.utc)
+
+    query = TLEQuery(
+        norad_id=norad_id,
+        target_epoch=target_epoch,
+        base_dir=tle_cache_dir,
+        allow_download=True,
+    )
+    tle_spec = resolve_tle_spec(query, space_track_client=space_track_client)
+
+    factory = build_factory()
+    propagator = factory.build_propagator(
+        PropagatorSpec(kind=PropagatorKind.TLE, tle=tle_spec),
+        BuildContext(),
+    )
+
+    tle_epoch = OrekitTLE(tle_spec.line1, tle_spec.line2).getDate()
+    state = propagator.propagate(tle_epoch.shiftedBy(30.0 * 60.0))
+    pos = state.getPVCoordinates(FramesFactory.getGCRF()).getPosition()
+
+    print(f"Target epoch: {target_epoch.isoformat()}")
+    print(f"TLE cache directory: {tle_cache_dir}")
+    print(f"Resolved TLE line1: {tle_spec.line1}")
+    print(f"Position after 30 min (km): ({pos.getX()/1e3:.1f}, {pos.getY()/1e3:.1f}, {pos.getZ()/1e3:.1f})")
+
+
 def run_plot() -> None:
     _header("Quickstart · Export + Plot")
     init_orekit()
@@ -216,7 +283,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="ASTRODYN-CORE quickstart examples")
     parser.add_argument(
         "--mode",
-        choices=("all", "basics", "keplerian", "numerical", "dsst", "tle", "plot"),
+        choices=("all", "basics", "keplerian", "numerical", "dsst", "tle", "tle_resolve", "plot"),
         default="all",
         help="Choose one workflow or run all (default).",
     )
@@ -228,11 +295,12 @@ def main() -> None:
         "numerical": run_numerical,
         "dsst": run_dsst,
         "tle": run_tle,
+        "tle_resolve": run_tle_resolve,
         "plot": run_plot,
     }
 
     if args.mode == "all":
-        for key in ("basics", "keplerian", "numerical", "dsst", "tle", "plot"):
+        for key in ("basics", "keplerian", "numerical", "dsst", "tle", "tle_resolve", "plot"):
             steps[key]()
     else:
         steps[args.mode]()

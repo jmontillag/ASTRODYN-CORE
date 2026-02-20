@@ -61,6 +61,21 @@ from astrodyn_core.uncertainty import (
     save_covariance_series,
     setup_stm_propagator,
 )
+from astrodyn_core.tle import (
+    TLEDownloadResult,
+    TLEQuery,
+    TLERecord,
+    download_tles_for_month,
+    ensure_tles_available,
+    find_best_tle,
+    find_best_tle_in_file,
+    get_tle_file_path,
+    parse_norad_id,
+    parse_tle_epoch,
+    parse_tle_file,
+    resolve_tle_record,
+    resolve_tle_spec,
+)
 
 __all__ = [
     "AttitudeSpec",
@@ -89,6 +104,9 @@ __all__ = [
     "StateFileClient",
     "StateSeries",
     "TimelineEventRecord",
+    "TLEDownloadResult",
+    "TLEQuery",
+    "TLERecord",
     "TLESpec",
     "ThirdBodySpec",
     "assemble_attitude_provider",
@@ -112,6 +130,16 @@ __all__ = [
     "load_covariance_series",
     "plot_orbital_elements_series",
     "register_default_orekit_providers",
+    "resolve_tle_record",
+    "resolve_tle_spec",
     "save_covariance_series",
     "setup_stm_propagator",
+    "download_tles_for_month",
+    "ensure_tles_available",
+    "find_best_tle",
+    "find_best_tle_in_file",
+    "get_tle_file_path",
+    "parse_norad_id",
+    "parse_tle_epoch",
+    "parse_tle_file",
 ]

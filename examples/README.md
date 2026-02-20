@@ -16,6 +16,7 @@ Modes:
 - `numerical`
 - `dsst`
 - `tle`
+- `tle_resolve` (downloads TLE via Space-Track using root `secrets.ini`, caches under `examples/generated/tle_cache/`)
 - `plot`
 
 ## 2) Scenario + Missions

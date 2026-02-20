@@ -26,6 +26,10 @@ This folder contains the core Python package used by the examples and tests.
    - Covariance propagation around trajectories (STM today; unscented scaffold present).
    - Saves/loads covariance series in YAML/HDF5.
 
+6. **`tle/`**
+   - TLE cache/download/parse/selection helpers.
+   - Resolves NORAD+epoch requests into line-pair `TLESpec` used by `propagation/`.
+
 ## Typical workflow paths
 
 ### Path A: propagation + trajectory export

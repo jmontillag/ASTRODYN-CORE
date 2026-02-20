@@ -16,6 +16,7 @@ dependencies = ["orekit>=13.1", "pyyaml>=6.0"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "ruff>=0.8.0", "mypy>=1.12"]
+tle = ["spacetrack>=1.4"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/astrodyn_core"]
