@@ -14,10 +14,21 @@ This keeps architecture boundaries clean:
 ## Key API
 
 - `TLEQuery`: request model (`norad_id`, `target_epoch`, `base_dir`, `allow_download`)
+- `TLEClient`: unified façade for query build/download/resolve/parse flows
 - `resolve_tle_record(query, space_track_client=...)`
 - `resolve_tle_spec(query, space_track_client=...)`
 - `parse_tle_file(...)`, `find_best_tle_in_file(...)`
 - `download_tles_for_month(...)`, `ensure_tles_available(...)`
+
+### Client-first usage
+
+```python
+from astrodyn_core import TLEClient
+
+tle = TLEClient(base_dir="data/tle")
+query = tle.build_query(norad_id=25544, target_epoch=target_epoch)
+tle_spec = tle.resolve_tle_spec(query)
+```
 
 ## Typical flow
 

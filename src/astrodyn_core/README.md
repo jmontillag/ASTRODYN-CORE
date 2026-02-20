@@ -28,7 +28,11 @@ This folder contains the core Python package used by the examples and tests.
 
 6. **`tle/`**
    - TLE cache/download/parse/selection helpers.
+   - `TLEClient` is the orchestration entry point for TLE workflows.
    - Resolves NORAD+epoch requests into line-pair `TLESpec` used by `propagation/`.
+
+7. **`client.py`**
+   - `AstrodynClient` composes `state` and `tle` clients into one app-level façade.
 
 ## Typical workflow paths
 
@@ -61,7 +65,7 @@ See: `examples/uncertainty.py`.
 `astrodyn_core/__init__.py` re-exports major classes/functions from all modules, so users can start with:
 
 ```python
-from astrodyn_core import PropagatorSpec, StateFileClient, UncertaintySpec
+from astrodyn_core import AstrodynClient, PropagatorSpec, StateFileClient, TLEClient, UncertaintySpec
 ```
 
 For module-level details, read the local `README.md` files in each subfolder.

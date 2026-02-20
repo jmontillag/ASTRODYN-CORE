@@ -10,6 +10,8 @@ Implemented:
 - Typed propagation configuration and registry/factory construction flow
 - Force model, attitude, and spacecraft declarative assembly
 - Unified state-file client API (`StateFileClient`) for YAML/JSON/HDF5 state workflows
+- Unified TLE client API (`TLEClient`) for cache/download/parse/resolve workflows
+- App-level façade (`AstrodynClient`) composing `state` + `tle` workflows
 - Conversion between state files and Orekit objects, including state-series to Orekit ephemeris
 - Scenario maneuver tooling:
   - timeline events (`epoch`, `elapsed`, `apogee/perigee`, node triggers)

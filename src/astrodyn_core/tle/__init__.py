@@ -4,6 +4,7 @@ This module intentionally keeps network/cache logic separate from propagation
 providers. Use resolver outputs to feed existing ``PropagatorSpec(kind='tle')``.
 """
 
+from astrodyn_core.tle.client import TLEClient
 from astrodyn_core.tle.downloader import (
     download_tles_for_month,
     ensure_tles_available,
@@ -20,6 +21,7 @@ from astrodyn_core.tle.parser import (
 from astrodyn_core.tle.resolver import resolve_tle_record, resolve_tle_spec
 
 __all__ = [
+    "TLEClient",
     "TLEDownloadResult",
     "TLEQuery",
     "TLERecord",

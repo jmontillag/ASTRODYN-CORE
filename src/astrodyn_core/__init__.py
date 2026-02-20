@@ -1,5 +1,6 @@
 """ASTRODYN-CORE public package API."""
 
+from astrodyn_core.client import AstrodynClient
 from astrodyn_core.data import (
     get_propagation_model,
     get_spacecraft_model,
@@ -62,6 +63,7 @@ from astrodyn_core.uncertainty import (
     setup_stm_propagator,
 )
 from astrodyn_core.tle import (
+    TLEClient,
     TLEDownloadResult,
     TLEQuery,
     TLERecord,
@@ -78,6 +80,7 @@ from astrodyn_core.tle import (
 )
 
 __all__ = [
+    "AstrodynClient",
     "AttitudeSpec",
     "AttitudeRecord",
     "BuildContext",
@@ -104,6 +107,7 @@ __all__ = [
     "StateFileClient",
     "StateSeries",
     "TimelineEventRecord",
+    "TLEClient",
     "TLEDownloadResult",
     "TLEQuery",
     "TLERecord",
