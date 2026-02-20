@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from astrodyn_core.mission import MissionClient
+from astrodyn_core.propagation import PropagationClient
 from astrodyn_core.states import StateFileClient
 from astrodyn_core.tle import TLEClient
 from astrodyn_core.uncertainty import UncertaintyClient
@@ -24,6 +25,7 @@ class AstrodynClient:
     space_track_client: Any | None = None
 
     state: StateFileClient = field(init=False)
+    propagation: PropagationClient = field(init=False)
     mission: MissionClient = field(init=False)
     uncertainty: UncertaintyClient = field(init=False)
     tle: TLEClient = field(init=False)
@@ -33,6 +35,9 @@ class AstrodynClient:
             universe=self.universe,
             default_mass_kg=self.default_mass_kg,
             interpolation_samples=self.interpolation_samples,
+        )
+        self.propagation = PropagationClient(
+            universe=self.universe,
         )
         self.mission = MissionClient(
             universe=self.universe,

@@ -53,16 +53,11 @@ setup_orekit_curdir()
 
 from astrodyn_core import (
     AstrodynClient,
-    BuildContext,
-    IntegratorSpec,
     OrbitStateRecord,
     OutputEpochSpec,
-    PropagatorFactory,
     PropagatorKind,
     PropagatorSpec,
-    ProviderRegistry,
     UncertaintySpec,
-    register_default_orekit_providers,
     setup_stm_propagator,
 )
 from astrodyn_core.uncertainty.propagator import _change_covariance_type
@@ -125,25 +120,8 @@ app = AstrodynClient()
 # ---------------------------------------------------------------------------
 
 def _build_propagator():
-    from astrodyn_core import (
-        AttitudeSpec,
-        DragSpec,
-        GravitySpec,
-        IntegratorSpec,
-        OceanTidesSpec,
-        PropagatorKind,
-        PropagatorSpec,
-        RelativitySpec,
-        SRPSpec,
-        SolidTidesSpec,
-        SpacecraftSpec,
-        ThirdBodySpec,
-        TLESpec,
-    )
-    ctx = BuildContext.from_state_record(INITIAL_STATE)
-    registry = ProviderRegistry()
-    register_default_orekit_providers(registry)
-    factory = PropagatorFactory(registry=registry)
+    from astrodyn_core import GravitySpec, IntegratorSpec, SpacecraftSpec
+
     prop_spec = PropagatorSpec(
         kind=PropagatorKind.NUMERICAL,
         spacecraft=SpacecraftSpec(mass=450.0, drag_area=5.0),
@@ -157,7 +135,10 @@ def _build_propagator():
             GravitySpec(degree=2, order=2)
         ]
     )
-    builder = factory.build_builder(prop_spec, ctx)
+    builder = app.propagation.build_builder(
+        prop_spec,
+        app.propagation.context_from_state(INITIAL_STATE),
+    )
     return builder.buildPropagator(builder.getSelectedNormalizedParameters())
 
 

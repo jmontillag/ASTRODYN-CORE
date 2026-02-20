@@ -2,6 +2,7 @@
 
 from astrodyn_core.propagation.assembly import assemble_attitude_provider, assemble_force_models
 from astrodyn_core.propagation.attitude import AttitudeSpec
+from astrodyn_core.propagation.client import PropagationClient
 from astrodyn_core.propagation.config import (
     get_earth_shape,
     get_iers_conventions,
@@ -37,6 +38,7 @@ from astrodyn_core.propagation.specs import IntegratorSpec, PropagatorKind, Prop
 
 __all__ = [
     "AttitudeSpec",
+    "PropagationClient",
     "get_earth_shape",
     "get_iers_conventions",
     "get_itrf_frame",

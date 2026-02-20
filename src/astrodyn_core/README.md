@@ -12,6 +12,7 @@ This folder contains the core Python package used by the examples and tests.
 
 2. **`propagation/`**
    - Typed propagation specs and Orekit-native provider/factory system.
+   - `PropagationClient` is the orchestration entry point for common builder/propagator workflows.
    - Builds numerical/Keplerian/DSST/TLE builders and propagators.
 
 3. **`states/`**
@@ -34,15 +35,15 @@ This folder contains the core Python package used by the examples and tests.
    - Resolves NORAD+epoch requests into line-pair `TLESpec` used by `propagation/`.
 
 7. **`client.py`**
-   - `AstrodynClient` composes `state`, `mission`, `uncertainty`, and `tle` clients into one app-level façade.
+   - `AstrodynClient` composes `propagation`, `state`, `mission`, `uncertainty`, and `tle` clients into one app-level façade.
 
 ## Typical workflow paths
 
 ### Path A: propagation + trajectory export
 
 - Build spec (`PropagatorSpec`) and context (`BuildContext`)
-- Use `PropagatorFactory` + default providers
-- Export trajectory via `StateFileClient.export_trajectory_from_propagator`
+- Use `AstrodynClient().propagation` for factory/builder ergonomics
+- Export trajectory via `AstrodynClient().state.export_trajectory_from_propagator`
 
 See: `examples/quickstart.py` (`keplerian`, `numerical`, `dsst`, `tle`, `plot` modes).
 
@@ -67,7 +68,7 @@ See: `examples/uncertainty.py`.
 `astrodyn_core/__init__.py` re-exports major classes/functions from all modules, so users can start with:
 
 ```python
-from astrodyn_core import AstrodynClient, PropagatorSpec, StateFileClient, TLEClient, UncertaintySpec
+from astrodyn_core import AstrodynClient, PropagatorSpec, PropagationClient, StateFileClient, TLEClient, UncertaintySpec
 ```
 
 For module-level details, read the local `README.md` files in each subfolder.

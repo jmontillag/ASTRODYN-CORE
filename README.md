@@ -10,10 +10,11 @@ Implemented:
 - Typed propagation configuration and registry/factory construction flow
 - Force model, attitude, and spacecraft declarative assembly
 - Unified state-file client API (`StateFileClient`) for YAML/JSON/HDF5 state workflows
+- Unified propagation client API (`PropagationClient`) for factory/context/builder workflows
 - Unified TLE client API (`TLEClient`) for cache/download/parse/resolve workflows
 - Unified mission client API (`MissionClient`) for planning/execution/plot workflows
 - Unified uncertainty client API (`UncertaintyClient`) for covariance propagation/I/O workflows
-- App-level façade (`AstrodynClient`) composing `state` + `mission` + `uncertainty` + `tle` workflows
+- App-level façade (`AstrodynClient`) composing `propagation` + `state` + `mission` + `uncertainty` + `tle` workflows
 - Conversion between state files and Orekit objects, including state-series to Orekit ephemeris
 - Scenario maneuver tooling:
   - timeline events (`epoch`, `elapsed`, `apogee/perigee`, node triggers)
@@ -46,17 +47,14 @@ conda activate astrodyn-core-env
 
 ```python
 from astrodyn_core import (
+    AstrodynClient,
     BuildContext,
     IntegratorSpec,
-    PropagatorFactory,
     PropagatorKind,
     PropagatorSpec,
-    StateFileClient,
-    register_default_orekit_providers,
 )
 
-factory = PropagatorFactory()
-register_default_orekit_providers(factory.registry)
+app = AstrodynClient()
 
 spec = PropagatorSpec(
     kind=PropagatorKind.NUMERICAL,
@@ -70,10 +68,10 @@ spec = PropagatorSpec(
 )
 
 ctx = BuildContext(initial_orbit=initial_orbit, position_tolerance=10.0)
-builder = factory.build_builder(spec, ctx)
+builder = app.propagation.build_builder(spec, ctx)
 propagator = builder.buildPropagator(builder.getSelectedNormalizedParameters())
 
-states = StateFileClient()
+states = app.state
 ```
 
 ## Examples

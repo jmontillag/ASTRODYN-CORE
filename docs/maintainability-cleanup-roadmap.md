@@ -7,7 +7,7 @@ Progress snapshot:
 
 - Phase A: completed (examples, façade integration test, delegation caching, docs sync)
 - Phase B: completed (Slices 1 mission, 2 uncertainty, 3 states/orekit, 4 propagation/config)
-- Phase C: next (API governance and boundary hardening)
+- Phase C: in progress (API boundary policy + import hygiene checks + propagation façade ergonomics)
 
 ## 1) Purpose and Intent
 

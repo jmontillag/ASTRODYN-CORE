@@ -18,7 +18,7 @@ from collections import Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from _common import build_factory, init_orekit, make_generated_dir, make_leo_orbit
+from _common import init_orekit, make_generated_dir, make_leo_orbit
 
 
 def _header(title: str) -> None:
@@ -53,10 +53,9 @@ def _active_attitude_mode_at(scenario, epoch_utc: datetime) -> str:
 
 
 def _build_numerical_propagator(initial_state, *, universe=None, integrator_kind: str = "dp853"):
-    from astrodyn_core import BuildContext, IntegratorSpec, PropagatorKind, PropagatorSpec
+    from astrodyn_core import AstrodynClient, IntegratorSpec, PropagatorKind, PropagatorSpec
 
-    factory = build_factory()
-    ctx = BuildContext.from_state_record(initial_state, universe=universe)
+    app = AstrodynClient(universe=universe)
     spec = PropagatorSpec(
         kind=PropagatorKind.NUMERICAL,
         mass_kg=float(initial_state.mass_kg or 450.0),
@@ -67,7 +66,10 @@ def _build_numerical_propagator(initial_state, *, universe=None, integrator_kind
             position_tolerance=1.0e-3,
         ),
     )
-    builder = factory.build_builder(spec, ctx)
+    builder = app.propagation.build_builder(
+        spec,
+        app.propagation.context_from_state(initial_state, universe=universe),
+    )
     return builder.buildPropagator(builder.getSelectedNormalizedParameters())
 
 
@@ -88,8 +90,7 @@ def run_io() -> None:
     app = AstrodynClient()
 
     orbit, _epoch, gcrf = make_leo_orbit()
-    factory = build_factory()
-    builder = factory.build_builder(
+    builder = app.propagation.build_builder(
         PropagatorSpec(kind=PropagatorKind.KEPLERIAN, mass_kg=450.0),
         BuildContext(initial_orbit=orbit),
     )
@@ -198,13 +199,12 @@ def run_inspect() -> None:
     print(f"Maneuvers: {len(scenario.maneuvers)}")
     print(f"Attitude entries: {len(scenario.attitude_timeline)}")
 
-    factory = build_factory()
     ctx = BuildContext.from_state_record(
         scenario.initial_state,
         universe=scenario.universe,
         metadata={"source_scenario": scenario_path.name},
     )
-    builder = factory.build_builder(
+    builder = app.propagation.build_builder(
         PropagatorSpec(kind=PropagatorKind.KEPLERIAN, mass_kg=float(scenario.initial_state.mass_kg or 450.0)),
         ctx,
     )

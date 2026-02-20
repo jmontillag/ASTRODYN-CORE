@@ -21,7 +21,6 @@ import math
 from pathlib import Path
 
 from _common import (
-    build_factory,
     init_orekit,
     make_generated_dir,
     make_leo_orbit,
@@ -74,13 +73,13 @@ def run_keplerian() -> None:
     _header("Quickstart · Keplerian")
     init_orekit()
 
-    from astrodyn_core import BuildContext, PropagatorKind, PropagatorSpec
+    from astrodyn_core import AstrodynClient, BuildContext, PropagatorKind, PropagatorSpec
 
     orbit, epoch, frame = make_leo_orbit()
-    factory = build_factory()
+    app = AstrodynClient()
     spec = PropagatorSpec(kind=PropagatorKind.KEPLERIAN, mass_kg=450.0)
 
-    builder = factory.build_builder(spec, BuildContext(initial_orbit=orbit))
+    builder = app.propagation.build_builder(spec, BuildContext(initial_orbit=orbit))
     propagator = builder.buildPropagator(builder.getSelectedNormalizedParameters())
 
     target = epoch.shiftedBy(3600.0)
@@ -96,6 +95,7 @@ def run_numerical() -> None:
     init_orekit()
 
     from astrodyn_core import (
+        AstrodynClient,
         BuildContext,
         SpacecraftSpec,
         get_propagation_model,
@@ -103,11 +103,11 @@ def run_numerical() -> None:
     )
 
     orbit, epoch, frame = make_leo_orbit()
+    app = AstrodynClient()
     spec = load_dynamics_config(get_propagation_model("medium_fidelity"))
     spec = spec.with_spacecraft(SpacecraftSpec(mass=600.0, drag_area=6.0, srp_area=6.0))
 
-    factory = build_factory()
-    builder = factory.build_builder(spec, BuildContext(initial_orbit=orbit))
+    builder = app.propagation.build_builder(spec, BuildContext(initial_orbit=orbit))
     propagator = builder.buildPropagator(builder.getSelectedNormalizedParameters())
 
     forces = [f.getClass().getSimpleName() for f in propagator.getAllForceModels()]
@@ -124,10 +124,10 @@ def run_dsst() -> None:
     _header("Quickstart · DSST")
     init_orekit()
 
-    from astrodyn_core import BuildContext, IntegratorSpec, PropagatorKind, PropagatorSpec
+    from astrodyn_core import AstrodynClient, BuildContext, IntegratorSpec, PropagatorKind, PropagatorSpec
 
     orbit, epoch, frame = make_leo_orbit()
-    factory = build_factory()
+    app = AstrodynClient()
     spec = PropagatorSpec(
         kind=PropagatorKind.DSST,
         mass_kg=550.0,
@@ -136,7 +136,7 @@ def run_dsst() -> None:
         dsst_state_type="OSCULATING",
     )
 
-    builder = factory.build_builder(spec, BuildContext(initial_orbit=orbit))
+    builder = app.propagation.build_builder(spec, BuildContext(initial_orbit=orbit))
     propagator = builder.buildPropagator(builder.getSelectedNormalizedParameters())
     state = propagator.propagate(epoch.shiftedBy(2.0 * 3600.0))
     pos = state.getPVCoordinates(frame).getPosition()
@@ -152,15 +152,18 @@ def run_tle() -> None:
     from org.orekit.frames import FramesFactory
     from org.orekit.propagation.analytical.tle import TLE as OrekitTLE
 
-    from astrodyn_core import BuildContext, PropagatorKind, PropagatorSpec, TLESpec
+    from astrodyn_core import AstrodynClient, BuildContext, PropagatorKind, PropagatorSpec, TLESpec
 
     tle = TLESpec(
         line1="1 25544U 98067A   24001.50000000  .00016717  00000-0  10270-3 0  9002",
         line2="2 25544  51.6400  10.0000 0006000  50.0000 310.0000 15.49000000000000",
     )
 
-    factory = build_factory()
-    propagator = factory.build_propagator(PropagatorSpec(kind=PropagatorKind.TLE, tle=tle), BuildContext())
+    app = AstrodynClient()
+    propagator = app.propagation.build_propagator(
+        PropagatorSpec(kind=PropagatorKind.TLE, tle=tle),
+        BuildContext(),
+    )
     tle_epoch = OrekitTLE(tle.line1, tle.line2).getDate()
     state = propagator.propagate(tle_epoch.shiftedBy(45.0 * 60.0))
     pos = state.getPVCoordinates(FramesFactory.getGCRF()).getPosition()
@@ -220,8 +223,7 @@ def run_tle_resolve() -> None:
     query = app.tle.build_query(norad_id=norad_id, target_epoch=target_epoch)
     tle_spec = app.tle.resolve_tle_spec(query)
 
-    factory = build_factory()
-    propagator = factory.build_propagator(
+    propagator = app.propagation.build_propagator(
         PropagatorSpec(kind=PropagatorKind.TLE, tle=tle_spec),
         BuildContext(),
     )
@@ -244,8 +246,8 @@ def run_plot() -> None:
     from astrodyn_core.states.orekit import from_orekit_date
 
     orbit, epoch, _frame = make_leo_orbit()
-    factory = build_factory()
-    builder = factory.build_builder(
+    app = AstrodynClient()
+    builder = app.propagation.build_builder(
         PropagatorSpec(kind=PropagatorKind.KEPLERIAN, mass_kg=450.0),
         BuildContext(initial_orbit=orbit),
     )
@@ -263,7 +265,6 @@ def run_plot() -> None:
     series_path = out_dir / "quickstart_orbit_series.yaml"
     plot_path = out_dir / "quickstart_orbit_elements.png"
 
-    app = AstrodynClient()
     app.state.export_trajectory_from_propagator(
         propagator,
         epoch_spec,

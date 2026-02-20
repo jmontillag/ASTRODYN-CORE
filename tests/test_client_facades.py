@@ -7,6 +7,7 @@ import numpy as np
 
 from astrodyn_core import AstrodynClient, OrbitStateRecord
 from astrodyn_core.mission import MissionClient
+from astrodyn_core.propagation import PropagationClient
 from astrodyn_core.states import StateFileClient
 from astrodyn_core.tle import TLEClient
 from astrodyn_core.uncertainty.models import CovarianceRecord, CovarianceSeries
@@ -46,6 +47,7 @@ def test_astrodyn_client_composes_state_and_tle_clients(tmp_path: Path) -> None:
         tle_base_dir=tmp_path,
     )
     assert isinstance(app.state, StateFileClient)
+    assert isinstance(app.propagation, PropagationClient)
     assert isinstance(app.mission, MissionClient)
     assert isinstance(app.uncertainty, UncertaintyClient)
     assert isinstance(app.tle, TLEClient)
@@ -151,3 +153,9 @@ def test_astrodyn_client_end_to_end_facade_flow(tmp_path: Path, monkeypatch) -> 
 
     monkeypatch.setattr("astrodyn_core.mission.client._simulate_scenario_series", _fake_simulate)
     assert app.mission.simulate_scenario_series("prop", "scenario", "epoch_spec") == ("series", tuple())
+
+
+def test_propagation_client_builds_factory() -> None:
+    app = AstrodynClient()
+    factory = app.propagation.build_factory()
+    assert factory is not None
