@@ -14,6 +14,7 @@ Run from project root:
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -327,7 +328,7 @@ def run_detector() -> None:
 
     epoch_spec = OutputEpochSpec(
         start_epoch="2026-02-19T00:00:00Z",
-        end_epoch="2026-02-19T06:00:00Z",
+        end_epoch="2026-02-19T12:00:00Z",
         step_seconds=300.0,
     )
 
@@ -344,10 +345,22 @@ def run_detector() -> None:
     print(f"Skipped: {len(report.skipped_events())}")
     print(f"Total Δv: {report.total_dv_mps:.4f} m/s")
 
-    if report.events:
-        for event in report.events:
-            status = "APPLIED" if event.applied else f"SKIPPED ({event.guard_skip_reason})"
-            print(f"  - [{event.epoch}] {event.maneuver_name}: {status}")
+    applied_events = report.applied_events()
+    skipped_events = report.skipped_events()
+
+    if applied_events:
+        print("Applied events:")
+        for event in applied_events:
+            print(f"  - [{event.epoch}] {event.maneuver_name} ({event.trigger_type})")
+
+    if skipped_events:
+        print("Skip summary:")
+        reason_counts = Counter(
+            event.guard_skip_reason or "unspecified reason"
+            for event in skipped_events
+        )
+        for reason, count in sorted(reason_counts.items(), key=lambda item: (-item[1], item[0])):
+            print(f"  - {count}x {reason}")
 
     if state_series.states:
         client.plot_orbital_elements(state_series, out_plot)
