@@ -1,23 +1,13 @@
-"""Compatibility facade for Orekit conversion and trajectory helpers.
+"""Orekit conversion and trajectory helper re-exports.
 
-.. deprecated::
-    This module is a backward-compatibility facade from Phase B.  All public
-    symbols have been moved to their canonical modules:
-
-    - ``states.orekit_dates``      : to_orekit_date, from_orekit_date
-    - ``states.orekit_resolvers``  : resolve_frame, resolve_mu
-    - ``states.orekit_convert``    : to_orekit_orbit, state_to_record
-    - ``states.orekit_ephemeris``  : state_series_to_ephemeris, scenario_to_ephemeris
-    - ``states.orekit_export``     : export_trajectory_from_propagator
-
-    Import from the canonical modules or use ``StateFileClient`` instead.
-    This facade and its private underscore aliases will be removed in a
-    future release.
+Convenience re-export module.  All symbols originate from their canonical
+submodules (``states.orekit_dates``, ``states.orekit_resolvers``,
+``states.orekit_convert``, ``states.orekit_ephemeris``,
+``states.orekit_export``).  For new code, prefer importing from the canonical
+modules or using ``StateFileClient``.
 """
 
 from __future__ import annotations
-
-import warnings as _warnings
 
 from astrodyn_core.states.orekit_convert import state_to_record, to_orekit_orbit
 from astrodyn_core.states.orekit_dates import from_orekit_date, to_orekit_date
@@ -33,30 +23,6 @@ from astrodyn_core.states.orekit_export import (
     validate_requested_epochs,
 )
 from astrodyn_core.states.orekit_resolvers import resolve_frame, resolve_mu
-
-
-# ---------------------------------------------------------------------------
-# Deprecated private aliases — will be removed in a future release.
-# ---------------------------------------------------------------------------
-
-def __getattr__(name: str):
-    _DEPRECATED_ALIASES = {
-        "_resolve_interpolation_samples": resolve_interpolation_samples,
-        "_resolve_sampling_ephemeris": resolve_sampling_ephemeris,
-        "_is_precomputed_ephemeris": is_precomputed_ephemeris,
-        "_validate_requested_epochs": validate_requested_epochs,
-        "_state_to_record": state_to_record,
-    }
-    if name in _DEPRECATED_ALIASES:
-        _warnings.warn(
-            f"Importing '{name}' from 'astrodyn_core.states.orekit' is deprecated. "
-            f"Import '{name.lstrip('_')}' from its canonical module instead. "
-            "This alias will be removed in a future release.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return _DEPRECATED_ALIASES[name]
-    raise AttributeError(f"module 'astrodyn_core.states.orekit' has no attribute {name!r}")
 
 
 __all__ = [

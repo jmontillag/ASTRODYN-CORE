@@ -1,14 +1,14 @@
-# Phase C API Governance and Boundary Policy
+# API Governance and Boundary Policy
 
-Last updated: 2026-02-20
-Status: Complete
+Last updated: 2026-02-21
+Status: Complete (deprecated code removed)
 Depends on: docs/maintainability-cleanup-roadmap.md (Phase B complete)
 
 ## 1) Goal
 
 Keep the API clean and predictable for users after refactors by enforcing a
-clear public/internal contract, validating import hygiene, and establishing a
-deprecation path for legacy patterns.
+clear public/internal contract, validating import hygiene, and providing
+stable import paths.
 
 ## 2) Public API Contract
 
@@ -22,6 +22,7 @@ Preferred user entrypoint:
   - `app.mission` -> mission planning/execution/plotting
   - `app.uncertainty` -> covariance propagation + I/O
   - `app.tle` -> TLE cache/resolve workflows
+  - `app.ephemeris` -> ephemeris file parsing + propagator creation
 
 Specialized facades remain public for focused workflows:
 
@@ -30,6 +31,7 @@ Specialized facades remain public for focused workflows:
 - `MissionClient`
 - `UncertaintyClient`
 - `TLEClient`
+- `EphemerisClient`
 
 ### Tier 2 -- Data models and specs
 
@@ -43,6 +45,7 @@ All typed dataclasses and specs are public and stable:
 - Uncertainty: `UncertaintySpec`, `CovarianceRecord`, `CovarianceSeries`,
   `change_covariance_type`, `setup_stm_propagator`
 - TLE: `TLEQuery`, `TLERecord`, `TLEDownloadResult`
+- Ephemeris: `EphemerisSpec`, `EphemerisFormat`
 
 ### Tier 3 -- Advanced low-level helpers
 
@@ -59,64 +62,58 @@ For expert Orekit-native workflows:
 ## 3) Internal API Contract
 
 - New cross-module usage must prefer non-underscore symbols.
-- Private underscore helpers are allowed only inside compatibility facade modules.
-- Compatibility facade modules (all deprecated, scheduled for removal):
+- Private underscore helpers are allowed only within a module's own files.
+- Convenience re-export modules exist for backward compatibility:
   - `mission/maneuvers.py`
   - `uncertainty/propagator.py`
   - `states/orekit.py`
   - `propagation/config.py`
-- These facades use `__getattr__` for lazy deprecation warnings on private aliases.
+- These re-export modules provide aggregate imports but do NOT contain
+  deprecated aliases or `__getattr__` hacks (those were removed in the
+  Phase C cleanup cycle).
 
-## 4) Deprecation Policy
+## 4) Deprecation Policy (historical)
 
-### Active deprecations
+### Removed in Phase C cleanup (2026-02-21)
 
-1. **Compatibility facade private aliases**: Underscore-prefixed aliases in
-   `maneuvers.py`, `propagator.py`, `orekit.py`, `config.py` emit
-   `DeprecationWarning` when accessed. Import from the canonical module instead.
+1. **Compatibility facade private aliases**: Underscore-prefixed aliases
+   (`_resolve_delta_v_vector`, `_change_covariance_type`, etc.) that were
+   accessible via `__getattr__` in the 4 facade modules have been deleted.
+   The `__getattr__` functions themselves were removed.
 
-2. **StateFileClient cross-domain methods**: The following methods on
-   `StateFileClient` are deprecated in favor of using the proper domain client
-   (via `AstrodynClient` or directly):
-   - `compile_scenario_maneuvers()` -> `MissionClient`
-   - `export_trajectory_from_scenario()` -> `MissionClient`
-   - `plot_orbital_elements()` -> `MissionClient.plot_orbital_elements_series()`
-   - `run_scenario_detector_mode()` -> `MissionClient`
-   - `create_covariance_propagator()` -> `UncertaintyClient`
-   - `propagate_with_covariance()` -> `UncertaintyClient`
-   - `save_covariance_series()` -> `UncertaintyClient`
-   - `load_covariance_series()` -> `UncertaintyClient`
+2. **StateFileClient cross-domain methods**: The following 8 methods were
+   removed from `StateFileClient`:
+   - `compile_scenario_maneuvers()` -> use `MissionClient` directly
+   - `export_trajectory_from_scenario()` -> use `MissionClient`
+   - `plot_orbital_elements()` -> use `MissionClient.plot_orbital_elements_series()`
+   - `run_scenario_detector_mode()` -> use `MissionClient`
+   - `create_covariance_propagator()` -> use `UncertaintyClient`
+   - `propagate_with_covariance()` -> use `UncertaintyClient`
+   - `save_covariance_series()` -> use `UncertaintyClient`
+   - `load_covariance_series()` -> use `UncertaintyClient`
 
-### Removal timeline
+   Also removed: `_mission_client()`, `_uncertainty_client()` lazy delegate
+   helpers and their cache fields.
 
-- Deprecated items will be removed in the next major cleanup cycle.
-- Before removal: all tests and examples must already use the new paths (done).
-- Removal will consist of deleting the deprecated methods and facade alias code.
+### Future deprecation process
+
+When removing public API in the future:
+1. Add `DeprecationWarning` in the current release.
+2. Migrate all tests and examples to use the new path.
+3. Remove the deprecated code in the next cleanup cycle.
 
 ## 5) Enforcement
 
 Implemented checks in `tests/test_api_boundary_hygiene.py`:
 
-- `test_no_private_cross_module_imports_outside_facades`: Fails if non-facade
-  modules import private underscore symbols from other `astrodyn_core` modules.
+- `test_no_private_cross_module_imports`: Fails if any source module imports
+  private underscore symbols from other `astrodyn_core` modules.
 - `test_root_all_consistency`: Verifies every name in root `__all__` exists
   in the module.
 - `test_examples_do_not_import_private_symbols`: Ensures examples don't import
   underscore-prefixed symbols.
 - `test_examples_prefer_public_subpackage_paths`: Ensures examples use public
   subpackage paths, not internal module paths.
-- `test_facade_modules_use_getattr_for_deprecated_aliases`: Ensures facade
-  modules use `__getattr__` for private aliases (not bare assignment).
-
-Regression suites to run for API-affecting changes:
-
-- `tests/test_client_facades.py`
-- `tests/test_state_orekit.py`
-- `tests/test_state_series_ephemeris.py`
-- `tests/test_trajectory_export_wrapper.py`
-- `tests/test_covariance_propagation.py`
-- `tests/test_mission_maneuvers.py`
-- `tests/test_mission_detector_execution.py`
 
 ## 6) Example Usability Rule
 
@@ -136,27 +133,6 @@ Current rules for examples:
 
 Root `__all__` is organized into three tiers with clear comments:
 
-- **Tier 1**: Facade clients (6 symbols)
-- **Tier 2**: Data models and specs (~28 symbols)
+- **Tier 1**: Facade clients (7 symbols including EphemerisClient)
+- **Tier 2**: Data models and specs (~30 symbols)
 - **Tier 3**: Advanced low-level helpers (~12 symbols)
-
-Symbols removed from root `__all__` (still importable from subpackages):
-
-- Individual TLE functions (use `TLEClient` methods instead)
-- `compile_scenario_maneuvers`, `plot_orbital_elements_series` (use `MissionClient`)
-- `STMCovariancePropagator`, `create_covariance_propagator`, `setup_stm_propagator`,
-  `save_covariance_series`, `load_covariance_series` (use `UncertaintyClient`
-  or import from `astrodyn_core.uncertainty`)
-
-## 8) Phase C Completion Checklist
-
-- [x] API tier policy published in root docs
-- [x] Root `__all__` curated into tiered groups
-- [x] Subpackage `__init__.py` files reduced to public API
-- [x] Import-boundary hygiene test active and extended
-- [x] Examples migrated to facade-first paths
-- [x] Tests migrated to facade-first paths
-- [x] Deprecation warnings on compatibility facades (with `__getattr__`)
-- [x] Deprecation warnings on `StateFileClient` cross-domain methods
-- [x] `change_covariance_type` and `parse_epoch_utc` promoted to public API
-- [x] Documentation updated

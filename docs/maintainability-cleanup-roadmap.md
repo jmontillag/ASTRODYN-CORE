@@ -1,13 +1,14 @@
 # ASTRODYN-CORE Maintainability Cleanup Roadmap
 
-Last updated: 2026-02-20
-Status: In progress
+Last updated: 2026-02-21
+Status: Complete (Phases A-C delivered; Phase D follow-on delivered separately)
 
 Progress snapshot:
 
 - Phase A: completed (examples, facade integration test, delegation caching, docs sync)
 - Phase B: completed (Slices 1 mission, 2 uncertainty, 3 states/orekit, 4 propagation/config)
 - Phase C: completed (API tiering, deprecation warnings, import hygiene enforcement, example/test migration)
+- Phase D (follow-on): completed (deprecated code removal, ephemeris module, cookbook examples)
 
 ## 1) Purpose and Intent
 
@@ -221,6 +222,16 @@ Phase C complete when:
 - StateFileClient cross-domain methods emit deprecation warnings. **Done.**
 - Examples and tests migrated to facade-first public API paths. **Done.**
 
+Phase D (follow-on) complete when:
+
+- Deprecated `__getattr__` blocks removed from 4 compatibility facades. **Done.**
+- 8 cross-domain delegation methods removed from `StateFileClient`. **Done.**
+- Ephemeris module (`ephemeris/`) ported from ASTROR with full client-facade pattern. **Done.**
+- `EphemerisClient` integrated into `AstrodynClient` as `app.ephemeris`. **Done.**
+- Root exports updated with ephemeris tier symbols. **Done.**
+- Cookbook examples added in `examples/cookbook/`. **Done.**
+- All 116 tests passing. **Done.**
+
 ## 10) Assumed Final State (Target Architecture)
 
 User-facing architecture:
@@ -231,6 +242,7 @@ User-facing architecture:
   - MissionClient
   - UncertaintyClient
   - TLEClient
+  - EphemerisClient
 
 Internal architecture:
 

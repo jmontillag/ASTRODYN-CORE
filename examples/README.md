@@ -49,6 +49,25 @@ Run covariance/STM uncertainty workflows:
 python examples/uncertainty.py
 ```
 
+## 4) Cookbook
+
+Self-contained topical examples in `examples/cookbook/`:
+
+```bash
+python examples/cookbook/multi_fidelity_comparison.py
+python examples/cookbook/orbit_comparison.py
+python examples/cookbook/force_model_sweep.py
+python examples/cookbook/ephemeris_from_oem.py
+python examples/cookbook/sma_maintenance_analysis.py
+```
+
+Examples:
+- `multi_fidelity_comparison.py` — Compare Keplerian, DSST, and numerical propagation fidelity
+- `orbit_comparison.py` — Cartesian to Keplerian round-trip verification
+- `force_model_sweep.py` — Gravity field degree/order convergence analysis
+- `ephemeris_from_oem.py` — OEM file parse and ephemeris round-trip
+- `sma_maintenance_analysis.py` — Full SMA maintenance mission workflow (scenario -> detector execution -> analysis)
+
 ## Generated outputs
 
 Scripts write generated artifacts under:

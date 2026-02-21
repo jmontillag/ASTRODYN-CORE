@@ -200,13 +200,32 @@ Delivered:
 - Parallel propagation orchestration
 - optional field-based/derivative lanes where practical
 
+## Phase D (complete) - Deprecated code removal + Ephemeris module
+
+Goal: remove deprecated code paths and add ephemeris-based propagation from ASTROR.
+
+Delivered:
+
+- Removed `__getattr__`-based deprecation warnings from 4 compatibility facades
+- Removed 8 cross-domain delegation methods from `StateFileClient`
+- Removed lazy delegate caching (`_mission_client`, `_uncertainty_client`)
+- New `ephemeris/` module (Lane E) ported from ASTROR:
+  - `EphemerisSpec`: frozen spec with factory methods (`for_oem`, `for_ocm`, `for_sp3`, `for_cpf`)
+  - `EphemerisFormat` enum: OEM, OCM, SP3, CPF
+  - `parser.py`: Orekit file parsers for all 4 formats
+  - `downloader.py`: EDCFtpClient (SP3), EDCApiClient (CPF), EphemerisFileProcessor (cache/patch)
+  - `factory.py`: spec-to-BoundedPropagator with multi-file fusion (AggregateBoundedPropagator)
+  - `EphemerisClient`: facade with convenience methods and lazy credential loading
+- `EphemerisClient` integrated into `AstrodynClient` as `app.ephemeris`
+- New `examples/cookbook/` directory with 4 creative examples
+- Updated hygiene tests (facade `__getattr__` test removed, new ephemeris tests added)
+
 ## 5) Immediate Backlog (next sessions)
 
-1. Remove deprecated compatibility facades and StateFileClient cross-domain methods (next cleanup cycle).
-2. Implement Unscented Transform covariance propagation (`UnscentedCovariancePropagator`).
-3. Add recurrence / `every-Nth-orbit` timeline semantics using Orekit event occurrence filtering.
-4. Add CI pipeline for lint + tests.
-5. Expand docs:
+1. Implement Unscented Transform covariance propagation (`UnscentedCovariancePropagator`).
+2. Add recurrence / `every-Nth-orbit` timeline semantics using Orekit event occurrence filtering.
+3. Add CI pipeline for lint + tests.
+4. Expand docs:
    - detector vs. Keplerian mode trade-offs
    - covariance interpretation guide (orbit type, frame conventions)
    - maintenance mission profiles with guard conditions.
@@ -264,3 +283,4 @@ When resuming development:
 - 2026-02-20: `PropagationClient` added and composed in `AstrodynClient` as the preferred propagation façade path.
 - 2026-02-20: Phase C API governance started with import hygiene checks and facade-tier policy docs.
 - 2026-02-20: Phase C completed: root API tiering, deprecation warnings, example/test migration, hygiene enforcement.
+- 2026-02-21: Phase D completed: deprecated code removed (4 facade `__getattr__` blocks, 8 `StateFileClient` cross-domain methods), ephemeris module ported from ASTROR, `EphemerisClient` integrated into `AstrodynClient`, cookbook examples added.

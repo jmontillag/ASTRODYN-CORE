@@ -26,6 +26,7 @@ compile_scenario_maneuvers``).
 # Tier 1: Facade clients
 # ---------------------------------------------------------------------------
 from astrodyn_core.client import AstrodynClient
+from astrodyn_core.ephemeris import EphemerisClient
 from astrodyn_core.mission import MissionClient
 from astrodyn_core.propagation import PropagationClient
 from astrodyn_core.states import StateFileClient
@@ -89,6 +90,12 @@ from astrodyn_core.tle import (
     TLERecord,
 )
 
+# Ephemeris models
+from astrodyn_core.ephemeris import (
+    EphemerisFormat,
+    EphemerisSpec,
+)
+
 # ---------------------------------------------------------------------------
 # Tier 3: Advanced low-level helpers
 # ---------------------------------------------------------------------------
@@ -121,6 +128,7 @@ __all__ = [
     "MissionClient",
     "UncertaintyClient",
     "TLEClient",
+    "EphemerisClient",
     # -- Tier 2: Data models and specs --
     # Propagation
     "PropagatorSpec",
@@ -160,6 +168,9 @@ __all__ = [
     "TLEQuery",
     "TLERecord",
     "TLEDownloadResult",
+    # Ephemeris
+    "EphemerisSpec",
+    "EphemerisFormat",
     # -- Tier 3: Advanced low-level --
     "PropagatorFactory",
     "ProviderRegistry",

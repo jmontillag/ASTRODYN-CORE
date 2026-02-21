@@ -2,7 +2,7 @@
 
 Builder-first astrodynamics tooling that keeps Orekit APIs first-class while adding typed configuration, state-file workflows, and mission-profile helpers.
 
-## Current status (2026-02-20)
+## Current status (2026-02-21)
 
 Implemented:
 
@@ -14,7 +14,8 @@ Implemented:
 - Unified TLE client API (`TLEClient`) for cache/download/parse/resolve workflows
 - Unified mission client API (`MissionClient`) for planning/execution/plot workflows
 - Unified uncertainty client API (`UncertaintyClient`) for covariance propagation/I/O workflows
-- App-level façade (`AstrodynClient`) composing `propagation` + `state` + `mission` + `uncertainty` + `tle` workflows
+- Unified ephemeris client API (`EphemerisClient`) for OEM/OCM/SP3/CPF ephemeris-based propagation
+- App-level facade (`AstrodynClient`) composing `propagation` + `state` + `mission` + `uncertainty` + `tle` + `ephemeris` workflows
 - Conversion between state files and Orekit objects, including state-series to Orekit ephemeris
 - Scenario maneuver tooling:
   - timeline events (`epoch`, `elapsed`, `apogee/perigee`, node triggers)
@@ -25,15 +26,16 @@ Implemented:
 
 Completed governance:
 
-- Phase C API governance and boundary hardening (complete)
+- Phase D: deprecated code removed, ephemeris module added (complete)
+- Phase C: API governance and boundary hardening (complete)
 - Root API organized into three tiers (facade, models, advanced)
-- Deprecation warnings on legacy compatibility facades and cross-domain methods
 - Import hygiene enforced in tests
 
 Next:
 
-- Remove deprecated compatibility facades (next cleanup cycle)
+- Implement Unscented Transform covariance propagation
 - Phase 3 source-spec lane and interoperability
+- CI pipeline
 
 ## Design principles
 
@@ -46,9 +48,9 @@ Next:
 
 Use one of two API tiers based on your goal:
 
-1. **Stable façade tier (recommended for most users)**
+1. **Stable facade tier (recommended for most users)**
     - Start with `AstrodynClient`
-    - Use domain façades via `app.propagation`, `app.state`, `app.mission`, `app.uncertainty`, `app.tle`
+    - Use domain facades via `app.propagation`, `app.state`, `app.mission`, `app.uncertainty`, `app.tle`, `app.ephemeris`
     - Preferred for notebooks, scripts, and long-lived user code
 
 2. **Advanced low-level tier (power users)**
@@ -107,7 +109,17 @@ python examples/scenario_missions.py --mode all
 python examples/uncertainty.py
 ```
 
-State-file examples:
+### Cookbook
+
+Self-contained topical examples in `examples/cookbook/`:
+
+- `multi_fidelity_comparison.py` — Compare Keplerian, DSST, and numerical propagation fidelity
+- `orbit_comparison.py` — Cartesian to Keplerian round-trip verification
+- `force_model_sweep.py` — Gravity field degree/order convergence analysis
+- `ephemeris_from_oem.py` — OEM file parse and ephemeris round-trip
+- `sma_maintenance_analysis.py` — Full SMA maintenance mission workflow (scenario -> detector execution -> analysis)
+
+### State-file examples
 
 - `examples/state_files/leo_initial_state.yaml`
 - `examples/state_files/leo_state_series.yaml`

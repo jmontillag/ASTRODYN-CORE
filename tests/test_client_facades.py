@@ -89,16 +89,22 @@ def test_mission_client_simulate_delegates_with_defaults(monkeypatch) -> None:
     assert captured["universe"] == {"earth": {}}
 
 
-def test_state_file_client_reuses_cached_delegates() -> None:
+def test_state_file_client_core_operations_available() -> None:
+    """StateFileClient exposes core state-file and Orekit conversion methods."""
     client = StateFileClient(default_mass_kg=555.0)
 
-    mission_a = client._mission_client()
-    mission_b = client._mission_client()
-    uncertainty_a = client._uncertainty_client()
-    uncertainty_b = client._uncertainty_client()
+    # Core methods should be present
+    assert hasattr(client, "load_state_file")
+    assert hasattr(client, "save_state_file")
+    assert hasattr(client, "to_orekit_date")
+    assert hasattr(client, "from_orekit_date")
+    assert hasattr(client, "export_trajectory_from_propagator")
 
-    assert mission_a is mission_b
-    assert uncertainty_a is uncertainty_b
+    # Cross-domain delegation methods should NOT be present (removed)
+    assert not hasattr(client, "compile_scenario_maneuvers")
+    assert not hasattr(client, "plot_orbital_elements")
+    assert not hasattr(client, "create_covariance_propagator")
+    assert not hasattr(client, "propagate_with_covariance")
 
 
 def test_astrodyn_client_end_to_end_facade_flow(tmp_path: Path, monkeypatch) -> None:

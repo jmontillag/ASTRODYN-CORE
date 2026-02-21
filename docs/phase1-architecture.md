@@ -1,8 +1,8 @@
 # Architecture Snapshot (Phase 1+)
 
-Last updated: 2026-02-20
+Last updated: 2026-02-21
 
-The repository started as a propagation-only Phase 1 core and now includes state-file, mission, uncertainty, and façade-governed API lanes.
+The repository started as a propagation-only Phase 1 core and now includes state-file, mission, uncertainty, ephemeris, and façade-governed API lanes.
 
 ## 1) Propagation lane (stable)
 
@@ -88,17 +88,41 @@ Current behavior:
 - STM covariance propagation with YAML/HDF5 persistence
 - Unscented path scaffold retained as planned future work
 
-## 5) Public API strategy
+## 5) Ephemeris lane (new — Phase D)
+
+Purpose:
+
+- Create propagators from external ephemeris files (OEM, OCM, SP3, CPF).
+- Download and cache ephemeris data from EDC (FTP for SP3, REST API for CPF).
+- Fuse multi-file ephemerides into a single `BoundedPropagator`.
+
+Main modules:
+
+- `astrodyn_core.ephemeris.models` — `EphemerisSpec`, `EphemerisFormat`, `EphemerisSource`
+- `astrodyn_core.ephemeris.parser` — Orekit file parsers (`parse_oem`, `parse_ocm`, `parse_sp3`, `parse_cpf`)
+- `astrodyn_core.ephemeris.downloader` — `EDCFtpClient`, `EDCApiClient`, `EphemerisFileProcessor`, credential helpers
+- `astrodyn_core.ephemeris.factory` — `create_propagator_from_spec`, multi-file fusion via `AggregateBoundedPropagator`
+- `astrodyn_core.ephemeris.client` — `EphemerisClient` facade
+
+Current behavior:
+
+- Spec-driven creation of `BoundedPropagator` from local or remote ephemeris files
+- Lazy credential resolution from `secrets.ini`
+- SP3 `.gz` decompression and `#c` → `#d` header patching for Orekit v00 compatibility
+- SP3 splicing via `SP3.splice()` for multi-file scenarios
+
+## 6) Public API strategy
 
 - Keep common symbols at package root (`astrodyn_core`).
 - Expose an app-level unified façade (`AstrodynClient`) for most users.
-- Keep domain façades available for focused workflows (`PropagationClient`, `StateFileClient`, `MissionClient`, `UncertaintyClient`, `TLEClient`).
+- Keep domain façades available for focused workflows (`PropagationClient`, `StateFileClient`, `MissionClient`, `UncertaintyClient`, `TLEClient`, `EphemerisClient`).
 - Preserve direct access to Orekit-native builders/propagators for advanced users.
 
-## 6) Next architectural step
+## 7) Next architectural step
 
-Phase C API governance is complete.  Next steps:
+Phase D is complete (deprecated code removed, ephemeris module added).  Next steps:
 
-- Remove deprecated compatibility facades and StateFileClient cross-domain methods.
-- Implement Phase 3 source-spec lane and interoperability features.
+- Implement Unscented Transform covariance propagation.
+- Add recurrence / every-Nth-orbit timeline semantics.
+- Phase 3 source-spec lane and interoperability features.
 - Add CI pipeline for automated lint + test enforcement.

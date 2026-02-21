@@ -1,7 +1,7 @@
 """API boundary and import hygiene tests.
 
-These tests enforce the Phase C API governance policy:
-- No private underscore cross-module imports outside designated compatibility facades.
+These tests enforce API governance policy:
+- No private underscore cross-module imports in source modules.
 - Root __all__ is consistent with actual module contents.
 - Examples do not import private symbols or use internal module paths.
 """
@@ -16,26 +16,15 @@ WORKSPACE_ROOT = Path(__file__).resolve().parents[1]
 SRC_ROOT = WORKSPACE_ROOT / "src" / "astrodyn_core"
 EXAMPLES_ROOT = WORKSPACE_ROOT / "examples"
 
-# Compatibility facades intentionally keep legacy aliases via __getattr__.
-ALLOWED_FACADE_FILES = {
-    "mission/maneuvers.py",
-    "uncertainty/propagator.py",
-    "states/orekit.py",
-    "propagation/config.py",
-}
-
 _PRIVATE_IMPORT_RE = re.compile(r"from\s+astrodyn_core\.[\w\.]+\s+import\s+(_\w+)")
 
 
-def test_no_private_cross_module_imports_outside_facades() -> None:
-    """Non-facade source modules must not import private underscore symbols from siblings."""
+def test_no_private_cross_module_imports() -> None:
+    """Source modules must not import private underscore symbols from siblings."""
     violations: list[str] = []
 
     for path in SRC_ROOT.rglob("*.py"):
         rel = path.relative_to(SRC_ROOT).as_posix()
-        if rel in ALLOWED_FACADE_FILES:
-            continue
-
         text = path.read_text(encoding="utf-8")
         for match in _PRIVATE_IMPORT_RE.finditer(text):
             symbol = match.group(1)
@@ -110,20 +99,3 @@ def test_examples_prefer_public_subpackage_paths() -> None:
         "Examples import from internal modules. Use facade clients or "
         "public subpackage APIs instead:\n" + "\n".join(violations)
     )
-
-
-def test_facade_modules_use_getattr_for_deprecated_aliases() -> None:
-    """Compatibility facade modules must use __getattr__ for private aliases, not bare assignment."""
-    bare_alias_re = re.compile(r"^(_\w+)\s*=\s*\w+", re.MULTILINE)
-
-    violations: list[str] = []
-    for rel in ALLOWED_FACADE_FILES:
-        path = SRC_ROOT / rel
-        if not path.exists():
-            continue
-        text = path.read_text(encoding="utf-8")
-        for match in bare_alias_re.finditer(text):
-            alias = match.group(1)
-            violations.append(f"{rel}: bare private alias {alias} (should use __getattr__)")
-
-    assert not violations, "\n".join(violations)
