@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from astrodyn_core.propagation.assembly import assemble_attitude_provider, assemble_force_models
+from astrodyn_core.propagation.dsst_assembly import assemble_dsst_force_models
 from astrodyn_core.propagation.capabilities import CapabilityDescriptor
 from astrodyn_core.propagation.config import get_mu
 from astrodyn_core.propagation.interfaces import BuildContext
@@ -27,6 +28,14 @@ def _resolve_force_models(spec: PropagatorSpec, context: BuildContext, orbit: An
     if spec.force_specs:
         sc = spec.spacecraft if spec.spacecraft is not None else SpacecraftSpec()
         return assemble_force_models(spec.force_specs, sc, orbit, universe=context.universe)
+    return list(context.force_models)
+
+
+def _resolve_dsst_force_models(spec: PropagatorSpec, context: BuildContext, orbit: Any) -> list[Any]:
+    """Resolve DSST force models: translates ForceSpec into DSSTForceModel instances."""
+    if spec.force_specs:
+        sc = spec.spacecraft if spec.spacecraft is not None else SpacecraftSpec()
+        return assemble_dsst_force_models(spec.force_specs, sc, orbit, universe=context.universe)
     return list(context.force_models)
 
 
@@ -158,7 +167,13 @@ class DSSTOrekitProvider:
         mass = spec.spacecraft.mass if spec.spacecraft else spec.mass_kg
         builder.setMass(mass)
 
-        for fm in _resolve_force_models(spec, context, orbit):
+        # Attitude: typed spec > raw context > nothing
+        attitude = _resolve_attitude(spec, context, orbit)
+        if attitude is not None:
+            builder.setAttitudeProvider(attitude)
+
+        # DSST force models: same ForceSpec types, translated to DSSTForceModel instances
+        for fm in _resolve_dsst_force_models(spec, context, orbit):
             builder.addForceModel(fm)
 
         return builder

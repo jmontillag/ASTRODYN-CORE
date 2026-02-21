@@ -5,6 +5,12 @@ without a running JVM.  The public entry points are:
 
 - ``assemble_force_models``   — force specs -> list of Orekit ForceModel
 - ``assemble_attitude_provider`` — attitude spec -> Orekit AttitudeProvider
+
+Shared ingredient helpers (used by both numerical and DSST assembly):
+
+- ``get_celestial_body``          — name -> Orekit CelestialBody
+- ``build_atmosphere``            — DragSpec -> Orekit Atmosphere
+- ``build_spacecraft_drag_shape`` — SpacecraftSpec -> DragSensitive or None
 """
 
 from __future__ import annotations
@@ -158,7 +164,7 @@ def _get_earth_shape(universe: Mapping[str, Any] | None = None) -> Any:
     return get_earth_shape(universe)
 
 
-def _get_celestial_body(name: str) -> Any:
+def get_celestial_body(name: str) -> Any:
     """Resolve a celestial body name to an Orekit CelestialBody."""
     from org.orekit.bodies import CelestialBodyFactory
 
@@ -180,11 +186,11 @@ def _get_celestial_body(name: str) -> Any:
 
 
 def _get_sun() -> Any:
-    return _get_celestial_body("sun")
+    return get_celestial_body("sun")
 
 
 def _get_moon() -> Any:
-    return _get_celestial_body("moon")
+    return get_celestial_body("moon")
 
 
 def _get_iers_conventions(universe: Mapping[str, Any] | None = None) -> Any:
@@ -228,18 +234,18 @@ def _build_gravity(spec: GravitySpec, universe: Mapping[str, Any] | None = None)
 def _build_drag(spec: DragSpec, sc: SpacecraftSpec, universe: Mapping[str, Any] | None = None) -> Any | None:
     from org.orekit.forces.drag import DragForce, IsotropicDrag
 
-    atmosphere = _build_atmosphere(spec, universe)
+    atmosphere = build_atmosphere(spec, universe)
     if atmosphere is None:
         return None
 
-    drag_shape = _build_spacecraft_drag_shape(sc)
+    drag_shape = build_spacecraft_drag_shape(sc)
     if drag_shape is None:
         drag_shape = IsotropicDrag(float(sc.drag_area), float(sc.drag_coeff))
 
     return DragForce(atmosphere, drag_shape)
 
 
-def _build_spacecraft_drag_shape(sc: SpacecraftSpec) -> Any | None:
+def build_spacecraft_drag_shape(sc: SpacecraftSpec) -> Any | None:
     """Build a box-wing shape if configured, otherwise return None (isotropic)."""
     if not sc.use_box_wing:
         return None
@@ -267,7 +273,7 @@ def _build_spacecraft_drag_shape(sc: SpacecraftSpec) -> Any | None:
     )
 
 
-def _build_atmosphere(spec: DragSpec, universe: Mapping[str, Any] | None = None) -> Any | None:
+def build_atmosphere(spec: DragSpec, universe: Mapping[str, Any] | None = None) -> Any | None:
     """Create the Orekit atmosphere model from a DragSpec."""
     model = spec.atmosphere_model
     earth_shape = _get_earth_shape(universe)
@@ -381,7 +387,7 @@ def _build_srp(spec: SRPSpec, sc: SpacecraftSpec, universe: Mapping[str, Any] | 
     sun = _get_sun()
     earth_shape = _get_earth_shape(universe)
 
-    srp_shape = _build_spacecraft_drag_shape(sc)
+    srp_shape = build_spacecraft_drag_shape(sc)
     if srp_shape is None:
         srp_shape = IsotropicRadiationSingleCoefficient(float(sc.srp_area), float(sc.srp_coeff))
 
@@ -418,7 +424,7 @@ def _add_albedo(sc: SpacecraftSpec, earth_shape: Any, sun: Any) -> Any:
         KnockeRediffusedForceModel,
     )
 
-    shape = _build_spacecraft_drag_shape(sc)
+    shape = build_spacecraft_drag_shape(sc)
     if shape is None:
         shape = IsotropicRadiationSingleCoefficient(float(sc.srp_area), float(sc.srp_coeff))
 
@@ -436,7 +442,7 @@ def _build_third_body(spec: ThirdBodySpec) -> list[Any]:
 
     models = []
     for body_name in spec.bodies:
-        body = _get_celestial_body(body_name)
+        body = get_celestial_body(body_name)
         models.append(ThirdBodyAttraction(body))
     return models
 

@@ -25,6 +25,7 @@ Universe config helpers (available via ``propagation.config`` or ``propagation.u
 """
 
 from astrodyn_core.propagation.assembly import assemble_attitude_provider, assemble_force_models
+from astrodyn_core.propagation.dsst_assembly import assemble_dsst_force_models
 from astrodyn_core.propagation.attitude import AttitudeSpec
 from astrodyn_core.propagation.capabilities import CapabilityDescriptor
 from astrodyn_core.propagation.client import PropagationClient
@@ -78,6 +79,7 @@ __all__ = [
     "OceanTidesSpec",
     # Assembly and config
     "assemble_force_models",
+    "assemble_dsst_force_models",
     "assemble_attitude_provider",
     "load_dynamics_config",
     "load_dynamics_from_dict",
