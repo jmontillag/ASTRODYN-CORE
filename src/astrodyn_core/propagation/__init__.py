@@ -29,9 +29,11 @@ from astrodyn_core.propagation.dsst_assembly import assemble_dsst_force_models
 from astrodyn_core.propagation.attitude import AttitudeSpec
 from astrodyn_core.propagation.capabilities import CapabilityDescriptor
 from astrodyn_core.propagation.client import PropagationClient
-from astrodyn_core.propagation.config import (
+from astrodyn_core.propagation.parsers.dynamics import (
     load_dynamics_config,
     load_dynamics_from_dict,
+)
+from astrodyn_core.propagation.parsers.spacecraft import (
     load_spacecraft_config,
     load_spacecraft_from_dict,
 )

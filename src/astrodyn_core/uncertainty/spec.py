@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 
-_VALID_METHODS = {"stm", "unscented"}
+_VALID_METHODS = {"stm"}
 _VALID_ORBIT_TYPES = {"CARTESIAN", "KEPLERIAN", "EQUINOCTIAL"}
 _VALID_POSITION_ANGLES = {"MEAN", "TRUE", "ECCENTRIC"}
 
@@ -18,7 +18,6 @@ class UncertaintySpec:
       - ``"stm"`` (default): State Transition Matrix method using Orekit's
         ``setupMatricesComputation``. Linear approximation; fast and accurate
         for short arcs or near-linear dynamics.
-      - ``"unscented"``: Unscented Transform (future). Not yet implemented.
 
     stm_name:
         Internal name for the STM additional state. Only used with method="stm".

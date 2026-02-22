@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from astrodyn_core.states.models import OrbitStateRecord, StateSeries
-from astrodyn_core.states.orekit import to_orekit_orbit
+from astrodyn_core.states.orekit_convert import to_orekit_orbit
 from astrodyn_core.states.validation import parse_epoch_utc
 
 

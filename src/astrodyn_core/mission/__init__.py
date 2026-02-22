@@ -17,10 +17,8 @@ from astrodyn_core.mission.executor import (
     MissionExecutionReport,
     ScenarioExecutor,
 )
-from astrodyn_core.mission.maneuvers import (
-    CompiledManeuver,
-    compile_scenario_maneuvers,
-)
+from astrodyn_core.mission.models import CompiledManeuver
+from astrodyn_core.mission.simulation import compile_scenario_maneuvers
 from astrodyn_core.mission.plotting import plot_orbital_elements_series
 
 __all__ = [

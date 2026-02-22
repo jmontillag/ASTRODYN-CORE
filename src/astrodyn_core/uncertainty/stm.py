@@ -7,7 +7,8 @@ from typing import Any, Sequence
 import numpy as np
 
 from astrodyn_core.states.models import OrbitStateRecord, OutputEpochSpec, StateSeries
-from astrodyn_core.states.orekit import from_orekit_date, resolve_frame, to_orekit_date
+from astrodyn_core.states.orekit_dates import from_orekit_date, to_orekit_date
+from astrodyn_core.states.orekit_resolvers import resolve_frame
 from astrodyn_core.uncertainty.models import CovarianceRecord, CovarianceSeries
 from astrodyn_core.uncertainty.records import state_to_orbit_record
 from astrodyn_core.uncertainty.spec import UncertaintySpec

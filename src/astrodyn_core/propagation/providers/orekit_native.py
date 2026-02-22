@@ -8,7 +8,7 @@ from typing import Any
 from astrodyn_core.propagation.assembly import assemble_attitude_provider, assemble_force_models
 from astrodyn_core.propagation.dsst_assembly import assemble_dsst_force_models
 from astrodyn_core.propagation.capabilities import CapabilityDescriptor
-from astrodyn_core.propagation.config import get_mu
+from astrodyn_core.propagation.universe import get_mu
 from astrodyn_core.propagation.interfaces import BuildContext
 from astrodyn_core.propagation.providers.integrators import create_orekit_integrator_builder
 from astrodyn_core.propagation.registry import ProviderRegistry
@@ -31,7 +31,9 @@ def _resolve_force_models(spec: PropagatorSpec, context: BuildContext, orbit: An
     return list(context.force_models)
 
 
-def _resolve_dsst_force_models(spec: PropagatorSpec, context: BuildContext, orbit: Any) -> list[Any]:
+def _resolve_dsst_force_models(
+    spec: PropagatorSpec, context: BuildContext, orbit: Any
+) -> list[Any]:
     """Resolve DSST force models: translates ForceSpec into DSSTForceModel instances."""
     if spec.force_specs:
         sc = spec.spacecraft if spec.spacecraft is not None else SpacecraftSpec()

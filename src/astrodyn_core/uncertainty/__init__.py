@@ -1,4 +1,4 @@
-"""Uncertainty propagation module: covariance via STM (with Unscented Transform planned).
+"""Uncertainty propagation module: covariance via STM.
 
 Public API
 ----------
@@ -20,11 +20,11 @@ from astrodyn_core.uncertainty.io import (
     save_covariance_series,
 )
 from astrodyn_core.uncertainty.models import CovarianceRecord, CovarianceSeries
-from astrodyn_core.uncertainty.propagator import (
-    STMCovariancePropagator,
+from astrodyn_core.uncertainty.factory import (
     create_covariance_propagator,
     setup_stm_propagator,
 )
+from astrodyn_core.uncertainty.stm import STMCovariancePropagator
 from astrodyn_core.uncertainty.spec import UncertaintySpec
 from astrodyn_core.uncertainty.transforms import change_covariance_type
 

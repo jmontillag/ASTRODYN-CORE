@@ -10,16 +10,6 @@ from astrodyn_core.uncertainty.spec import UncertaintySpec
 from astrodyn_core.uncertainty.stm import STMCovariancePropagator
 
 
-class UnscentedCovariancePropagator:
-    """Unscented Transform covariance propagator (not yet implemented)."""
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        raise NotImplementedError(
-            "UnscentedCovariancePropagator is not yet implemented. "
-            "Use UncertaintySpec(method='stm') for the current STM-based approach."
-        )
-
-
 def setup_stm_propagator(
     propagator: Any,
     spec: UncertaintySpec | None = None,
@@ -48,7 +38,12 @@ def create_covariance_propagator(
     mu_m3_s2: float | str = "WGS84",
     default_mass_kg: float = 1000.0,
 ) -> STMCovariancePropagator:
-    """Factory that creates the appropriate covariance propagator from a spec."""
+    """Factory that creates the appropriate covariance propagator from a spec.
+
+    Currently supports ``method='stm'`` only.  Additional methods (e.g.
+    unscented transform) may be added here by future contributors --
+    see ``docs/extending-propagators.md`` for the extension pattern.
+    """
     if spec.method == "stm":
         return STMCovariancePropagator(
             propagator,
@@ -58,12 +53,4 @@ def create_covariance_propagator(
             mu_m3_s2=mu_m3_s2,
             default_mass_kg=default_mass_kg,
         )
-    if spec.method == "unscented":
-        raise NotImplementedError(
-            "Unscented Transform covariance propagation is planned but not yet implemented. "
-            "Use UncertaintySpec(method='stm') for now."
-        )
-    raise ValueError(
-        f"Unknown uncertainty method: {spec.method!r}. "
-        "Supported: {'stm', 'unscented' (future)}."
-    )
+    raise ValueError(f"Unknown uncertainty method: {spec.method!r}. Supported: 'stm'.")

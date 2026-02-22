@@ -11,8 +11,14 @@ from astrodyn_core.mission.kinematics import tuple_to_vector
 from astrodyn_core.mission.models import CompiledManeuver
 from astrodyn_core.mission.timeline import resolve_maneuver_trigger, resolve_timeline_events
 from astrodyn_core.states.io import save_state_series_compact_with_style, save_state_series_hdf5
-from astrodyn_core.states.models import OrbitStateRecord, OutputEpochSpec, ScenarioStateFile, StateSeries
-from astrodyn_core.states.orekit import from_orekit_date, resolve_frame, to_orekit_date
+from astrodyn_core.states.models import (
+    OrbitStateRecord,
+    OutputEpochSpec,
+    ScenarioStateFile,
+    StateSeries,
+)
+from astrodyn_core.states.orekit_dates import from_orekit_date, to_orekit_date
+from astrodyn_core.states.orekit_resolvers import resolve_frame
 
 
 def compile_scenario_maneuvers(

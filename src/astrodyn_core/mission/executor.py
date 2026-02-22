@@ -29,12 +29,14 @@ from astrodyn_core.states.models import (
     ScenarioStateFile,
     StateSeries,
 )
-from astrodyn_core.states.orekit import from_orekit_date, resolve_frame, to_orekit_date
+from astrodyn_core.states.orekit_dates import from_orekit_date, to_orekit_date
+from astrodyn_core.states.orekit_resolvers import resolve_frame
 
 
 # ---------------------------------------------------------------------------
 # Execution report models
 # ---------------------------------------------------------------------------
+
 
 @dataclass(frozen=True, slots=True)
 class ManeuverFiredEvent:
@@ -100,6 +102,7 @@ class MissionExecutionReport:
 # ScenarioExecutor
 # ---------------------------------------------------------------------------
 
+
 class ScenarioExecutor:
     """Executes a scenario using Orekit event detectors for maneuver triggering.
 
@@ -154,9 +157,7 @@ class ScenarioExecutor:
         initial_state = self._propagator.getInitialState()
 
         # Resolve timeline events with Keplerian approximation (for date-based detectors)
-        resolved_timeline = resolve_timeline_events(
-            self._scenario.timeline, initial_state
-        )
+        resolved_timeline = resolve_timeline_events(self._scenario.timeline, initial_state)
 
         detectors = build_detectors_from_scenario(
             self._scenario,
@@ -315,6 +316,7 @@ class ScenarioExecutor:
 # ---------------------------------------------------------------------------
 # State-to-record conversion (mirrors maneuvers.py for consistency)
 # ---------------------------------------------------------------------------
+
 
 def _state_to_record(
     state: Any,

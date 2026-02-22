@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
-from astrodyn_core.propagation.config import get_itrf_frame, get_mu
+from astrodyn_core.propagation.universe import get_itrf_frame, get_mu
 
 
 def resolve_frame(frame_name: str, universe: Mapping[str, Any] | None = None):

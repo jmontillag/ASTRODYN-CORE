@@ -27,12 +27,13 @@ from dataclasses import dataclass, field
 from typing import Any, Mapping, MutableSequence, Sequence
 
 from astrodyn_core.states.models import ManeuverRecord, ScenarioStateFile, TimelineEventRecord
-from astrodyn_core.states.orekit import from_orekit_date, to_orekit_date
+from astrodyn_core.states.orekit_dates import from_orekit_date, to_orekit_date
 
 
 # ---------------------------------------------------------------------------
 # Guard evaluation helpers
 # ---------------------------------------------------------------------------
+
 
 def _evaluate_guard(state: Any, guard: Mapping[str, Any]) -> str | None:
     """Evaluate guard conditions.  Returns a skip-reason string or None if pass."""
@@ -59,14 +60,10 @@ def _evaluate_guard(state: Any, guard: Mapping[str, Any]) -> str | None:
     alt = r - re
 
     if "altitude_above_m" in guard and alt >= float(guard["altitude_above_m"]):
-        return (
-            f"altitude {alt:.0f} m >= altitude_above_m {guard['altitude_above_m']} m"
-        )
+        return f"altitude {alt:.0f} m >= altitude_above_m {guard['altitude_above_m']} m"
 
     if "altitude_below_m" in guard and alt <= float(guard["altitude_below_m"]):
-        return (
-            f"altitude {alt:.0f} m <= altitude_below_m {guard['altitude_below_m']} m"
-        )
+        return f"altitude {alt:.0f} m <= altitude_below_m {guard['altitude_below_m']} m"
 
     return None
 
@@ -100,6 +97,7 @@ def _check_active_window(
 # ---------------------------------------------------------------------------
 # Occurrence policy
 # ---------------------------------------------------------------------------
+
 
 class _OccurrencePolicy:
     """Tracks occurrence count and determines whether to apply a maneuver."""
@@ -144,6 +142,7 @@ class _OccurrencePolicy:
 # Impulse application (re-used from maneuvers module)
 # ---------------------------------------------------------------------------
 
+
 def _apply_impulse(state: Any, dv_inertial: tuple[float, float, float]) -> Any:
     from org.hipparchus.geometry.euclidean.threed import Vector3D
     from org.orekit.orbits import CartesianOrbit
@@ -172,6 +171,7 @@ def _resolve_dv(model: Mapping[str, Any], state: Any, trigger_type: str) -> Any:
 # ManeuverEventHandler: Python implementation of Orekit EventHandler
 # ---------------------------------------------------------------------------
 
+
 def _make_maneuver_handler(
     maneuver_name: str,
     trigger_type: str,
@@ -196,33 +196,57 @@ def _make_maneuver_handler(
             # Check active window
             window_skip = _check_active_window(state, active_window)
             if window_skip is not None:
-                _append_log(execution_log, maneuver_name, trigger_type, state,
-                            applied=False, skip_reason=f"active_window: {window_skip}",
-                            dv=None)
+                _append_log(
+                    execution_log,
+                    maneuver_name,
+                    trigger_type,
+                    state,
+                    applied=False,
+                    skip_reason=f"active_window: {window_skip}",
+                    dv=None,
+                )
                 return Action.CONTINUE
 
             # Check occurrence policy
             if not occurrence.should_apply():
-                _append_log(execution_log, maneuver_name, trigger_type, state,
-                            applied=False, skip_reason=f"occurrence policy skipped",
-                            dv=None)
+                _append_log(
+                    execution_log,
+                    maneuver_name,
+                    trigger_type,
+                    state,
+                    applied=False,
+                    skip_reason=f"occurrence policy skipped",
+                    dv=None,
+                )
                 return Action.CONTINUE
 
             # Check guard conditions
             guard_skip = _evaluate_guard(state, guard)
             if guard_skip is not None:
-                _append_log(execution_log, maneuver_name, trigger_type, state,
-                            applied=False, skip_reason=f"guard: {guard_skip}",
-                            dv=None)
+                _append_log(
+                    execution_log,
+                    maneuver_name,
+                    trigger_type,
+                    state,
+                    applied=False,
+                    skip_reason=f"guard: {guard_skip}",
+                    dv=None,
+                )
                 return Action.CONTINUE
 
             # Resolve delta-v at event time
             try:
                 dv_vec = _resolve_dv(model, state, trigger_type)
             except Exception as exc:
-                _append_log(execution_log, maneuver_name, trigger_type, state,
-                            applied=False, skip_reason=f"dv resolution error: {exc}",
-                            dv=None)
+                _append_log(
+                    execution_log,
+                    maneuver_name,
+                    trigger_type,
+                    state,
+                    applied=False,
+                    skip_reason=f"dv resolution error: {exc}",
+                    dv=None,
+                )
                 return Action.CONTINUE
 
             dv_tuple = (float(dv_vec.getX()), float(dv_vec.getY()), float(dv_vec.getZ()))
@@ -230,13 +254,26 @@ def _make_maneuver_handler(
 
             if dv_norm < 1e-12:
                 # Zero delta-v (e.g., guard intent already satisfied): no state reset needed
-                _append_log(execution_log, maneuver_name, trigger_type, state,
-                            applied=False, skip_reason="zero delta-v (intent already satisfied)",
-                            dv=dv_tuple)
+                _append_log(
+                    execution_log,
+                    maneuver_name,
+                    trigger_type,
+                    state,
+                    applied=False,
+                    skip_reason="zero delta-v (intent already satisfied)",
+                    dv=dv_tuple,
+                )
                 return Action.CONTINUE
 
-            _append_log(execution_log, maneuver_name, trigger_type, state,
-                        applied=True, skip_reason=None, dv=dv_tuple)
+            _append_log(
+                execution_log,
+                maneuver_name,
+                trigger_type,
+                state,
+                applied=True,
+                skip_reason=None,
+                dv=dv_tuple,
+            )
             return Action.RESET_STATE
 
         def init(self, s0, t, detector):
@@ -268,19 +305,22 @@ def _append_log(
     dv: tuple[float, float, float] | None,
 ) -> None:
     """Append a log entry dict to the execution log (converted to dataclass later)."""
-    log.append({
-        "maneuver_name": name,
-        "trigger_type": trigger_type,
-        "epoch": from_orekit_date(state.getDate()),
-        "applied": applied,
-        "guard_skip_reason": skip_reason,
-        "dv_inertial_mps": dv,
-    })
+    log.append(
+        {
+            "maneuver_name": name,
+            "trigger_type": trigger_type,
+            "epoch": from_orekit_date(state.getDate()),
+            "applied": applied,
+            "guard_skip_reason": skip_reason,
+            "dv_inertial_mps": dv,
+        }
+    )
 
 
 # ---------------------------------------------------------------------------
 # Detector factory
 # ---------------------------------------------------------------------------
+
 
 def _build_apside_detector(orbit: Any, trigger_type: str, handler: Any) -> Any:
     from org.orekit.propagation.events import ApsideDetector
@@ -318,6 +358,7 @@ def _resolved_epoch_for_event_trigger(
 
     if trigger_type == "elapsed":
         from astrodyn_core.mission.timeline import parse_duration_seconds
+
         from_epoch = str(trigger.get("from_epoch", ""))
         dt_s = parse_duration_seconds(trigger.get("dt"), key_name="trigger.dt")
         base_date = to_orekit_date(from_epoch) if from_epoch else initial_state.getDate()
@@ -326,9 +367,7 @@ def _resolved_epoch_for_event_trigger(
     if trigger_type == "event":
         event_id = str(trigger.get("event", "")).strip()
         if event_id not in resolved_timeline:
-            raise ValueError(
-                f"trigger.event references unknown timeline event '{event_id}'."
-            )
+            raise ValueError(f"trigger.event references unknown timeline event '{event_id}'.")
         return resolved_timeline[event_id].epoch
 
     raise ValueError(
@@ -395,9 +434,7 @@ def build_detectors_from_scenario(
         elif trigger_type in {"ascending_node", "descending_node"}:
             det = _build_node_detector(orbit, trigger_type, handler)
         elif trigger_type in {"epoch", "elapsed", "event"}:
-            epoch_str = _resolved_epoch_for_event_trigger(
-                trigger, initial_state, resolved_timeline
-            )
+            epoch_str = _resolved_epoch_for_event_trigger(trigger, initial_state, resolved_timeline)
             det = _build_date_detector(epoch_str, handler)
         else:
             raise ValueError(

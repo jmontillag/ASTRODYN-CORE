@@ -6,9 +6,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
 
-from astrodyn_core.propagation.config import (
+from astrodyn_core.propagation.parsers.dynamics import (
     load_dynamics_config,
     load_dynamics_from_dict,
+)
+from astrodyn_core.propagation.parsers.spacecraft import (
     load_spacecraft_config,
     load_spacecraft_from_dict,
 )
@@ -51,7 +53,7 @@ class PropagationClient:
         selected_universe = universe if universe is not None else self.universe
         return BuildContext.from_state_record(state, universe=selected_universe, metadata=metadata)
 
-    def build_numerical_propagator_from_state(
+    def build_propagator_from_state(
         self,
         state: OrbitStateRecord,
         spec: PropagatorSpec,
@@ -59,12 +61,18 @@ class PropagationClient:
         universe: Mapping[str, Any] | None = None,
         metadata: Mapping[str, Any] | None = None,
     ) -> Any:
-        """Build a propagator from an initial state record and a spec."""
+        """Build a propagator from an initial state record and a spec.
+
+        Works with any registered propagator kind (numerical, keplerian,
+        DSST, TLE, or custom/analytical).
+        """
         context = self.context_from_state(state, universe=universe, metadata=metadata)
         builder = self.build_builder(spec, context)
         return builder.buildPropagator(builder.getSelectedNormalizedParameters())
 
-    def load_dynamics_config(self, path: str | Path, spacecraft: str | Path | None = None) -> PropagatorSpec:
+    def load_dynamics_config(
+        self, path: str | Path, spacecraft: str | Path | None = None
+    ) -> PropagatorSpec:
         """Load dynamics YAML config as PropagatorSpec."""
         return load_dynamics_config(path, spacecraft=spacecraft)
 

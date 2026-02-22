@@ -1,12 +1,10 @@
 # API Governance and Boundary Policy
 
-Last updated: 2026-02-21
-Status: Complete (deprecated code removed)
-Depends on: docs/maintainability-cleanup-roadmap.md (Phase B complete)
+Last updated: 2026-02-22
 
 ## 1) Goal
 
-Keep the API clean and predictable for users after refactors by enforcing a
+Keep the API clean and predictable for users and contributors by enforcing a
 clear public/internal contract, validating import hygiene, and providing
 stable import paths.
 
@@ -61,43 +59,17 @@ For expert Orekit-native workflows:
 
 ## 3) Internal API Contract
 
-- New cross-module usage must prefer non-underscore symbols.
+- Cross-module usage must prefer non-underscore symbols.
 - Private underscore helpers are allowed only within a module's own files.
-- Convenience re-export modules exist for backward compatibility:
-  - `mission/maneuvers.py`
-  - `uncertainty/propagator.py`
-  - `states/orekit.py`
-  - `propagation/config.py`
-- These re-export modules provide aggregate imports but do NOT contain
-  deprecated aliases or `__getattr__` hacks (those were removed in the
-  Phase C cleanup cycle).
+- All imports use canonical module paths directly (no re-export facade modules).
+- Internal module paths (e.g. `states.orekit_convert`, `propagation.parsers.dynamics`,
+  `uncertainty.stm`, `uncertainty.factory`) are implementation details and must
+  not be imported by examples.
 
-## 4) Deprecation Policy (historical)
-
-### Removed in Phase C cleanup (2026-02-21)
-
-1. **Compatibility facade private aliases**: Underscore-prefixed aliases
-   (`_resolve_delta_v_vector`, `_change_covariance_type`, etc.) that were
-   accessible via `__getattr__` in the 4 facade modules have been deleted.
-   The `__getattr__` functions themselves were removed.
-
-2. **StateFileClient cross-domain methods**: The following 8 methods were
-   removed from `StateFileClient`:
-   - `compile_scenario_maneuvers()` -> use `MissionClient` directly
-   - `export_trajectory_from_scenario()` -> use `MissionClient`
-   - `plot_orbital_elements()` -> use `MissionClient.plot_orbital_elements_series()`
-   - `run_scenario_detector_mode()` -> use `MissionClient`
-   - `create_covariance_propagator()` -> use `UncertaintyClient`
-   - `propagate_with_covariance()` -> use `UncertaintyClient`
-   - `save_covariance_series()` -> use `UncertaintyClient`
-   - `load_covariance_series()` -> use `UncertaintyClient`
-
-   Also removed: `_mission_client()`, `_uncertainty_client()` lazy delegate
-   helpers and their cache fields.
-
-### Future deprecation process
+## 4) Deprecation Policy
 
 When removing public API in the future:
+
 1. Add `DeprecationWarning` in the current release.
 2. Migrate all tests and examples to use the new path.
 3. Remove the deprecated code in the next cleanup cycle.

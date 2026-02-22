@@ -2,40 +2,30 @@
 
 Builder-first astrodynamics tooling that keeps Orekit APIs first-class while adding typed configuration, state-file workflows, and mission-profile helpers.
 
-## Current status (2026-02-21)
+## Current status (2026-02-22)
 
 Implemented:
 
 - Orekit-native propagation providers: `numerical`, `keplerian`, `dsst`, `tle`
+- Extensible registry for custom/analytical propagators (any string kind)
 - Typed propagation configuration and registry/factory construction flow
 - Force model, attitude, and spacecraft declarative assembly
-- Unified state-file client API (`StateFileClient`) for YAML/JSON/HDF5 state workflows
-- Unified propagation client API (`PropagationClient`) for factory/context/builder workflows
-- Unified TLE client API (`TLEClient`) for cache/download/parse/resolve workflows
-- Unified mission client API (`MissionClient`) for planning/execution/plot workflows
-- Unified uncertainty client API (`UncertaintyClient`) for covariance propagation/I/O workflows
-- Unified ephemeris client API (`EphemerisClient`) for OEM/OCM/SP3/CPF ephemeris-based propagation
-- App-level facade (`AstrodynClient`) composing `propagation` + `state` + `mission` + `uncertainty` + `tle` + `ephemeris` workflows
-- Conversion between state files and Orekit objects, including state-series to Orekit ephemeris
-- Scenario maneuver tooling:
-  - timeline events (`epoch`, `elapsed`, `apogee/perigee`, node triggers)
-  - event-referenced maneuver triggers
-  - intent maneuvers with fast Keplerian solving (`raise_perigee`, `raise_semimajor_axis`, `maintain_semimajor_axis_above`, `change_inclination`)
-  - increment and absolute target support (for raise intents)
-- Orbital-element mission plotting to PNG
-
-Completed governance:
-
-- Phase D: deprecated code removed, ephemeris module added (complete)
-- Phase C: API governance and boundary hardening (complete)
+- Unified client APIs: `PropagationClient`, `StateFileClient`, `TLEClient`, `MissionClient`, `UncertaintyClient`, `EphemerisClient`
+- App-level facade (`AstrodynClient`) composing all domain workflows
+- State I/O: YAML/JSON/HDF5, compact series format, Orekit object conversion
+- OEM/OCM/SP3/CPF ephemeris-based propagation
+- Scenario maneuver tooling: timeline events, detector-driven execution, intent maneuvers
+- STM-based covariance propagation
 - Root API organized into three tiers (facade, models, advanced)
 - Import hygiene enforced in tests
 
+Architecture is frozen and ready for extension with custom propagators.
+
 Next:
 
-- Implement Unscented Transform covariance propagation
-- Phase 3 source-spec lane and interoperability
+- Port GEqOE J2 Taylor propagator from MOSAIC
 - CI pipeline
+- Unscented Transform covariance propagation
 
 ## Design principles
 
@@ -134,8 +124,6 @@ Generated artifacts from examples are written to:
 
 ## Planning docs
 
-- Long-term implementation plan: `docs/implementation-plan.md`
-- Current architecture snapshot: `docs/phase1-architecture.md`
-- State I/O and scenario schema plan: `docs/state-io-design.md`
-- API governance and deprecation policy: `docs/phasec-api-governance.md`
-- Maintainability roadmap: `docs/maintainability-cleanup-roadmap.md`
+- Implementation plan and architecture: `docs/implementation-plan.md`
+- API governance and boundary policy: `docs/api-governance.md`
+- Extension guide for custom propagators: `docs/extending-propagators.md`

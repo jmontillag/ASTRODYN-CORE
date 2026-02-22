@@ -14,10 +14,10 @@ from astrodyn_core.uncertainty.io import (
     save_covariance_series as _save_covariance_series,
 )
 from astrodyn_core.uncertainty.models import CovarianceSeries
-from astrodyn_core.uncertainty.propagator import (
-    STMCovariancePropagator,
+from astrodyn_core.uncertainty.factory import (
     create_covariance_propagator as _create_covariance_propagator,
 )
+from astrodyn_core.uncertainty.stm import STMCovariancePropagator
 from astrodyn_core.uncertainty.spec import UncertaintySpec
 
 

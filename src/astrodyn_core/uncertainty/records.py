@@ -8,7 +8,7 @@ from typing import Any
 import numpy as np
 
 from astrodyn_core.states.models import OrbitStateRecord
-from astrodyn_core.states.orekit import from_orekit_date
+from astrodyn_core.states.orekit_dates import from_orekit_date
 
 
 def numpy_to_nested_tuple(arr: np.ndarray) -> tuple[tuple[float, ...], ...]:

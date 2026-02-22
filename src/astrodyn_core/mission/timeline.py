@@ -7,7 +7,7 @@ from typing import Any, Mapping, Sequence
 
 from astrodyn_core.mission.models import ResolvedTimelineEvent
 from astrodyn_core.states.models import TimelineEventRecord
-from astrodyn_core.states.orekit import from_orekit_date, to_orekit_date
+from astrodyn_core.states.orekit_dates import from_orekit_date, to_orekit_date
 
 
 def resolve_trigger_date(trigger: Mapping[str, Any], state: Any) -> tuple[str, Any]:
@@ -104,27 +104,37 @@ def resolve_timeline_events(
         if point_type == "epoch":
             epoch_raw = point.get("epoch")
             if not isinstance(epoch_raw, str):
-                raise ValueError(f"timeline event '{item.id}' with type=epoch requires point.epoch string.")
+                raise ValueError(
+                    f"timeline event '{item.id}' with type=epoch requires point.epoch string."
+                )
             date = to_orekit_date(epoch_raw)
             if float(date.durationFrom(initial_state.getDate())) < 0.0:
                 raise ValueError(
                     f"timeline event '{item.id}' epoch {epoch_raw} is before mission start {initial_epoch}."
                 )
             state = keplerian_propagate_state(initial_state, date)
-            resolved[item.id] = ResolvedTimelineEvent(id=item.id, event_type="epoch", epoch=from_orekit_date(date))
+            resolved[item.id] = ResolvedTimelineEvent(
+                id=item.id, event_type="epoch", epoch=from_orekit_date(date)
+            )
             event_states[item.id] = state
             continue
 
         if point_type == "elapsed":
             ref_id = str(point.get("from", "")).strip()
             if not ref_id:
-                raise ValueError(f"timeline event '{item.id}' with type=elapsed requires point.from.")
+                raise ValueError(
+                    f"timeline event '{item.id}' with type=elapsed requires point.from."
+                )
             if ref_id not in resolved:
-                raise ValueError(f"timeline event '{item.id}' references unknown/forward event '{ref_id}'.")
+                raise ValueError(
+                    f"timeline event '{item.id}' references unknown/forward event '{ref_id}'."
+                )
             dt_s = parse_duration_seconds(point.get("dt"), key_name=f"timeline[{item.id}].point.dt")
             date = to_orekit_date(resolved[ref_id].epoch).shiftedBy(dt_s)
             state = keplerian_propagate_state(initial_state, date)
-            resolved[item.id] = ResolvedTimelineEvent(id=item.id, event_type="elapsed", epoch=from_orekit_date(date))
+            resolved[item.id] = ResolvedTimelineEvent(
+                id=item.id, event_type="elapsed", epoch=from_orekit_date(date)
+            )
             event_states[item.id] = state
             continue
 
@@ -132,7 +142,9 @@ def resolve_timeline_events(
             after_id = str(point.get("after", "")).strip()
             if after_id:
                 if after_id not in event_states:
-                    raise ValueError(f"timeline event '{item.id}' references unknown/forward event '{after_id}'.")
+                    raise ValueError(
+                        f"timeline event '{item.id}' references unknown/forward event '{after_id}'."
+                    )
                 base_state = event_states[after_id]
             else:
                 base_state = initial_state
@@ -187,7 +199,9 @@ def keplerian_propagate_state(state: Any, target_date: Any):
     return SpacecraftState(propagated.getOrbit(), float(state.getMass()))
 
 
-def delta_time_to_target_mean_anomaly(m_current: float, m_target: float, mean_motion: float) -> float:
+def delta_time_to_target_mean_anomaly(
+    m_current: float, m_target: float, mean_motion: float
+) -> float:
     delta_m = normalize_angle(m_target - m_current)
     if delta_m < 1.0e-12:
         delta_m = 2.0 * math.pi

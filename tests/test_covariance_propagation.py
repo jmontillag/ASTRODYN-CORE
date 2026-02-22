@@ -58,10 +58,16 @@ _LEO_STATE = OrbitStateRecord(
     mass_kg=450.0,
 )
 
-_INITIAL_COV_6x6 = np.diag([
-    1e6, 1e6, 1e6,   # position variances (m²)
-    1e0, 1e0, 1e0,   # velocity variances (m²/s²)
-]).tolist()
+_INITIAL_COV_6x6 = np.diag(
+    [
+        1e6,
+        1e6,
+        1e6,  # position variances (m²)
+        1e0,
+        1e0,
+        1e0,  # velocity variances (m²/s²)
+    ]
+).tolist()
 
 _EPOCH_SPEC = OutputEpochSpec(
     start_epoch="2026-02-19T00:00:00Z",
@@ -100,7 +106,7 @@ def _build_numerical_propagator_from_state(
 
 
 def _as_cartesian_state(state: OrbitStateRecord) -> OrbitStateRecord:
-    from astrodyn_core.states.orekit import to_orekit_orbit
+    from astrodyn_core.states.orekit_convert import to_orekit_orbit
 
     orbit = to_orekit_orbit(state)
     pv = orbit.getPVCoordinates()
@@ -120,6 +126,7 @@ def _as_cartesian_state(state: OrbitStateRecord) -> OrbitStateRecord:
 # ---------------------------------------------------------------------------
 # Unit tests: UncertaintySpec
 # ---------------------------------------------------------------------------
+
 
 class TestUncertaintySpec:
     def test_defaults(self):
@@ -157,6 +164,7 @@ class TestUncertaintySpec:
 # ---------------------------------------------------------------------------
 # Unit tests: CovarianceRecord
 # ---------------------------------------------------------------------------
+
 
 class TestCovarianceRecord:
     def test_construction(self):
@@ -200,6 +208,7 @@ class TestCovarianceRecord:
 # Unit tests: CovarianceSeries
 # ---------------------------------------------------------------------------
 
+
 class TestCovarianceSeries:
     def _make_series(self) -> CovarianceSeries:
         records = tuple(
@@ -237,6 +246,7 @@ class TestCovarianceSeries:
 # ---------------------------------------------------------------------------
 # Unit tests: Covariance I/O
 # ---------------------------------------------------------------------------
+
 
 class TestCovarianceIO:
     def _make_series(self) -> CovarianceSeries:
@@ -286,10 +296,11 @@ class TestCovarianceIO:
 # Integration tests: STMCovariancePropagator
 # ---------------------------------------------------------------------------
 
+
 class TestSTMCovariancePropagator:
     def test_propagate_with_covariance_returns_psd(self):
         """Propagated covariance must be positive semi-definite."""
-        from astrodyn_core.uncertainty.propagator import create_covariance_propagator
+        from astrodyn_core.uncertainty.factory import create_covariance_propagator
 
         propagator = _build_numerical_propagator()
         spec = UncertaintySpec(method="stm", orbit_type="CARTESIAN")
@@ -306,11 +317,13 @@ class TestSTMCovariancePropagator:
 
         # Positive semi-definite: all eigenvalues >= 0
         eigenvalues = np.linalg.eigvalsh(cov)
-        assert np.all(eigenvalues >= -1e-6), f"Non-PSD covariance: min eigenvalue={eigenvalues.min()}"
+        assert np.all(eigenvalues >= -1e-6), (
+            f"Non-PSD covariance: min eigenvalue={eigenvalues.min()}"
+        )
 
     def test_propagate_series_length(self):
         """propagate_series returns one record per epoch."""
-        from astrodyn_core.uncertainty.propagator import create_covariance_propagator
+        from astrodyn_core.uncertainty.factory import create_covariance_propagator
 
         propagator = _build_numerical_propagator()
         spec = UncertaintySpec(method="stm")
@@ -327,7 +340,7 @@ class TestSTMCovariancePropagator:
 
     def test_covariance_grows_over_time(self):
         """Uncertainty should generally increase with propagation time (trace grows)."""
-        from astrodyn_core.uncertainty.propagator import create_covariance_propagator
+        from astrodyn_core.uncertainty.factory import create_covariance_propagator
 
         propagator = _build_numerical_propagator()
         spec = UncertaintySpec(method="stm")
@@ -345,7 +358,7 @@ class TestSTMCovariancePropagator:
 
     def test_propagate_with_stm_no_covariance(self):
         """propagate_with_stm() works without an initial_covariance."""
-        from astrodyn_core.uncertainty.propagator import setup_stm_propagator
+        from astrodyn_core.uncertainty.factory import setup_stm_propagator
 
         propagator = _build_numerical_propagator()
         stm_prop = setup_stm_propagator(propagator)
@@ -362,7 +375,7 @@ class TestSTMCovariancePropagator:
 
     def test_propagate_with_covariance_raises_without_initial_cov(self):
         """propagate_with_covariance() must raise ValueError if no initial_covariance was given."""
-        from astrodyn_core.uncertainty.propagator import setup_stm_propagator
+        from astrodyn_core.uncertainty.factory import setup_stm_propagator
 
         propagator = _build_numerical_propagator()
         stm_prop = setup_stm_propagator(propagator)
@@ -372,7 +385,7 @@ class TestSTMCovariancePropagator:
 
     def test_stm_phi_is_consistent_with_covariance(self):
         """Manual P = Φ P₀ Φᵀ should match propagate_with_covariance result."""
-        from astrodyn_core.uncertainty.propagator import (
+        from astrodyn_core.uncertainty.factory import (
             create_covariance_propagator,
             setup_stm_propagator,
         )
@@ -393,24 +406,28 @@ class TestSTMCovariancePropagator:
         p_manual = phi @ p0 @ phi.T
 
         np.testing.assert_allclose(
-            p_manual, p_integrated, rtol=1e-6,
+            p_manual,
+            p_integrated,
+            rtol=1e-6,
             err_msg="Manual Φ P₀ Φᵀ differs from propagate_with_covariance result",
         )
 
     def test_keplerian_covariance_is_psd(self):
         """Covariance propagated in Keplerian parametrisation must remain PSD."""
-        from astrodyn_core.uncertainty.propagator import create_covariance_propagator
+        from astrodyn_core.uncertainty.factory import create_covariance_propagator
 
         # Keplerian P₀: diagonal variances for (a, e, i, argp, raan, M)
         # Units: a in m, angles in rad → tiny variances keep the matrix well-conditioned
-        kep_cov = np.diag([
-            1e6,      # a variance (m²)
-            1e-8,     # e variance (dimensionless²)
-            1e-8,     # i variance (rad²)
-            1e-8,     # argp variance (rad²)
-            1e-8,     # raan variance (rad²)
-            1e-8,     # M variance (rad²)
-        ])
+        kep_cov = np.diag(
+            [
+                1e6,  # a variance (m²)
+                1e-8,  # e variance (dimensionless²)
+                1e-8,  # i variance (rad²)
+                1e-8,  # argp variance (rad²)
+                1e-8,  # raan variance (rad²)
+                1e-8,  # M variance (rad²)
+            ]
+        )
 
         propagator = _build_numerical_propagator()
         spec = UncertaintySpec(method="stm", orbit_type="KEPLERIAN", position_angle="MEAN")
@@ -440,7 +457,7 @@ class TestSTMCovariancePropagator:
           3. Propagating P₀_kep (= P₀ in Keplerian coords) directly → P_kep_direct.
           4. Asserting P_kep_from_cart ≈ P_kep_direct.
         """
-        from astrodyn_core.uncertainty.propagator import create_covariance_propagator
+        from astrodyn_core.uncertainty.factory import create_covariance_propagator
         from astrodyn_core.uncertainty.transforms import change_covariance_type
 
         target_epoch = "2026-02-19T00:20:00Z"
@@ -453,6 +470,7 @@ class TestSTMCovariancePropagator:
         state_t, rec_cart = cov_cart_prop.propagate_with_covariance(target_epoch)
 
         from org.orekit.orbits import OrbitType, PositionAngleType
+
         P_kep_from_cart = change_covariance_type(
             rec_cart.to_numpy(),
             state_t.getOrbit(),
@@ -485,13 +503,16 @@ class TestSTMCovariancePropagator:
         P_kep_direct = rec_kep.to_numpy()
 
         np.testing.assert_allclose(
-            P_kep_direct, P_kep_from_cart, rtol=1e-5, atol=1e-12,
+            P_kep_direct,
+            P_kep_from_cart,
+            rtol=1e-5,
+            atol=1e-12,
             err_msg="Keplerian covariance path mismatch",
         )
 
     def test_covariance_is_invariant_to_initial_state_representation(self):
         """Cartesian covariance propagation should be independent of input orbit representation."""
-        from astrodyn_core.uncertainty.propagator import create_covariance_propagator
+        from astrodyn_core.uncertainty.factory import create_covariance_propagator
 
         target_epoch = "2026-02-19T00:30:00Z"
         p0_cart = np.asarray(_INITIAL_COV_6x6)
@@ -514,7 +535,7 @@ class TestSTMCovariancePropagator:
 
     def test_include_mass_preserves_terms_for_non_cartesian_input(self):
         """7x7 non-Cartesian input must preserve mass variance and cross terms."""
-        from astrodyn_core.uncertainty.propagator import create_covariance_propagator
+        from astrodyn_core.uncertainty.factory import create_covariance_propagator
 
         p0 = np.eye(7, dtype=np.float64)
         p0[6, 6] = 9.0
@@ -576,17 +597,7 @@ class TestSTMCovariancePropagator:
         cov_delta = np.max(np.abs(cov_g.to_numpy() - cov_e.to_numpy()))
         assert cov_delta > 1.0e-6
 
-    def test_unscented_raises_not_implemented(self):
-        """Unscented method should raise NotImplementedError."""
-        from astrodyn_core.uncertainty.propagator import create_covariance_propagator
-
-        propagator = _build_numerical_propagator()
-        spec = UncertaintySpec.__new__(UncertaintySpec)
-        object.__setattr__(spec, "method", "unscented")
-        object.__setattr__(spec, "stm_name", "stm")
-        object.__setattr__(spec, "include_mass", False)
-        object.__setattr__(spec, "orbit_type", "CARTESIAN")
-        object.__setattr__(spec, "position_angle", "MEAN")
-
-        with pytest.raises(NotImplementedError, match="Unscented"):
-            create_covariance_propagator(propagator, _INITIAL_COV_6x6, spec)
+    def test_invalid_method_raises_value_error(self):
+        """An unknown uncertainty method should raise ValueError."""
+        with pytest.raises(ValueError, match="method"):
+            UncertaintySpec(method="unscented")

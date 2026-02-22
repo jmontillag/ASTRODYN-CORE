@@ -12,6 +12,14 @@ from astrodyn_core.propagation.spacecraft import SpacecraftSpec
 
 
 class PropagatorKind(str, Enum):
+    """Built-in propagator kinds.
+
+    Custom/analytical propagators should define their own string kind
+    (e.g. ``"geqoe"``) and register it with the :class:`ProviderRegistry`.
+    The registry accepts any string as a kind key, so contributors are not
+    required to modify this enum when adding new propagators.
+    """
+
     NUMERICAL = "numerical"
     KEPLERIAN = "keplerian"
     DSST = "dsst"
@@ -53,9 +61,14 @@ class TLESpec:
 
 @dataclass(frozen=True, slots=True)
 class PropagatorSpec:
-    """Top-level propagation configuration."""
+    """Top-level propagation configuration.
 
-    kind: PropagatorKind
+    The ``kind`` field accepts any :class:`PropagatorKind` enum member for
+    built-in Orekit propagators, or a plain string for custom/analytical
+    propagators registered via :class:`ProviderRegistry`.
+    """
+
+    kind: PropagatorKind | str
     mass_kg: float = 1000.0
     position_angle_type: str = "MEAN"
     dsst_propagation_type: str = "MEAN"
@@ -78,14 +91,17 @@ class PropagatorSpec:
         object.__setattr__(self, "dsst_propagation_type", dsst_propagation_type)
         object.__setattr__(self, "dsst_state_type", dsst_state_type)
 
-        if self.kind in (PropagatorKind.NUMERICAL, PropagatorKind.DSST):
+        # Normalize kind to its string value for comparison.
+        # Works for both PropagatorKind enum members and plain strings.
+        kind_val = self.kind.value if isinstance(self.kind, PropagatorKind) else self.kind
+        if kind_val in (PropagatorKind.NUMERICAL.value, PropagatorKind.DSST.value):
             if self.integrator is None:
-                raise ValueError(f"integrator is required for kind={self.kind.value}.")
+                raise ValueError(f"integrator is required for kind={kind_val!r}.")
 
-        if self.kind == PropagatorKind.TLE and self.tle is None:
+        if kind_val == PropagatorKind.TLE.value and self.tle is None:
             raise ValueError("tle is required for kind=tle.")
 
-        if self.kind == PropagatorKind.DSST:
+        if kind_val == PropagatorKind.DSST.value:
             valid = {"MEAN", "OSCULATING"}
             if dsst_propagation_type not in valid:
                 raise ValueError(

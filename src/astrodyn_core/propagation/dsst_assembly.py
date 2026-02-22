@@ -31,7 +31,7 @@ from astrodyn_core.propagation.assembly import (
     build_spacecraft_drag_shape,
     get_celestial_body,
 )
-from astrodyn_core.propagation.config import get_earth_shape, get_mu
+from astrodyn_core.propagation.universe import get_earth_shape, get_mu
 from astrodyn_core.propagation.forces import (
     DragSpec,
     ForceSpec,
@@ -101,8 +101,7 @@ def assemble_dsst_force_models(
             models.extend(_build_dsst_third_body(spec, mu))
         elif isinstance(spec, _UNSUPPORTED_DSST_SPECS):
             warnings.warn(
-                f"{type(spec).__name__} is not supported for DSST propagation "
-                f"and will be ignored.",
+                f"{type(spec).__name__} is not supported for DSST propagation and will be ignored.",
                 stacklevel=2,
             )
         else:

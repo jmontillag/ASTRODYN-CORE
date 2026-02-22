@@ -15,14 +15,23 @@ from astrodyn_core.states.io import (
     save_state_series_compact_with_style as _save_state_series_compact_with_style,
     save_state_series_hdf5 as _save_state_series_hdf5,
 )
-from astrodyn_core.states.models import OrbitStateRecord, OutputEpochSpec, ScenarioStateFile, StateSeries
-from astrodyn_core.states.orekit import (
-    export_trajectory_from_propagator as _export_trajectory_from_propagator,
+from astrodyn_core.states.models import (
+    OrbitStateRecord,
+    OutputEpochSpec,
+    ScenarioStateFile,
+    StateSeries,
+)
+from astrodyn_core.states.orekit_convert import to_orekit_orbit as _to_orekit_orbit
+from astrodyn_core.states.orekit_dates import (
     from_orekit_date as _from_orekit_date,
+    to_orekit_date as _to_orekit_date,
+)
+from astrodyn_core.states.orekit_ephemeris import (
     scenario_to_ephemeris as _scenario_to_ephemeris,
     state_series_to_ephemeris as _state_series_to_ephemeris,
-    to_orekit_date as _to_orekit_date,
-    to_orekit_orbit as _to_orekit_orbit,
+)
+from astrodyn_core.states.orekit_export import (
+    export_trajectory_from_propagator as _export_trajectory_from_propagator,
 )
 
 
@@ -124,7 +133,9 @@ class StateFileClient:
         return _state_series_to_ephemeris(
             series,
             universe=self._resolve_universe(universe),
-            interpolation_samples=self._resolve_optional_interpolation_samples(interpolation_samples),
+            interpolation_samples=self._resolve_optional_interpolation_samples(
+                interpolation_samples
+            ),
             default_mass_kg=self._resolve_default_mass(default_mass_kg),
         )
 
@@ -139,7 +150,9 @@ class StateFileClient:
         return _scenario_to_ephemeris(
             scenario,
             series_name=series_name,
-            interpolation_samples=self._resolve_optional_interpolation_samples(interpolation_samples),
+            interpolation_samples=self._resolve_optional_interpolation_samples(
+                interpolation_samples
+            ),
             default_mass_kg=self._resolve_default_mass(default_mass_kg),
         )
 
@@ -166,7 +179,9 @@ class StateFileClient:
             representation=representation,
             frame=frame,
             mu_m3_s2=mu_m3_s2,
-            interpolation_samples=self._resolve_required_interpolation_samples(interpolation_samples),
+            interpolation_samples=self._resolve_required_interpolation_samples(
+                interpolation_samples
+            ),
             dense_yaml=dense_yaml,
             universe=self._resolve_universe(universe),
             default_mass_kg=self._resolve_default_mass(default_mass_kg),
@@ -186,7 +201,9 @@ class StateFileClient:
             return float(default_mass_kg)
         return float(self.default_mass_kg)
 
-    def _resolve_optional_interpolation_samples(self, interpolation_samples: int | None) -> int | None:
+    def _resolve_optional_interpolation_samples(
+        self, interpolation_samples: int | None
+    ) -> int | None:
         if interpolation_samples is not None:
             return int(interpolation_samples)
         if self.interpolation_samples is None:

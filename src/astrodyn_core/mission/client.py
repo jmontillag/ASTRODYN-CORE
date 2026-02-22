@@ -7,13 +7,15 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from astrodyn_core.mission.executor import MissionExecutionReport, ScenarioExecutor
-from astrodyn_core.mission.maneuvers import (
-    CompiledManeuver,
+from astrodyn_core.mission.models import CompiledManeuver
+from astrodyn_core.mission.simulation import (
     compile_scenario_maneuvers as _compile_scenario_maneuvers,
     export_scenario_series as _export_scenario_series,
     simulate_scenario_series as _simulate_scenario_series,
 )
-from astrodyn_core.mission.plotting import plot_orbital_elements_series as _plot_orbital_elements_series
+from astrodyn_core.mission.plotting import (
+    plot_orbital_elements_series as _plot_orbital_elements_series,
+)
 from astrodyn_core.states.models import OutputEpochSpec, ScenarioStateFile, StateSeries
 
 
@@ -54,7 +56,9 @@ class MissionClient:
             representation=representation,
             frame=frame,
             mu_m3_s2=mu_m3_s2,
-            interpolation_samples=self._resolve_required_interpolation_samples(interpolation_samples),
+            interpolation_samples=self._resolve_required_interpolation_samples(
+                interpolation_samples
+            ),
             universe=self._resolve_universe(universe),
             default_mass_kg=self._resolve_default_mass(default_mass_kg),
         )
@@ -84,7 +88,9 @@ class MissionClient:
             representation=representation,
             frame=frame,
             mu_m3_s2=mu_m3_s2,
-            interpolation_samples=self._resolve_required_interpolation_samples(interpolation_samples),
+            interpolation_samples=self._resolve_required_interpolation_samples(
+                interpolation_samples
+            ),
             dense_yaml=dense_yaml,
             universe=self._resolve_universe(universe),
             default_mass_kg=self._resolve_default_mass(default_mass_kg),

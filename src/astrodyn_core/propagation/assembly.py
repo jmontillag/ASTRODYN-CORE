@@ -19,7 +19,7 @@ import logging
 from typing import Any, Mapping, Sequence
 
 from astrodyn_core.propagation.attitude import AttitudeSpec
-from astrodyn_core.propagation.config import (
+from astrodyn_core.propagation.universe import (
     get_earth_shape,
     get_iers_conventions,
     get_mu,
@@ -231,7 +231,9 @@ def _build_gravity(spec: GravitySpec, universe: Mapping[str, Any] | None = None)
 # ---------------------------------------------------------------------------
 
 
-def _build_drag(spec: DragSpec, sc: SpacecraftSpec, universe: Mapping[str, Any] | None = None) -> Any | None:
+def _build_drag(
+    spec: DragSpec, sc: SpacecraftSpec, universe: Mapping[str, Any] | None = None
+) -> Any | None:
     from org.orekit.forces.drag import DragForce, IsotropicDrag
 
     atmosphere = build_atmosphere(spec, universe)
@@ -496,7 +498,9 @@ def _build_solid_tides(
     )
 
 
-def _build_ocean_tides(spec: OceanTidesSpec, mu: float, universe: Mapping[str, Any] | None = None) -> Any:
+def _build_ocean_tides(
+    spec: OceanTidesSpec, mu: float, universe: Mapping[str, Any] | None = None
+) -> Any:
     from org.orekit.forces.gravity import OceanTides
     from org.orekit.time import TimeScalesFactory
 

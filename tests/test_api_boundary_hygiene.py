@@ -77,6 +77,7 @@ def test_examples_prefer_public_subpackage_paths() -> None:
         r"uncertainty\.matrix_io|"
         r"uncertainty\.records|"
         r"uncertainty\.stm|"
+        r"uncertainty\.factory|"
         r"mission\.models|"
         r"mission\.timeline|"
         r"mission\.intents|"

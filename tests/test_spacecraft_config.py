@@ -1,6 +1,9 @@
 from astrodyn_core import get_spacecraft_model
 from astrodyn_core.data import list_spacecraft_models
-from astrodyn_core.propagation.config import load_spacecraft_config, load_spacecraft_from_dict
+from astrodyn_core.propagation.parsers.spacecraft import (
+    load_spacecraft_config,
+    load_spacecraft_from_dict,
+)
 
 
 def test_list_spacecraft_models_contains_examples() -> None:
