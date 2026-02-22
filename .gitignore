@@ -43,3 +43,6 @@ secrets*.ini
 *.png
 examples/generated/*
 !examples/generated/.gitkeep
+
+# Temporary mosaic modules
+temp_mosaic_modules/
