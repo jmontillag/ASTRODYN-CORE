@@ -1,9 +1,8 @@
-from typing import Literal, Tuple, Union
+from typing import Tuple, Union
 
 import numpy as np
 
 from astrodyn_core.propagation.geqoe.conversion import BodyConstants, geqoe2rv, rv2geqoe
-from astrodyn_core.propagation.geqoe._legacy_loader import import_legacy_module
 from astrodyn_core.propagation.geqoe.jacobians import get_pEqpY, get_pYpEq
 from astrodyn_core.propagation.geqoe.state import (
     GEqOEPropagationConstants,
@@ -16,24 +15,11 @@ from astrodyn_core.propagation.geqoe.taylor_order_3 import compute_order_3
 from astrodyn_core.propagation.geqoe.taylor_order_4 import compute_order_4
 
 
-BackendKind = Literal["legacy", "staged"]
-
-
-def _legacy_propagator_module():
-    return import_legacy_module("temp_mosaic_modules.geqoe_utils.propagator")
-
-
 def _validate_order(order: int) -> int:
     order_int = int(order)
     if order_int < 1 or order_int > 4:
         raise ValueError("Taylor order must be an integer in the range [1, 4].")
     return order_int
-
-
-def _validate_backend(backend: str) -> BackendKind:
-    if backend not in {"legacy", "staged"}:
-        raise ValueError("backend must be either 'legacy' or 'staged'.")
-    return backend  # type: ignore[return-value]
 
 
 def build_context(
@@ -153,15 +139,9 @@ def j2_taylor_propagator(
     y0: np.ndarray,
     p: Union[BodyConstants, tuple, list],
     order: int = 4,
-    backend: BackendKind = "legacy",
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    backend = _validate_backend(backend)
     context = build_context(dt=dt, y0=y0, p=p, order=order)
-    if backend == "staged":
-        return _run_staged_j2(context)
-
-    legacy = _legacy_propagator_module()
-    return legacy.j2_taylor_propagator(dt=dt, y0=y0, p=p, order=context.order)
+    return _run_staged_j2(context)
 
 
 def taylor_cart_propagator(
@@ -169,21 +149,16 @@ def taylor_cart_propagator(
     y0: np.ndarray,
     p: Union[BodyConstants, Tuple[float, float, float]],
     order: int = 4,
-    backend: BackendKind = "legacy",
 ) -> Tuple[np.ndarray, np.ndarray]:
-    backend = _validate_backend(backend)
     y0_flat = np.asarray(y0, dtype=float).flatten()
     if y0_flat.shape != (6,):
         raise ValueError("y0 must be a 6-element state vector [rx, ry, rz, vx, vy, vz].")
 
     tspan = np.atleast_1d(np.asarray(tspan, dtype=float))
-    if backend == "legacy":
-        legacy = _legacy_propagator_module()
-        return legacy.taylor_cart_propagator(tspan=tspan, Y0=y0_flat, p=p, order=_validate_order(order))
 
     eq0_tuple = rv2geqoe(t=0.0, y=y0_flat, p=p)
     eq0 = np.hstack([elem.flatten() for elem in eq0_tuple])
-    eq_taylor, eq_eq0, _ = j2_taylor_propagator(dt=tspan, y0=eq0, p=p, order=order, backend=backend)
+    eq_taylor, eq_eq0, _ = j2_taylor_propagator(dt=tspan, y0=eq0, p=p, order=order)
     peq_py_0 = get_pEqpY(t=0.0, y=y0_flat, p=p)
     if peq_py_0.ndim == 3:
         peq_py_0 = peq_py_0[0, :, :]

@@ -18,7 +18,8 @@ Assembly and config helpers:
     assemble_force_models, assemble_attitude_provider,
     load_dynamics_config, load_dynamics_from_dict,
     load_spacecraft_config, load_spacecraft_from_dict,
-    register_default_orekit_providers
+    register_default_orekit_providers, register_analytical_providers,
+    register_all_providers
 
 Universe config helpers (available via ``propagation.config`` or ``propagation.universe``):
     get_mu, get_earth_shape, get_iers_conventions, get_itrf_frame, etc.
@@ -49,7 +50,11 @@ from astrodyn_core.propagation.forces import (
     ThirdBodySpec,
 )
 from astrodyn_core.propagation.interfaces import BuildContext
-from astrodyn_core.propagation.providers.orekit_native import register_default_orekit_providers
+from astrodyn_core.propagation.providers import (
+    register_all_providers,
+    register_analytical_providers,
+    register_default_orekit_providers,
+)
 from astrodyn_core.propagation.registry import ProviderRegistry
 from astrodyn_core.propagation.spacecraft import SpacecraftSpec
 from astrodyn_core.propagation.specs import IntegratorSpec, PropagatorKind, PropagatorSpec, TLESpec
@@ -61,6 +66,8 @@ __all__ = [
     "PropagatorFactory",
     "ProviderRegistry",
     "register_default_orekit_providers",
+    "register_analytical_providers",
+    "register_all_providers",
     # Specs and models
     "PropagatorSpec",
     "PropagatorKind",

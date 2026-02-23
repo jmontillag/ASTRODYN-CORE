@@ -2,4 +2,27 @@
 
 from astrodyn_core.propagation.providers.orekit_native import register_default_orekit_providers
 
-__all__ = ["register_default_orekit_providers"]
+
+def register_analytical_providers(registry) -> None:
+    """Register built-in analytical (non-Orekit-native) providers.
+
+    Currently registers:
+    - ``GEqOEProvider`` (kind ``"geqoe"``) — J2 Taylor-series propagator
+      in Generalized Equinoctial Orbital Elements.
+    """
+    from astrodyn_core.propagation.providers.geqoe.provider import GEqOEProvider
+
+    registry.register_propagator_provider(GEqOEProvider())
+
+
+def register_all_providers(registry) -> None:
+    """Register all built-in providers (Orekit-native + analytical)."""
+    register_default_orekit_providers(registry)
+    register_analytical_providers(registry)
+
+
+__all__ = [
+    "register_default_orekit_providers",
+    "register_analytical_providers",
+    "register_all_providers",
+]

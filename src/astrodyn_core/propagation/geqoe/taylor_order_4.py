@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from astrodyn_core.propagation.geqoe._math_compat import (
+from astrodyn_core.propagation.geqoe._derivatives import (
     derivatives_of_inverse,
     derivatives_of_inverse_wrt_param,
     derivatives_of_product,

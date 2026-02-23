@@ -18,7 +18,10 @@ from astrodyn_core.propagation.factory import PropagatorFactory
 from astrodyn_core.propagation.interfaces import BuildContext
 from astrodyn_core.propagation.registry import ProviderRegistry
 from astrodyn_core.propagation.specs import PropagatorSpec
-from astrodyn_core.propagation.providers.orekit_native import register_default_orekit_providers
+from astrodyn_core.propagation.providers import (
+    register_all_providers,
+    register_default_orekit_providers,
+)
 from astrodyn_core.states.models import OrbitStateRecord
 
 
@@ -29,9 +32,13 @@ class PropagationClient:
     universe: Mapping[str, Any] | None = None
 
     def build_factory(self) -> PropagatorFactory:
-        """Create a PropagatorFactory with default Orekit providers registered."""
+        """Create a PropagatorFactory with all built-in providers registered.
+
+        This includes both Orekit-native providers (numerical, keplerian,
+        DSST, TLE) and analytical providers (geqoe).
+        """
         registry = ProviderRegistry()
-        register_default_orekit_providers(registry)
+        register_all_providers(registry)
         return PropagatorFactory(registry=registry)
 
     def build_builder(self, spec: PropagatorSpec, context: BuildContext) -> Any:
