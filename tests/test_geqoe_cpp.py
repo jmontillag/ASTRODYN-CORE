@@ -224,7 +224,7 @@ class TestGEqOE2RV:
         cart = _random_cart_states(1, seed=7)
         geqoe = self._to_geqoe(cart)[0]  # shape (6,)
 
-        py_rv, py_rpv = py_geqoe2rv(0.0, np.atleast_2d(geqoe), (_J2, _Re, _mu))
+        py_rv, py_rpv = py_geqoe2rv(0.0, geqoe, (_J2, _Re, _mu))
         cpp_rv, cpp_rpv = cpp_geqoe2rv(geqoe, _J2, _Re, _mu)
 
         npt.assert_allclose(cpp_rv, py_rv, rtol=1e-13, atol=1e-13)
@@ -305,16 +305,16 @@ class TestGetPEqPY:
 class TestGetPYPEq:
     """d(Y)/d(Eq) Jacobian: C++ vs Python parity.
 
-    Note on tolerance: atol=1e-8 rather than 1e-11 because get_pYpEq
+    Note on tolerance: atol=1e-9 rather than 1e-11 because get_pYpEq
     involves a Kepler solve + nested intermediate computations (r from
     norm, h from sqrt(c^2 - 2*r^2*U)) that accumulate more FP noise
     than get_pEqpY.  The mismatches are exclusively in near-zero
-    z-component partials (~1e-9) while non-zero elements (~1e+9) match
+    z-component partials while non-zero elements (~1e+9) match
     to rtol=1e-12.  Inverse consistency (pEqpY @ pYpEq = I) holds to
-    atol=1e-8, confirming mathematical correctness.
+    much tighter tolerance, confirming mathematical correctness.
     """
 
-    _ATOL = 1e-8
+    _ATOL = 1e-9
 
     def _to_geqoe(self, cart: np.ndarray) -> np.ndarray:
         result = py_rv2geqoe(0.0, cart, (_J2, _Re, _mu))
@@ -359,5 +359,5 @@ class TestGetPYPEq:
 
         for i in range(10):
             product = jac_eq_y[i] @ jac_y_eq[i]
-            npt.assert_allclose(product, np.eye(6), atol=1e-8,
+            npt.assert_allclose(product, np.eye(6), atol=1e-11,
                                 err_msg=f"Jacobian inverse consistency failed for state {i}")

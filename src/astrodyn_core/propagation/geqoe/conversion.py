@@ -172,7 +172,7 @@ def geqoe2rv(
         J2, Re, mu = p
 
     y_in = np.atleast_2d(y)
-    if y.shape[1] != 6:
+    if y_in.shape[1] != 6:
         raise ValueError("Input state vector 'y' must have 6 columns [nu,q1,q2,p1,p2,Lr].")
 
     L = Re
