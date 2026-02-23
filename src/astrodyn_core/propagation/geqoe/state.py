@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Union
+from typing import Any, Union
 
 import numpy as np
 
@@ -47,3 +47,38 @@ class GEqOEPropagationContext:
     y_prop: np.ndarray | None = None
     y_y0: np.ndarray | None = None
     map_components: np.ndarray | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class GEqOETaylorCoefficients:
+    """Precomputed Taylor coefficients (dt-independent).
+
+    Holds everything needed to evaluate the Taylor polynomial at arbitrary
+    time offsets without repeating the expensive coefficient computation.
+    Created by :func:`~astrodyn_core.propagation.geqoe.core.prepare_taylor_coefficients`
+    and consumed by :func:`~astrodyn_core.propagation.geqoe.core.evaluate_taylor`.
+    """
+
+    initial_geqoe: np.ndarray
+    """(6,) GEqOE state at epoch."""
+
+    peq_py_0: np.ndarray
+    """(6, 6) Jacobian d(GEqOE)/d(Cartesian) at epoch."""
+
+    constants: GEqOEPropagationConstants
+    """Normalised propagation constants."""
+
+    order: int
+    """Taylor expansion order (1-4)."""
+
+    scratch: dict[str, ScratchValue]
+    """dt-independent scratch entries (Taylor coefficients + partials)."""
+
+    map_components: np.ndarray
+    """(6, order) Taylor coefficient matrix per order."""
+
+    initial_state: GEqOEState
+    """GEqOE state decomposed into named fields."""
+
+    body_params: Any
+    """BodyConstants or (j2, re, mu) tuple — needed for geqoe2rv/get_pYpEq."""

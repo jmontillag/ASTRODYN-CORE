@@ -1,4 +1,11 @@
-"""Taylor series order-4 computation for J2-perturbed GEqOE propagator."""
+"""Taylor series order-4 computation for J2-perturbed GEqOE propagator.
+
+Functions
+---------
+compute_coefficients_4 : dt-independent coefficient computation
+evaluate_order_4       : dt-dependent polynomial evaluation + STM accumulation
+compute_order_4        : thin wrapper calling both (preserves existing API)
+"""
 
 from __future__ import annotations
 
@@ -13,17 +20,19 @@ from astrodyn_core.propagation.geqoe._derivatives import (
 from astrodyn_core.propagation.geqoe.state import GEqOEPropagationContext
 
 
-def compute_order_4(ctx: GEqOEPropagationContext) -> None:  # noqa: C901
-    """Compute order-3 first, then add order-4 Taylor terms.
+def compute_coefficients_4(ctx: GEqOEPropagationContext) -> None:  # noqa: C901
+    """Compute order-4 Taylor coefficients (dt-independent).
 
-    Faithfully extracts legacy propagator.py lines 1748-2212
-    (the ``if order > 3:`` block).
+    Calls :func:`compute_coefficients_3` first, then computes all
+    fourth-order intermediate values, EOM coefficients, and their
+    partials w.r.t. initial conditions.  Stores everything into
+    ``ctx.scratch`` for later use.  Does **not** touch ``ctx.dt_norm``
+    or the STM accumulators (those are dt-dependent).
     """
-    from astrodyn_core.propagation.geqoe.taylor_order_3 import compute_order_3
-    compute_order_3(ctx)
+    from astrodyn_core.propagation.geqoe.taylor_order_3 import compute_coefficients_3
+    compute_coefficients_3(ctx)
 
     s = ctx.scratch
-    dt_norm = ctx.dt_norm
 
     # --- Extract ALL needed values from scratch ---
     nu_0 = s["nu_0"]
@@ -516,18 +525,6 @@ def compute_order_4(ctx: GEqOEPropagationContext) -> None:  # noqa: C901
     D_q1_vector = s["D_q1_vector"]; D_q2_vector = s["D_q2_vector"]
     D_p1_vector = s["D_p1_vector"]; D_p2_vector = s["D_p2_vector"]
 
-    # STM partial accumulators
-    Lr_nu = s["Lr_nu"]; Lr_Lr = s["Lr_Lr"]; Lr_q1 = s["Lr_q1"]
-    Lr_q2 = s["Lr_q2"]; Lr_p1 = s["Lr_p1"]; Lr_p2 = s["Lr_p2"]
-    q1_nu = s["q1_nu"]; q1_Lr = s["q1_Lr"]; q1_q1 = s["q1_q1"]
-    q1_q2 = s["q1_q2"]; q1_p1 = s["q1_p1"]; q1_p2 = s["q1_p2"]
-    q2_nu = s["q2_nu"]; q2_Lr = s["q2_Lr"]; q2_q1 = s["q2_q1"]
-    q2_q2 = s["q2_q2"]; q2_p1 = s["q2_p1"]; q2_p2 = s["q2_p2"]
-    p1_nu = s["p1_nu"]; p1_Lr = s["p1_Lr"]; p1_q1 = s["p1_q1"]
-    p1_q2 = s["p1_q2"]; p1_p1 = s["p1_p1"]; p1_p2 = s["p1_p2"]
-    p2_nu = s["p2_nu"]; p2_Lr = s["p2_Lr"]; p2_q1 = s["p2_q1"]
-    p2_q2 = s["p2_q2"]; p2_p1 = s["p2_p1"]; p2_p2 = s["p2_p2"]
-
     # ================================================================== #
     # FOURTH ORDER DERIVATIVES (legacy lines 1748-2212)                   #
     # ================================================================== #
@@ -871,14 +868,6 @@ def compute_order_4(ctx: GEqOEPropagationContext) -> None:  # noqa: C901
     # ELEMENT q2
     q2p4_0     = - Ip3*cosL - 3*Ipp*cosLp - 3*Ip*cosLp2 - I*cosLp3
 
-    dt4 = dt_norm**4
-
-    ctx.y_prop[:, 1]   += q1p4_0 * dt4 / 24
-    ctx.y_prop[:, 2]   += q2p4_0 * dt4 / 24
-    ctx.y_prop[:, 3]   += p1p4_0 * dt4 / 24
-    ctx.y_prop[:, 4]   += p2p4_0 * dt4 / 24
-    ctx.y_prop[:, 5]   += Lrp4_0 * dt4 / 24
-
     ctx.map_components[:, 3] = [0, q1p4_0, q2p4_0, p1p4_0, p2p4_0, Lrp4_0]
 
     # DERIVATIVES WRT INITIAL CONDITIONS (FOURTH ORDER)
@@ -958,6 +947,78 @@ def compute_order_4(ctx: GEqOEPropagationContext) -> None:  # noqa: C901
                     3*Up_p2*( ficp2*GAMMA_ + 2*ficp*GAMMAp_ + fic*GAMMApp_ ) - 3*Up*( ficp2_p2*GAMMA_+ficp2*GAMMA_p2 + 2*(ficp_p2*GAMMAp_+ficp*GAMMAp_p2) + fic_p2*GAMMApp_+fic*GAMMApp_p2 ) - \
                     3*Upp_p2*( ficp*GAMMA_ + fic*GAMMAp_ ) - 3*Upp*( ficp_p2*GAMMA_+ficp*GAMMA_p2 + fic_p2*GAMMAp_+fic*GAMMAp_p2 ) - Up3_p2*fic*GAMMA_- Up3*(fic_p2*GAMMA_+fic*GAMMA_p2)
 
+    # ================================================================== #
+    # Store EOM values and partials into scratch for evaluate_order_4     #
+    # ================================================================== #
+
+    s["q1p4_0"] = q1p4_0; s["q2p4_0"] = q2p4_0
+    s["p1p4_0"] = p1p4_0; s["p2p4_0"] = p2p4_0
+    s["Lrp4_0"] = Lrp4_0
+
+    s["q1p4_nu"] = q1p4_nu; s["q1p4_Lr"] = q1p4_Lr; s["q1p4_q1"] = q1p4_q1
+    s["q1p4_q2"] = q1p4_q2; s["q1p4_p1"] = q1p4_p1; s["q1p4_p2"] = q1p4_p2
+    s["q2p4_nu"] = q2p4_nu; s["q2p4_Lr"] = q2p4_Lr; s["q2p4_q1"] = q2p4_q1
+    s["q2p4_q2"] = q2p4_q2; s["q2p4_p1"] = q2p4_p1; s["q2p4_p2"] = q2p4_p2
+    s["p1p4_nu"] = p1p4_nu; s["p1p4_Lr"] = p1p4_Lr; s["p1p4_q1"] = p1p4_q1
+    s["p1p4_q2"] = p1p4_q2; s["p1p4_p1"] = p1p4_p1; s["p1p4_p2"] = p1p4_p2
+    s["p2p4_nu"] = p2p4_nu; s["p2p4_Lr"] = p2p4_Lr; s["p2p4_q1"] = p2p4_q1
+    s["p2p4_q2"] = p2p4_q2; s["p2p4_p1"] = p2p4_p1; s["p2p4_p2"] = p2p4_p2
+    s["Lrp4_nu"] = Lrp4_nu; s["Lrp4_Lr"] = Lrp4_Lr; s["Lrp4_q1"] = Lrp4_q1
+    s["Lrp4_q2"] = Lrp4_q2; s["Lrp4_p1"] = Lrp4_p1; s["Lrp4_p2"] = Lrp4_p2
+
+
+def evaluate_order_4(ctx: GEqOEPropagationContext) -> None:  # noqa: C901
+    """Evaluate order-4 Taylor polynomial (dt-dependent).
+
+    Calls :func:`evaluate_order_3` first to populate the order-3
+    STM accumulators, then adds the order-4 polynomial terms to
+    ``ctx.y_prop`` and the STM partial accumulators in ``ctx.scratch``.
+    """
+    from astrodyn_core.propagation.geqoe.taylor_order_3 import evaluate_order_3
+    evaluate_order_3(ctx)
+
+    s = ctx.scratch
+    dt_norm = ctx.dt_norm
+
+    # --- Read EOM coefficients from scratch ---
+    q1p4_0 = s["q1p4_0"]; q2p4_0 = s["q2p4_0"]
+    p1p4_0 = s["p1p4_0"]; p2p4_0 = s["p2p4_0"]
+    Lrp4_0 = s["Lrp4_0"]
+
+    # --- Read fourth-order EOM partials from scratch ---
+    q1p4_nu = s["q1p4_nu"]; q1p4_Lr = s["q1p4_Lr"]; q1p4_q1 = s["q1p4_q1"]
+    q1p4_q2 = s["q1p4_q2"]; q1p4_p1 = s["q1p4_p1"]; q1p4_p2 = s["q1p4_p2"]
+    q2p4_nu = s["q2p4_nu"]; q2p4_Lr = s["q2p4_Lr"]; q2p4_q1 = s["q2p4_q1"]
+    q2p4_q2 = s["q2p4_q2"]; q2p4_p1 = s["q2p4_p1"]; q2p4_p2 = s["q2p4_p2"]
+    p1p4_nu = s["p1p4_nu"]; p1p4_Lr = s["p1p4_Lr"]; p1p4_q1 = s["p1p4_q1"]
+    p1p4_q2 = s["p1p4_q2"]; p1p4_p1 = s["p1p4_p1"]; p1p4_p2 = s["p1p4_p2"]
+    p2p4_nu = s["p2p4_nu"]; p2p4_Lr = s["p2p4_Lr"]; p2p4_q1 = s["p2p4_q1"]
+    p2p4_q2 = s["p2p4_q2"]; p2p4_p1 = s["p2p4_p1"]; p2p4_p2 = s["p2p4_p2"]
+    Lrp4_nu = s["Lrp4_nu"]; Lrp4_Lr = s["Lrp4_Lr"]; Lrp4_q1 = s["Lrp4_q1"]
+    Lrp4_q2 = s["Lrp4_q2"]; Lrp4_p1 = s["Lrp4_p1"]; Lrp4_p2 = s["Lrp4_p2"]
+
+    # --- Read STM partial accumulators (written by evaluate_order_3) ---
+    Lr_nu = s["Lr_nu"]; Lr_Lr = s["Lr_Lr"]; Lr_q1 = s["Lr_q1"]
+    Lr_q2 = s["Lr_q2"]; Lr_p1 = s["Lr_p1"]; Lr_p2 = s["Lr_p2"]
+    q1_nu = s["q1_nu"]; q1_Lr = s["q1_Lr"]; q1_q1 = s["q1_q1"]
+    q1_q2 = s["q1_q2"]; q1_p1 = s["q1_p1"]; q1_p2 = s["q1_p2"]
+    q2_nu = s["q2_nu"]; q2_Lr = s["q2_Lr"]; q2_q1 = s["q2_q1"]
+    q2_q2 = s["q2_q2"]; q2_p1 = s["q2_p1"]; q2_p2 = s["q2_p2"]
+    p1_nu = s["p1_nu"]; p1_Lr = s["p1_Lr"]; p1_q1 = s["p1_q1"]
+    p1_q2 = s["p1_q2"]; p1_p1 = s["p1_p1"]; p1_p2 = s["p1_p2"]
+    p2_nu = s["p2_nu"]; p2_Lr = s["p2_Lr"]; p2_q1 = s["p2_q1"]
+    p2_q2 = s["p2_q2"]; p2_p1 = s["p2_p1"]; p2_p2 = s["p2_p2"]
+
+    # --- Polynomial evaluation (order-4 terms) ---
+    dt4 = dt_norm**4
+
+    ctx.y_prop[:, 1]   += q1p4_0 * dt4 / 24
+    ctx.y_prop[:, 2]   += q2p4_0 * dt4 / 24
+    ctx.y_prop[:, 3]   += p1p4_0 * dt4 / 24
+    ctx.y_prop[:, 4]   += p2p4_0 * dt4 / 24
+    ctx.y_prop[:, 5]   += Lrp4_0 * dt4 / 24
+
+    # --- STM accumulator updates (order-4 terms) ---
     # Lr derivatives
     Lr_nu = Lr_nu       + Lrp4_nu*dt4/24
     Lr_Lr = Lr_Lr       + Lrp4_Lr*dt4/24
@@ -994,10 +1055,7 @@ def compute_order_4(ctx: GEqOEPropagationContext) -> None:  # noqa: C901
     p2_p1 = p2_p1       + p2p4_p1*dt4/24
     p2_p2 = p2_p2       + p2p4_p2*dt4/24
 
-    # ================================================================== #
-    # Store updated STM accumulators back into scratch                     #
-    # ================================================================== #
-
+    # --- Store updated STM partial accumulators ---
     s["Lr_nu"] = Lr_nu; s["Lr_Lr"] = Lr_Lr; s["Lr_q1"] = Lr_q1
     s["Lr_q2"] = Lr_q2; s["Lr_p1"] = Lr_p1; s["Lr_p2"] = Lr_p2
     s["q1_nu"] = q1_nu; s["q1_Lr"] = q1_Lr; s["q1_q1"] = q1_q1
@@ -1008,3 +1066,13 @@ def compute_order_4(ctx: GEqOEPropagationContext) -> None:  # noqa: C901
     s["p1_q2"] = p1_q2; s["p1_p1"] = p1_p1; s["p1_p2"] = p1_p2
     s["p2_nu"] = p2_nu; s["p2_Lr"] = p2_Lr; s["p2_q1"] = p2_q1
     s["p2_q2"] = p2_q2; s["p2_p1"] = p2_p1; s["p2_p2"] = p2_p2
+
+
+def compute_order_4(ctx: GEqOEPropagationContext) -> None:  # noqa: C901
+    """Compute the order-4 Taylor expansion and populate *ctx*.
+
+    Thin wrapper that calls :func:`compute_coefficients_4` followed by
+    :func:`evaluate_order_4`.  Preserves the original API.
+    """
+    compute_coefficients_4(ctx)
+    evaluate_order_4(ctx)

@@ -4,6 +4,12 @@ Extracts the setup and first-order Taylor expansion from the legacy
 monolithic ``propagator.py`` (lines ~162-673).  All intermediate values
 are stored in ``context.scratch`` so that higher-order modules can read
 them.
+
+Functions
+---------
+compute_coefficients_1 : dt-independent coefficient computation
+evaluate_order_1       : dt-dependent polynomial evaluation + STM accumulation
+compute_order_1        : thin wrapper calling both (preserves existing API)
 """
 
 from __future__ import annotations
@@ -20,11 +26,18 @@ from astrodyn_core.propagation.geqoe.state import GEqOEPropagationContext
 from astrodyn_core.propagation.geqoe.utils import solve_kep_gen
 
 
-def compute_order_1(ctx: GEqOEPropagationContext) -> None:  # noqa: C901
-    """Compute the order-1 Taylor expansion and populate *ctx*."""
+def compute_coefficients_1(ctx: GEqOEPropagationContext) -> None:  # noqa: C901
+    """Compute order-1 Taylor coefficients (dt-independent).
+
+    Populates ``ctx.scratch`` with all scalar intermediate values,
+    EOM coefficients, and their partials w.r.t. initial conditions.
+    Also creates and fills ``ctx.map_components[:, 0]``.
+
+    Does **not** use ``ctx.dt_norm``; call :func:`evaluate_order_1`
+    separately for the dt-dependent polynomial evaluation.
+    """
     s = ctx.scratch  # shorthand
-    dt_norm = ctx.dt_norm
-    M = len(dt_norm)
+    M = len(ctx.dt_norm)
     T = ctx.constants.time_scale
     mu_norm = ctx.constants.mu_norm  # 1.0
     A = ctx.constants.a_half_j2  # J2 / 2
@@ -128,13 +141,6 @@ def compute_order_1(ctx: GEqOEPropagationContext) -> None:  # noqa: C901
     Lrp_0 = nu_0 + d - wh - fic * GAMMA_ * U
     q1p_0 = -I * sinL
     q2p_0 = -I * cosL
-
-    y_prop[:, 0] = nu_0
-    y_prop[:, 1] = q1_0 + q1p_0 * dt_norm
-    y_prop[:, 2] = q2_0 + q2p_0 * dt_norm
-    y_prop[:, 3] = p1_0 + p1p_0 * dt_norm
-    y_prop[:, 4] = p2_0 + p2p_0 * dt_norm
-    y_prop[:, 5] = Lr_0 + Lrp_0 * dt_norm
 
     map_components[:, 0] = [0, q1p_0, q2p_0, p1p_0, p2p_0, Lrp_0]
 
@@ -573,44 +579,6 @@ def compute_order_1(ctx: GEqOEPropagationContext) -> None:  # noqa: C901
     Lrp_p1 = d_p1 - wh_p1 - (fic_p1 * GAMMA_ + fic * GAMMA_p1) * U - fic * GAMMA_ * U_p1
     Lrp_p2 = d_p2 - wh_p2 - (fic_p2 * GAMMA_ + fic * GAMMA_p2) * U - fic * GAMMA_ * U_p2
 
-    # nu derivatives
-    nu_nu = 1  # nu_Lr = 0; nu_q1 = 0; nu_q2 = 0 nu_p1 = 0 nu_p2 = 0
-    # Lr derivatives
-    Lr_nu = Lrp_nu * dt_norm
-    Lr_Lr = 1 + Lrp_Lr * dt_norm
-    Lr_q1 = Lrp_q1 * dt_norm
-    Lr_q2 = Lrp_q2 * dt_norm
-    Lr_p1 = Lrp_p1 * dt_norm
-    Lr_p2 = Lrp_p2 * dt_norm
-    # q1 derivatives
-    q1_nu = q1p_nu * dt_norm
-    q1_Lr = q1p_Lr * dt_norm
-    q1_q1 = 1 + q1p_q1 * dt_norm
-    q1_q2 = q1p_q2 * dt_norm
-    q1_p1 = q1p_p1 * dt_norm
-    q1_p2 = q1p_p2 * dt_norm
-    # q2 derivatives
-    q2_nu = q2p_nu * dt_norm
-    q2_Lr = q2p_Lr * dt_norm
-    q2_q1 = q2p_q1 * dt_norm
-    q2_q2 = 1 + q2p_q2 * dt_norm
-    q2_p1 = q2p_p1 * dt_norm
-    q2_p2 = q2p_p2 * dt_norm
-    # p1 derivatives
-    p1_nu = p1p_nu * dt_norm
-    p1_Lr = p1p_Lr * dt_norm
-    p1_q1 = p1p_q1 * dt_norm
-    p1_q2 = p1p_q2 * dt_norm
-    p1_p1 = 1 + p1p_p1 * dt_norm
-    p1_p2 = p1p_p2 * dt_norm
-    # p2 derivatives
-    p2_nu = p2p_nu * dt_norm
-    p2_Lr = p2p_Lr * dt_norm
-    p2_q1 = p2p_q1 * dt_norm
-    p2_q2 = p2p_q2 * dt_norm
-    p2_p1 = p2p_p1 * dt_norm
-    p2_p2 = 1 + p2p_p2 * dt_norm
-
     # ------------------------------------------------------------------ #
     # Store everything in scratch for higher-order modules                #
     # ------------------------------------------------------------------ #
@@ -783,6 +751,79 @@ def compute_order_1(ctx: GEqOEPropagationContext) -> None:  # noqa: C901
     s["f2rp_nu"] = f2rp_nu;  s["f2rp_Lr"] = f2rp_Lr;  s["f2rp_q1"] = f2rp_q1
     s["f2rp_q2"] = f2rp_q2;  s["f2rp_p1"] = f2rp_p1;  s["f2rp_p2"] = f2rp_p2
 
+    # Store outputs on context (arrays created but not yet dt-filled)
+    ctx.y_prop = y_prop
+    ctx.y_y0 = y_y0  # placeholder, filled at final assembly
+    ctx.map_components = map_components
+
+
+def evaluate_order_1(ctx: GEqOEPropagationContext) -> None:
+    """Evaluate order-1 Taylor polynomial (dt-dependent).
+
+    Reads EOM coefficients and partials from ``ctx.scratch`` (populated by
+    :func:`compute_coefficients_1`) and uses ``ctx.dt_norm`` to fill
+    ``ctx.y_prop`` and the STM partial accumulators in ``ctx.scratch``.
+    """
+    s = ctx.scratch
+    dt_norm = ctx.dt_norm
+
+    # --- Read scalar coefficients from scratch ---
+    nu_0 = s["nu_0"]
+    q1_0, q2_0 = s["q1_0"], s["q2_0"]
+    p1_0, p2_0 = s["p1_0"], s["p2_0"]
+    Lr_0 = s["Lr_0"]
+
+    q1p_0, q2p_0 = s["q1p_0"], s["q2p_0"]
+    p1p_0, p2p_0 = s["p1p_0"], s["p2p_0"]
+    Lrp_0 = s["Lrp_0"]
+
+    # --- Polynomial evaluation (order-1 terms) ---
+    ctx.y_prop[:, 0] = nu_0
+    ctx.y_prop[:, 1] = q1_0 + q1p_0 * dt_norm
+    ctx.y_prop[:, 2] = q2_0 + q2p_0 * dt_norm
+    ctx.y_prop[:, 3] = p1_0 + p1p_0 * dt_norm
+    ctx.y_prop[:, 4] = p2_0 + p2p_0 * dt_norm
+    ctx.y_prop[:, 5] = Lr_0 + Lrp_0 * dt_norm
+
+    # --- STM partial accumulators (dt-dependent, shape (M,)) ---
+    # nu derivatives
+    nu_nu = 1  # nu_Lr = 0; nu_q1 = 0; nu_q2 = 0 nu_p1 = 0 nu_p2 = 0
+    # Lr derivatives
+    Lr_nu = s["Lrp_nu"] * dt_norm
+    Lr_Lr = 1 + s["Lrp_Lr"] * dt_norm
+    Lr_q1 = s["Lrp_q1"] * dt_norm
+    Lr_q2 = s["Lrp_q2"] * dt_norm
+    Lr_p1 = s["Lrp_p1"] * dt_norm
+    Lr_p2 = s["Lrp_p2"] * dt_norm
+    # q1 derivatives
+    q1_nu = s["q1p_nu"] * dt_norm
+    q1_Lr = s["q1p_Lr"] * dt_norm
+    q1_q1 = 1 + s["q1p_q1"] * dt_norm
+    q1_q2 = s["q1p_q2"] * dt_norm
+    q1_p1 = s["q1p_p1"] * dt_norm
+    q1_p2 = s["q1p_p2"] * dt_norm
+    # q2 derivatives
+    q2_nu = s["q2p_nu"] * dt_norm
+    q2_Lr = s["q2p_Lr"] * dt_norm
+    q2_q1 = s["q2p_q1"] * dt_norm
+    q2_q2 = 1 + s["q2p_q2"] * dt_norm
+    q2_p1 = s["q2p_p1"] * dt_norm
+    q2_p2 = s["q2p_p2"] * dt_norm
+    # p1 derivatives
+    p1_nu = s["p1p_nu"] * dt_norm
+    p1_Lr = s["p1p_Lr"] * dt_norm
+    p1_q1 = s["p1p_q1"] * dt_norm
+    p1_q2 = s["p1p_q2"] * dt_norm
+    p1_p1 = 1 + s["p1p_p1"] * dt_norm
+    p1_p2 = s["p1p_p2"] * dt_norm
+    # p2 derivatives
+    p2_nu = s["p2p_nu"] * dt_norm
+    p2_Lr = s["p2p_Lr"] * dt_norm
+    p2_q1 = s["p2p_q1"] * dt_norm
+    p2_q2 = s["p2p_q2"] * dt_norm
+    p2_p1 = s["p2p_p1"] * dt_norm
+    p2_p2 = 1 + s["p2p_p2"] * dt_norm
+
     # STM partial accumulators (arrays of shape (M,) for each element)
     s["nu_nu"] = nu_nu
     s["Lr_nu"] = Lr_nu;  s["Lr_Lr"] = Lr_Lr;  s["Lr_q1"] = Lr_q1
@@ -796,7 +837,12 @@ def compute_order_1(ctx: GEqOEPropagationContext) -> None:  # noqa: C901
     s["p2_nu"] = p2_nu;  s["p2_Lr"] = p2_Lr;  s["p2_q1"] = p2_q1
     s["p2_q2"] = p2_q2;  s["p2_p1"] = p2_p1;  s["p2_p2"] = p2_p2
 
-    # Store outputs on context
-    ctx.y_prop = y_prop
-    ctx.y_y0 = y_y0  # placeholder, filled at final assembly
-    ctx.map_components = map_components
+
+def compute_order_1(ctx: GEqOEPropagationContext) -> None:  # noqa: C901
+    """Compute the order-1 Taylor expansion and populate *ctx*.
+
+    Thin wrapper that calls :func:`compute_coefficients_1` followed by
+    :func:`evaluate_order_1`.  Preserves the original API.
+    """
+    compute_coefficients_1(ctx)
+    evaluate_order_1(ctx)
