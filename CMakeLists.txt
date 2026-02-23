@@ -20,6 +20,9 @@ pybind11_add_module(geqoe_utils_cpp
     src/astrodyn_core/geqoe_cpp/src/conversions.cpp
     src/astrodyn_core/geqoe_cpp/src/jacobians.cpp
     src/astrodyn_core/geqoe_cpp/src/propagator_core.cpp
+    src/astrodyn_core/geqoe_cpp/src/taylor_order_1.cpp
+    src/astrodyn_core/geqoe_cpp/src/taylor_pipeline.cpp
+    src/astrodyn_core/math_cpp/src/math_utils.cpp
 )
 
 target_include_directories(geqoe_utils_cpp PRIVATE

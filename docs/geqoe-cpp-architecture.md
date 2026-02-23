@@ -2,6 +2,19 @@
 
 This document defines the implementation architecture for porting the staged Python GEqOE Taylor propagator to C++ while preserving numerical parity.
 
+## Current Implementation Status (2026-02-23)
+
+- Implemented:
+  - Shared runtime core: `propagator_core.hpp/.cpp`
+  - Staged pipeline scaffolding: `taylor_pipeline.hpp/.cpp`
+  - Full Order-1 port: `taylor_order_1.hpp/.cpp`
+  - Python bindings for staged C++ API in `bindings.cpp`
+  - Focused parity tests for staged Order-1 vs Python
+- Not yet implemented:
+  - Order-2/3/4 C++ kernels and dispatch
+- Important constraint:
+  - C++ staged path currently supports `order=1` only; higher orders raise a clear runtime error.
+
 ## Goals
 
 - Match the staged Python pipeline semantics exactly:
@@ -31,21 +44,21 @@ src/astrodyn_core/geqoe_cpp/
     conversions.hpp
     jacobians.hpp
     propagator_core.hpp           # shared core primitives (constants, STM assembly)
-    taylor_order_1.hpp            # order-specific kernels
+    taylor_order_1.hpp            # order-specific kernels (implemented)
     taylor_order_2.hpp
     taylor_order_3.hpp
     taylor_order_4.hpp
-    taylor_pipeline.hpp           # staged API orchestration
+    taylor_pipeline.hpp           # staged API orchestration (implemented)
   src/
     kepler_solver.cpp
     conversions.cpp
     jacobians.cpp
-    propagator_core.cpp           # implemented now (shared runtime pieces)
-    taylor_order_1.cpp            # translated equations
+    propagator_core.cpp           # implemented (shared runtime pieces)
+    taylor_order_1.cpp            # implemented (translated equations)
     taylor_order_2.cpp
     taylor_order_3.cpp
     taylor_order_4.cpp
-    taylor_pipeline.cpp           # dispatch + staged wrappers
+    taylor_pipeline.cpp           # implemented (dispatch + staged wrappers)
     bindings.cpp                  # pybind wrappers only
 ```
 
@@ -74,7 +87,7 @@ This matches the Python STM assembly semantics used in `core.py`.
 
 ### 2.3 Staged API equivalents
 
-Planned C++ core APIs:
+Implemented C++ core APIs:
 
 1. `prepare_taylor_coefficients_cpp(eq0, p, order) -> coeff_blob`
 2. `evaluate_taylor_cpp(coeff_blob, dt) -> (y_prop, y_y0, map_components)`
@@ -91,7 +104,7 @@ The difficult part is the huge intermediate chain in `taylor_order_1..4.py`.
 
 ### Decision: typed scratch structs per order (not string maps in final path)
 
-- `Order1Scalars`, `Order2Scalars`, `Order3Scalars`, `Order4Scalars`
+- `Order1Coefficients` (implemented), then `Order2/3/4` typed structs
 - Each struct contains all dt-independent scalar intermediates and partials used by that order and downstream orders.
 - `StmAccumulatorView` carries dt-dependent arrays (`nu_nu`, `q1_nu`, ... `Lr_Lr`) for evaluation/assembly.
 
@@ -101,10 +114,16 @@ Why:
 - better compiler diagnostics when a field is missing
 - faster and deterministic memory layout
 
-Migration convenience:
+Migration note:
 
-- During initial translation of an order file, it is acceptable to stage with a temporary name-preserving map in an isolated branch.
-- Before merging each order, promote to typed structs.
+- Order-1 currently uses typed structs and explicit STM accumulator vectors.
+- Continue same typed pattern for Order-2/3/4.
+
+## 3.1 Shared math utilities policy
+
+- Do not duplicate inverse/product derivative algebra inside order kernels.
+- Reuse `math_cpp` core functions from `src/astrodyn_core/math_cpp/` (`math_utils.hpp/.cpp`) in GEqOE C++ kernels.
+- Keep one canonical implementation for those utilities to reduce divergence risk.
 
 ---
 
@@ -144,6 +163,12 @@ For each `taylor_order_N.py`, keep exact split:
 
 This minimizes blast radius and isolates defects to one order at a time.
 
+For Order-2 onward, preserve these already-validated invariants from Python:
+
+- Order-2 overwrites `fic` via updated inverse-derivative vector logic.
+- Order-3 rebuilds `beta_vector = [beta, bp, bpp]`.
+- STM assembly remains centralized in `propagator_core` path.
+
 ---
 
 ## 6) Testing and Acceptance Gates
@@ -153,6 +178,11 @@ This minimizes blast radius and isolates defects to one order at a time.
 - GEqOE-space parity (`compute + evaluate`) for order N.
 - Cartesian projection parity for order N.
 - STM parity for order N.
+
+Current gate status:
+
+- Order-1: passing (GEqOE-space + Cartesian-space staged parity).
+- Orders 2-4: pending.
 
 ### 6.2 Cross-order gates
 
@@ -184,3 +214,19 @@ This minimizes blast radius and isolates defects to one order at a time.
 5. Order-4 full port and parity integration.
 6. Bind staged C++ API into Python provider path behind feature flag.
 7. Default C++ backend once parity + stability criteria are met.
+
+Progress update:
+
+- Steps 1-2 are complete.
+- Step 3 (Order-2) is the next active task for the next session.
+
+## 9) Build and Setup Notes
+
+- The supported workflow is the repo setup/install flow (`setup_env.py` + editable install), not manual `.so` copying.
+- Validation command:
+
+```bash
+conda run -n astrodyn-core-env python -m pip install -e .[dev]
+```
+
+- Any local manually-copied extension artifacts in `src/` should be avoided.

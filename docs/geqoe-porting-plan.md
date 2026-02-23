@@ -16,10 +16,71 @@
 | 2 | Python Verification (Parity Check) | COMPLETE |
 | 5 | Orekit Provider Integration | COMPLETE |
 | 2.5 | Precomputation Optimization (engine + provider) | COMPLETE |
-| 3 | C++ Porting of Internal Tools | NOT STARTED |
-| 4 | C++ Porting of the Taylor Propagator | NOT STARTED |
+| 3 | C++ Porting of Internal Tools | COMPLETE |
+| 4 | C++ Porting of the Taylor Propagator | IN PROGRESS (Order 1 complete) |
 
-> **Note:** Phase 5 was completed before Phases 3-4 because the Python GEqOE propagator intentionally does NOT depend on the C++ `math_cpp` module. `_derivatives.py` is the canonical pure-Python implementation. C++ porting (Phases 3-4) is a future performance optimization.
+> **Note:** Phase 5 was completed before full Phase 4 because the Python GEqOE propagator intentionally does NOT depend on the C++ `math_cpp` module. `_derivatives.py` remains the canonical Python implementation; C++ work is a parity/performance path.
+
+---
+
+## Session Handoff (2026-02-23)
+
+This section captures the exact current state so the next session can resume directly.
+
+### Completed in this session
+
+1. **Phase 3 finalized for existing GEqOE utilities**
+  - C++ conversion/Jacobian/Kepler module remains passing and integrated.
+  - Existing tests still pass (`tests/test_geqoe_cpp.py`, `tests/test_geqoe_refactor.py`).
+
+2. **Phase 4 started: Order-1 staged C++ port completed**
+  - Added staged C++ API and Order-1 core:
+    - `src/astrodyn_core/geqoe_cpp/include/taylor_order_1.hpp`
+    - `src/astrodyn_core/geqoe_cpp/src/taylor_order_1.cpp`
+    - `src/astrodyn_core/geqoe_cpp/include/taylor_pipeline.hpp`
+    - `src/astrodyn_core/geqoe_cpp/src/taylor_pipeline.cpp`
+  - Added pybind exposure in `src/astrodyn_core/geqoe_cpp/src/bindings.cpp` and package exports in `src/astrodyn_core/geqoe_cpp/__init__.py`:
+    - `prepare_taylor_coefficients_cpp`
+    - `evaluate_taylor_cpp`
+    - `prepare_cart_coefficients_cpp`
+    - `evaluate_cart_taylor_cpp`
+  - Order-1 math preserved with Python variable-name parity.
+  - Derivative helpers in `taylor_order_1.cpp` now call shared `math_cpp` kernels (`math_utils.hpp`) instead of local duplicate implementations.
+
+3. **Build + setup workflow confirmed**
+  - Repo setup path (`setup_env.py` -> `conda run -n astrodyn-core-env python -m pip install -e .[dev]`) works.
+  - No manual `.so` copy is required when using the project conda env.
+  - Added compiled artifact ignore patterns in `.gitignore` (`*.so`, `*.pyd`, `*.dylib`).
+
+4. **Parity validation assets added**
+  - Focused test: `tests/test_geqoe_cpp_staged_order1.py` (Python staged vs C++ staged, Order 1).
+  - Example script: `examples/geqoe_cpp_order1_parity.py`.
+
+### Current constraints
+
+- C++ staged pipeline currently supports **order=1 only** by design.
+- Calling C++ staged functions with order 2-4 raises a clear runtime error.
+- Existing conversion/jacobian behavior and tolerance baselines are preserved.
+
+### Resume checklist (next session)
+
+1. **Start Phase 4 Order-2 port (minimal incremental path)**
+  - Add `taylor_order_2.hpp/.cpp` with compute/evaluate split.
+  - Reuse Order-1 coefficients/scratch as input; preserve order chaining semantics.
+  - Keep `fic` overwrite behavior exactly aligned with Python Order-2.
+
+2. **Extend staged dispatch (pipeline + bindings)**
+  - Update `taylor_pipeline.cpp` dispatch to allow `order=2`.
+  - Keep API signatures unchanged.
+
+3. **Add parity tests for Order-2 staged path**
+  - Mirror existing Order-1 test pattern in `tests/test_geqoe_cpp_staged_order1.py` (or split per-order test files).
+  - Validate GEqOE state, STM, and map component parity vs Python staged engine.
+
+4. **Run validation sequence**
+  - `conda run -n astrodyn-core-env pytest -q tests/test_geqoe_cpp_staged_order1.py`
+  - `conda run -n astrodyn-core-env pytest -q tests/test_geqoe_cpp.py tests/test_geqoe_refactor.py`
+  - Optional smoke: `conda run -n astrodyn-core-env python examples/geqoe_cpp_order1_parity.py`
 
 ---
 
@@ -199,17 +260,20 @@ Split each `compute_order_N` into `compute_coefficients_N` (scalar math only) an
 
 ---
 
-## Phase 3: C++ Porting of Internal Tools -- NOT STARTED
+## Phase 3: C++ Porting of Internal Tools -- COMPLETE
 
 **Goal:** Port the internal GEqOE pipeline tools (Cartesian to GEqOE conversions, Jacobians) to C++ using the Core + Wrapper pattern.
 
-1.  **Target Directory:** Create a new dedicated `src/astrodyn_core/geqoe_cpp/` module if the scope demands it, or place alongside the existing `math_cpp` module.
-2.  **Pure Core Implementation:**
-    *   Create `include/conversions.hpp` and `src/conversions.cpp`.
-    *   Create `include/jacobians.hpp` and `src/jacobians.cpp`.
-    *   Translate the vectorized NumPy logic from Phase 1 into standard `for` loops operating on `double*` arrays. Ensure these functions can handle $N$ satellites simultaneously.
-3.  **Wrapper Implementation:** Create/update `src/bindings.cpp` to expose these functions to Python.
-4.  **Testing:** Add test cases to verify the C++ tools exactly match the refactored Python tools.
+Completed implementation resides in `src/astrodyn_core/geqoe_cpp/`:
+
+- Pure core:
+  - `include/conversions.hpp` / `src/conversions.cpp`
+  - `include/jacobians.hpp` / `src/jacobians.cpp`
+  - `include/kepler_solver.hpp` / `src/kepler_solver.cpp`
+- Wrapper:
+  - `src/bindings.cpp` exposes the C++ functions to Python.
+- Validation:
+  - `tests/test_geqoe_cpp.py` parity tests pass against Python reference.
 
 **Existing C++ reference:** The only C++ module currently in the repo is `math_cpp` at `src/astrodyn_core/math_cpp/`:
 - `include/math_utils.hpp` -- Pure C++ header (namespace `astrodyn_core::math`, raw `double*` pointers).
@@ -219,7 +283,7 @@ Split each `compute_order_N` into `compute_coefficients_N` (scalar math only) an
 
 ---
 
-## Phase 4: C++ Porting of the Taylor Propagator -- NOT STARTED
+## Phase 4: C++ Porting of the Taylor Propagator -- IN PROGRESS (Order 1 complete)
 
 **Goal:** Port the massive unrolled algebraic equations into high-performance C++.
 
@@ -232,7 +296,17 @@ Split each `compute_order_N` into `compute_coefficients_N` (scalar math only) an
 3.  **Integration:** Modify the Python `core.py` (from Phase 1) to import and use the C++ backend by default, falling back to Python only if necessary.
 4.  **Testing:** Ensure the C++ propagator exactly matches the Python propagator outputs.
 
-**Note on Phase 2.5 synergy:** The precomputation split (`compute_coefficients_N` / `evaluate_order_N`) maps naturally to C++: the coefficient functions become the heavy C++ core, and the evaluation functions can remain lightweight (potentially even stay in Python for flexibility).
+**Current status:**
+
+- **Order 1 implemented and validated** (GEqOE-space + Cartesian-space staged parity).
+- Shared staged pipeline scaffolding is in place (`taylor_pipeline.hpp/.cpp`).
+- `propagator_core` reused for constants, time normalization, STM assembly.
+
+**Remaining scope:**
+
+- Port Order 2, 3, 4 math kernels and enable dispatch incrementally per order.
+
+**Note on Phase 2.5 synergy:** The precomputation split (`compute_coefficients_N` / `evaluate_order_N`) maps naturally to C++ and is now active for Order 1.
 
 ---
 

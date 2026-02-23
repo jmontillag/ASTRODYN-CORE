@@ -1,10 +1,13 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
+#include <pybind11/stl.h>
+#include <memory>
 #include <stdexcept>
 
 #include "kepler_solver.hpp"
 #include "conversions.hpp"
 #include "jacobians.hpp"
+#include "taylor_pipeline.hpp"
 
 namespace py = pybind11;
 using namespace astrodyn_core::geqoe;
@@ -154,6 +157,25 @@ static std::pair<size_t, const double*> parse_Nx6(
     return {N, static_cast<const double*>(buf.ptr)};
 }
 
+static std::shared_ptr<PreparedTaylorCoefficients> parse_coeff_capsule(py::object coeffs_obj) {
+    py::capsule cap = py::reinterpret_borrow<py::capsule>(coeffs_obj);
+    if (std::string(cap.name()) != "PreparedTaylorCoefficients") {
+        throw std::runtime_error("Invalid coefficient object capsule.");
+    }
+    auto* holder = static_cast<std::shared_ptr<PreparedTaylorCoefficients>*>(cap.get_pointer());
+    if (holder == nullptr || !(*holder)) {
+        throw std::runtime_error("Coefficient capsule is null.");
+    }
+    return *holder;
+}
+
+static py::capsule make_coeff_capsule(std::shared_ptr<PreparedTaylorCoefficients> coeffs) {
+    auto* holder = new std::shared_ptr<PreparedTaylorCoefficients>(std::move(coeffs));
+    return py::capsule(holder, "PreparedTaylorCoefficients", [](void* p) {
+        delete static_cast<std::shared_ptr<PreparedTaylorCoefficients>*>(p);
+    });
+}
+
 // ---------------------------------------------------------------------------
 // get_pEqpY  --  returns (N, 6, 6)
 // ---------------------------------------------------------------------------
@@ -190,6 +212,102 @@ py::array_t<double> py_get_pYpEq(
     return jac_out;
 }
 
+py::capsule py_prepare_taylor_coefficients_cpp(
+    py::array_t<double, py::array::c_style | py::array::forcecast> y0_arr,
+    double J2, double Re, double mu,
+    int order
+) {
+    auto buf = y0_arr.request();
+    if (buf.ndim != 1 || buf.shape[0] != 6) {
+        throw std::runtime_error("y0 must be a 1-D 6-element GEqOE state vector.");
+    }
+
+    const double* y0 = static_cast<const double*>(buf.ptr);
+    auto coeffs = prepare_taylor_coefficients_cpp(y0, J2, Re, mu, order);
+    return make_coeff_capsule(std::move(coeffs));
+}
+
+py::tuple py_evaluate_taylor_cpp(
+    py::object coeffs_obj,
+    py::array_t<double, py::array::c_style | py::array::forcecast> dt_arr
+) {
+    auto coeffs = parse_coeff_capsule(coeffs_obj);
+
+    auto dt_buf = dt_arr.request();
+    if (dt_buf.ndim != 1) {
+        throw std::runtime_error("dt must be a 1-D array.");
+    }
+    size_t M = static_cast<size_t>(dt_buf.shape[0]);
+    const double* dt_ptr = static_cast<const double*>(dt_buf.ptr);
+
+    py::array_t<double> y_prop({static_cast<py::ssize_t>(M), py::ssize_t(6)});
+    py::array_t<double> y_y0({py::ssize_t(6), py::ssize_t(6), static_cast<py::ssize_t>(M)});
+    py::array_t<double> map_components({py::ssize_t(6), py::ssize_t(coeffs->order)});
+
+    evaluate_taylor_cpp(
+        *coeffs,
+        dt_ptr,
+        M,
+        static_cast<double*>(y_prop.request().ptr),
+        static_cast<double*>(y_y0.request().ptr),
+        static_cast<double*>(map_components.request().ptr)
+    );
+
+    return py::make_tuple(y_prop, y_y0, map_components);
+}
+
+py::tuple py_prepare_cart_coefficients_cpp(
+    py::array_t<double, py::array::c_style | py::array::forcecast> y0_cart_arr,
+    double J2, double Re, double mu,
+    int order
+) {
+    auto buf = y0_cart_arr.request();
+    if (buf.ndim != 1 || buf.shape[0] != 6) {
+        throw std::runtime_error("y0_cart must be a 1-D 6-element Cartesian state vector.");
+    }
+
+    py::array_t<double> peq_py_0({py::ssize_t(6), py::ssize_t(6)});
+    auto coeffs = prepare_cart_coefficients_cpp(
+        static_cast<const double*>(buf.ptr), J2, Re, mu, order,
+        static_cast<double*>(peq_py_0.request().ptr)
+    );
+
+    return py::make_tuple(make_coeff_capsule(std::move(coeffs)), peq_py_0);
+}
+
+py::tuple py_evaluate_cart_taylor_cpp(
+    py::object coeffs_obj,
+    py::array_t<double, py::array::c_style | py::array::forcecast> peq_py_0_arr,
+    py::array_t<double, py::array::c_style | py::array::forcecast> tspan_arr
+) {
+    auto coeffs = parse_coeff_capsule(coeffs_obj);
+
+    auto peq_buf = peq_py_0_arr.request();
+    if (peq_buf.ndim != 2 || peq_buf.shape[0] != 6 || peq_buf.shape[1] != 6) {
+        throw std::runtime_error("peq_py_0 must be shape (6, 6).");
+    }
+
+    auto t_buf = tspan_arr.request();
+    if (t_buf.ndim != 1) {
+        throw std::runtime_error("tspan must be a 1-D array.");
+    }
+    size_t M = static_cast<size_t>(t_buf.shape[0]);
+
+    py::array_t<double> y_out({static_cast<py::ssize_t>(M), py::ssize_t(6)});
+    py::array_t<double> dy_dy0({py::ssize_t(6), py::ssize_t(6), static_cast<py::ssize_t>(M)});
+
+    evaluate_cart_taylor_cpp(
+        *coeffs,
+        static_cast<const double*>(peq_buf.ptr),
+        static_cast<const double*>(t_buf.ptr),
+        M,
+        static_cast<double*>(y_out.request().ptr),
+        static_cast<double*>(dy_dy0.request().ptr)
+    );
+
+    return py::make_tuple(y_out, dy_dy0);
+}
+
 // =============================================================================
 // MODULE DEFINITION
 // =============================================================================
@@ -216,4 +334,20 @@ PYBIND11_MODULE(geqoe_utils_cpp, m) {
     m.def("get_pYpEq", &py_get_pYpEq,
           "Jacobian d(Y)/d(Eq): GEqOE -> Cartesian (returns (N,6,6))",
           py::arg("y"), py::arg("J2"), py::arg("Re"), py::arg("mu"));
+
+        m.def("prepare_taylor_coefficients_cpp", &py_prepare_taylor_coefficients_cpp,
+            "Prepare staged GEqOE Taylor coefficients (C++, order-1 currently)",
+            py::arg("y0"), py::arg("J2"), py::arg("Re"), py::arg("mu"), py::arg("order") = 1);
+
+        m.def("evaluate_taylor_cpp", &py_evaluate_taylor_cpp,
+            "Evaluate staged GEqOE Taylor polynomial (C++, order-1 currently)",
+            py::arg("coeffs"), py::arg("dt"));
+
+        m.def("prepare_cart_coefficients_cpp", &py_prepare_cart_coefficients_cpp,
+            "Prepare staged Cartesian Taylor coefficients (C++, order-1 currently)",
+            py::arg("y0_cart"), py::arg("J2"), py::arg("Re"), py::arg("mu"), py::arg("order") = 1);
+
+        m.def("evaluate_cart_taylor_cpp", &py_evaluate_cart_taylor_cpp,
+            "Evaluate staged Cartesian Taylor propagation (C++, order-1 currently)",
+            py::arg("coeffs"), py::arg("peq_py_0"), py::arg("tspan"));
 }
