@@ -19,6 +19,7 @@ pybind11_add_module(geqoe_utils_cpp
     src/astrodyn_core/geqoe_cpp/src/kepler_solver.cpp
     src/astrodyn_core/geqoe_cpp/src/conversions.cpp
     src/astrodyn_core/geqoe_cpp/src/jacobians.cpp
+    src/astrodyn_core/geqoe_cpp/src/propagator_core.cpp
 )
 
 target_include_directories(geqoe_utils_cpp PRIVATE
