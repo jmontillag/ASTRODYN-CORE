@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """GEqOE J2 Taylor-series propagator -- user-facing example.
 
-Demonstrates all three usage levels of the analytical GEqOE propagator:
+Demonstrates all four usage levels of the analytical GEqOE propagator:
 
 1. **Provider pipeline** -- build via ``AstrodynClient`` / ``PropagatorFactory``
    exactly like any other propagator kind (keplerian, numerical, DSST, etc.).
@@ -9,15 +9,20 @@ Demonstrates all three usage levels of the analytical GEqOE propagator:
    ``Orbit`` and call ``propagate()``, ``get_native_state()``, etc.
 3. **Pure-numpy engine** -- call ``taylor_cart_propagator`` directly with a
    Cartesian state vector and body constants (no Orekit dependency).
+4. **Multi-epoch benchmark** -- compare the monolithic and staged
+   (``prepare_taylor_coefficients`` + ``evaluate_taylor``) strategies when
+   the same initial state is evaluated at many independent epochs.
 
 Run from project root:
     python examples/geqoe_propagator.py --mode all
+    python examples/geqoe_propagator.py --mode benchmark
 """
 
 from __future__ import annotations
 
 import argparse
 import math
+import time
 
 import numpy as np
 
@@ -204,6 +209,116 @@ def run_numpy_engine() -> None:
 
 
 # -----------------------------------------------------------------------
+# 4) Multi-epoch benchmark  (staged vs monolithic)
+# -----------------------------------------------------------------------
+
+def run_benchmark() -> None:
+    """Benchmark the high-level GEqOEPropagator across repeated independent epochs.
+
+    ``GEqOEPropagator`` now caches the dt-independent Taylor coefficients at
+    construction time (via ``prepare_cart_coefficients``).  Each call to
+    ``propagate()`` or ``propagate_array()`` therefore only performs the cheap
+    polynomial evaluation + Cartesian conversion, not the full coefficient
+    computation.
+
+    Two scenarios are timed to show where the benefit is visible:
+
+    **Scenario A — repeated scalar propagate() calls**
+        Simulates a filter or tasking loop that repeatedly asks the propagator
+        for the state at a new epoch from the same initial condition.  The new
+        implementation pays the coefficient cost once at construction; the old
+        pattern (calling ``taylor_cart_propagator`` each time) would pay it on
+        every call.
+
+    **Scenario B — propagate_array() vs repeated propagate() calls**
+        Shows that ``propagate_array()`` with a pre-built grid is fastest
+        (single Python call, vectorised numpy), but that repeated
+        ``propagate()`` calls now use the cache and are far cheaper than they
+        would be without it.
+
+    The reference baseline is the time taken to run the same number of
+    propagations by calling the lower-level ``taylor_cart_propagator`` in a
+    loop (which recomputes coefficients each time).
+    """
+    _header("GEqOEPropagator Benchmark: Cached Coefficients")
+    init_orekit()
+
+    from astrodyn_core.propagation.geqoe.conversion import BodyConstants, rv2geqoe
+    from astrodyn_core.propagation.geqoe.core import taylor_cart_propagator
+    from astrodyn_core.propagation.providers.geqoe import GEqOEPropagator
+
+    orbit, epoch, frame = make_leo_orbit()
+    rng = np.random.default_rng(1)
+    N_EPOCHS = 100
+    N_REPEAT = 5
+
+    def _timeit(fn) -> float:
+        best = float("inf")
+        for _ in range(N_REPEAT):
+            t0 = time.perf_counter()
+            fn()
+            best = min(best, time.perf_counter() - t0)
+        return best
+
+    print(f"\n  {N_EPOCHS} independent epochs, order=4, {N_REPEAT} timing repetitions (min reported)\n")
+    print(f"  {'Strategy':<42} {'Time (ms)':>10}  {'speedup':>9}")
+    print(f"  {'-'*42} {'-'*10}  {'-'*9}")
+
+    for order in (1, 2, 3, 4):
+        # Build the propagator once — coefficients precomputed at construction.
+        prop = GEqOEPropagator(initial_orbit=orbit, order=order)
+        y0 = prop._y0
+        bc = prop._bc
+
+        dt_epochs = rng.uniform(60.0, 3600.0, size=N_EPOCHS)
+        target_dates = [epoch.shiftedBy(float(dt)) for dt in dt_epochs]
+        dt_arr = np.array(dt_epochs)
+
+        # --- Baseline: lower-level function called in a loop (re-computes each time) ---
+        def _baseline_loop():
+            for dt in dt_arr:
+                taylor_cart_propagator(
+                    tspan=np.array([dt]), y0=y0, p=bc, order=order
+                )
+
+        # --- New: GEqOEPropagator.propagate() in a loop (uses cache) ---
+        def _propagator_loop():
+            for date in target_dates:
+                prop.propagate(date)
+
+        # --- New: GEqOEPropagator.propagate_array() in one batch call ---
+        def _propagate_array():
+            prop.propagate_array(dt_arr)
+
+        t_baseline = _timeit(_baseline_loop)
+        t_loop = _timeit(_propagator_loop)
+        t_batch = _timeit(_propagate_array)
+
+        su_loop = t_baseline / t_loop
+        su_batch = t_baseline / t_batch
+
+        print(f"  order={order}  baseline loop (taylor_cart per call)  {t_baseline*1000:>10.2f}  {'1.00x':>9}  <-- reference")
+        print(f"  order={order}  GEqOEPropagator.propagate() loop      {t_loop*1000:>10.2f}  {su_loop:>8.2f}x")
+        print(f"  order={order}  GEqOEPropagator.propagate_array()     {t_batch*1000:>10.2f}  {su_batch:>8.2f}x")
+        print()
+
+    # Verify numerical parity: GEqOEPropagator vs baseline at order 4
+    prop4 = GEqOEPropagator(initial_orbit=orbit, order=4)
+    dt_check = rng.uniform(60.0, 3600.0, size=50)
+    y_base = np.vstack([
+        taylor_cart_propagator(tspan=np.array([dt]), y0=prop4._y0, p=prop4._bc, order=4)[0]
+        for dt in dt_check
+    ])
+    y_prop, _ = prop4.propagate_array(dt_check)
+    max_diff = np.max(np.abs(y_prop - y_base))
+    print(f"  Parity check (order 4, 50 epochs): max |propagator - baseline| = {max_diff:.2e}")
+    if max_diff < 1e-8:
+        print("  [OK] Results agree to better than 1e-8 m.")
+    else:
+        print("  [WARN] Larger than expected difference!")
+
+
+# -----------------------------------------------------------------------
 # Main
 # -----------------------------------------------------------------------
 
@@ -213,7 +328,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--mode",
-        choices=("all", "provider", "adapter", "numpy"),
+        choices=("all", "provider", "adapter", "numpy", "benchmark"),
         default="all",
         help="Choose one demo or run all (default).",
     )
@@ -225,6 +340,7 @@ def main() -> None:
         "provider": run_provider_pipeline,
         "adapter": run_direct_adapter,
         "numpy": run_numpy_engine,
+        "benchmark": run_benchmark,
     }
 
     if args.mode == "all":

@@ -21,7 +21,8 @@ import numpy as np
 _log = logging.getLogger(__name__)
 
 from astrodyn_core.propagation.geqoe.conversion import BodyConstants
-from astrodyn_core.propagation.geqoe.core import taylor_cart_propagator
+from astrodyn_core.propagation.geqoe.core import evaluate_cart_taylor, prepare_cart_coefficients
+from astrodyn_core.propagation.geqoe.state import GEqOETaylorCoefficients
 
 
 # ---------------------------------------------------------------------------
@@ -207,11 +208,19 @@ class GEqOEPropagator:
             )
             # Warn if the orbit's mu disagrees with body_constants["mu"].
             _check_mu_consistency(self._mu, self._bc.mu)
+            # Precompute dt-independent Taylor coefficients and epoch Jacobian.
+            # These are reused across all propagate() / propagate_array() calls
+            # until the next resetInitialState().
+            self._coeffs, self._peq_py_0 = prepare_cart_coefficients(
+                self._y0, self._bc, self._order
+            )
         else:
             self._y0 = None
             self._frame = None
             self._epoch = None
             self._mu = float(body_constants["mu"])
+            self._coeffs: GEqOETaylorCoefficients | None = None
+            self._peq_py_0: np.ndarray | None = None
 
         self._last_native: _NativeResult | None = None
 
@@ -240,12 +249,13 @@ class GEqOEPropagator:
         dt_seconds = float(target.durationFrom(self._epoch))
         tspan = np.array([dt_seconds], dtype=float)
 
-        y_out, stm = taylor_cart_propagator(
-            tspan=tspan,
-            y0=self._y0,
-            p=self._bc,
-            order=self._order,
+        # Use the cached coefficients — evaluate_cart_taylor only does the
+        # cheap polynomial evaluation + Cartesian conversion (no re-computation
+        # of Taylor coefficients).
+        assert self._coeffs is not None and self._peq_py_0 is not None, (
+            "Taylor coefficients not initialised. Orekit must be available at construction."
         )
+        y_out, stm = evaluate_cart_taylor(self._coeffs, self._peq_py_0, tspan)
 
         y_final = y_out[0, :]  # shape (6,)
         stm_final = stm[:, :, 0]  # shape (6, 6)
@@ -267,10 +277,16 @@ class GEqOEPropagator:
         """Reset the propagator to a new initial state.
 
         Required by the Orekit ``AbstractPropagator`` interface for mission
-        simulation workflows that apply impulsive maneuvers.
+        simulation workflows that apply impulsive maneuvers or estimator
+        iterations.  The Taylor coefficients are recomputed once from the
+        new state so that subsequent ``propagate()`` calls remain fast.
         """
         self._y0, self._frame, self._epoch, self._mu, self._mass_kg = (
             _orekit_state_to_cartesian(state)
+        )
+        # Recompute the precomputed cache for the new initial state.
+        self._coeffs, self._peq_py_0 = prepare_cart_coefficients(
+            self._y0, self._bc, self._order
         )
         self._last_native = None
 
@@ -322,18 +338,13 @@ class GEqOEPropagator:
         stm : ndarray, shape (6, 6, N)
             State transition matrices at each time step.
         """
-        if self._y0 is None:
+        if self._coeffs is None or self._peq_py_0 is None:
             raise RuntimeError(
-                "Initial Cartesian state not available. "
+                "Taylor coefficients not available. "
                 "Orekit may not have been initialised when the propagator was created."
             )
         tspan = np.atleast_1d(np.asarray(dt_seconds, dtype=float))
-        return taylor_cart_propagator(
-            tspan=tspan,
-            y0=self._y0,
-            p=self._bc,
-            order=self._order,
-        )
+        return evaluate_cart_taylor(self._coeffs, self._peq_py_0, tspan)
 
     # ------------------------------------------------------------------
     # Metadata
