@@ -15,7 +15,7 @@
 | 1 | Python Refactoring & Compartmentalization | COMPLETE |
 | 2 | Python Verification (Parity Check) | COMPLETE |
 | 5 | Orekit Provider Integration | COMPLETE |
-| 2.5 | Precomputation Optimization | DONE |
+| 2.5 | Precomputation Optimization (engine + provider) | COMPLETE |
 | 3 | C++ Porting of Internal Tools | NOT STARTED |
 | 4 | C++ Porting of the Taylor Propagator | NOT STARTED |
 
@@ -50,7 +50,7 @@ All C++ code introduced in this project MUST strictly adhere to the "Core + Wrap
     *   `taylor_order_4.py` -- 4th-order Taylor expansion.
 4.  **Supporting Utilities:**
     *   `conversion.py` -- Cartesian <-> GEqOE conversions (`rv2geqoe`, `geqoe2rv`).
-    *   `jacobians.py` -- Jacobian utilities (`get_pEqpY`).
+    *   `jacobians.py` -- Jacobian utilities (`get_pEqpY`, `get_pYpEq`).
     *   `_derivatives.py` -- Pure-Python derivative chain-rule utilities (renamed from `_math_compat.py`). This is the canonical implementation; does NOT depend on the C++ `math_cpp` module.
     *   `utils.py` -- Shared helper functions.
 
@@ -101,105 +101,101 @@ All C++ code introduced in this project MUST strictly adhere to the "Core + Wrap
     *   `provider.py` -- `GEqOEProvider` dataclass with `kind="geqoe"`, `CapabilityDescriptor(is_analytical=True, supports_custom_output=True)`, `build_propagator()` method.
     *   `propagator.py` -- `GEqOEPropagator` class and `make_orekit_geqoe_propagator()` factory.
 2.  **`GEqOEPropagator` features:**
-    *   Wraps `taylor_cart_propagator` with Orekit-compatible interface.
+    *   Plain Python class. Orekit `AbstractPropagator` subclassing is done lazily via `make_orekit_geqoe_propagator()` (see JPype factory pattern below).
     *   Methods: `propagate()`, `resetInitialState()`, `getInitialState()`, `get_native_state()`, `propagate_array()`.
+    *   `propagate()` and `propagate_array()` use the cached coefficients from Phase 2.5 (`evaluate_cart_taylor`).
+    *   `resetInitialState()` recomputes the cached coefficients for the new state via `prepare_cart_coefficients()`.
     *   Body constants resolved from Orekit WGS84 when `body_constants=None` (via `_resolve_body_constants_from_orekit()`).
     *   Mu consistency check: `_check_mu_consistency()` warns if `orbit.getMu()` disagrees with `body_constants["mu"]`.
-    *   `make_orekit_geqoe_propagator()` creates a JPype `AbstractPropagator` subclass instance.
-3.  **Registration:** `register_analytical_providers()` and `register_all_providers()` added to `providers/__init__.py`. `client.py`'s `build_factory()` now calls `register_all_providers()`.
-4.  **Test Suite:** Created `tests/test_geqoe_provider.py` (21 tests: 14 non-Orekit + 7 Orekit integration).
+3.  **JPype factory pattern:** `make_orekit_geqoe_propagator()` dynamically creates `_OrekitGEqOEPropagator` (a JPype subclass of `AbstractPropagator`) the first time it is called and caches the class. The Orekit subclass holds a `GEqOEPropagator` instance in `self._impl` and delegates all calls to it. This pattern is necessary because JPype does not support lazy Orekit imports at class-definition time. When Orekit is not available, the factory returns a plain `GEqOEPropagator`.
+4.  **Registration:** `register_analytical_providers()` and `register_all_providers()` added to `providers/__init__.py`. `client.py`'s `build_factory()` now calls `register_all_providers()`.
+5.  **Test Suite:** Created `tests/test_geqoe_provider.py` (21 tests: 14 non-Orekit + 7 Orekit integration).
 
 **Provider architecture notes:**
 - Two `Protocol` classes in `interfaces.py`: `BuilderProvider` (returns Orekit PropagatorBuilder) and `PropagatorProvider` (returns Orekit Propagator directly).
 - `ProviderRegistry` stores providers in two dicts keyed by `provider.kind` (any string).
 - `PropagatorFactory` resolves providers via `spec.kind` and delegates to `provider.build_propagator(spec, context)`.
+- `provider.build_propagator()` calls `make_orekit_geqoe_propagator()` (not `GEqOEPropagator` directly) so the returned object always has Orekit `AbstractPropagator` as its base when Orekit is available.
 - `PropagatorSpec.orekit_options` is a `Mapping[str, Any]` for custom options (e.g., `{"taylor_order": 4}`).
 - `BuildContext.require_body_constants()` resolves from Orekit `Constants.WGS84_*` when `body_constants=None`.
 
 ---
 
-## Phase 2.5: Precomputation Optimization -- DONE
+## Phase 2.5: Precomputation Optimization -- COMPLETE
 
-**Goal:** Split the Taylor coefficient computation (dt-independent) from the polynomial evaluation (dt-dependent), so that coefficients are computed once and reused across multiple time grids.
+**Goal:** Split the Taylor coefficient computation (dt-independent) from the polynomial evaluation (dt-dependent), so that coefficients are computed once and reused across multiple time grids. Wire the optimization into the high-level `GEqOEPropagator` so it is used automatically through the provider pipeline.
 
-**Motivation:** When propagating the same initial state to many different time points (common in trajectory analysis), the expensive coefficient computation (~95% of work) should only happen once. The cheap polynomial evaluation (~5%) is then repeated for each time grid.
+**Motivation:** When propagating the same initial state to many different time points (common in trajectory analysis, filter iterations, sensor tasking), the expensive coefficient computation (~95% of work) should only happen once. The cheap polynomial evaluation (~5%) is then repeated for each time grid. Measured speedup: **3.6–5.4x** for repeated calls at the GEqOE level; **2–3x** for repeated `propagate()` calls through the Orekit adapter.
 
-### Approach: Split each `compute_order_N`
+### Part A: Engine-level split (all 4 orders)
 
 Split each `compute_order_N` into `compute_coefficients_N` (scalar math only) and `evaluate_order_N` (polynomial eval). The existing `compute_order_N` becomes a thin wrapper that calls both. This is minimal diff and preserves parity tests exactly.
 
-### New types (in `state.py`)
+#### New type in `state.py`
 
-- `GEqOETaylorCoefficients` -- Frozen dataclass holding: `initial_geqoe`, `peq_py_0`, `constants`, `order`, `scratch` (dict of all computed coefficients), `map_components`, `initial_state`, `body_params`.
+`GEqOETaylorCoefficients` -- Frozen dataclass (8 fields):
 
-### New functions to add (in `core.py`)
+| Field | Description |
+|-------|-------------|
+| `initial_geqoe` | (6,) GEqOE state at epoch |
+| `peq_py_0` | (6,6) Jacobian d(GEqOE)/d(Cartesian) at epoch (populated by `prepare_cart_coefficients`; zero placeholder in `prepare_taylor_coefficients`) |
+| `constants` | `GEqOEPropagationConstants` -- normalised propagation constants |
+| `order` | Taylor expansion order (1-4) |
+| `scratch` | `dict` of dt-independent scalar coefficients and partials |
+| `map_components` | (6, order) Taylor coefficient matrix |
+| `initial_state` | `GEqOEState` named-field decomposition |
+| `body_params` | `BodyConstants` or `(j2, re, mu)` tuple -- for `geqoe2rv`/`get_pYpEq` |
 
-- `prepare_taylor_coefficients(y0, p, order) -> GEqOETaylorCoefficients` -- Runs steps 1-3 (rv2geqoe, get_pEqpY, coefficient computation). Returns frozen coefficient set.
-- `evaluate_taylor(coeffs, tspan) -> (y_out, stm)` -- Runs steps 4-5 (polynomial eval + GEqOE->Cartesian + STM composition). Cheap, O(N).
+#### Functions in `core.py`
 
-### Split pattern for each order module
+**GEqOE-space staged API (operates on GEqOE initial state `eq0`):**
 
-**`compute_coefficients_N(ctx)`** contains:
-1. Calls `compute_coefficients_{N-1}(ctx)` (chaining).
-2. Reads ALL intermediates from scratch (NOT the STM accumulators -- those are dt-dependent).
-3. Computes all scalar coefficients, partials, vectors.
-4. Stores EOM values, EOM partials, and all intermediate values to scratch.
-5. Fills `map_components[:, N-1]`.
+- `prepare_taylor_coefficients(y0, p, order) -> GEqOETaylorCoefficients`  
+  Runs `compute_coefficients_N` once. Strips dt-dependent STM accumulator keys from scratch before freezing. Used directly in tests and in the Cartesian helpers below.
+- `evaluate_taylor(coeffs, dt) -> (y_prop, y_y0, map_components)`  
+  Creates a fresh context with the new `dt` grid, injects the scalar scratch, runs `evaluate_order_N`, assembles STM. O(M) in the number of time points.
 
-**`evaluate_order_N(ctx)`** contains:
-1. Calls `evaluate_order_{N-1}(ctx)` first (which populates STM accumulators from lower orders).
-2. Reads the STM accumulators from scratch (written by `evaluate_order_{N-1}`).
-3. Reads the Nth-order EOM partial coefficients from scratch (written by `compute_coefficients_N`).
-4. Computes `dt_N = dt_norm**N`.
-5. Adds `coeff * dt_N / N!` to `y_prop`.
-6. Adds `partial_coeff * dt_N / N!` to STM accumulators.
-7. Stores updated STM accumulators back to scratch.
+**Cartesian-space staged API (operates on Cartesian initial state `y0_cart`):**
 
-**`compute_order_N(ctx)`** is a thin wrapper calling both.
+- `prepare_cart_coefficients(y0_cart, p, order) -> (GEqOETaylorCoefficients, peq_py_0)`  
+  Wraps `rv2geqoe` + `get_pEqpY` + `prepare_taylor_coefficients` in one call. Returns the coefficient set and the dt-independent epoch Jacobian separately (the Jacobian is not stored inside the frozen dataclass to keep the GEqOE-space API clean).
+- `evaluate_cart_taylor(coeffs, peq_py_0, tspan) -> (y_out, dy_dy0)`  
+  Calls `evaluate_taylor`, then `geqoe2rv` + `get_pYpEq` + Cartesian STM composition. This is the fast path used by `GEqOEPropagator`.
 
-### Current split status
+**Monolithic API (unchanged, calls both stages internally):**
 
-| Order | compute_coefficients_N | evaluate_order_N | compute_order_N wrapper | Tests passing |
-|-------|----------------------|-----------------|----------------------|--------------|
+- `j2_taylor_propagator(dt, y0, p, order)` -- unchanged public signature.
+- `taylor_cart_propagator(tspan, y0, p, order)` -- unchanged public signature.
+
+#### Split status
+
+| Order | `compute_coefficients_N` | `evaluate_order_N` | `compute_order_N` wrapper | Tests passing |
+|-------|--------------------------|-------------------|--------------------------|--------------|
 | 1 | DONE | DONE | DONE | YES (12/12) |
 | 2 | DONE | DONE | DONE | YES (12/12) |
 | 3 | DONE | DONE | DONE | YES (12/12) |
 | 4 | DONE | DONE | DONE | YES (12/12) |
 
-### Exact split points for remaining files
-
-**Order 3** (`taylor_order_3.py`, ~1155 lines):
-- Split at line 816 (`dt3 = dt_norm**3`).
-- `compute_coefficients_3` calls `compute_coefficients_2`.
-- STM accumulator reads (lines 389-399) must move to `evaluate_order_3`.
-- dt-dependent section: lines 816-931.
-
-**Order 4** (`taylor_order_4.py`):
-- Same pattern. Split at the `dt4 = dt_norm**4` line.
-- `compute_coefficients_4` calls `compute_coefficients_3`.
-- STM accumulator reads must move to `evaluate_order_4`.
-
-### Changes to `GEqOEPropagator` (after all splits)
-
-- Constructor calls `prepare_taylor_coefficients` once at init and caches the result.
-- `propagate()`, `propagate_array()`, `get_native_state()` call `evaluate_taylor(self._coeffs, dt)`.
-- `resetInitialState()` recomputes `self._coeffs` with the new state.
-
-### What stays the same
-
-- `taylor_cart_propagator()` keeps its current signature (calls prepare + evaluate internally).
-- `j2_taylor_propagator()` same -- public API unchanged.
-- All parity tests stay unchanged.
-
-### Critical implementation details
+#### Critical implementation details
 
 1. **STM accumulators are dt-dependent**: In order 2+, the STM accumulator reads (e.g., `Lr_nu`, `q1_nu`, etc.) from scratch are values written by `evaluate_order_{N-1}` and are dt-dependent arrays. In the split version, these reads MUST be in `evaluate_order_N`, NOT `compute_coefficients_N`.
 
-2. **Order 2 updates `fic`**: At line ~377-378, `fic_vector = derivatives_of_inverse(c_vector)` overwrites `fic` and introduces `ficp`. The updated `fic` is stored back to scratch.
+2. **`prepare_taylor_coefficients` uses a dummy `dt=1.0`** to size scratch arrays during `compute_coefficients_1` (which initialises `y_prop`, `y_y0`, `map_components` using `M = len(ctx.dt_norm)`). After the coefficient run, only scalar (non-STM-accumulator) scratch entries are kept. The STM accumulator keys that are filtered out are: `nu_nu`, `{q1,q2,p1,p2,Lr}_nu`, `{Lr,q1,q2,p1,p2}_{Lr,q1,q2,p1,p2}`.
 
-3. **LSP false positives**: The split introduces no new bugs, but type-checkers may report false positives for:
+3. **Order 2 updates `fic`**: At line ~377-378, `fic_vector = derivatives_of_inverse(c_vector)` overwrites `fic` and introduces `ficp`. The updated `fic` is stored back to scratch.
+
+4. **LSP false positives**: The split introduces no new bugs, but type-checkers may report false positives for:
    - `fic_vector[0]` -- LSP thinks `derivatives_of_inverse` returns `float` but it returns `np.ndarray`.
    - `ctx.y_prop`/`ctx.map_components` subscript -- initialized as `None`, populated by `compute_coefficients_1`.
+
+### Part B: Provider-level wiring
+
+`GEqOEPropagator` now uses the staged API throughout:
+
+- **`__init__`**: calls `prepare_cart_coefficients(self._y0, self._bc, self._order)` once and stores `self._coeffs: GEqOETaylorCoefficients` and `self._peq_py_0: np.ndarray`. When Orekit is not available, both are `None`.
+- **`propagate(target)`**: calls `evaluate_cart_taylor(self._coeffs, self._peq_py_0, [dt_seconds])` instead of `taylor_cart_propagator(...)`.
+- **`propagate_array(dt_seconds)`**: calls `evaluate_cart_taylor(self._coeffs, self._peq_py_0, dt_seconds)` instead of `taylor_cart_propagator(...)`. Guard changed from `self._y0 is None` to `self._coeffs is None`.
+- **`resetInitialState(state)`**: after updating `self._y0`/`self._epoch`, calls `prepare_cart_coefficients` to refresh the cache for the next propagation batch (used in estimator iterations and manoeuvre-like workflows).
 
 ---
 
@@ -242,39 +238,63 @@ Split each `compute_order_N` into `compute_coefficients_N` (scalar math only) an
 
 ## File Map
 
-### GEqOE Engine
+### GEqOE Engine (`propagation/geqoe/`)
+
 ```
 src/astrodyn_core/propagation/geqoe/
-    __init__.py          -- Package exports
-    state.py             -- GEqOEPropagationContext, GEqOEConstants, GEqOETaylorCoefficients
-    core.py              -- Entry points (taylor_cart_propagator, j2_taylor_propagator)
+    __init__.py          -- Package exports: GEqOEState, GEqOEPropagationConstants,
+                            GEqOEPropagationContext, j2_taylor_propagator,
+                            taylor_cart_propagator
+    state.py             -- GEqOEPropagationContext, GEqOEPropagationConstants,
+                            GEqOEState, GEqOETaylorCoefficients
+    core.py              -- All entry points:
+                              prepare_taylor_coefficients, evaluate_taylor    (GEqOE-space staged)
+                              prepare_cart_coefficients, evaluate_cart_taylor  (Cartesian-space staged)
+                              j2_taylor_propagator, taylor_cart_propagator      (monolithic, public API)
+                              build_context, _run_staged_j2                     (internal helpers)
     utils.py             -- Shared helpers
-    conversion.py        -- Cartesian <-> GEqOE (rv2geqoe, geqoe2rv)
-    jacobians.py         -- Jacobian utilities (get_pEqpY)
+    conversion.py        -- Cartesian <-> GEqOE (rv2geqoe, geqoe2rv, BodyConstants)
+    jacobians.py         -- Jacobian utilities (get_pEqpY, get_pYpEq)
     _derivatives.py      -- Pure-Python derivative chain-rule utilities
     _legacy_loader.py    -- Legacy module importer (kept for test comparisons only)
-    taylor_order_1.py    -- 1st order (SPLIT: compute_coefficients_1 / evaluate_order_1 / compute_order_1)
-    taylor_order_2.py    -- 2nd order (SPLIT: compute_coefficients_2 / evaluate_order_2 / compute_order_2)
-    taylor_order_3.py    -- 3rd order (SPLIT: compute_coefficients_3 / evaluate_order_3 / compute_order_3)
-    taylor_order_4.py    -- 4th order (SPLIT: compute_coefficients_4 / evaluate_order_4 / compute_order_4)
+    taylor_order_1.py    -- 1st order (compute_coefficients_1 / evaluate_order_1 / compute_order_1)
+    taylor_order_2.py    -- 2nd order (compute_coefficients_2 / evaluate_order_2 / compute_order_2)
+    taylor_order_3.py    -- 3rd order (compute_coefficients_3 / evaluate_order_3 / compute_order_3)
+    taylor_order_4.py    -- 4th order (compute_coefficients_4 / evaluate_order_4 / compute_order_4)
 ```
 
-### Provider Integration
+### Provider Integration (`propagation/providers/geqoe/`)
+
 ```
 src/astrodyn_core/propagation/providers/geqoe/
-    __init__.py          -- Package exports (GEqOEProvider, GEqOEPropagator, make_orekit_geqoe_propagator)
-    provider.py          -- GEqOEProvider dataclass (kind="geqoe")
-    propagator.py        -- GEqOEPropagator class, make_orekit_geqoe_propagator factory
+    __init__.py          -- Package exports: GEqOEProvider, GEqOEPropagator,
+                            make_orekit_geqoe_propagator
+    provider.py          -- GEqOEProvider dataclass (kind="geqoe");
+                            build_propagator() calls make_orekit_geqoe_propagator()
+    propagator.py        -- GEqOEPropagator (plain Python class, uses staged API);
+                            make_orekit_geqoe_propagator() (JPype AbstractPropagator factory)
 ```
 
 ### Tests
+
 ```
 tests/
     test_geqoe_refactor.py   -- 12 parity tests (Phase 1/2)
-    test_geqoe_provider.py   -- 21 provider tests (Phase 5)
+    test_geqoe_provider.py   -- 21 provider tests (Phase 5): 14 non-Orekit + 7 Orekit integration
+```
+
+### Examples
+
+```
+examples/
+    geqoe_propagator.py        -- 4-mode demo: provider pipeline, direct adapter,
+                                   pure-numpy engine, multi-grid benchmark
+    geqoe_legacy_vs_staged.py  -- Parity check + multi-grid performance benchmark
+                                   (legacy vs monolithic vs staged)
 ```
 
 ### Legacy Reference (read-only)
+
 ```
 temp_mosaic_modules/geqoe_utils/propagator.py  -- Original 2,257-line monolith
 ```
