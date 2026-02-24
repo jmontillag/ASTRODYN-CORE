@@ -49,3 +49,16 @@ examples/generated/*
 
 # Temporary mosaic modules
 temp_mosaic_modules/
+
+# LaTeX build artifacts
+docs/presentation/*.aux
+docs/presentation/*.log
+docs/presentation/*.nav
+docs/presentation/*.out
+docs/presentation/*.snm
+docs/presentation/*.toc
+docs/presentation/*.vrb
+docs/presentation/*.fls
+docs/presentation/*.fdb_latexmk
+docs/presentation/*.synctex.gz
+docs/presentation/_minted-*/

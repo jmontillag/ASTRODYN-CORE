@@ -1,0 +1,634 @@
+\documentclass[aspectratio=169,12pt]{beamer}
+
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{minted}
+\usemintedstyle{friendly}
+\setminted{
+  bgcolor=black!6,
+  frame=lines,
+  framesep=2pt,
+  rulecolor=\color{black!25},
+  breaklines=true,
+  breakanywhere=true,
+  baselinestretch=1.0,
+}
+
+% Theme
+\usetheme{Madrid}
+\usecolortheme{whale}
+
+% Custom colors
+\definecolor{darkblue}{RGB}{0,51,102}
+\definecolor{lightblue}{RGB}{51,153,204}
+\definecolor{codegreen}{RGB}{64,160,112}
+\definecolor{codegray}{RGB}{128,128,128}
+
+% Title info
+\title{ASTRODYN-CORE}
+\subtitle{Our Orbital Propagation Framework}
+\author{Jose Manuel}
+\date{February 2026}
+
+% Logo
+% \logotrue
+% \logo{\includegraphics[height=0.8cm]{../../logo.pdf}}
+
+\begin{document}
+
+% Title frame
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% ==============================================================================
+\section{Introduction}
+% ==============================================================================
+
+\begin{frame}{What is ASTRODYN-CORE?}
+    \begin{itemize}
+        \item \textbf{Builder-first} astrodynamics tooling
+        \item Keeps \textbf{Orekit APIs first-class} while adding:
+        \begin{itemize}
+            \item Typed configuration
+            \item State-file workflows
+            \item Mission-profile helpers
+        \end{itemize}
+        \item Unified client APIs for propagation, state, mission, uncertainty, TLE, ephemeris
+        \item \textbf{Extensible registry} for custom propagators
+    \end{itemize}
+    
+    \vspace{0.5cm}
+    \begin{alertblock}{Design Principle}
+        Orekit-native semantics stay visible: providers return real Orekit builders/propagators.
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{Architecture Overview}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{Two API Tiers:}
+            \begin{enumerate}
+                \item \textbf{Stable facade tier} (recommended)
+                \begin{itemize}
+                    \item Start with \texttt{AstrodynClient}
+                    \item Use domain facades
+                \end{itemize}
+                \item \textbf{Advanced low-level tier}
+                \begin{itemize}
+                    \item \texttt{PropagatorFactory}
+                    \item \texttt{ProviderRegistry}
+                    \item Fine-grained Orekit control
+                \end{itemize}
+            \end{enumerate}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{block}{Implemented Features}
+                \begin{itemize}
+                    \item Numerical, Keplerian, DSST, TLE propagators
+                    \item Custom propagator registry
+                    \begin{itemize}
+                        \item GEqOE J2 Taylor-series propagator
+                    \end{itemize}
+                    \item Force model, attitude, spacecraft assembly
+                    \item State I/O: YAML/JSON/HDF5
+                    \item STM-based covariance propagation
+                    \item Scenario maneuver tooling
+                \end{itemize}
+            \end{block}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% ==============================================================================
+\section{Quick Start - Ease of Use}
+% ==============================================================================
+
+\begin{frame}[fragile]{Getting Started in 10 Lines}
+    \begin{minted}[fontsize=\scriptsize,frame=none]{python}
+from astrodyn_core import (
+    AstrodynClient, BuildContext,
+    IntegratorSpec, PropagatorKind, PropagatorSpec,
+)
+
+app = AstrodynClient()
+
+spec = PropagatorSpec(
+    kind=PropagatorKind.NUMERICAL,
+    mass_kg=1200.0,
+    integrator=IntegratorSpec(
+        kind="dp853",
+        position_tolerance=10.0,
+    ),
+)
+
+ctx = BuildContext(initial_orbit=initial_orbit)
+builder = app.propagation.build_builder(spec, ctx)
+propagator = builder.buildPropagator(builder.getSelectedNormalizedParameters())
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Propagator Kinds Available}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{Built-in Providers:}
+            \begin{itemize}
+                \item \texttt{KEPLERIAN} - Analytical Keplerian
+                \item \texttt{NUMERICAL} - Full numerical integration
+                \item \texttt{DSST} - Semi-analytical propagator
+                \item \texttt{TLE} - Two-line element
+                \item \texttt{geqoe} - Custom GEqOE J2 Taylor-series
+            \end{itemize}
+            \textbf{Extensible:}
+            \begin{itemize}
+                \item Any string \texttt{kind} for custom propagators
+                \item Registry-based plugin system
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{block}{Example: Switching Propagators}
+                \begin{minted}[fontsize=\scriptsize,frame=none]{python}
+# Just change the kind!
+spec_kepler = PropagatorSpec(
+    kind=PropagatorKind.KEPLERIAN,
+    mass_kg=450.0
+)
+
+spec_dsst = PropagatorSpec(
+    kind=PropagatorKind.DSST,
+    mass_kg=550.0,
+    integrator=IntegratorSpec(kind="dp853"),
+    force_spec=GravitySpec(degree=8, order=8),
+)
+
+spec_geqoe = PropagatorSpec(
+    kind="geqoe",
+    mass_kg=450.0,
+)
+                \end{minted}
+            \end{block}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% ==============================================================================
+\section{Propagation Examples}
+% ==============================================================================
+
+
+\begin{frame}[fragile]{Numerical Propagation - With Forces}
+    \begin{minted}[fontsize=\scriptsize,frame=none]{python}
+from astrodyn_core import (
+    AstrodynClient, BuildContext, SpacecraftSpec,
+    get_propagation_model, load_dynamics_config,
+)
+
+app = AstrodynClient()
+spec = load_dynamics_config(get_propagation_model("medium_fidelity"))
+spec = spec.with_spacecraft(
+    SpacecraftSpec(mass=600.0, drag_area=6.0, srp_area=6.0)
+)
+
+builder = app.propagation.build_builder(spec, BuildContext(initial_orbit=orbit))
+propagator = builder.buildPropagator(builder.getSelectedNormalizedParameters())
+
+# Propagate 90 minutes
+state = propagator.propagate(epoch.shiftedBy(5400.0))
+pos = state.getPVCoordinates(frame).getPosition()
+forces = [f.getClass().getSimpleName() for f in propagator.getAllForceModels()]
+    \end{minted}
+\end{frame}
+
+\begin{frame}{Numerical Propagation - Results}
+    \begin{alertblock}{Active Force Models}
+        \texttt{[NewtonianAttraction, HolmesFeatherstoneAttractionModel, DragForce,\\
+        SolarRadiationPressure]}
+    \end{alertblock}
+    \vspace{0.4cm}
+    \begin{exampleblock}{State after 90 min}
+        \texttt{Position (m): [1\,234\,567.1,\; -6\,543\,210.4,\; 892\,341.7]}\\
+        \texttt{Velocity (m/s): [7\,234.5,\; 1\,123.4,\; -2\,345.6]}
+    \end{exampleblock}
+    \vspace{0.4cm}
+    \begin{block}{Key Point}
+        Load a named dynamics preset (\texttt{medium\_fidelity}, \texttt{high\_fidelity}, \ldots)
+        and override just the spacecraft properties --- no manual force model wiring needed.
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{TLE Propagation}
+    \begin{minted}[fontsize=\scriptsize]{python}
+from astrodyn_core import TLESpec, PropagatorKind, PropagatorSpec
+
+# Use TLE data (e.g., ISS)
+tle = TLESpec(
+    line1="1 25544U 98067A   24001.50000000  .00016717  00000-0  10270-3 0  9002",
+    line2="2 25544  51.6400  10.0000 0006000  50.0000 310.0000 15.49000000000000",
+)
+
+app = AstrodynClient()
+propagator = app.propagation.build_propagator(
+    PropagatorSpec(kind=PropagatorKind.TLE, tle=tle),
+    BuildContext(),
+)
+
+state = propagator.propagate(tle_epoch.shiftedBy(45.0 * 60.0))
+pos = state.getPVCoordinates(FramesFactory.getGCRF()).getPosition()
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{TLE Resolution via SpaceTrack}
+    \begin{columns}
+        \begin{column}{0.45\textwidth}
+            \textbf{Live TLE download:}
+            \begin{itemize}
+                \item Resolve any NORAD ID + epoch
+                \item Local disk cache (no re-downloads)
+                \item Closest TLE to target epoch
+            \end{itemize}
+            \vspace{0.3cm}
+            \textbf{Credentials:} stored in \texttt{secrets.ini}
+        \end{column}
+        \begin{column}{0.55\textwidth}
+            \begin{minted}[fontsize=\scriptsize,frame=none]{python}
+from spacetrack import SpaceTrackClient
+from datetime import datetime, timezone
+
+st_client = SpaceTrackClient(
+    identity=identity,
+    password=password,
+)
+app = AstrodynClient(
+    tle_base_dir=tle_cache_dir,
+    tle_allow_download=True,
+    space_track_client=st_client,
+)
+query = app.tle.build_query(
+    norad_id=25544,  # ISS
+    target_epoch=datetime.now(timezone.utc),
+)
+tle_spec = app.tle.resolve_tle_spec(query)
+propagator = app.propagation.build_propagator(
+    PropagatorSpec(kind=PropagatorKind.TLE,
+                   tle=tle_spec),
+    BuildContext(),
+)
+            \end{minted}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% ==============================================================================
+\section{Custom Propagator: GEqOE}
+% ==============================================================================
+
+\begin{frame}[fragile]{GEqOE: J2 Taylor-Series Propagator}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{Highlights:}
+            \begin{itemize}
+                \item Fast analytical propagator
+                \item Includes J2 perturbation
+                \item Taylor series expansion
+                \item Configurable order (1-4)
+                \item Built-in STM computation
+            \end{itemize}
+            \vspace{0.3cm}
+            \textbf{Three Usage Levels:}
+            \begin{enumerate}
+                \item Provider pipeline (AstrodynClient)
+                \item Direct Orekit adapter
+                \item Pure NumPy engine
+            \end{enumerate}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{block}{Via AstrodynClient}
+                \begin{minted}[fontsize=\scriptsize]{python}
+spec = PropagatorSpec(
+    kind="geqoe",
+    mass_kg=450.0,
+    orekit_options={"taylor_order": 4},
+)
+propagator = app.propagation.build_propagator(spec, ctx)
+                \end{minted}
+            \end{block}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{GEqOE Direct Usage}
+    \begin{minted}[fontsize=\scriptsize,frame=none]{python}
+from astrodyn_core.propagation.providers.geqoe import GEqOEPropagator
+
+# Create with initial orbit
+prop = GEqOEPropagator(
+    initial_orbit=orbit,
+    order=4,
+    mass_kg=450.0,
+)
+
+# Single epoch propagation
+state = prop.propagate(epoch.shiftedBy(600.0))
+
+# Get native state (Cartesian + STM as numpy)
+y, stm = prop.get_native_state(target)
+print(f"State: {y}")
+print(f"STM diagonal: {np.diag(stm)}")
+
+# Batch propagation (no Orekit overhead)
+dt_grid = np.linspace(0, 3600, 13)
+y_out, stm_out = prop.propagate_array(dt_grid)
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{GEqOE Pure NumPy Engine}
+    \begin{minted}[fontsize=\scriptsize]{python}
+from astrodyn_core.propagation.geqoe.core import taylor_cart_propagator
+from astrodyn_core.propagation.geqoe.conversion import BodyConstants
+import numpy as np
+
+# No Orekit needed!
+y0 = np.array([6_878_137.0, 0.0, 0.0, 0.0, 7200.0, 2400.0])
+body = BodyConstants(mu=3.986004418e14, j2=1.08262668e-3, re=6_378_137.0)
+
+tspan = np.arange(0, 3601, 60)
+y_out, stm = taylor_cart_propagator(tspan=tspan, y0=y0, p=body, order=4)
+
+print(f"Trajectory shape: {y_out.shape}")  # (61, 6)
+print(f"STM shape: {stm.shape}")            # (6, 6, 61)
+    \end{minted}
+    \begin{alertblock}{Speed!}
+        GEqOEPropagator is 10--100x faster than numerical integration for short arcs!
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{GEqOE Performance Benchmark}
+    \centering
+    \includegraphics[width=0.85\textwidth,height=0.58\textheight,keepaspectratio]{plots/geqoe_benchmark.png}
+    {\scriptsize\begin{block}{Key Results}
+        \textbf{10-50x speedup} vs baseline loop \quad|\quad
+        Batch propagation is fastest for multiple epochs
+    \end{block}}
+\end{frame}
+
+% ==============================================================================
+\section{Derivatives and Covariance}
+% ==============================================================================
+
+\begin{frame}[fragile]{State Transition Matrix (STM) Propagation}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{Why STM?}
+            \begin{itemize}
+                \item Fundamental for covariance propagation
+                \item Enables sensitivity analysis
+            \end{itemize}
+            \vspace{0.3cm}
+            \textbf{Features:}
+            \begin{itemize}
+                \item Cartesian and Keplerian representations (using Orekit transformations)
+                \item Automatic STM computation
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{minted}[fontsize=\scriptsize]{python}
+from astrodyn_core.uncertainty import (
+    setup_stm_propagator,
+    propagate_with_stm
+)
+
+stm_prop = setup_stm_propagator(propagator)
+
+# Get state + STM at any epoch
+state, phi = stm_prop.propagate_with_stm(target_epoch)
+
+# Verify symplecticity
+det_phi = np.linalg.det(phi)
+print(f"|det(Phi) - 1| = {abs(det_phi - 1):.3e}")
+            \end{minted}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Covariance Propagation Example}
+    \begin{minted}[fontsize=\scriptsize]{python}
+import numpy as np
+from astrodyn_core import AstrodynClient, UncertaintySpec
+
+app = AstrodynClient()
+
+# Initial 1-sigma: 100 m position, 0.1 m/s velocity
+P0 = np.diag([1e4, 1e4, 1e4, 1e-2, 1e-2, 1e-2])
+
+# Propagate with STM
+spec = UncertaintySpec(method="stm", orbit_type="CARTESIAN")
+state_series, cov_series = app.uncertainty.propagate_with_covariance(
+    propagator, P0, epoch_spec, spec=spec
+)
+
+# Examine growth
+for rec in cov_series.records[::24]:  # every 12 hours
+    cov = rec.to_numpy()
+    sig_pos = np.sqrt(np.trace(cov[:3,:3]) / 3.0)
+    print(f"sig_pos = {sig_pos:.1f} m")
+    \end{minted}
+\end{frame}
+
+\begin{frame}{Covariance Propagation Results}
+    \begin{columns}
+        \begin{column}{0.9\textwidth}
+            \centering
+            \includegraphics[width=\textwidth,height=0.72\textheight,keepaspectratio]{plots/covariance_growth.png}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% ==============================================================================
+\section{State Files and I/O}
+% ==============================================================================
+
+\begin{frame}[fragile]{State File Workflows}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{Supported Formats:}
+            \begin{itemize}
+                \item YAML (human-readable)
+                \item JSON (programmatic)
+                \item HDF5 (large datasets)
+                \item OEM/OCM/SP3/CPF
+            \end{itemize}
+            \vspace{0.3cm}
+            \textbf{State Types:}
+            \begin{itemize}
+                \item Single state (epoch + orbit)
+                \item State series (trajectory)
+                \item Mission timeline (maneuvers)
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{block}{Example: Save \& Convert}
+                \begin{minted}[fontsize=\scriptsize,frame=none]{python}
+app.state.export_trajectory_from_propagator(
+    propagator,
+    epoch_spec,
+    "trajectory.yaml",
+    series_name="leo-orbit",
+    representation="keplerian",
+    frame="GCRF",
+)
+
+# Load back
+series = app.state.load_state_series("trajectory.yaml")
+
+# Orekit bounded propagator
+ephemeris = app.state.state_series_to_ephemeris(series)
+                \end{minted}
+            \end{block}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% ==============================================================================
+\section{Future Features}
+% ==============================================================================
+
+\begin{frame}{Roadmap: Derivatives wrt Parameters}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{block}{Satellite Parameters}
+                \begin{itemize}
+                    \item Mass
+                    \item Cross-sectional area (drag/SRP)
+                    \item Reflectivity coefficient
+                    \item Maneuver impulses
+                \end{itemize}
+            \end{block}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{alertblock}{Station Parameters}
+                \begin{itemize}
+                    \item Range bias
+                    \item Range rate bias
+                    \item Tropospheric delay
+                    \item Ionospheric delay
+                \end{itemize}
+            \end{alertblock}
+        \end{column}
+    \end{columns}
+    
+    \vspace{0.5cm}
+    \begin{center}
+        \textbf{Goal:} $\frac{\partial \mathbf{r}}{\partial \mathbf{p}}$ for any parameter vector $\mathbf{p}$
+    \end{center}
+\end{frame}
+
+\begin{frame}[fragile]{Roadmap: Field-Based Propagators}
+    \begin{columns}
+        \begin{column}{0.6\textwidth}
+            \textbf{Automatic Higher-Order Derivatives:}
+            \begin{itemize}
+                \item Use Orekit's \texttt{Field} propagators
+                \item Get order-$n$ derivatives with respect to \emph{any} parameter
+                \item Same API, just specify order
+            \end{itemize}
+            \vspace{0.3cm}
+            \textbf{Use Cases:}
+            \begin{itemize}
+                \item Taylor series of the trajectory
+                \item Uncertainty propagation (higher order)
+                \item Sensitivity analysis
+                \item Optimization gradients
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.4\textwidth}
+            \begin{minted}[fontsize=\footnotesize]{python}
+# Example (future API)
+from astrodyn_core import FieldPropagatorSpec
+
+spec = FieldPropagatorSpec(
+    order=3,  # 3rd order
+    base=PropagatorSpec(kind=...)
+)
+
+field_propagator = app.propagation.build_field_propagator(spec)
+# Returns FieldSpacecraftState
+# with d^n r / dp^n for any p
+            \end{minted}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Other Planned Features}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{block}{Propagation}
+                \begin{itemize}
+                    \item Unscented Transform covariance
+                    \item Multi-arc propagation
+                \end{itemize}
+            \end{block}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{alertblock}{Infrastructure}
+                \begin{itemize}
+                    \item More cookbook examples
+                    \item Documentation website
+                \end{itemize}
+            \end{alertblock}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% ==============================================================================
+\section{Conclusion}
+% ==============================================================================
+
+\begin{frame}{Summary}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{ASTRODYN-CORE provides:}
+            \begin{itemize}
+                \item Unified, typed API for orbital propagation
+                \item Multiple propagator types (Keplerian, Numerical, DSST, TLE, GEqOE)
+                \item Easy extensibility for custom propagators
+                \item STM/covariance propagation for uncertainty
+                \item Clean state file workflows
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{block}{Key Benefits}
+                \begin{itemize}
+                    \item \textbf{Productive:} Quick start in 10 lines
+                    \item \textbf{Flexible:} Swap propagators by changing kind
+                    \item \textbf{Configurable:} Use files to configure forces, maneuvers, spacecraft, etc.
+                    \item \textbf{Extensible:} Registry for custom providers
+                    \item \textbf{Proven:} Based on Orekit
+                \end{itemize}
+            \end{block}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Getting Started}
+    \begin{center}
+        \LARGE{Run the examples!}
+    \end{center}
+    
+    \vspace{0.5cm}
+    \begin{minted}[fontsize=\small]{bash}
+python examples/quickstart.py --mode all
+python examples/geqoe_propagator.py --mode all
+python examples/uncertainty.py
+python examples/cookbook/multi_fidelity_comparison.py
+    \end{minted}
+    
+    \vspace{0.5cm}
+    \begin{center}
+        \textbf{Questions?} \hspace{1cm} \textbf{Contributions welcome!}
+    \end{center}
+\end{frame}
+
+\end{document}
