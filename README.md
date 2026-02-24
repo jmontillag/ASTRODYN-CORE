@@ -2,11 +2,12 @@
 
 Builder-first astrodynamics tooling that keeps Orekit APIs first-class while adding typed configuration, state-file workflows, and mission-profile helpers.
 
-## Current status (2026-02-22)
+## Current status (2026-02-24)
 
 Implemented:
 
 - Orekit-native propagation providers: `numerical`, `keplerian`, `dsst`, `tle`
+- GEqOE J2 Taylor-series propagator (Python implementation with numpy engine, Orekit adapter, and provider integration)
 - Extensible registry for custom/analytical propagators (any string kind)
 - Typed propagation configuration and registry/factory construction flow
 - Force model, attitude, and spacecraft declarative assembly
@@ -18,12 +19,16 @@ Implemented:
 - STM-based covariance propagation
 - Root API organized into three tiers (facade, models, advanced)
 - Import hygiene enforced in tests
+- Comprehensive examples: quickstart, scenario/mission workflows, uncertainty, multi-fidelity comparisons, force model sweep, OEM parsing, SMA maintenance analysis
 
 Architecture is frozen and ready for extension with custom propagators.
 
+In progress:
+
+- GEqOE J2 Taylor propagator C++ implementation and staged parity testing
+
 Next:
 
-- Port GEqOE J2 Taylor propagator from MOSAIC
 - CI pipeline
 - Unscented Transform covariance propagation
 
@@ -97,6 +102,7 @@ Run from the project root:
 python examples/quickstart.py --mode all
 python examples/scenario_missions.py --mode all
 python examples/uncertainty.py
+python examples/geqoe_propagator.py --mode all
 ```
 
 ### Cookbook
@@ -107,7 +113,13 @@ Self-contained topical examples in `examples/cookbook/`:
 - `orbit_comparison.py` — Cartesian to Keplerian round-trip verification
 - `force_model_sweep.py` — Gravity field degree/order convergence analysis
 - `ephemeris_from_oem.py` — OEM file parse and ephemeris round-trip
-- `sma_maintenance_analysis.py` — Full SMA maintenance mission workflow (scenario -> detector execution -> analysis)
+- `sma_maintenance_analysis.py` — Full SMA maintenance mission workflow (scenario → detector execution → analysis)
+
+Parity/comparison tools:
+
+- `geqoe_cpp_order1_parity.py` — Validate C++ staged GEqOE against Python reference
+- `geqoe_legacy_vs_staged.py` — Compare legacy vs optimized GEqOE implementations
+- `math_cpp_comparison.py` — Verify C++ math utils against Python equivalents
 
 ### State-file examples
 
