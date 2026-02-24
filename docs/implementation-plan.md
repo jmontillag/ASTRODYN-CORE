@@ -174,9 +174,10 @@ See `docs/extending-propagators.md` for the full extension pattern.
 When resuming development:
 
 1. Read this file and `docs/extending-propagators.md`.
-2. Inspect root exports: `src/astrodyn_core/__init__.py`.
-3. Run tests: `conda run -n astrodyn-core-env pytest -q`.
-4. Execute one example: `python examples/scenario_missions.py --mode intent`.
+2. Read `docs/architecture-hardening-plan.md` for the pre-release/refactor sequence.
+3. Inspect root exports: `src/astrodyn_core/__init__.py`.
+4. Run tests: `conda run -n astrodyn-core-env pytest -q`.
+5. Execute one example: `python examples/scenario_missions.py --mode intent`.
 
 ## 8) Decision Log
 

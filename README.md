@@ -139,3 +139,4 @@ Generated artifacts from examples are written to:
 - Implementation plan and architecture: `docs/implementation-plan.md`
 - API governance and boundary policy: `docs/api-governance.md`
 - Extension guide for custom propagators: `docs/extending-propagators.md`
+- Architecture hardening and finalization roadmap: `docs/architecture-hardening-plan.md`
