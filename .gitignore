@@ -62,3 +62,7 @@ docs/presentation/*.fls
 docs/presentation/*.fdb_latexmk
 docs/presentation/*.synctex.gz
 docs/presentation/_minted-*/
+
+#
+.claude/
+.opencode/
