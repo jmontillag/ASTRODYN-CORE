@@ -14,6 +14,11 @@ authors = [
 ]
 dependencies = ["orekit>=13.1", "pyyaml>=6.0"]
 
+[project.urls]
+Homepage = "https://github.com/jmontillag/ASTRODYN-CORE"
+Repository = "https://github.com/jmontillag/ASTRODYN-CORE"
+Documentation = "https://jmontillag.github.io/ASTRODYN-CORE/"
+
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "ruff>=0.8.0", "mypy>=1.12"]
 docs = [

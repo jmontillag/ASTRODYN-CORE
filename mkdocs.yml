@@ -1,6 +1,6 @@
 site_name: ASTRODYN-CORE
 site_description: Builder-first astrodynamics tooling with Orekit-native workflows.
-site_url: https://github.com/jmontillag/ASTRODYN-CORE
+site_url: https://jmontillag.github.io/ASTRODYN-CORE/
 repo_url: https://github.com/jmontillag/ASTRODYN-CORE
 repo_name: jmontillag/ASTRODYN-CORE
 docs_dir: docs-site

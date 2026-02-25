@@ -1,6 +1,10 @@
 # ASTRODYN-CORE
 
+[![Docs](https://img.shields.io/badge/docs-live-2ea44f)](https://jmontillag.github.io/ASTRODYN-CORE/)
+
 Builder-first astrodynamics tooling that keeps Orekit APIs first-class while adding typed configuration, state-file workflows, and mission-profile helpers.
+
+Documentation: https://jmontillag.github.io/ASTRODYN-CORE/
 
 ## Current status (2026-02-24)
 
@@ -131,6 +135,12 @@ conda run -n astrodyn-core-env python examples/scenario_missions.py --mode all
 conda run -n astrodyn-core-env python examples/uncertainty.py
 conda run -n astrodyn-core-env python examples/geqoe_propagator.py --mode all
 ```
+
+## Documentation
+
+- User docs site (tutorials, how-to guides, API reference): https://jmontillag.github.io/ASTRODYN-CORE/
+- Build locally: `make docs-build`
+- Preview locally: `make docs-serve`
 
 ### Cookbook
 
