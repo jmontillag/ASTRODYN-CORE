@@ -27,7 +27,30 @@ def export_trajectory_from_propagator(
     universe: Mapping[str, Any] | None = None,
     default_mass_kg: float = 1000.0,
 ) -> Path:
-    """Export sampled states to YAML/HDF5 from a propagator or precomputed ephemeris."""
+    """Sample a propagator/ephemeris and export a serialized trajectory file.
+
+    Args:
+        propagator: Orekit propagator or ephemeris-like object exposing
+            ``propagate`` (and optionally ``getEphemerisGenerator``).
+        epoch_spec: Output epoch grid specification.
+        output_path: Destination YAML/JSON/HDF5 path.
+        series_name: Name for the exported state series.
+        representation: Output representation (cartesian/keplerian/equinoctial).
+        frame: Output frame name.
+        mu_m3_s2: Gravitational parameter value/key stored in records.
+        interpolation_samples: Interpolation metadata sample count for export.
+        dense_yaml: Whether compact YAML rows should use flow-style rows.
+        universe: Optional universe config used for frame resolution.
+        default_mass_kg: Fallback mass when propagated states omit mass.
+
+    Returns:
+        Resolved output path.
+
+    Raises:
+        TypeError: If ``epoch_spec`` is invalid or source type is unsupported.
+        ValueError: If requested epochs are empty/out of bounds or
+            representation is unsupported.
+    """
     if not isinstance(epoch_spec, OutputEpochSpec):
         raise TypeError("epoch_spec must be an OutputEpochSpec.")
 
@@ -81,7 +104,18 @@ def export_trajectory_from_propagator(
 
 
 def resolve_sampling_ephemeris(source: Any, epochs: tuple[str, ...]) -> Any:
-    """Resolve an object that can propagate requested epochs."""
+    """Resolve a source object into something that can propagate requested epochs.
+
+    Args:
+        source: Orekit propagator, ephemeris, or bounded propagator-like object.
+        epochs: Requested output epochs (used when generating an ephemeris).
+
+    Returns:
+        Object exposing ``propagate`` and optionally ephemeris bounds methods.
+
+    Raises:
+        TypeError: If ``source`` cannot be used for sampling.
+    """
     if is_precomputed_ephemeris(source):
         return source
 
@@ -101,7 +135,14 @@ def resolve_sampling_ephemeris(source: Any, epochs: tuple[str, ...]) -> Any:
 
 
 def is_precomputed_ephemeris(source: Any) -> bool:
-    """Return whether source is a bounded propagator / ephemeris-like object."""
+    """Return whether ``source`` looks like a precomputed bounded ephemeris.
+
+    Args:
+        source: Candidate propagator-like object.
+
+    Returns:
+        ``True`` if the object appears to be an ephemeris/bounded propagator.
+    """
     source_type = type(source)
     type_name = str(getattr(source_type, "__name__", "")).lower()
     type_module = str(getattr(source_type, "__module__", "")).lower()
@@ -114,7 +155,17 @@ def is_precomputed_ephemeris(source: Any) -> bool:
 
 
 def validate_requested_epochs(ephemeris: Any, dates: list[Any], epochs: tuple[str, ...]) -> None:
-    """Validate all requested sample epochs are within ephemeris bounds."""
+    """Validate that requested sample epochs lie within ephemeris bounds.
+
+    Args:
+        ephemeris: Ephemeris-like object, optionally exposing ``getMinDate`` and
+            ``getMaxDate``.
+        dates: Orekit dates corresponding to ``epochs``.
+        epochs: Original epoch strings for error messages.
+
+    Raises:
+        ValueError: If any requested epoch is outside ephemeris bounds.
+    """
     if not (hasattr(ephemeris, "getMinDate") and hasattr(ephemeris, "getMaxDate")):
         return
 

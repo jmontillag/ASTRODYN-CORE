@@ -14,7 +14,20 @@ def to_orekit_orbit(
     record: OrbitStateRecord,
     universe: Mapping[str, Any] | None = None,
 ):
-    """Convert an OrbitStateRecord into an Orekit Orbit instance."""
+    """Convert an ``OrbitStateRecord`` into an Orekit orbit instance.
+
+    Args:
+        record: Serializable orbit-state record.
+        universe: Optional universe config used by frame and ``mu`` resolvers.
+
+    Returns:
+        Orekit orbit object matching the record representation.
+
+    Raises:
+        TypeError: If ``record`` is not an ``OrbitStateRecord``.
+        RuntimeError: If Orekit classes are unavailable.
+        ValueError: If the state representation is unsupported.
+    """
     if not isinstance(record, OrbitStateRecord):
         raise TypeError("record must be an OrbitStateRecord.")
 
@@ -82,7 +95,23 @@ def state_to_record(
     mu_m3_s2: float | str,
     default_mass_kg: float,
 ) -> OrbitStateRecord:
-    """Convert an Orekit state to a serializable OrbitStateRecord."""
+    """Convert an Orekit state to a serializable ``OrbitStateRecord``.
+
+    Args:
+        state: Orekit ``SpacecraftState``.
+        epoch: Output epoch string for the serialized record.
+        representation: Output representation (cartesian/keplerian/equinoctial).
+        frame_name: Output frame label stored in the record.
+        output_frame: Orekit frame used for extracting coordinates.
+        mu_m3_s2: Gravitational parameter value/key stored in the record.
+        default_mass_kg: Fallback mass when the state has no mass accessor.
+
+    Returns:
+        Serializable orbit-state record in the requested representation.
+
+    Raises:
+        RuntimeError: If Orekit classes are unavailable.
+    """
     try:
         from org.orekit.orbits import CartesianOrbit, EquinoctialOrbit, KeplerianOrbit
     except Exception as exc:

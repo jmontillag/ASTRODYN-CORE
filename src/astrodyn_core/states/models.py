@@ -11,7 +11,20 @@ from astrodyn_core.states.validation import normalize_orbit_state, parse_epoch_u
 
 @dataclass(frozen=True, slots=True)
 class OrbitStateRecord:
-    """Single orbital state at one epoch."""
+    """Serializable orbital state snapshot at one epoch.
+
+    Attributes:
+        epoch: ISO-8601 UTC epoch string.
+        frame: Reference frame name (normalized to uppercase).
+        representation: State representation (``cartesian``, ``keplerian``, or
+            ``equinoctial``; normalized to lowercase).
+        position_m: Cartesian position vector in meters (cartesian only).
+        velocity_mps: Cartesian velocity vector in m/s (cartesian only).
+        elements: Orbital elements mapping (keplerian/equinoctial only).
+        mu_m3_s2: Gravitational parameter as numeric value or symbolic model key.
+        mass_kg: Optional spacecraft mass in kg.
+        metadata: Free-form metadata preserved through serialization.
+    """
 
     epoch: str
     frame: str = "GCRF"
@@ -45,7 +58,14 @@ class OrbitStateRecord:
 
     @classmethod
     def from_mapping(cls, data: Mapping[str, Any]) -> OrbitStateRecord:
-        """Build an OrbitStateRecord from a parsed mapping."""
+        """Build an orbit-state record from a parsed mapping.
+
+        Args:
+            data: Mapping loaded from YAML/JSON.
+
+        Returns:
+            Validated and normalized orbit-state record.
+        """
         return cls(
             epoch=str(data["epoch"]),
             frame=data.get("frame", "GCRF"),
@@ -59,7 +79,11 @@ class OrbitStateRecord:
         )
 
     def to_mapping(self) -> dict[str, Any]:
-        """Convert this record to a plain serializable dictionary."""
+        """Serialize this record to a plain mapping.
+
+        Returns:
+            Mapping suitable for YAML/JSON serialization.
+        """
         payload: dict[str, Any] = {
             "epoch": self.epoch,
             "frame": self.frame,
@@ -80,7 +104,22 @@ class OrbitStateRecord:
 
 @dataclass(frozen=True, slots=True)
 class OutputEpochSpec:
-    """Epoch selection for trajectory export wrappers."""
+    """Epoch grid specification for trajectory export and sampling helpers.
+
+    The grid can be defined in one of two mutually exclusive modes:
+
+    - explicit epoch list via ``explicit_epochs``
+    - generated range via ``start_epoch``/``end_epoch`` and either
+      ``step_seconds`` or ``count``
+
+    Attributes:
+        explicit_epochs: Explicit ISO-8601 UTC epochs.
+        start_epoch: Inclusive range start epoch.
+        end_epoch: Inclusive range end epoch.
+        step_seconds: Fixed step size in seconds (range mode only).
+        count: Number of output epochs (range mode only).
+        include_end: Whether generated range output should include ``end_epoch``.
+    """
 
     explicit_epochs: Sequence[str] = field(default_factory=tuple)
     start_epoch: str | None = None
@@ -124,7 +163,11 @@ class OutputEpochSpec:
             raise ValueError("OutputEpochSpec.count must be >= 2.")
 
     def epochs(self) -> tuple[str, ...]:
-        """Return the concrete output epochs as ISO-8601 UTC strings."""
+        """Return the concrete output epochs as ISO-8601 UTC strings.
+
+        Returns:
+            Tuple of UTC epoch strings in output order.
+        """
         if self.explicit_epochs:
             return tuple(str(epoch) for epoch in self.explicit_epochs)
 
@@ -156,7 +199,14 @@ class OutputEpochSpec:
 
 @dataclass(frozen=True, slots=True)
 class StateSeries:
-    """Ordered state timeline for future bounded/interpolated use."""
+    """Ordered sequence of orbit states with optional interpolation metadata.
+
+    Attributes:
+        name: Series identifier.
+        states: Ordered orbit-state records.
+        interpolation_hint: Informal interpolation hint label.
+        interpolation: Structured interpolation metadata mapping.
+    """
 
     name: str
     states: Sequence[OrbitStateRecord]
@@ -176,6 +226,14 @@ class StateSeries:
 
     @classmethod
     def from_mapping(cls, data: Mapping[str, Any]) -> StateSeries:
+        """Build a state series from expanded or compact serialized mappings.
+
+        Args:
+            data: Mapping containing either ``states`` or compact ``rows`` data.
+
+        Returns:
+            Validated state series.
+        """
         interpolation = data.get("interpolation", {})
         if not isinstance(interpolation, Mapping):
             raise TypeError("StateSeries.interpolation must be a mapping when provided.")
@@ -197,6 +255,11 @@ class StateSeries:
         )
 
     def to_mapping(self) -> dict[str, Any]:
+        """Serialize the state series into an expanded mapping.
+
+        Returns:
+            Mapping with ``states`` entries suitable for YAML/JSON serialization.
+        """
         payload = {"name": self.name, "states": [record.to_mapping() for record in self.states]}
         if self.interpolation_hint:
             payload["interpolation_hint"] = self.interpolation_hint
@@ -207,7 +270,14 @@ class StateSeries:
 
 @dataclass(frozen=True, slots=True)
 class ManeuverRecord:
-    """Serializable maneuver placeholder for future execution support."""
+    """Serializable maneuver placeholder for scenario timelines.
+
+    Attributes:
+        name: Maneuver identifier.
+        trigger: Trigger condition mapping.
+        model: Maneuver model/parameter mapping.
+        frame: Optional frame name (normalized to uppercase).
+    """
 
     name: str
     trigger: Mapping[str, Any]
@@ -228,6 +298,14 @@ class ManeuverRecord:
 
     @classmethod
     def from_mapping(cls, data: Mapping[str, Any]) -> ManeuverRecord:
+        """Build a maneuver record from a plain mapping.
+
+        Args:
+            data: Serialized maneuver mapping.
+
+        Returns:
+            Validated maneuver record.
+        """
         return cls(
             name=str(data.get("name", "maneuver")),
             trigger=data.get("trigger", {}),
@@ -236,6 +314,11 @@ class ManeuverRecord:
         )
 
     def to_mapping(self) -> dict[str, Any]:
+        """Serialize the maneuver record to a plain mapping.
+
+        Returns:
+            Mapping suitable for scenario-file serialization.
+        """
         payload = {
             "name": self.name,
             "trigger": dict(self.trigger),
@@ -248,7 +331,13 @@ class ManeuverRecord:
 
 @dataclass(frozen=True, slots=True)
 class AttitudeRecord:
-    """Serializable attitude directive placeholder for future timeline support."""
+    """Serializable attitude directive placeholder for timeline support.
+
+    Attributes:
+        mode: Attitude mode name (normalized to lowercase).
+        frame: Optional reference frame (normalized to uppercase).
+        params: Free-form attitude parameters.
+    """
 
     mode: str
     frame: str | None = None
@@ -264,6 +353,14 @@ class AttitudeRecord:
 
     @classmethod
     def from_mapping(cls, data: Mapping[str, Any]) -> AttitudeRecord:
+        """Build an attitude record from a plain mapping.
+
+        Args:
+            data: Serialized attitude mapping.
+
+        Returns:
+            Validated attitude record.
+        """
         return cls(
             mode=str(data.get("mode", "nadir")),
             frame=data.get("frame"),
@@ -271,6 +368,11 @@ class AttitudeRecord:
         )
 
     def to_mapping(self) -> dict[str, Any]:
+        """Serialize the attitude record to a plain mapping.
+
+        Returns:
+            Mapping suitable for scenario-file serialization.
+        """
         payload = {"mode": self.mode}
         if self.frame is not None:
             payload["frame"] = self.frame
@@ -281,7 +383,13 @@ class AttitudeRecord:
 
 @dataclass(frozen=True, slots=True)
 class TimelineEventRecord:
-    """Named timeline event used to schedule mission actions."""
+    """Named timeline event used to schedule mission actions.
+
+    Attributes:
+        id: Unique event identifier.
+        point: Event point definition mapping.
+        metadata: Free-form event metadata mapping.
+    """
 
     id: str
     point: Mapping[str, Any]
@@ -299,6 +407,14 @@ class TimelineEventRecord:
 
     @classmethod
     def from_mapping(cls, data: Mapping[str, Any]) -> TimelineEventRecord:
+        """Build a timeline event record from a plain mapping.
+
+        Args:
+            data: Serialized event mapping.
+
+        Returns:
+            Validated timeline event record.
+        """
         return cls(
             id=str(data.get("id", "")).strip(),
             point=data.get("point", {}),
@@ -306,6 +422,11 @@ class TimelineEventRecord:
         )
 
     def to_mapping(self) -> dict[str, Any]:
+        """Serialize the timeline event record to a plain mapping.
+
+        Returns:
+            Mapping suitable for scenario-file serialization.
+        """
         payload = {
             "id": self.id,
             "point": dict(self.point),
@@ -317,7 +438,19 @@ class TimelineEventRecord:
 
 @dataclass(frozen=True, slots=True)
 class ScenarioStateFile:
-    """Top-level state-file model."""
+    """Top-level scenario state-file model.
+
+    Attributes:
+        schema_version: Scenario schema version (currently ``1`` only).
+        universe: Optional universe configuration mapping.
+        spacecraft: Optional spacecraft configuration mapping.
+        initial_state: Optional initial state record.
+        timeline: Timeline events for mission sequencing.
+        state_series: Serialized state trajectories.
+        maneuvers: Maneuver definitions.
+        attitude_timeline: Attitude directives.
+        metadata: Free-form scenario metadata.
+    """
 
     schema_version: int = 1
     universe: Mapping[str, Any] | None = None
@@ -367,6 +500,14 @@ class ScenarioStateFile:
 
     @classmethod
     def from_mapping(cls, data: Mapping[str, Any]) -> ScenarioStateFile:
+        """Build a scenario state file from a serialized mapping.
+
+        Args:
+            data: Mapping loaded from YAML/JSON.
+
+        Returns:
+            Validated scenario state file model.
+        """
         initial_state_data = data.get("initial_state")
         initial_state = (
             OrbitStateRecord.from_mapping(initial_state_data)
@@ -393,6 +534,11 @@ class ScenarioStateFile:
         )
 
     def to_mapping(self) -> dict[str, Any]:
+        """Serialize the scenario state file to a plain mapping.
+
+        Returns:
+            Mapping suitable for YAML/JSON serialization.
+        """
         payload: dict[str, Any] = {"schema_version": self.schema_version}
         if self.universe is not None:
             payload["universe"] = dict(self.universe)

@@ -8,7 +8,19 @@ from astrodyn_core.orekit_env import get_itrf_frame, get_mu
 
 
 def resolve_frame(frame_name: str, universe: Mapping[str, Any] | None = None):
-    """Resolve a frame name from state files into an Orekit frame."""
+    """Resolve a state-file frame name into an Orekit frame instance.
+
+    Args:
+        frame_name: Supported frame name (for example ``GCRF`` or ``ITRF_2020``).
+        universe: Optional universe config used for ITRF resolution.
+
+    Returns:
+        Orekit frame instance.
+
+    Raises:
+        RuntimeError: If Orekit classes are unavailable.
+        ValueError: If the frame name is unsupported.
+    """
     try:
         from org.orekit.frames import FramesFactory
     except Exception as exc:
@@ -34,7 +46,18 @@ def resolve_frame(frame_name: str, universe: Mapping[str, Any] | None = None):
 
 
 def resolve_mu(mu_m3_s2: float | str, universe: Mapping[str, Any] | None = None) -> float:
-    """Resolve a numeric gravitational parameter in m^3/s^2."""
+    """Resolve a numeric gravitational parameter in ``m^3/s^2``.
+
+    Args:
+        mu_m3_s2: Numeric value or symbolic model key.
+        universe: Optional universe config used for symbolic resolution.
+
+    Returns:
+        Numeric gravitational parameter in ``m^3/s^2``.
+
+    Raises:
+        TypeError: If ``mu_m3_s2`` is not numeric or string-like.
+    """
     if isinstance(mu_m3_s2, (int, float)):
         return float(mu_m3_s2)
 

@@ -14,7 +14,14 @@ from astrodyn_core.states.validation import parse_epoch_utc
 
 
 def load_state_file(path: str | Path) -> ScenarioStateFile:
-    """Load a state file (YAML or JSON) into a typed ScenarioStateFile."""
+    """Load a YAML/JSON state file into a typed scenario model.
+
+    Args:
+        path: Source file path.
+
+    Returns:
+        Parsed ``ScenarioStateFile``.
+    """
     data = _read_mapping(path)
 
     if _looks_like_orbit_state(data):
@@ -23,7 +30,17 @@ def load_state_file(path: str | Path) -> ScenarioStateFile:
 
 
 def load_initial_state(path: str | Path) -> OrbitStateRecord:
-    """Load only the initial state record from a state file."""
+    """Load only the initial state record from a state file.
+
+    Args:
+        path: Source file path.
+
+    Returns:
+        Initial orbit-state record.
+
+    Raises:
+        ValueError: If the file contains no ``initial_state``.
+    """
     scenario = load_state_file(path)
     if scenario.initial_state is None:
         raise ValueError(f"No initial_state found in state file '{path}'.")
@@ -31,7 +48,18 @@ def load_initial_state(path: str | Path) -> OrbitStateRecord:
 
 
 def save_state_file(path: str | Path, scenario: ScenarioStateFile) -> Path:
-    """Write a ScenarioStateFile as YAML or JSON based on extension."""
+    """Write a scenario state file as YAML or JSON based on extension.
+
+    Args:
+        path: Destination file path.
+        scenario: Scenario model to serialize.
+
+    Returns:
+        Resolved output path.
+
+    Raises:
+        TypeError: If ``scenario`` is not a ``ScenarioStateFile``.
+    """
     if not isinstance(scenario, ScenarioStateFile):
         raise TypeError("scenario must be a ScenarioStateFile instance.")
     payload = scenario.to_mapping()
@@ -41,13 +69,29 @@ def save_state_file(path: str | Path, scenario: ScenarioStateFile) -> Path:
 
 
 def save_initial_state(path: str | Path, state: OrbitStateRecord) -> Path:
-    """Write a file containing only schema_version + initial_state."""
+    """Write a file containing only ``schema_version`` and ``initial_state``.
+
+    Args:
+        path: Destination file path.
+        state: Orbit state record to serialize.
+
+    Returns:
+        Resolved output path.
+    """
     scenario = ScenarioStateFile(initial_state=state)
     return save_state_file(path, scenario)
 
 
 def save_state_series_compact(path: str | Path, series: StateSeries) -> Path:
-    """Write one state series to YAML/JSON using compact columns/rows schema."""
+    """Write one state series using the compact columns/rows schema.
+
+    Args:
+        path: Destination file path.
+        series: State series to serialize.
+
+    Returns:
+        Resolved output path.
+    """
     return save_state_series_compact_with_style(path, series, dense_rows=True)
 
 
@@ -57,7 +101,19 @@ def save_state_series_compact_with_style(
     *,
     dense_rows: bool,
 ) -> Path:
-    """Write one state series in compact format with optional dense YAML rows."""
+    """Write one state series in compact format with configurable row style.
+
+    Args:
+        path: Destination file path.
+        series: State series to serialize.
+        dense_rows: Whether YAML row lists should use flow style.
+
+    Returns:
+        Resolved output path.
+
+    Raises:
+        TypeError: If ``series`` is not a ``StateSeries``.
+    """
     if not isinstance(series, StateSeries):
         raise TypeError("series must be a StateSeries instance.")
 
@@ -71,7 +127,17 @@ def save_state_series_compact_with_style(
 
 
 def state_series_to_compact_mapping(series: StateSeries) -> dict[str, Any]:
-    """Convert a StateSeries into the compact columns/rows mapping."""
+    """Convert a state series into the compact columns/rows mapping.
+
+    Args:
+        series: State series to convert.
+
+    Returns:
+        Compact mapping with ``defaults``/``columns``/``rows`` payload.
+
+    Raises:
+        ValueError: If the series is empty or has mixed representations/frames.
+    """
     if not series.states:
         raise ValueError("StateSeries.states cannot be empty.")
 
@@ -124,7 +190,23 @@ def save_state_series_hdf5(
     compression_level: int = 4,
     shuffle: bool = True,
 ) -> Path:
-    """Write one state series into an HDF5 file with columnar datasets."""
+    """Write one state series into an HDF5 file with columnar datasets.
+
+    Args:
+        path: Destination ``.h5``/``.hdf5`` path.
+        series: State series to serialize.
+        compression: HDF5 compression algorithm.
+        compression_level: HDF5 compression level.
+        shuffle: Whether to enable HDF5 shuffle filter.
+
+    Returns:
+        Resolved output path.
+
+    Raises:
+        TypeError: If ``series`` is not a ``StateSeries``.
+        ValueError: If the series is empty.
+        RuntimeError: If HDF5 dependencies are unavailable.
+    """
     if not isinstance(series, StateSeries):
         raise TypeError("series must be a StateSeries instance.")
 
@@ -187,7 +269,18 @@ def save_state_series_hdf5(
 
 
 def load_state_series_hdf5(path: str | Path) -> StateSeries:
-    """Read one state series from an HDF5 file."""
+    """Read one state series from an HDF5 file.
+
+    Args:
+        path: Source ``.h5``/``.hdf5`` file path.
+
+    Returns:
+        Loaded state series.
+
+    Raises:
+        RuntimeError: If HDF5 dependencies are unavailable.
+        ValueError: If the file schema version or content is invalid.
+    """
     try:
         import h5py
     except Exception as exc:

@@ -21,7 +21,17 @@ SUPPORTED_ANOMALY_TYPES = frozenset({"MEAN", "ECCENTRIC", "TRUE"})
 
 
 def parse_epoch_utc(epoch: str) -> datetime:
-    """Parse an ISO-8601 epoch string and return a UTC-aware datetime."""
+    """Parse an ISO-8601 epoch string and return a UTC-aware datetime.
+
+    Args:
+        epoch: ISO-8601 timestamp string. Naive timestamps are treated as UTC.
+
+    Returns:
+        Timezone-aware UTC datetime.
+
+    Raises:
+        ValueError: If the input is empty or not valid ISO-8601.
+    """
     if not isinstance(epoch, str) or not epoch.strip():
         raise ValueError("epoch must be a non-empty ISO-8601 string.")
 
@@ -50,7 +60,21 @@ def normalize_orbit_state(
     mu_m3_s2: float | str,
     mass_kg: float | None,
 ) -> dict[str, Any]:
-    """Validate and normalize OrbitStateRecord fields."""
+    """Validate and normalize orbit-state fields for ``OrbitStateRecord``.
+
+    Args:
+        epoch: ISO-8601 UTC epoch string.
+        frame: Frame name.
+        representation: Orbit representation name.
+        position_m: Cartesian position vector (cartesian only).
+        velocity_mps: Cartesian velocity vector (cartesian only).
+        elements: Orbital elements mapping (non-cartesian only).
+        mu_m3_s2: Numeric gravitational parameter or symbolic model key.
+        mass_kg: Optional spacecraft mass.
+
+    Returns:
+        Normalized mapping ready to assign to ``OrbitStateRecord`` fields.
+    """
     parse_epoch_utc(epoch)
 
     frame_norm = str(frame).strip().upper()

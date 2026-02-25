@@ -16,7 +16,21 @@ def state_series_to_ephemeris(
     interpolation_samples: int | None = None,
     default_mass_kg: float = 1000.0,
 ):
-    """Convert a StateSeries into an Orekit Ephemeris (bounded propagator)."""
+    """Convert a ``StateSeries`` into an Orekit ``Ephemeris``.
+
+    Args:
+        series: Input state series.
+        universe: Optional universe config used for frame and ``mu`` resolution.
+        interpolation_samples: Optional interpolation sample count override.
+        default_mass_kg: Fallback mass used when state records omit mass.
+
+    Returns:
+        Orekit ``Ephemeris`` (bounded propagator).
+
+    Raises:
+        TypeError: If ``series`` is not a ``StateSeries``.
+        RuntimeError: If Orekit classes are unavailable.
+    """
     if not isinstance(series, StateSeries):
         raise TypeError("series must be a StateSeries.")
 
@@ -48,7 +62,22 @@ def scenario_to_ephemeris(
     interpolation_samples: int | None = None,
     default_mass_kg: float = 1000.0,
 ):
-    """Convert one state series from a ScenarioStateFile into an Orekit Ephemeris."""
+    """Convert one state series from a scenario into an Orekit ephemeris.
+
+    Args:
+        scenario: Scenario state file model.
+        series_name: Optional state-series selector. Defaults to the first
+            available series.
+        interpolation_samples: Optional interpolation sample count override.
+        default_mass_kg: Fallback mass used when state records omit mass.
+
+    Returns:
+        Orekit ``Ephemeris`` (bounded propagator).
+
+    Raises:
+        TypeError: If ``scenario`` is not a ``ScenarioStateFile``.
+        ValueError: If the scenario has no series or the named series is missing.
+    """
     if not isinstance(scenario, ScenarioStateFile):
         raise TypeError("scenario must be a ScenarioStateFile.")
     if not scenario.state_series:
@@ -74,7 +103,24 @@ def scenario_to_ephemeris(
 
 
 def resolve_interpolation_samples(series: StateSeries, explicit: int | None) -> int:
-    """Resolve interpolation sample count from explicit or series hints."""
+    """Resolve ephemeris interpolation sample count from overrides and hints.
+
+    Resolution order:
+    1. explicit function argument
+    2. ``series.interpolation['samples']``
+    3. ``series.interpolation_hint`` mapping
+    4. default ``8``
+
+    Args:
+        series: Source state series.
+        explicit: Explicit interpolation sample count override.
+
+    Returns:
+        Resolved interpolation sample count (always ``>= 2``).
+
+    Raises:
+        ValueError: If an explicit or series-provided sample count is < 2.
+    """
     if explicit is not None:
         if explicit < 2:
             raise ValueError("interpolation_samples must be >= 2.")

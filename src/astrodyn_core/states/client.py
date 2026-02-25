@@ -44,6 +44,13 @@ class StateFileClient:
         - Orekit date/orbit conversion
         - ephemeris conversion from state series
         - trajectory export from propagator
+
+    Args:
+        universe: Optional universe configuration mapping used by frame/mu
+            resolvers during Orekit conversions.
+        default_mass_kg: Fallback spacecraft mass used when states omit mass.
+        interpolation_samples: Optional default interpolation sample count for
+            ephemeris export helpers.
     """
 
     universe: Mapping[str, Any] | None = None
@@ -55,15 +62,49 @@ class StateFileClient:
     # ------------------------------------------------------------------
 
     def load_state_file(self, path: str | Path) -> ScenarioStateFile:
+        """Load a YAML/JSON state file into a typed scenario model.
+
+        Args:
+            path: Source file path.
+
+        Returns:
+            Parsed scenario state file model.
+        """
         return _load_state_file(path)
 
     def load_initial_state(self, path: str | Path) -> OrbitStateRecord:
+        """Load only the initial state record from a state file.
+
+        Args:
+            path: Source file path.
+
+        Returns:
+            Initial orbit state record.
+        """
         return _load_initial_state(path)
 
     def save_state_file(self, path: str | Path, scenario: ScenarioStateFile) -> Path:
+        """Save a scenario state file as YAML or JSON.
+
+        Args:
+            path: Destination file path.
+            scenario: Scenario model to serialize.
+
+        Returns:
+            Resolved output path.
+        """
         return _save_state_file(path, scenario)
 
     def save_initial_state(self, path: str | Path, state: OrbitStateRecord) -> Path:
+        """Save a file containing only an initial state payload.
+
+        Args:
+            path: Destination file path.
+            state: Orbit state record to store.
+
+        Returns:
+            Resolved output path.
+        """
         return _save_initial_state(path, state)
 
     def save_state_series(
@@ -76,6 +117,20 @@ class StateFileClient:
         compression_level: int = 4,
         shuffle: bool = True,
     ) -> Path:
+        """Save a state series to YAML/JSON compact format or HDF5.
+
+        Args:
+            path: Destination file path. ``.h5``/``.hdf5`` selects HDF5.
+            series: State series to serialize.
+            dense_yaml: When writing YAML/JSON compact rows, prefer dense row
+                formatting for YAML output.
+            compression: HDF5 compression algorithm for HDF5 outputs.
+            compression_level: HDF5 compression level.
+            shuffle: Whether to enable HDF5 shuffle filter.
+
+        Returns:
+            Resolved output path.
+        """
         output_path = Path(path)
         if output_path.suffix.lower() in {".h5", ".hdf5"}:
             return _save_state_series_hdf5(
@@ -88,6 +143,19 @@ class StateFileClient:
         return _save_state_series_compact_with_style(output_path, series, dense_rows=dense_yaml)
 
     def load_state_series(self, path: str | Path, *, series_name: str | None = None) -> StateSeries:
+        """Load a state series from a scenario YAML/JSON file or HDF5 file.
+
+        Args:
+            path: Source file path.
+            series_name: Optional series name selector when multiple series are
+                present in a scenario file.
+
+        Returns:
+            Loaded state series.
+
+        Raises:
+            ValueError: If no state series exist, or a named series is missing.
+        """
         input_path = Path(path)
         if input_path.suffix.lower() in {".h5", ".hdf5"}:
             return _load_state_series_hdf5(input_path)
@@ -109,9 +177,11 @@ class StateFileClient:
     # ------------------------------------------------------------------
 
     def to_orekit_date(self, epoch: str):
+        """Convert an ISO-8601 UTC epoch string to Orekit ``AbsoluteDate``."""
         return _to_orekit_date(epoch)
 
     def from_orekit_date(self, date: Any) -> str:
+        """Convert an Orekit ``AbsoluteDate`` to an ISO-8601 UTC epoch string."""
         return _from_orekit_date(date)
 
     def to_orekit_orbit(
@@ -120,6 +190,15 @@ class StateFileClient:
         *,
         universe: Mapping[str, Any] | None = None,
     ):
+        """Convert a serializable orbit-state record into an Orekit orbit.
+
+        Args:
+            record: Serializable orbit-state record.
+            universe: Optional per-call universe config override.
+
+        Returns:
+            Orekit orbit instance matching the record representation.
+        """
         return _to_orekit_orbit(record, universe=self._resolve_universe(universe))
 
     def state_series_to_ephemeris(
@@ -130,6 +209,17 @@ class StateFileClient:
         interpolation_samples: int | None = None,
         default_mass_kg: float | None = None,
     ):
+        """Convert a state series into an Orekit bounded ephemeris propagator.
+
+        Args:
+            series: Input state series.
+            universe: Optional per-call universe config override.
+            interpolation_samples: Optional interpolation sample count override.
+            default_mass_kg: Optional fallback mass override.
+
+        Returns:
+            Orekit ephemeris / bounded propagator built from the state series.
+        """
         return _state_series_to_ephemeris(
             series,
             universe=self._resolve_universe(universe),
@@ -147,6 +237,17 @@ class StateFileClient:
         interpolation_samples: int | None = None,
         default_mass_kg: float | None = None,
     ):
+        """Convert a scenario's state series into an Orekit ephemeris.
+
+        Args:
+            scenario: Scenario state file model.
+            series_name: Optional state-series selector. Defaults to first.
+            interpolation_samples: Optional interpolation sample count override.
+            default_mass_kg: Optional fallback mass override.
+
+        Returns:
+            Orekit ephemeris / bounded propagator.
+        """
         return _scenario_to_ephemeris(
             scenario,
             series_name=series_name,
@@ -171,6 +272,24 @@ class StateFileClient:
         universe: Mapping[str, Any] | None = None,
         default_mass_kg: float | None = None,
     ) -> Path:
+        """Sample a propagator/ephemeris and export a serialized trajectory file.
+
+        Args:
+            propagator: Orekit propagator or precomputed ephemeris-like object.
+            epoch_spec: Output epoch grid specification.
+            output_path: Destination YAML/JSON/HDF5 file path.
+            series_name: Name for the exported state series.
+            representation: Output state representation.
+            frame: Output frame name.
+            mu_m3_s2: Gravitational parameter stored in exported records.
+            interpolation_samples: Interpolation sample count override.
+            dense_yaml: Whether YAML compact rows should use dense formatting.
+            universe: Optional per-call universe config override.
+            default_mass_kg: Optional fallback mass override.
+
+        Returns:
+            Resolved output path.
+        """
         return _export_trajectory_from_propagator(
             propagator,
             epoch_spec,
@@ -192,11 +311,13 @@ class StateFileClient:
     # ------------------------------------------------------------------
 
     def _resolve_universe(self, universe: Mapping[str, Any] | None) -> Mapping[str, Any] | None:
+        """Resolve a per-call universe override against the client default."""
         if universe is not None:
             return universe
         return self.universe
 
     def _resolve_default_mass(self, default_mass_kg: float | None) -> float:
+        """Resolve a per-call default mass override against the client default."""
         if default_mass_kg is not None:
             return float(default_mass_kg)
         return float(self.default_mass_kg)
@@ -204,6 +325,7 @@ class StateFileClient:
     def _resolve_optional_interpolation_samples(
         self, interpolation_samples: int | None
     ) -> int | None:
+        """Resolve an optional interpolation sample override."""
         if interpolation_samples is not None:
             return int(interpolation_samples)
         if self.interpolation_samples is None:
@@ -211,6 +333,7 @@ class StateFileClient:
         return int(self.interpolation_samples)
 
     def _resolve_required_interpolation_samples(self, interpolation_samples: int | None) -> int:
+        """Resolve interpolation samples, falling back to the package default (8)."""
         if interpolation_samples is not None:
             return int(interpolation_samples)
         if self.interpolation_samples is not None:

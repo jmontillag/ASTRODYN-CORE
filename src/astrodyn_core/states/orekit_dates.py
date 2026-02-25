@@ -9,7 +9,17 @@ from astrodyn_core.states.validation import parse_epoch_utc
 
 
 def to_orekit_date(epoch: str):
-    """Convert an ISO-8601 epoch string into Orekit AbsoluteDate (UTC)."""
+    """Convert an ISO-8601 epoch string into Orekit ``AbsoluteDate`` (UTC).
+
+    Args:
+        epoch: ISO-8601 UTC epoch string.
+
+    Returns:
+        Orekit ``AbsoluteDate``.
+
+    Raises:
+        RuntimeError: If Orekit Python helpers are unavailable.
+    """
     parsed = parse_epoch_utc(epoch)
     try:
         from orekit.pyhelpers import datetime_to_absolutedate
@@ -22,7 +32,17 @@ def to_orekit_date(epoch: str):
 
 
 def from_orekit_date(date: Any) -> str:
-    """Convert Orekit AbsoluteDate into an ISO-8601 UTC epoch string."""
+    """Convert Orekit ``AbsoluteDate`` into an ISO-8601 UTC epoch string.
+
+    Args:
+        date: Orekit ``AbsoluteDate`` instance.
+
+    Returns:
+        ISO-8601 UTC epoch string with ``Z`` suffix.
+
+    Raises:
+        RuntimeError: If Orekit Python helpers are unavailable.
+    """
     try:
         from orekit.pyhelpers import absolutedate_to_datetime
     except Exception as exc:
