@@ -18,7 +18,18 @@ def setup_stm_propagator(
     mu_m3_s2: float | str = "WGS84",
     default_mass_kg: float = 1000.0,
 ) -> STMCovariancePropagator:
-    """Configure a propagator for STM-only extraction (no covariance required)."""
+    """Configure a propagator for STM-only extraction (no covariance input).
+
+    Args:
+        propagator: Orekit propagator instance supporting STM computation.
+        spec: Optional uncertainty spec (defaults to STM settings).
+        frame: Output frame name for downstream record conversion.
+        mu_m3_s2: Gravitational parameter for downstream state serialization.
+        default_mass_kg: Fallback mass used if states do not expose mass.
+
+    Returns:
+        Configured ``STMCovariancePropagator`` with no initial covariance.
+    """
     return STMCovariancePropagator(
         propagator,
         None,
@@ -40,9 +51,21 @@ def create_covariance_propagator(
 ) -> STMCovariancePropagator:
     """Factory that creates the appropriate covariance propagator from a spec.
 
-    Currently supports ``method='stm'`` only.  Additional methods (e.g.
-    unscented transform) may be added here by future contributors --
-    see ``docs/extending-propagators.md`` for the extension pattern.
+    Currently supports ``method='stm'`` only.
+
+    Args:
+        propagator: Orekit propagator instance supporting STM computation.
+        initial_covariance: Initial covariance matrix (6x6 or 7x7).
+        spec: Uncertainty propagation configuration.
+        frame: Output frame name for downstream record conversion.
+        mu_m3_s2: Gravitational parameter for downstream state serialization.
+        default_mass_kg: Fallback mass used if states do not expose mass.
+
+    Returns:
+        Configured covariance propagator for the requested method.
+
+    Raises:
+        ValueError: If ``spec.method`` is not supported.
     """
     if spec.method == "stm":
         return STMCovariancePropagator(

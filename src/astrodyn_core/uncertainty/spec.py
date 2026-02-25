@@ -65,11 +65,23 @@ class UncertaintySpec:
 
     @property
     def state_dimension(self) -> int:
-        """State vector dimension: 6 (orbit only) or 7 (orbit + mass)."""
+        """Return the configured state dimension.
+
+        Returns:
+            ``6`` for orbit-only covariance, ``7`` when mass is included.
+        """
         return 7 if self.include_mass else 6
 
     @classmethod
     def from_mapping(cls, data: dict) -> UncertaintySpec:
+        """Build a spec from a plain mapping.
+
+        Args:
+            data: Mapping of uncertainty configuration values.
+
+        Returns:
+            Validated uncertainty spec with normalized string fields.
+        """
         return cls(
             method=str(data.get("method", "stm")),
             stm_name=str(data.get("stm_name", "stm")),
@@ -79,6 +91,11 @@ class UncertaintySpec:
         )
 
     def to_mapping(self) -> dict:
+        """Serialize the spec into a plain mapping.
+
+        Returns:
+            Mapping suitable for YAML/JSON serialization.
+        """
         return {
             "method": self.method,
             "stm_name": self.stm_name,

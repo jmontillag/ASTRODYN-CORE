@@ -12,7 +12,14 @@ from astrodyn_core.states.orekit_dates import from_orekit_date
 
 
 def numpy_to_nested_tuple(arr: np.ndarray) -> tuple[tuple[float, ...], ...]:
-    """Convert a numpy matrix into nested tuples of floats."""
+    """Convert a NumPy matrix into nested tuples.
+
+    Args:
+        arr: Input matrix.
+
+    Returns:
+        Tuple-of-tuples representation with float values.
+    """
     return tuple(tuple(float(v) for v in row) for row in arr)
 
 
@@ -25,7 +32,20 @@ def state_to_orbit_record(
     default_mass_kg: float,
     output_frame: Any | None = None,
 ) -> OrbitStateRecord:
-    """Convert an Orekit ``SpacecraftState`` to an ``OrbitStateRecord``."""
+    """Convert an Orekit ``SpacecraftState`` into an ``OrbitStateRecord``.
+
+    Args:
+        state: Orekit ``SpacecraftState``.
+        frame: Output frame label stored in the record.
+        orbit_type: Desired record representation (``CARTESIAN``,
+            ``KEPLERIAN``, or ``EQUINOCTIAL``).
+        mu_m3_s2: Gravitational parameter attached to the record.
+        default_mass_kg: Fallback mass when ``state`` has no mass accessor.
+        output_frame: Optional Orekit frame used to first transform the state.
+
+    Returns:
+        Orbit state record in the requested representation.
+    """
     from org.orekit.orbits import CartesianOrbit, EquinoctialOrbit, KeplerianOrbit
 
     mass = float(state.getMass()) if hasattr(state, "getMass") else float(default_mass_kg)

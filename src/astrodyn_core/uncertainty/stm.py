@@ -25,7 +25,18 @@ from astrodyn_core.uncertainty.matrix_io import realmatrix_to_numpy
 
 
 class STMCovariancePropagator:
-    """Propagates a state and, optionally, its covariance matrix via the STM."""
+    """Propagate state and covariance using an Orekit State Transition Matrix.
+
+    Args:
+        propagator: Orekit propagator supporting
+            ``setupMatricesComputation`` (for example numerical or DSST).
+        initial_covariance: Optional initial covariance (6x6 or 7x7). If
+            omitted, only STM extraction via ``propagate_with_stm`` is available.
+        spec: Uncertainty propagation configuration. Defaults to STM settings.
+        frame: Output frame name for record serialization.
+        mu_m3_s2: Gravitational parameter for state record serialization.
+        default_mass_kg: Fallback mass when Orekit states do not expose mass.
+    """
 
     def __init__(
         self,
@@ -92,6 +103,11 @@ class STMCovariancePropagator:
         self._harvester = self._setup_stm()
 
     def _setup_stm(self) -> Any:
+        """Configure Orekit matrices computation and return the STM harvester.
+
+        Returns:
+            Orekit matrices harvester bound to the propagator initial state.
+        """
         from org.hipparchus.linear import MatrixUtils
 
         n = self._spec.state_dimension
@@ -109,6 +125,18 @@ class STMCovariancePropagator:
         self,
         target_date_or_epoch: Any,
     ) -> tuple[Any, np.ndarray]:
+        """Propagate to a target epoch and return the propagated state and STM.
+
+        Args:
+            target_date_or_epoch: Orekit date or UTC epoch string.
+
+        Returns:
+            Tuple ``(state, phi)`` where ``phi`` is the propagated STM truncated
+            to ``spec.state_dimension``.
+
+        Raises:
+            RuntimeError: If the propagator/harvester does not return an STM.
+        """
         if isinstance(target_date_or_epoch, str):
             target_date = to_orekit_date(target_date_or_epoch)
         else:
@@ -131,6 +159,22 @@ class STMCovariancePropagator:
         self,
         target_date_or_epoch: Any,
     ) -> tuple[Any, CovarianceRecord]:
+        """Propagate to a target epoch and return state plus covariance record.
+
+        The internal covariance is propagated in Cartesian form via
+        ``P = Phi P0 Phi^T``, then transformed to the requested frame/orbit type
+        for output serialization.
+
+        Args:
+            target_date_or_epoch: Orekit date or UTC epoch string.
+
+        Returns:
+            Tuple ``(state, covariance_record)``.
+
+        Raises:
+            ValueError: If no initial covariance was configured.
+            RuntimeError: If the propagator/harvester does not return an STM.
+        """
         if self._initial_cov is None:
             raise ValueError(
                 "propagate_with_covariance() requires an initial_covariance. "
@@ -224,6 +268,20 @@ class STMCovariancePropagator:
         series_name: str = "trajectory",
         covariance_name: str = "covariance",
     ) -> tuple[StateSeries, CovarianceSeries]:
+        """Propagate a state/covariance series over an output epoch grid.
+
+        Args:
+            epoch_spec: Output epoch specification.
+            series_name: Name for the returned state series.
+            covariance_name: Name for the returned covariance series.
+
+        Returns:
+            Tuple ``(StateSeries, CovarianceSeries)`` with aligned epochs.
+
+        Raises:
+            TypeError: If ``epoch_spec`` is not an ``OutputEpochSpec``.
+            ValueError: If the epoch specification produces no epochs.
+        """
         if not isinstance(epoch_spec, OutputEpochSpec):
             raise TypeError("epoch_spec must be an OutputEpochSpec instance.")
 

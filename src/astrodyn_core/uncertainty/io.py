@@ -34,17 +34,15 @@ def save_covariance_series_yaml(
               - [<row1>]
               ...
 
-    Parameters
-    ----------
-    path:
-        Destination file path (.yaml or .json).
-    series:
-        The covariance series to save.
+    Args:
+        path: Destination file path (``.yaml`` or ``.json``).
+        series: The covariance series to save.
 
-    Returns
-    -------
-    Path
+    Returns:
         The resolved output path.
+
+    Raises:
+        ImportError: If ``PyYAML`` is not installed.
     """
     try:
         import yaml
@@ -64,14 +62,16 @@ def save_covariance_series_yaml(
 def load_covariance_series_yaml(path: str | Path) -> CovarianceSeries:
     """Load a :class:`CovarianceSeries` from a YAML file.
 
-    Parameters
-    ----------
-    path:
-        Source file path (.yaml or .json).
+    Args:
+        path: Source file path (``.yaml`` or ``.json``).
 
-    Returns
-    -------
-    CovarianceSeries
+    Returns:
+        Loaded covariance series.
+
+    Raises:
+        ImportError: If ``PyYAML`` is not installed.
+        FileNotFoundError: If the source file does not exist.
+        ValueError: If the root YAML object is not a mapping.
     """
     try:
         import yaml
@@ -115,20 +115,18 @@ def save_covariance_series_hdf5(
         attributes:
             name, method, frame, orbit_type, include_mass
 
-    Parameters
-    ----------
-    path:
-        Destination .h5 or .hdf5 file path.
-    series:
-        The covariance series to save.
-    compression:
-        HDF5 compression filter (``"gzip"`` default, ``None`` to disable).
-    compression_opts:
-        Compression level (1–9 for gzip).
+    Args:
+        path: Destination ``.h5`` or ``.hdf5`` file path.
+        series: The covariance series to save.
+        compression: HDF5 compression filter (``"gzip"`` default, ``None`` to
+            disable).
+        compression_opts: Compression level (1-9 for gzip).
 
-    Returns
-    -------
-    Path
+    Returns:
+        The resolved output path.
+
+    Raises:
+        ImportError: If ``h5py`` is not installed.
     """
     try:
         import h5py
@@ -168,14 +166,15 @@ def save_covariance_series_hdf5(
 def load_covariance_series_hdf5(path: str | Path) -> CovarianceSeries:
     """Load a :class:`CovarianceSeries` from an HDF5 file.
 
-    Parameters
-    ----------
-    path:
-        Source .h5 or .hdf5 file path.
+    Args:
+        path: Source ``.h5`` or ``.hdf5`` file path.
 
-    Returns
-    -------
-    CovarianceSeries
+    Returns:
+        Loaded covariance series.
+
+    Raises:
+        ImportError: If ``h5py`` is not installed.
+        FileNotFoundError: If the source file does not exist.
     """
     try:
         import h5py
@@ -222,7 +221,16 @@ def save_covariance_series(
 ) -> Path:
     """Save covariance series, auto-selecting format from file extension.
 
-    Uses HDF5 for ``.h5`` / ``.hdf5``, YAML for everything else.
+    Uses HDF5 for ``.h5``/``.hdf5`` and YAML for everything else.
+
+    Args:
+        path: Destination file path.
+        series: Covariance series to save.
+        **kwargs: Format-specific keyword arguments forwarded to the selected
+            backend.
+
+    Returns:
+        Resolved output path.
     """
     p = Path(path)
     if p.suffix.lower() in {".h5", ".hdf5"}:
@@ -231,7 +239,14 @@ def save_covariance_series(
 
 
 def load_covariance_series(path: str | Path) -> CovarianceSeries:
-    """Load covariance series, auto-selecting format from file extension."""
+    """Load a covariance series by auto-detecting the file format.
+
+    Args:
+        path: Source file path.
+
+    Returns:
+        Loaded covariance series.
+    """
     p = Path(path)
     if p.suffix.lower() in {".h5", ".hdf5"}:
         return load_covariance_series_hdf5(p)
