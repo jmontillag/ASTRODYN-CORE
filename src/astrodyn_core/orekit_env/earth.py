@@ -9,7 +9,27 @@ from astrodyn_core.orekit_env.universe_config import resolve_universe_config
 
 
 def get_earth_shape(universe: Mapping[str, Any] | None = None) -> Any:
-    """Return configured Orekit OneAxisEllipsoid Earth shape."""
+    """Build the configured Orekit ``OneAxisEllipsoid`` Earth model.
+
+    The ellipsoid uses the ITRF frame resolved from the same universe
+    configuration. The shape can be one of the predefined model names (for
+    example ``WGS84`` or ``GRS80``) or a custom mapping with:
+
+    - ``equatorial_radius`` (meters)
+    - ``flattening`` (dimensionless)
+
+    Args:
+        universe: Optional universe configuration mapping. If omitted, the
+            active global universe configuration is used.
+
+    Returns:
+        An Orekit ``OneAxisEllipsoid`` configured from the resolved Earth shape
+        and ITRF frame.
+
+    Raises:
+        ModuleNotFoundError: If Orekit is not installed in the active Python
+            environment.
+    """
     from org.orekit.bodies import OneAxisEllipsoid
     from org.orekit.utils import Constants
 
@@ -41,7 +61,19 @@ def get_earth_shape(universe: Mapping[str, Any] | None = None) -> Any:
 
 
 def get_mu(universe: Mapping[str, Any] | None = None) -> float:
-    """Return configured Earth gravitational parameter (m^3/s^2)."""
+    """Resolve the configured Earth gravitational parameter ``mu``.
+
+    Args:
+        universe: Optional universe configuration mapping. If omitted, the
+            active global universe configuration is used.
+
+    Returns:
+        Earth's gravitational parameter in ``m^3 / s^2``.
+
+    Raises:
+        ModuleNotFoundError: If Orekit is not installed in the active Python
+            environment and a predefined MU constant must be resolved.
+    """
     from org.orekit.utils import Constants
 
     cfg = resolve_universe_config(universe)

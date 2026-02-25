@@ -28,7 +28,28 @@ _SUPPORTED_PREDEFINED_MU = frozenset({"WGS84", "GRS80", "EGM96", "EIGEN5C", "IER
 
 
 def load_universe_config(path: str | Path) -> dict[str, Any]:
-    """Load and cache the universe configuration from a YAML file."""
+    """Load, validate, and cache a universe configuration from YAML.
+
+    The YAML payload may either contain universe keys at the root level or under
+    a top-level ``universe`` mapping. Values are normalized and validated using
+    :func:`load_universe_from_dict`.
+
+    This function updates the module-global active configuration cache used by
+    :func:`get_universe_config`.
+
+    Args:
+        path: Path to a YAML file containing universe settings.
+
+    Returns:
+        A normalized copy of the loaded universe configuration.
+
+    Raises:
+        FileNotFoundError: If ``path`` does not exist.
+        TypeError: If the YAML payload or ``universe`` section is not a mapping.
+        ValueError: If a configured option is unsupported or invalid.
+        KeyError: If a custom Earth shape mapping is missing required keys.
+        yaml.YAMLError: If the YAML file cannot be parsed.
+    """
     config_path = Path(path)
     with open(config_path) as fh:
         data = yaml.safe_load(fh) or {}
@@ -40,12 +61,24 @@ def load_universe_config(path: str | Path) -> dict[str, Any]:
 
 
 def load_default_universe_config() -> dict[str, Any]:
-    """Load and cache the repository default universe configuration."""
+    """Load and cache the repository default universe configuration.
+
+    Returns:
+        A normalized copy of the default universe configuration.
+    """
     return load_universe_config(_DEFAULT_UNIVERSE_CONFIG_PATH)
 
 
 def get_universe_config() -> dict[str, Any]:
-    """Return currently active universe configuration (loads default on demand)."""
+    """Return the active universe configuration, loading defaults on demand.
+
+    If no configuration has been explicitly loaded yet, this function first uses
+    the built-in defaults and then, when present, loads the repository default
+    YAML file.
+
+    Returns:
+        A copy of the active normalized universe configuration.
+    """
     global _UNIVERSE_CONFIG
     if _UNIVERSE_CONFIG is None:
         _UNIVERSE_CONFIG = dict(_DEFAULT_UNIVERSE_CONFIG)
@@ -55,7 +88,30 @@ def get_universe_config() -> dict[str, Any]:
 
 
 def load_universe_from_dict(data: Mapping[str, Any]) -> dict[str, Any]:
-    """Validate and normalize an already parsed universe mapping."""
+    """Validate and normalize a parsed universe configuration mapping.
+
+    The input may be either:
+
+    - a mapping containing universe keys directly, or
+    - a mapping with a top-level ``universe`` section
+
+    The returned configuration is normalized to canonical strings/booleans and
+    validated against the supported IERS/ITRF/Earth-shape/MU options.
+
+    Args:
+        data: Parsed configuration mapping.
+
+    Returns:
+        A normalized universe configuration mapping. The input mapping is not
+        modified.
+
+    Raises:
+        TypeError: If ``data`` or the nested ``universe`` section is not a
+            mapping, or if configured values have the wrong type.
+        ValueError: If a configured option is unsupported or malformed.
+        KeyError: If a custom ``earth_shape_model`` mapping is missing required
+            keys.
+    """
     if not isinstance(data, Mapping):
         raise TypeError(f"Expected a mapping for universe config, got {type(data).__name__}")
 
@@ -130,7 +186,21 @@ def load_universe_from_dict(data: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def coerce_bool(value: Any) -> bool:
-    """Coerce bool-like values from YAML payloads."""
+    """Coerce bool-like YAML values into ``bool``.
+
+    Recognized string values (case-insensitive):
+
+    - truthy: ``1``, ``true``, ``yes``, ``on``
+    - falsy: ``0``, ``false``, ``no``, ``off``
+
+    Unrecognized values fall back to Python's ``bool(value)`` semantics.
+
+    Args:
+        value: Arbitrary value parsed from config/YAML input.
+
+    Returns:
+        The coerced boolean value.
+    """
     if isinstance(value, bool):
         return value
     if isinstance(value, str):
@@ -143,7 +213,21 @@ def coerce_bool(value: Any) -> bool:
 
 
 def resolve_universe_config(universe: Mapping[str, Any] | None = None) -> dict[str, Any]:
-    """Resolve explicit or globally configured universe settings."""
+    """Resolve explicit or globally configured universe settings.
+
+    Args:
+        universe: Optional explicit universe mapping. If provided, it is
+            validated and normalized. If omitted, the current active config is
+            returned (loading defaults if necessary).
+
+    Returns:
+        A normalized universe configuration mapping.
+
+    Raises:
+        TypeError: If ``universe`` is provided but is not a valid mapping.
+        ValueError: If ``universe`` contains unsupported values.
+        KeyError: If a custom Earth shape mapping is missing required keys.
+    """
     if universe is None:
         return get_universe_config()
     return load_universe_from_dict(universe)

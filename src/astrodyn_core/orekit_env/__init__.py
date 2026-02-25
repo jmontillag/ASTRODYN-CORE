@@ -1,4 +1,14 @@
-"""Shared Orekit environment config and resolver helpers."""
+"""Shared Orekit environment configuration and resolver helpers.
+
+This package centralizes the environment settings used across subsystems:
+
+- universe configuration loading/validation
+- IERS/ITRF frame resolution
+- Earth shape and gravitational parameter resolution
+
+Most users import these helpers indirectly through higher-level APIs, but the
+functions here are stable and useful for advanced workflows and tests.
+"""
 
 from astrodyn_core.orekit_env.earth import get_earth_shape, get_mu
 from astrodyn_core.orekit_env.frames import get_iers_conventions, get_itrf_frame, get_itrf_version
