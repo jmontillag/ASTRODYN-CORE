@@ -15,3 +15,7 @@ For now, use:
 
 - `examples/cookbook/`
 - `examples/README.md`
+
+## Available recipes
+
+- [Validate an Orbit Representation Round-Trip](orbit-representation-roundtrip.md)

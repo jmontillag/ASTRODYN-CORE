@@ -54,6 +54,7 @@ nav:
       - GEqOE Propagator: tutorials/geqoe.md
   - How-To / Cookbook:
       - Overview: how-to/index.md
+      - Orbit Representation Round-Trip: how-to/orbit-representation-roundtrip.md
   - Reference:
       - Overview: reference/index.md
       - API:
