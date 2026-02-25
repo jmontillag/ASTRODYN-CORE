@@ -167,6 +167,7 @@ Generated artifacts from examples are written to:
 - API governance and boundary policy: `docs/api-governance.md`
 - Extension guide for custom propagators: `docs/extending-propagators.md`
 - Architecture hardening and finalization roadmap (archived after v1.0 completion): `docs/archive/architecture-hardening-plan.md`
+- User-facing documentation roadmap: `docs/documentation-plan.md`
 
 ## Developer command shortcuts (`Makefile`)
 
