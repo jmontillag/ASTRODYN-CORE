@@ -1,9 +1,11 @@
 """Provider implementations."""
 
+from typing import Any
+
 from astrodyn_core.propagation.providers.orekit_native import register_default_orekit_providers
 
 
-def register_analytical_providers(registry) -> None:
+def register_analytical_providers(registry: Any) -> None:
     """Register built-in analytical (non-Orekit-native) providers.
 
     Currently registers:
@@ -18,7 +20,7 @@ def register_analytical_providers(registry) -> None:
     registry.register_propagator_provider(GEqOEProvider())
 
 
-def register_all_providers(registry) -> None:
+def register_all_providers(registry: Any) -> None:
     """Register all built-in providers (Orekit-native + analytical).
 
     Args:

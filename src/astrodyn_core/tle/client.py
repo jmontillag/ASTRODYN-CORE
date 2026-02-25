@@ -150,7 +150,7 @@ class TLEClient:
             base_dir=self._resolve_base_dir(base_dir),
         )
 
-    def parse_tle_epoch(self, tle_line1: str):
+    def parse_tle_epoch(self, tle_line1: str) -> datetime:
         """Parse a TLE line-1 epoch field into a UTC datetime.
 
         Args:

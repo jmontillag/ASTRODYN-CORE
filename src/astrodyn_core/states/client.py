@@ -189,7 +189,7 @@ class StateFileClient:
         record: OrbitStateRecord,
         *,
         universe: Mapping[str, Any] | None = None,
-    ):
+    ) -> Any:
         """Convert a serializable orbit-state record into an Orekit orbit.
 
         Args:
@@ -208,7 +208,7 @@ class StateFileClient:
         universe: Mapping[str, Any] | None = None,
         interpolation_samples: int | None = None,
         default_mass_kg: float | None = None,
-    ):
+    ) -> Any:
         """Convert a state series into an Orekit bounded ephemeris propagator.
 
         Args:
@@ -236,7 +236,7 @@ class StateFileClient:
         series_name: str | None = None,
         interpolation_samples: int | None = None,
         default_mass_kg: float | None = None,
-    ):
+    ) -> Any:
         """Convert a scenario's state series into an Orekit ephemeris.
 
         Args:
