@@ -65,6 +65,18 @@ python setup_env.py
 conda activate astrodyn-core-env
 ```
 
+Testing environment (important):
+
+```bash
+conda run -n astrodyn-core-env pytest -q
+```
+
+To inspect skipped tests (for example, missing `orekit` in the wrong interpreter):
+
+```bash
+conda run -n astrodyn-core-env pytest -q -rs
+```
+
 ```python
 from astrodyn_core import (
     AstrodynClient,

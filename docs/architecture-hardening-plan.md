@@ -1,10 +1,34 @@
 # Architecture Hardening Plan (Pre-release + Finalization)
 
-Last updated: 2026-02-24
+Last updated: 2026-02-25
 
 This document defines the structural hardening plan for `src/astrodyn_core` so
 the repository can be released now with low migration risk, while converging to
 a strict long-term package architecture.
+
+## 0) Current progress snapshot (2026-02-25)
+
+Completed in code:
+
+- Added shared `orekit_env` package:
+  - `src/astrodyn_core/orekit_env/universe_config.py`
+  - `src/astrodyn_core/orekit_env/frames.py`
+  - `src/astrodyn_core/orekit_env/earth.py`
+  - `src/astrodyn_core/orekit_env/__init__.py`
+- Converted to compatibility shims:
+  - `src/astrodyn_core/propagation/universe.py`
+  - `src/astrodyn_core/propagation/assembly.py`
+  - `src/astrodyn_core/propagation/dsst_assembly.py`
+- Introduced canonical assembly module paths used internally:
+  - `src/astrodyn_core/propagation/assembly_parts/`
+  - `src/astrodyn_core/propagation/dsst_parts/`
+- Added transition tests:
+  - `tests/test_universe_shim_compat.py`
+  - `tests/test_assembly_shim_compat.py`
+
+Immediate next milestone:
+
+- Phase B (deprecation enforcement + canonical import hygiene).
 
 ## 1) Scope and goals
 
@@ -48,7 +72,19 @@ Responsibilities:
 
 ### Propagation force assembly decomposition
 
-Split monoliths into cohesive modules:
+Current canonical split (already implemented):
+
+- `src/astrodyn_core/propagation/assembly_parts/orchestrator.py`
+- `src/astrodyn_core/propagation/assembly_parts/__init__.py`
+- `src/astrodyn_core/propagation/dsst_parts/assembly.py`
+- `src/astrodyn_core/propagation/dsst_parts/__init__.py`
+
+Optional final naming cleanup (major release candidate):
+
+- rename `assembly_parts/` -> `assembly/`
+- rename `dsst_parts/` -> `dsst/`
+
+Optional deeper decomposition after naming cleanup:
 
 - `src/astrodyn_core/propagation/assembly/orchestrator.py`
 - `src/astrodyn_core/propagation/assembly/attitude.py`
@@ -82,6 +118,8 @@ DSST split:
    compatibility shims (re-exports only).
 6. Update internal imports to canonical module paths.
 
+Status: **Completed** (2026-02-25).
+
 Release policy in this phase:
 
 - No public API removal.
@@ -94,6 +132,20 @@ Release policy in this phase:
 2. Add tests that fail on new internal usage of shim paths.
 3. Update docs/examples to canonical imports only.
 
+Execution checklist (next steps):
+
+1. Add `DeprecationWarning` in:
+  - `propagation/universe.py`
+  - `propagation/assembly.py`
+  - `propagation/dsst_assembly.py`
+2. Add boundary-hygiene assertions preventing internal source files from
+  importing these shim modules.
+3. Keep examples on public package paths only (`astrodyn_core.propagation`),
+  but avoid direct imports from shim modules.
+4. Add docs migration table: old path -> canonical path.
+5. Run transition test gate in project env:
+  - `conda run -n astrodyn-core-env pytest -q -rs tests/test_universe_config.py tests/test_universe_shim_compat.py tests/test_assembly_shim_compat.py tests/test_dsst_assembly.py tests/test_registry_factory.py tests/test_api_boundary_hygiene.py`
+
 ### Phase C (next major): finalization
 
 1. Remove compatibility shims:
@@ -102,6 +154,15 @@ Release policy in this phase:
    - `propagation/dsst_assembly.py`
 2. Keep only canonical package paths.
 3. Tighten boundary-hygiene tests to reject shim imports entirely.
+
+Execution checklist (major release prep):
+
+1. Remove shim files and update all references to canonical modules.
+2. If naming cleanup is accepted, fold `assembly_parts`/`dsst_parts` into
+  `assembly`/`dsst` package names before or during shim removal.
+3. Publish migration note in release docs with exact import replacements.
+4. Run full suite in project env:
+  - `conda run -n astrodyn-core-env pytest -q`
 
 ## 4) Risk controls
 
@@ -132,3 +193,11 @@ The architecture is considered fully formalized when all are true:
 2. Examples use only public package paths.
 3. Boundary hygiene tests include and enforce final path policy.
 4. Shims removed in major release with migration notes published.
+
+## 7) Recommended next action now
+
+Implement Phase B.1 and B.2 in one PR:
+
+1. Add deprecation warnings to shim modules.
+2. Enforce internal no-shim-import policy in hygiene tests.
+3. Keep compatibility tests until major release.
