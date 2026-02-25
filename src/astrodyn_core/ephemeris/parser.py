@@ -12,7 +12,11 @@ from pathlib import Path
 def parse_oem(file_path: str | Path):
     """Parse a CCSDS OEM (Orbit Ephemeris Message) file.
 
-    Returns an Orekit ``Oem`` object.
+    Args:
+        file_path: Path to a local OEM file.
+
+    Returns:
+        The parsed Orekit ``Oem`` object.
     """
     from org.orekit.data import DataSource
     from org.orekit.files.ccsds.ndm import ParserBuilder
@@ -23,7 +27,11 @@ def parse_oem(file_path: str | Path):
 def parse_ocm(file_path: str | Path):
     """Parse a CCSDS OCM (Orbit Comprehensive Message) file.
 
-    Returns an Orekit ``Ocm`` object.
+    Args:
+        file_path: Path to a local OCM file.
+
+    Returns:
+        The parsed Orekit ``Ocm`` object.
     """
     from org.orekit.data import DataSource
     from org.orekit.files.ccsds.ndm import ParserBuilder
@@ -34,7 +42,11 @@ def parse_ocm(file_path: str | Path):
 def parse_sp3(file_path: str | Path):
     """Parse an IGS SP3 (Standard Product 3) file.
 
-    Returns an Orekit ``SP3`` object.
+    Args:
+        file_path: Path to a local SP3 file.
+
+    Returns:
+        The parsed Orekit ``SP3`` object.
     """
     from org.orekit.data import DataSource
     from org.orekit.files.sp3 import SP3Parser
@@ -45,7 +57,14 @@ def parse_sp3(file_path: str | Path):
 def parse_cpf(file_path: str | Path):
     """Parse an ILRS CPF (Consolidated Prediction Format) file.
 
-    Returns an Orekit ``CPF`` object.
+    The CPF parser requires explicit Earth constants, frames, and time scales,
+    which are provided using WGS84 Earth ``mu``, IERS 2010 conventions, and UTC.
+
+    Args:
+        file_path: Path to a local CPF file.
+
+    Returns:
+        The parsed Orekit ``CPF`` object.
     """
     from org.orekit.data import DataSource
     from org.orekit.files.ilrs import CPFParser

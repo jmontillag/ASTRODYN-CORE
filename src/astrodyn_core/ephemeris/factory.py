@@ -21,13 +21,26 @@ def create_propagator_from_spec(
     edc_ftp_client: Any | None = None,
     cache_dir: str | Path = "data/cache",
 ) -> Any:
-    """Create a BoundedPropagator from an EphemerisSpec.
+    """Create an Orekit bounded propagator from an :class:`EphemerisSpec`.
 
-    For local specs (OEM, OCM), parses files directly.
-    For remote specs (SP3, CPF), requires ``edc_api_client`` and optionally
-    ``edc_ftp_client`` for data acquisition.
+    This is the lower-level factory used by :class:`astrodyn_core.ephemeris.EphemerisClient`.
+    It dispatches between local parsing (OEM/OCM) and remote acquisition flows
+    (SP3/CPF via EDC clients).
 
-    Returns an Orekit ``BoundedPropagator``.
+    Args:
+        spec: Immutable ephemeris request describing source and format.
+        edc_api_client: EDC REST client required for remote sources (CPF/SP3
+            satellite metadata lookups and CPF download).
+        edc_ftp_client: Optional EDC FTP client for SP3 file downloads.
+        cache_dir: Local cache directory used by remote file acquisition.
+
+    Returns:
+        An Orekit ``BoundedPropagator`` (or aggregate bounded propagator when
+        multiple segments are fused).
+
+    Raises:
+        ValueError: If required clients are missing, the spec is unsupported, or
+            no usable propagator can be created from the resolved data.
     """
     if spec.source == EphemerisSource.LOCAL:
         if spec.format == EphemerisFormat.OEM:

@@ -33,20 +33,22 @@ class EphemerisClient:
     ``secrets.ini`` file) or by passing pre-built client objects via
     ``edc_api_client`` and ``edc_ftp_client``.
 
-    Examples
-    --------
-    Local OEM file::
+    Args:
+        secrets_path: Optional path to a ``secrets.ini`` file containing EDC
+            credentials (``edc_username`` / ``edc_password``) for remote SP3/CPF
+            workflows.
+        cache_dir: Local cache directory for downloaded ephemeris files.
+        edc_api_client: Optional pre-built EDC API client. When provided, this
+            is used instead of lazily creating one from ``secrets_path``.
+        edc_ftp_client: Optional pre-built EDC FTP client for SP3 downloads.
 
+    Example:
+        ```python
         client = EphemerisClient()
         propagator = client.create_propagator(
             EphemerisSpec.for_oem("data/oem_files/satellite.oem")
         )
-
-    Remote SP3 via EDC::
-
-        client = EphemerisClient(secrets_path="secrets.ini")
-        spec = EphemerisSpec.for_sp3("lageos2", "2025-01-01", "2025-01-03")
-        propagator = client.create_propagator(spec)
+        ```
     """
 
     secrets_path: str | Path | None = None
@@ -59,12 +61,23 @@ class EphemerisClient:
     # ------------------------------------------------------------------
 
     def create_propagator(self, spec: EphemerisSpec) -> Any:
-        """Create a BoundedPropagator from an EphemerisSpec.
+        """Create an Orekit bounded propagator from an ephemeris specification.
 
-        For local specs (OEM, OCM), returns immediately.
-        For remote specs (SP3, CPF), acquires data from EDC first.
+        Local specs (OEM/OCM) are parsed directly. Remote specs (SP3/CPF)
+        trigger EDC metadata/file acquisition before parsing and propagator
+        construction.
 
-        Returns an Orekit ``BoundedPropagator``.
+        Args:
+            spec: Immutable ephemeris request describing source, format, and
+                required query or file fields.
+
+        Returns:
+            An Orekit ``BoundedPropagator`` (or equivalent Orekit propagator
+            object returned by the parser/factory flow).
+
+        Raises:
+            ValueError: If required remote credentials/clients are missing or
+                the spec cannot be fulfilled.
         """
         api_client = self._resolve_api_client(
             required=spec.source.value == "remote",
@@ -77,11 +90,26 @@ class EphemerisClient:
         )
 
     def create_propagator_from_oem(self, file_path: str | Path) -> Any:
-        """Convenience: create a propagator from a local OEM file."""
+        """Create a propagator from a local OEM file.
+
+        Args:
+            file_path: Path to a local OEM file.
+
+        Returns:
+            An Orekit bounded propagator derived from the OEM ephemeris.
+        """
         return self.create_propagator(EphemerisSpec.for_oem(file_path))
 
     def create_propagator_from_ocm(self, file_paths: str | Path | Sequence[str | Path]) -> Any:
-        """Convenience: create a propagator from local OCM file(s)."""
+        """Create a propagator from one or more local OCM files.
+
+        Args:
+            file_paths: One path or a sequence of OCM file paths.
+
+        Returns:
+            An Orekit bounded propagator, potentially an aggregate when multiple
+            OCM segments/satellites are fused.
+        """
         return self.create_propagator(EphemerisSpec.for_ocm(file_paths))
 
     def create_propagator_from_sp3(
@@ -93,7 +121,18 @@ class EphemerisClient:
         identifier_type: str = "satellite_name",
         provider_preference: Sequence[str] | None = None,
     ) -> Any:
-        """Convenience: create a propagator from SP3 data via EDC FTP."""
+        """Create a propagator from remote SP3 data via EDC FTP.
+
+        Args:
+            satellite_name: Satellite identifier value used for EDC lookup.
+            start_date: Inclusive start date in ``YYYY-MM-DD`` format.
+            end_date: Inclusive end date in ``YYYY-MM-DD`` format.
+            identifier_type: Identifier type field understood by EDC.
+            provider_preference: Optional SP3 provider priority order.
+
+        Returns:
+            An Orekit bounded propagator built from one or more SP3 files.
+        """
         spec = EphemerisSpec.for_sp3(
             satellite_name,
             start_date,
@@ -112,7 +151,19 @@ class EphemerisClient:
         identifier_type: str = "satellite_name",
         local_root: str | None = None,
     ) -> Any:
-        """Convenience: create a propagator from CPF data via EDC API."""
+        """Create a propagator from remote CPF data via EDC API.
+
+        Args:
+            satellite_name: Satellite identifier value used for EDC lookup.
+            start_date: Inclusive start date in ``YYYY-MM-DD`` format.
+            end_date: Inclusive end date in ``YYYY-MM-DD`` format.
+            identifier_type: Identifier type field understood by EDC.
+            local_root: Optional local CPF archive root checked before API
+                download fallback.
+
+        Returns:
+            An Orekit bounded propagator built from one or more CPF files.
+        """
         spec = EphemerisSpec.for_cpf(
             satellite_name,
             start_date,
@@ -127,19 +178,47 @@ class EphemerisClient:
     # ------------------------------------------------------------------
 
     def parse_oem(self, file_path: str | Path) -> Any:
-        """Parse an OEM file and return the Orekit ``Oem`` object."""
+        """Parse a local OEM file.
+
+        Args:
+            file_path: Path to a CCSDS OEM file.
+
+        Returns:
+            The parsed Orekit ``Oem`` object.
+        """
         return _parse_oem(file_path)
 
     def parse_ocm(self, file_path: str | Path) -> Any:
-        """Parse an OCM file and return the Orekit ``Ocm`` object."""
+        """Parse a local OCM file.
+
+        Args:
+            file_path: Path to a CCSDS OCM file.
+
+        Returns:
+            The parsed Orekit ``Ocm`` object.
+        """
         return _parse_ocm(file_path)
 
     def parse_sp3(self, file_path: str | Path) -> Any:
-        """Parse an SP3 file and return the Orekit ``SP3`` object."""
+        """Parse a local SP3 file.
+
+        Args:
+            file_path: Path to an SP3 file.
+
+        Returns:
+            The parsed Orekit ``SP3`` object.
+        """
         return _parse_sp3(file_path)
 
     def parse_cpf(self, file_path: str | Path) -> Any:
-        """Parse a CPF file and return the Orekit ``CPF`` object."""
+        """Parse a local CPF file.
+
+        Args:
+            file_path: Path to an ILRS CPF file.
+
+        Returns:
+            The parsed Orekit ``CPF`` object.
+        """
         return _parse_cpf(file_path)
 
     # ------------------------------------------------------------------
@@ -147,7 +226,23 @@ class EphemerisClient:
     # ------------------------------------------------------------------
 
     def _resolve_api_client(self, *, required: bool = True) -> Any | None:
-        """Lazily resolve or create the EDC API client."""
+        """Resolve or lazily construct an EDC API client.
+
+        Args:
+            required: If ``False``, return ``None`` when no API client is
+                available and no credentials were supplied.
+
+        Returns:
+            The configured or newly created EDC API client, or ``None`` when not
+            required and no client is available.
+
+        Raises:
+            ValueError: If a remote workflow requires credentials but neither
+                ``secrets_path`` nor ``edc_api_client`` is available.
+            FileNotFoundError: If ``secrets_path`` was provided but does not
+                exist.
+            KeyError: If the secrets file is missing required EDC credentials.
+        """
         if self.edc_api_client is not None:
             return self.edc_api_client
 

@@ -31,7 +31,13 @@ import requests
 
 @dataclass(frozen=True, slots=True)
 class SP3FileRecord:
-    """Metadata for a single SP3 file on the EDC FTP server."""
+    """Metadata describing one SP3 file candidate on the EDC FTP server.
+
+    Attributes:
+        date: File date in ``YYYY-MM-DD`` format.
+        filename: Remote filename (usually ``*.sp3.gz``).
+        ftp_url: Full FTP URL to download the file.
+    """
 
     date: str  # YYYY-MM-DD
     filename: str
@@ -40,7 +46,13 @@ class SP3FileRecord:
 
 @dataclass(frozen=True, slots=True)
 class CPFFileRecord:
-    """Metadata for a single CPF file from the EDC API."""
+    """Metadata describing one CPF file candidate returned by the EDC API.
+
+    Attributes:
+        file_id: EDC internal file identifier used for download requests.
+        start_date: File start date in ``YYYY-MM-DD`` format.
+        filename: Suggested/remote filename for the CPF record.
+    """
 
     file_id: int
     start_date: str
@@ -57,7 +69,11 @@ DEFAULT_SP3_PROVIDERS: tuple[str, ...] = (
 
 
 class EDCFtpClient:
-    """Anonymous FTP client for the EDC server (SP3 orbit files)."""
+    """Anonymous FTP client for EDC SP3 orbit files.
+
+    Args:
+        ftp_server: FTP host name for the EDC service.
+    """
 
     def __init__(self, ftp_server: str = "edc.dgfi.tum.de") -> None:
         self.ftp_server = ftp_server
@@ -69,11 +85,25 @@ class EDCFtpClient:
         end_date: datetime,
         provider_preference: Sequence[str] | None = None,
     ) -> list[SP3FileRecord]:
-        """List and select best SP3 files per day for a satellite.
+        """List and select the best SP3 file per day for a satellite.
 
-        Returns at most one file per day, selected by provider preference
-        (highest-priority provider with available files wins) and version
-        (highest filename wins for ties).
+        Selection policy:
+
+        - scan date-stamped EDC folders overlapping the requested range
+        - group discovered files by day
+        - choose the first available provider from ``provider_preference``
+        - break ties by descending filename (highest version wins)
+
+        Args:
+            sat_name: Satellite directory name used by the EDC FTP archive.
+            start_date: Inclusive start datetime used to choose folders/files.
+            end_date: Inclusive end datetime used to choose folders/files.
+            provider_preference: Optional ordered provider list. If omitted, the
+                built-in default provider priority is used.
+
+        Returns:
+            A list containing at most one :class:`SP3FileRecord` per day.
+            Returns an empty list on failure or when no files are found.
         """
         preference = list(provider_preference) if provider_preference else list(DEFAULT_SP3_PROVIDERS)
         all_records: list[dict[str, Any]] = []
@@ -161,7 +191,15 @@ class EDCFtpClient:
         return selected
 
     def download_file(self, ftp_url: str, local_path: str | Path) -> bool:
-        """Download a single file from a full FTP URL."""
+        """Download a single file from a full FTP URL.
+
+        Args:
+            ftp_url: Full FTP URL to download.
+            local_path: Destination path for the downloaded bytes.
+
+        Returns:
+            ``True`` on success, ``False`` if the FTP operation fails.
+        """
         try:
             parsed = urlparse(ftp_url)
             with ftplib.FTP(parsed.hostname) as ftp:
@@ -179,7 +217,13 @@ class EDCFtpClient:
 # ---------------------------------------------------------------------------
 
 class EDCApiClient:
-    """REST API client for the EDC (DGFI-TUM) service."""
+    """REST API client for the EDC (DGFI-TUM) service.
+
+    Args:
+        username: EDC account username.
+        password: EDC account password.
+        base_url: Base URL for the EDC API endpoint.
+    """
 
     def __init__(
         self,
@@ -195,7 +239,17 @@ class EDCApiClient:
         identifier_type: str,
         identifier_value: str,
     ) -> dict[str, Any] | None:
-        """Look up satellite metadata (COSPAR ID, name, etc.)."""
+        """Look up satellite metadata (COSPAR ID, name, aliases, etc.).
+
+        Args:
+            identifier_type: Query field name understood by the EDC API (for
+                example ``"satellite_name"`` or ``"cospar_id"``).
+            identifier_value: Identifier value to search for.
+
+        Returns:
+            A metadata mapping when found, or ``None`` on not-found/request
+            failure.
+        """
         payload = {
             **self._auth,
             "action": "satellite-info",
@@ -217,7 +271,18 @@ class EDCApiClient:
         start_date: str,
         end_date: str,
     ) -> list[CPFFileRecord]:
-        """Query for the best available CPF file per day in a date range."""
+        """Query for the best available CPF file per day in a date range.
+
+        Args:
+            cospar_id: COSPAR identifier used by the EDC CPF catalog.
+            start_date: Inclusive start date in ``YYYY-MM-DD`` format.
+            end_date: Inclusive end date in ``YYYY-MM-DD`` format.
+
+        Returns:
+            A list containing at most one :class:`CPFFileRecord` per day.
+            Returns an empty list when no data is found or when inputs are
+            invalid.
+        """
         try:
             start_dt = datetime.strptime(start_date, "%Y-%m-%d")
             end_dt = datetime.strptime(end_date, "%Y-%m-%d")
@@ -277,7 +342,14 @@ class EDCApiClient:
         return selected
 
     def download_cpf_content(self, file_id: int) -> list[str] | None:
-        """Download raw CPF file content by ID."""
+        """Download raw CPF file content by EDC file ID.
+
+        Args:
+            file_id: EDC file identifier returned by ``query_cpf_files``.
+
+        Returns:
+            File content as a list of text lines, or ``None`` on failure.
+        """
         payload = {
             **self._auth,
             "action": "data-download",
@@ -298,7 +370,18 @@ class EDCApiClient:
 # ---------------------------------------------------------------------------
 
 class EphemerisFileProcessor:
-    """Orchestrates downloading, caching, and pre-processing of ephemeris files."""
+    """Download, cache, and pre-process remote ephemeris files.
+
+    This helper centralizes:
+
+    - SP3 FTP download + decompression + header patching
+    - CPF API download + local caching
+
+    Args:
+        api_client: EDC API client used for CPF downloads.
+        ftp_client: Optional EDC FTP client used for SP3 downloads.
+        cache_dir: Cache directory for downloaded and processed files.
+    """
 
     def __init__(
         self,
@@ -312,7 +395,21 @@ class EphemerisFileProcessor:
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
     def get_sp3_file(self, record: SP3FileRecord) -> Path | None:
-        """Download an SP3 file via FTP, decompress, and patch if needed."""
+        """Download, cache, and prepare an SP3 file.
+
+        Behavior:
+
+        - returns cached decompressed file if already present
+        - downloads ``.sp3.gz`` via FTP otherwise
+        - decompresses to ``.sp3``
+        - patches known ``V00`` header variants for Orekit compatibility
+
+        Args:
+            record: SP3 file metadata record.
+
+        Returns:
+            Local path to the prepared SP3 file, or ``None`` if download fails.
+        """
         local_filename = record.filename.replace(".sp3.gz", ".sp3")
         local_path = self.cache_dir / local_filename
 
@@ -335,7 +432,14 @@ class EphemerisFileProcessor:
         return local_path
 
     def get_cpf_file(self, record: CPFFileRecord) -> Path | None:
-        """Download a CPF file via the API and cache it."""
+        """Download a CPF file via EDC API and cache it locally.
+
+        Args:
+            record: CPF file metadata record.
+
+        Returns:
+            Local path to the cached CPF file, or ``None`` if download fails.
+        """
         local_path = self.cache_dir / f"cpf_{record.file_id}.cpf"
 
         if local_path.exists():
@@ -350,7 +454,11 @@ class EphemerisFileProcessor:
 
     @staticmethod
     def _patch_sp3_header(file_path: Path) -> None:
-        """Patch SP3 v00 header (#c -> #d) in-place for Orekit compatibility."""
+        """Patch SP3 v00 header markers in-place for Orekit compatibility.
+
+        Args:
+            file_path: Local SP3 file path to patch in-place.
+        """
         with open(file_path, "r+") as f:
             lines = f.readlines()
             if lines and lines[0].startswith("#c"):
@@ -365,9 +473,22 @@ class EphemerisFileProcessor:
 # ---------------------------------------------------------------------------
 
 def load_edc_credentials(secrets_path: str | Path) -> tuple[str, str]:
-    """Load EDC username/password from a secrets.ini file.
+    """Load EDC credentials from a ``secrets.ini`` file.
 
-    Returns (username, password).
+    Expected file structure:
+
+    - section: ``[credentials]``
+    - keys: ``edc_username``, ``edc_password``
+
+    Args:
+        secrets_path: Path to a ``secrets.ini`` file.
+
+    Returns:
+        A ``(username, password)`` tuple.
+
+    Raises:
+        FileNotFoundError: If the secrets file does not exist.
+        KeyError: If the credentials section or required keys are missing.
     """
     config = configparser.ConfigParser()
     path = Path(secrets_path)

@@ -9,7 +9,14 @@ from typing import Sequence
 
 
 class EphemerisFormat(str, Enum):
-    """Supported ephemeris file formats."""
+    """Supported ephemeris file formats.
+
+    Attributes:
+        OEM: CCSDS Orbit Ephemeris Message (local files).
+        OCM: CCSDS Orbit Comprehensive Message (local file sets).
+        SP3: IGS Standard Product 3 precise orbit files (remote via EDC FTP).
+        CPF: ILRS Consolidated Prediction Format files (remote via EDC API).
+    """
 
     OEM = "OEM"
     OCM = "OCM"
@@ -18,7 +25,12 @@ class EphemerisFormat(str, Enum):
 
 
 class EphemerisSource(str, Enum):
-    """Where ephemeris data comes from."""
+    """Origin of ephemeris data for a request.
+
+    Attributes:
+        LOCAL: Data is read from one or more local files.
+        REMOTE: Data is queried/downloaded via EDC clients before parsing.
+    """
 
     LOCAL = "local"
     REMOTE = "remote"
@@ -32,29 +44,18 @@ class EphemerisSpec:
     the convenience class methods (``for_oem``, ``for_ocm``, ``for_sp3``,
     ``for_cpf``), then pass it to ``EphemerisClient.create_propagator()``.
 
-    Parameters
-    ----------
-    format : EphemerisFormat
-        Ephemeris file format.
-    source : EphemerisSource
-        Whether data is local or fetched remotely.
-    file_path : Path, optional
-        Single local file path (for OEM).
-    file_paths : tuple of Path, optional
-        Multiple local file paths (for OCM).
-    satellite_name : str, optional
-        Satellite name for remote queries (CPF, SP3).
-    identifier_type : str, optional
-        Type of satellite identifier for remote queries
-        (e.g. "satellite_name", "cospar_id").
-    start_date : str, optional
-        Start date in YYYY-MM-DD format (remote queries).
-    end_date : str, optional
-        End date in YYYY-MM-DD format (remote queries).
-    provider_preference : tuple of str, optional
-        Preferred SP3 data providers in order of preference.
-    local_root : str, optional
-        Root directory for local CPF file cache.
+    Attributes:
+        format: Ephemeris file format.
+        source: Whether data is local or fetched remotely.
+        file_path: Single local file path (OEM).
+        file_paths: Multiple local file paths (OCM).
+        satellite_name: Satellite identifier value for remote queries (SP3, CPF).
+        identifier_type: Identifier type for remote queries (for example
+            ``"satellite_name"`` or ``"cospar_id"``).
+        start_date: Start date for remote queries in ``YYYY-MM-DD`` format.
+        end_date: End date for remote queries in ``YYYY-MM-DD`` format.
+        provider_preference: Preferred SP3 providers in priority order.
+        local_root: Optional local CPF directory root used before API fallback.
     """
 
     format: EphemerisFormat
@@ -72,7 +73,12 @@ class EphemerisSpec:
         self.validate()
 
     def validate(self) -> None:
-        """Validate field combinations."""
+        """Validate field combinations for the selected source/format.
+
+        Raises:
+            ValueError: If required fields are missing or the source/format
+                combination is unsupported.
+        """
         if self.source == EphemerisSource.LOCAL:
             if self.format == EphemerisFormat.OEM:
                 if self.file_path is None:
@@ -105,7 +111,14 @@ class EphemerisSpec:
 
     @classmethod
     def for_oem(cls, file_path: str | Path) -> EphemerisSpec:
-        """Create a spec for a local OEM (CCSDS Orbit Ephemeris Message) file."""
+        """Create a spec for a local OEM file.
+
+        Args:
+            file_path: Path to a CCSDS OEM (Orbit Ephemeris Message) file.
+
+        Returns:
+            A validated local OEM ephemeris specification.
+        """
         return cls(
             format=EphemerisFormat.OEM,
             source=EphemerisSource.LOCAL,
@@ -114,7 +127,14 @@ class EphemerisSpec:
 
     @classmethod
     def for_ocm(cls, file_paths: str | Path | Sequence[str | Path]) -> EphemerisSpec:
-        """Create a spec for local OCM (CCSDS Orbit Comprehensive Message) files."""
+        """Create a spec for one or more local OCM files.
+
+        Args:
+            file_paths: One path or a sequence of paths to CCSDS OCM files.
+
+        Returns:
+            A validated local OCM ephemeris specification.
+        """
         if isinstance(file_paths, (str, Path)):
             file_paths = [file_paths]
         return cls(
@@ -133,7 +153,19 @@ class EphemerisSpec:
         identifier_type: str = "satellite_name",
         provider_preference: Sequence[str] | None = None,
     ) -> EphemerisSpec:
-        """Create a spec for remote SP3 (IGS Standard Product 3) data via EDC FTP."""
+        """Create a spec for remote SP3 data queried from EDC FTP.
+
+        Args:
+            satellite_name: Satellite identifier value (typically a satellite name).
+            start_date: Inclusive start date in ``YYYY-MM-DD`` format.
+            end_date: Inclusive end date in ``YYYY-MM-DD`` format.
+            identifier_type: Remote identifier field name understood by EDC.
+            provider_preference: Optional provider priority order for SP3 file
+                selection (one best file per day is chosen).
+
+        Returns:
+            A validated remote SP3 ephemeris specification.
+        """
         return cls(
             format=EphemerisFormat.SP3,
             source=EphemerisSource.REMOTE,
@@ -154,7 +186,20 @@ class EphemerisSpec:
         identifier_type: str = "satellite_name",
         local_root: str | None = None,
     ) -> EphemerisSpec:
-        """Create a spec for CPF (ILRS Consolidated Prediction Format) data via EDC API."""
+        """Create a spec for remote CPF data queried from the EDC API.
+
+        Args:
+            satellite_name: Satellite identifier value (for the chosen
+                ``identifier_type``).
+            start_date: Inclusive start date in ``YYYY-MM-DD`` format.
+            end_date: Inclusive end date in ``YYYY-MM-DD`` format.
+            identifier_type: Remote identifier field name understood by EDC.
+            local_root: Optional local CPF archive root to scan before API
+                download fallback.
+
+        Returns:
+            A validated remote CPF ephemeris specification.
+        """
         return cls(
             format=EphemerisFormat.CPF,
             source=EphemerisSource.REMOTE,
