@@ -16,7 +16,16 @@ def load_dynamics_config(
     path: str | Path,
     spacecraft: str | Path | None = None,
 ) -> PropagatorSpec:
-    """Load a dynamics configuration YAML and return a ``PropagatorSpec``."""
+    """Load a dynamics configuration YAML and return a ``PropagatorSpec``.
+
+    Args:
+        path: Dynamics YAML file path.
+        spacecraft: Optional spacecraft YAML file to parse and attach to the
+            resulting spec.
+
+    Returns:
+        Parsed propagator spec.
+    """
     from astrodyn_core.propagation.parsers.spacecraft import load_spacecraft_config
 
     with open(path) as fh:
@@ -32,7 +41,17 @@ def load_dynamics_config(
 
 
 def load_dynamics_from_dict(data: dict[str, Any]) -> PropagatorSpec:
-    """Build a ``PropagatorSpec`` from an already-parsed dictionary."""
+    """Build a ``PropagatorSpec`` from an already-parsed dictionary.
+
+    Args:
+        data: Parsed dynamics configuration mapping.
+
+    Returns:
+        Parsed propagator spec.
+
+    Raises:
+        TypeError: If ``data`` is not a dict.
+    """
     if not isinstance(data, dict):
         raise TypeError(f"Expected a dict, got {type(data).__name__}")
 
@@ -69,7 +88,14 @@ def load_dynamics_from_dict(data: dict[str, Any]) -> PropagatorSpec:
 
 
 def parse_integrator(raw: dict[str, Any] | None) -> IntegratorSpec | None:
-    """Parse the integrator section into an IntegratorSpec."""
+    """Parse the ``integrator`` section into ``IntegratorSpec``.
+
+    Args:
+        raw: Integrator section mapping or ``None``.
+
+    Returns:
+        Parsed integrator spec, or ``None`` when no section is provided.
+    """
     if raw is None:
         return None
 
@@ -84,7 +110,14 @@ def parse_integrator(raw: dict[str, Any] | None) -> IntegratorSpec | None:
 
 
 def parse_attitude(raw: dict[str, Any] | str | None) -> AttitudeSpec | None:
-    """Parse the attitude section."""
+    """Parse the ``attitude`` section.
+
+    Args:
+        raw: Attitude config as mapping, simple mode string, or ``None``.
+
+    Returns:
+        Parsed attitude spec, or ``None`` when omitted.
+    """
     if raw is None:
         return None
 

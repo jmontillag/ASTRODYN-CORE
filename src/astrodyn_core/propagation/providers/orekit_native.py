@@ -17,14 +17,14 @@ from astrodyn_core.propagation.specs import PropagatorKind, PropagatorSpec
 
 
 def _resolve_attitude(spec: PropagatorSpec, context: BuildContext, orbit: Any) -> Any | None:
-    """Resolve attitude: typed spec takes priority over raw context."""
+    """Resolve an attitude provider with spec-over-context precedence."""
     if spec.attitude is not None:
         return assemble_attitude_provider(spec.attitude, orbit, universe=context.universe)
     return context.attitude_provider
 
 
 def _resolve_force_models(spec: PropagatorSpec, context: BuildContext, orbit: Any) -> list[Any]:
-    """Resolve force models: typed specs take priority over raw context."""
+    """Resolve numerical force models with spec-over-context precedence."""
     if spec.force_specs:
         sc = spec.spacecraft if spec.spacecraft is not None else SpacecraftSpec()
         return assemble_force_models(spec.force_specs, sc, orbit, universe=context.universe)
@@ -34,7 +34,7 @@ def _resolve_force_models(spec: PropagatorSpec, context: BuildContext, orbit: An
 def _resolve_dsst_force_models(
     spec: PropagatorSpec, context: BuildContext, orbit: Any
 ) -> list[Any]:
-    """Resolve DSST force models: translates ForceSpec into DSSTForceModel instances."""
+    """Resolve DSST force models with spec-over-context precedence."""
     if spec.force_specs:
         sc = spec.spacecraft if spec.spacecraft is not None else SpacecraftSpec()
         return assemble_dsst_force_models(spec.force_specs, sc, orbit, universe=context.universe)
@@ -42,6 +42,7 @@ def _resolve_dsst_force_models(
 
 
 def _position_angle_type(name: str):
+    """Resolve an Orekit ``PositionAngleType`` enum by name."""
     try:
         from org.orekit.orbits import PositionAngleType
     except Exception as exc:
@@ -52,6 +53,7 @@ def _position_angle_type(name: str):
 
 
 def _propagation_type(name: str):
+    """Resolve an Orekit ``PropagationType`` enum by name."""
     try:
         from org.orekit.propagation import PropagationType
     except Exception as exc:
@@ -63,6 +65,8 @@ def _propagation_type(name: str):
 
 @dataclass(frozen=True, slots=True)
 class NumericalOrekitProvider:
+    """Orekit-native numerical propagator provider."""
+
     kind: PropagatorKind = PropagatorKind.NUMERICAL
     capabilities: CapabilityDescriptor = CapabilityDescriptor(
         supports_builder=True,
@@ -71,6 +75,15 @@ class NumericalOrekitProvider:
     )
 
     def build_builder(self, spec: PropagatorSpec, context: BuildContext) -> Any:
+        """Build an Orekit ``NumericalPropagatorBuilder``.
+
+        Args:
+            spec: Propagator spec (requires ``integrator``).
+            context: Runtime build context.
+
+        Returns:
+            Configured Orekit numerical propagator builder.
+        """
         from org.orekit.propagation.conversion import NumericalPropagatorBuilder
 
         orbit = context.require_initial_orbit()
@@ -102,12 +115,15 @@ class NumericalOrekitProvider:
         return builder
 
     def build_propagator(self, spec: PropagatorSpec, context: BuildContext) -> Any:
+        """Build an Orekit numerical propagator directly from the builder lane."""
         builder = self.build_builder(spec, context)
         return builder.buildPropagator(builder.getSelectedNormalizedParameters())
 
 
 @dataclass(frozen=True, slots=True)
 class KeplerianOrekitProvider:
+    """Orekit-native Keplerian propagator provider."""
+
     kind: PropagatorKind = PropagatorKind.KEPLERIAN
     capabilities: CapabilityDescriptor = CapabilityDescriptor(
         supports_builder=True,
@@ -115,6 +131,7 @@ class KeplerianOrekitProvider:
     )
 
     def build_builder(self, spec: PropagatorSpec, context: BuildContext) -> Any:
+        """Build an Orekit ``KeplerianPropagatorBuilder``."""
         from org.orekit.propagation.conversion import KeplerianPropagatorBuilder
 
         orbit = context.require_initial_orbit()
@@ -133,12 +150,15 @@ class KeplerianOrekitProvider:
         return builder
 
     def build_propagator(self, spec: PropagatorSpec, context: BuildContext) -> Any:
+        """Build an Orekit Keplerian propagator directly from the builder lane."""
         builder = self.build_builder(spec, context)
         return builder.buildPropagator(builder.getSelectedNormalizedParameters())
 
 
 @dataclass(frozen=True, slots=True)
 class DSSTOrekitProvider:
+    """Orekit-native DSST propagator provider."""
+
     kind: PropagatorKind = PropagatorKind.DSST
     capabilities: CapabilityDescriptor = CapabilityDescriptor(
         supports_builder=True,
@@ -147,6 +167,7 @@ class DSSTOrekitProvider:
     )
 
     def build_builder(self, spec: PropagatorSpec, context: BuildContext) -> Any:
+        """Build an Orekit ``DSSTPropagatorBuilder`` with DSST force assembly."""
         from org.orekit.propagation.conversion import DSSTPropagatorBuilder
 
         orbit = context.require_initial_orbit()
@@ -181,12 +202,15 @@ class DSSTOrekitProvider:
         return builder
 
     def build_propagator(self, spec: PropagatorSpec, context: BuildContext) -> Any:
+        """Build an Orekit DSST propagator directly from the builder lane."""
         builder = self.build_builder(spec, context)
         return builder.buildPropagator(builder.getSelectedNormalizedParameters())
 
 
 @dataclass(frozen=True, slots=True)
 class TLEOrekitProvider:
+    """Orekit-native TLE/SGP4 propagator provider."""
+
     kind: PropagatorKind = PropagatorKind.TLE
     capabilities: CapabilityDescriptor = CapabilityDescriptor(
         supports_builder=True,
@@ -195,6 +219,7 @@ class TLEOrekitProvider:
     )
 
     def build_builder(self, spec: PropagatorSpec, context: BuildContext) -> Any:
+        """Build an Orekit ``TLEPropagatorBuilder`` from raw TLE lines."""
         from org.orekit.propagation.analytical.tle import TLE
         from org.orekit.propagation.conversion import TLEPropagatorBuilder
 
@@ -211,6 +236,7 @@ class TLEOrekitProvider:
         )
 
     def build_propagator(self, spec: PropagatorSpec, context: BuildContext) -> Any:
+        """Build an Orekit TLE propagator directly from raw TLE lines."""
         from org.orekit.propagation.analytical.tle import TLE, TLEPropagator
 
         if spec.tle is None:
@@ -221,7 +247,11 @@ class TLEOrekitProvider:
 
 
 def register_default_orekit_providers(registry: ProviderRegistry) -> None:
-    """Register built-in Phase 1 Orekit-native providers."""
+    """Register built-in Orekit-native providers in both registry lanes.
+
+    Args:
+        registry: Provider registry to mutate.
+    """
 
     providers = [
         NumericalOrekitProvider(),

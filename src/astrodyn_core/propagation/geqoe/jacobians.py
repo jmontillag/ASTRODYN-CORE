@@ -18,17 +18,13 @@ def get_pEqpY(
 ) -> np.ndarray:
     """Compute the Jacobian d(Eq)/d(Y) from Cartesian to GEqOE.
 
-    Parameters
-    ----------
-    t : float
-        Time in seconds (unused).
-    y : array, shape (N, 6) or (6,)
-        Cartesian states ``[rx, ry, rz, vx, vy, vz]`` in SI.
-    p : BodyConstants or (J2, Re, mu)
+    Args:
+        t: Time in seconds (unused, retained for interface parity).
+        y: Cartesian state(s) ``[rx, ry, rz, vx, vy, vz]`` in SI units.
+        p: Body constants as ``BodyConstants`` or ``(J2, Re, mu)``.
 
-    Returns
-    -------
-    pEqpY : array, shape (N, 6, 6)
+    Returns:
+        Jacobian tensor ``d(Eq)/d(Y)`` with shape ``(N, 6, 6)``.
     """
     if isinstance(p, BodyConstants):
         J2, Re, mu = p.j2, p.re, p.mu
@@ -192,17 +188,13 @@ def get_pYpEq(
 ) -> np.ndarray:
     """Compute the Jacobian d(Y)/d(Eq) from GEqOE to Cartesian.
 
-    Parameters
-    ----------
-    t : float
-        Time in seconds (unused).
-    y : array, shape (N, 6) or (6,)
-        GEqOE states ``[nu, q1, q2, p1, p2, Lr]``.
-    p : BodyConstants or (J2, Re, mu)
+    Args:
+        t: Time in seconds (unused, retained for interface parity).
+        y: GEqOE state(s) ``[nu, q1, q2, p1, p2, Lr]``.
+        p: Body constants as ``BodyConstants`` or ``(J2, Re, mu)``.
 
-    Returns
-    -------
-    pYpEq : array, shape (N, 6, 6)
+    Returns:
+        Jacobian tensor ``d(Y)/d(Eq)`` with shape ``(N, 6, 6)``.
     """
     if isinstance(p, BodyConstants):
         J2, Re, mu = p.j2, p.re, p.mu

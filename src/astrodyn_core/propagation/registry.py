@@ -20,12 +20,33 @@ class ProviderRegistry:
     _propagator_providers: dict[str, Any] = field(default_factory=dict)
 
     def register_builder_provider(self, provider: Any) -> None:
+        """Register or replace a builder-lane provider.
+
+        Args:
+            provider: Object exposing ``kind`` and ``build_builder``.
+        """
         self._builder_providers[provider.kind] = provider
 
     def register_propagator_provider(self, provider: Any) -> None:
+        """Register or replace a propagator-lane provider.
+
+        Args:
+            provider: Object exposing ``kind`` and ``build_propagator``.
+        """
         self._propagator_providers[provider.kind] = provider
 
     def get_builder_provider(self, kind: str) -> Any:
+        """Resolve a builder provider by kind.
+
+        Args:
+            kind: Propagator kind key.
+
+        Returns:
+            Registered builder provider.
+
+        Raises:
+            KeyError: If no builder provider is registered for ``kind``.
+        """
         try:
             return self._builder_providers[kind]
         except KeyError as exc:
@@ -35,6 +56,17 @@ class ProviderRegistry:
             ) from exc
 
     def get_propagator_provider(self, kind: str) -> Any:
+        """Resolve a propagator provider by kind.
+
+        Args:
+            kind: Propagator kind key.
+
+        Returns:
+            Registered propagator provider.
+
+        Raises:
+            KeyError: If no propagator provider is registered for ``kind``.
+        """
         try:
             return self._propagator_providers[kind]
         except KeyError as exc:
@@ -44,7 +76,9 @@ class ProviderRegistry:
             ) from exc
 
     def available_builder_kinds(self) -> list[str]:
+        """Return sorted builder-provider kinds."""
         return sorted(str(k) for k in self._builder_providers)
 
     def available_propagator_kinds(self) -> list[str]:
+        """Return sorted propagator-provider kinds."""
         return sorted(str(k) for k in self._propagator_providers)

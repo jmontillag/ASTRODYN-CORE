@@ -18,14 +18,10 @@ from astrodyn_core.propagation.geqoe.utils import solve_kep_gen
 class BodyConstants:
     """Physical constants of a celestial body for GEqOE calculations.
 
-    Attributes
-    ----------
-    j2 : float
-        J2 gravitational coefficient (dimensionless, positive).
-    re : float
-        Equatorial radius in metres.
-    mu : float
-        Gravitational parameter (GM) in m^3/s^2.
+    Attributes:
+        j2: J2 gravitational coefficient (dimensionless, positive).
+        re: Equatorial radius in meters.
+        mu: Gravitational parameter (GM) in ``m^3/s^2``.
     """
 
     j2: float
@@ -40,18 +36,16 @@ def rv2geqoe(
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Convert Cartesian states to GEqOE.
 
-    Parameters
-    ----------
-    t : float
-        Time in seconds (kept for interface consistency; unused).
-    y : array, shape (N, 6) or (6,)
-        Cartesian states ``[rx, ry, rz, vx, vy, vz]`` in SI units.
-    p : BodyConstants or (J2, Re, mu)
-        Central body constants.
+    Args:
+        t: Time in seconds (kept for interface compatibility; unused).
+        y: Cartesian state(s) ``[rx, ry, rz, vx, vy, vz]`` in SI units.
+        p: Body constants as ``BodyConstants`` or ``(J2, Re, mu)``.
 
-    Returns
-    -------
-    (nu, q1, q2, p1, p2, Lr) : tuple of arrays, each of length N
+    Returns:
+        Tuple ``(nu, q1, q2, p1, p2, Lr)`` with one array per GEqOE component.
+
+    Raises:
+        ValueError: If ``y`` does not have 6 Cartesian columns.
     """
     if isinstance(p, BodyConstants):
         J2, Re, mu = p.j2, p.re, p.mu
@@ -152,19 +146,16 @@ def geqoe2rv(
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Convert GEqOE to Cartesian states.
 
-    Parameters
-    ----------
-    t : float
-        Time in seconds (kept for interface consistency; unused).
-    y : array, shape (N, 6) or (6,)
-        GEqOE states ``[nu, q1, q2, p1, p2, Lr]``.
-    p : BodyConstants or (J2, Re, mu)
-        Central body constants.
+    Args:
+        t: Time in seconds (kept for interface compatibility; unused).
+        y: GEqOE state(s) ``[nu, q1, q2, p1, p2, Lr]``.
+        p: Body constants as ``BodyConstants`` or ``(J2, Re, mu)``.
 
-    Returns
-    -------
-    (rv, rpv) : tuple of arrays, shapes (N, 3) each
-        Position (m) and velocity (m/s).
+    Returns:
+        Tuple ``(rv, rpv)`` with position and velocity arrays in SI units.
+
+    Raises:
+        ValueError: If ``y`` does not have 6 GEqOE columns.
     """
     if isinstance(p, BodyConstants):
         J2, Re, mu = p.j2, p.re, p.mu

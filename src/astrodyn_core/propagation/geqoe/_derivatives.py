@@ -16,6 +16,17 @@ import numpy as np
 def derivatives_of_inverse(
     a_vector: np.ndarray, do_one: bool = False
 ):
+    """Return Taylor derivatives of ``1/a`` from derivatives of ``a``.
+
+    Args:
+        a_vector: Vector ``[a, a', a'', ...]`` up to supported order.
+        do_one: If ``True``, return only the highest derivative implied by the
+            vector length instead of the full derivative array.
+
+    Returns:
+        Full derivative array or a single derivative term depending on
+        ``do_one``.
+    """
     n = len(a_vector)
     a = a_vector[0]
 
@@ -72,6 +83,17 @@ def derivatives_of_inverse(
 def derivatives_of_inverse_wrt_param(
     a_vector, a_d_vector, do_one=False
 ):
+    """Parameter derivative of ``derivatives_of_inverse`` outputs.
+
+    Args:
+        a_vector: Taylor derivatives ``[a, a', a'', ...]``.
+        a_d_vector: Parameter derivatives of ``a_vector`` terms.
+        do_one: If ``True``, return only the highest derivative implied by the
+            vector length.
+
+    Returns:
+        Parameter sensitivity of ``1/a`` Taylor derivatives.
+    """
     n = len(a_vector)
     a, a_d = a_vector[0], a_d_vector[0]
 
@@ -158,6 +180,16 @@ def derivatives_of_inverse_wrt_param(
 def derivatives_of_product(
     a_vector: np.ndarray, do_one: bool = False
 ):
+    """Return Taylor derivatives of the product ``a * a'``.
+
+    Args:
+        a_vector: Vector ``[a, a', a'', ...]`` up to supported order.
+        do_one: If ``True``, return only the highest derivative implied by the
+            vector length.
+
+    Returns:
+        Full derivative array or a single derivative term.
+    """
     m = len(a_vector)
     n = m - 1
     if n < 1:
@@ -207,6 +239,17 @@ def derivatives_of_product(
 def derivatives_of_product_wrt_param(
     a_vector, a_d_vector, do_one=False
 ):
+    """Parameter derivative of ``derivatives_of_product`` outputs.
+
+    Args:
+        a_vector: Taylor derivatives ``[a, a', a'', ...]``.
+        a_d_vector: Parameter derivatives of ``a_vector`` terms.
+        do_one: If ``True``, return only the highest derivative implied by the
+            vector length.
+
+    Returns:
+        Parameter sensitivity of the ``a * a'`` Taylor derivatives.
+    """
     m = len(a_vector)
     n = m - 1
     if n < 1:

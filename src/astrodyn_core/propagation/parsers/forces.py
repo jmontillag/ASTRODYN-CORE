@@ -17,7 +17,17 @@ from astrodyn_core.propagation.forces import (
 
 
 def parse_forces(raw: dict[str, Any] | None) -> list[ForceSpec]:
-    """Parse the forces section into a list of ForceSpec objects."""
+    """Parse a ``forces`` config section into declarative force specs.
+
+    Args:
+        raw: Mapping of force keys to ``true``/``false`` or parameter mappings.
+
+    Returns:
+        Parsed list of force specs in input order.
+
+    Raises:
+        ValueError: If an unknown force key is encountered.
+    """
     if raw is None:
         return []
 
@@ -40,6 +50,7 @@ def parse_forces(raw: dict[str, Any] | None) -> list[ForceSpec]:
 
 
 def parse_gravity(params: dict) -> GravitySpec:
+    """Parse a gravity force config mapping into ``GravitySpec``."""
     return GravitySpec(
         degree=params.get("degree", 0),
         order=params.get("order", 0),
@@ -48,6 +59,7 @@ def parse_gravity(params: dict) -> GravitySpec:
 
 
 def parse_drag(params: dict) -> DragSpec:
+    """Parse a drag force config mapping into ``DragSpec``."""
     return DragSpec(
         atmosphere_model=params.get("atmosphere_model", "nrlmsise00"),
         space_weather_source=params.get("space_weather_source", "cssi"),
@@ -60,6 +72,7 @@ def parse_drag(params: dict) -> DragSpec:
 
 
 def parse_srp(params: dict) -> SRPSpec:
+    """Parse an SRP force config mapping into ``SRPSpec``."""
     return SRPSpec(
         enable_moon_eclipse=params.get("enable_moon_eclipse", False),
         enable_albedo=params.get("enable_albedo", False),
@@ -67,6 +80,7 @@ def parse_srp(params: dict) -> SRPSpec:
 
 
 def parse_third_body(params: dict) -> ThirdBodySpec:
+    """Parse a third-body force config mapping into ``ThirdBodySpec``."""
     bodies = params.get("bodies", ("sun", "moon"))
     if isinstance(bodies, list):
         bodies = tuple(bodies)
@@ -74,14 +88,17 @@ def parse_third_body(params: dict) -> ThirdBodySpec:
 
 
 def parse_relativity(params: dict) -> RelativitySpec:
+    """Parse a relativity force config mapping into ``RelativitySpec``."""
     return RelativitySpec()
 
 
 def parse_solid_tides(params: dict) -> SolidTidesSpec:
+    """Parse a solid-tides force config mapping into ``SolidTidesSpec``."""
     return SolidTidesSpec()
 
 
 def parse_ocean_tides(params: dict) -> OceanTidesSpec:
+    """Parse an ocean-tides force config mapping into ``OceanTidesSpec``."""
     return OceanTidesSpec(
         degree=params.get("degree", 5),
         order=params.get("order", 5),

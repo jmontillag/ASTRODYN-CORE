@@ -24,16 +24,11 @@ SUPPORTED_ATTITUDE_MODES = frozenset(
 class AttitudeSpec:
     """Attitude configuration for propagation.
 
-    Parameters
-    ----------
-    mode : str
-        One of the predefined attitude modes: ``"qsw"`` / ``"vvlh"``
-        (Local Vertical Local Horizontal), ``"tnw"`` (Tangential Normal),
-        ``"nadir"`` (Nadir pointing), ``"inertial"`` (fixed inertial frame).
-    provider : Any, optional
-        A pre-built Orekit ``AttitudeProvider`` instance.  When set, ``mode``
-        is ignored and this provider is used directly.  This is the escape
-        hatch for custom attitude laws not covered by the predefined modes.
+    Attributes:
+        mode: Predefined attitude mode (``qsw``, ``vvlh``, ``tnw``, ``nadir``,
+            ``inertial``). Ignored when ``provider`` is supplied.
+        provider: Optional pre-built Orekit ``AttitudeProvider`` instance used
+            as a pass-through escape hatch for custom attitude laws.
     """
 
     mode: str = "inertial"

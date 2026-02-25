@@ -28,7 +28,17 @@ class PropagatorKind(str, Enum):
 
 @dataclass(frozen=True, slots=True)
 class IntegratorSpec:
-    """Integrator builder configuration for numerical and DSST builders."""
+    """Integrator builder configuration for numerical and DSST builders.
+
+    Attributes:
+        kind: Integrator kind identifier (for example ``"dp853"``).
+        min_step: Minimum integration step size in seconds (adaptive methods).
+        max_step: Maximum integration step size in seconds (adaptive methods).
+        position_tolerance: Position tolerance used to derive Orekit tolerances.
+        step: Fixed step size in seconds (fixed-step methods).
+        n_steps: Optional auxiliary step count for custom providers.
+        extra: Provider-specific integrator options.
+    """
 
     kind: str
     min_step: float | None = None
@@ -47,7 +57,12 @@ class IntegratorSpec:
 
 @dataclass(frozen=True, slots=True)
 class TLESpec:
-    """Raw TLE line pair for SGP4-style construction."""
+    """Raw TLE line pair for SGP4/TLE propagator construction.
+
+    Attributes:
+        line1: TLE line 1 text (must start with ``"1 "``).
+        line2: TLE line 2 text (must start with ``"2 "``).
+    """
 
     line1: str
     line2: str
@@ -66,6 +81,20 @@ class PropagatorSpec:
     The ``kind`` field accepts any :class:`PropagatorKind` enum member for
     built-in Orekit propagators, or a plain string for custom/analytical
     propagators registered via :class:`ProviderRegistry`.
+
+    Attributes:
+        kind: Built-in or custom propagator kind key.
+        mass_kg: Spacecraft mass used by builders/propagators.
+        position_angle_type: Orekit position-angle convention for relevant
+            propagator builders.
+        dsst_propagation_type: DSST propagation type (``MEAN``/``OSCULATING``).
+        dsst_state_type: DSST initial state type (``MEAN``/``OSCULATING``).
+        integrator: Integrator configuration (required for numerical/DSST).
+        tle: Raw TLE lines (required for TLE propagator).
+        force_specs: Declarative force model specs.
+        spacecraft: Spacecraft physical model for drag/SRP assembly.
+        attitude: Declarative attitude configuration.
+        orekit_options: Provider-specific Orekit/native options passthrough.
     """
 
     kind: PropagatorKind | str
@@ -113,5 +142,12 @@ class PropagatorSpec:
                 )
 
     def with_spacecraft(self, spacecraft: SpacecraftSpec) -> PropagatorSpec:
-        """Return a copy of this spec with the given spacecraft attached."""
+        """Return a copy of the spec with a spacecraft model attached.
+
+        Args:
+            spacecraft: Spacecraft physical model specification.
+
+        Returns:
+            New ``PropagatorSpec`` with ``spacecraft`` replaced.
+        """
         return replace(self, spacecraft=spacecraft)

@@ -19,7 +19,25 @@ class SpacecraftSpec:
     ``drag_area``, ``drag_coeff``, ``srp_area``, ``srp_coeff``.
 
     When ``use_box_wing=True``, the box-and-solar-array geometry is used
-    instead.  The isotropic parameters are ignored in that case.
+    instead. The isotropic parameters are ignored in that case.
+
+    Attributes:
+        mass: Spacecraft mass in kg.
+        drag_area: Isotropic drag area (m^2).
+        drag_coeff: Isotropic drag coefficient.
+        srp_area: Isotropic SRP area (m^2).
+        srp_coeff: Isotropic SRP reflection coefficient.
+        use_box_wing: Enable box-and-solar-array geometry model.
+        x_length: Box dimension along X (m).
+        y_length: Box dimension along Y (m).
+        z_length: Box dimension along Z (m).
+        solar_array_area: Solar array area (m^2).
+        solar_array_axis: Solar array rotation axis (normalized in
+            ``__post_init__`` when non-zero).
+        box_drag_coeff: Box drag coefficient.
+        box_lift_coeff: Box lift coefficient.
+        box_abs_coeff: Box absorptivity coefficient.
+        box_ref_coeff: Box reflectivity coefficient.
     """
 
     mass: float = 1000.0

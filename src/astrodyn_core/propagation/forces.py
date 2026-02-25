@@ -49,7 +49,12 @@ SUPPORTED_SOLAR_ACTIVITY_STRENGTHS = frozenset({"weak", "average", "strong"})
 class GravitySpec:
     """Earth gravity field model.
 
-    Set degree=order=0 for a simple point-mass (Keplerian) model.
+    Set ``degree=order=0`` for a simple point-mass (Keplerian) model.
+
+    Attributes:
+        degree: Spherical harmonics degree.
+        order: Spherical harmonics order.
+        normalized: Whether to request a normalized gravity provider.
     """
 
     degree: int = 0
@@ -72,11 +77,21 @@ class GravitySpec:
 class DragSpec:
     """Atmospheric drag force model.
 
-    Parameters for SimpleExponential atmosphere (ref_rho, ref_alt, scale_height)
-    are only required when ``atmosphere_model="simpleexponential"``.
+    Parameters for ``SimpleExponential`` atmosphere (``ref_rho``, ``ref_alt``,
+    ``scale_height``) are only required when
+    ``atmosphere_model="simpleexponential"``.
 
     ``space_weather_source`` and ``solar_activity_strength`` apply to models
     that consume space-weather data (NRLMSISE00, DTM2000, JB2008).
+
+    Attributes:
+        atmosphere_model: Atmosphere model identifier.
+        space_weather_source: Space-weather provider source (``cssi``/``msafe``).
+        solar_activity_strength: Strength profile for ``msafe`` forecasts.
+        space_weather_data: Reserved/custom data source selector.
+        ref_rho: Reference density for ``simpleexponential``.
+        ref_alt: Reference altitude (m) for ``simpleexponential``.
+        scale_height: Scale height (m) for ``simpleexponential``.
     """
 
     atmosphere_model: str = "nrlmsise00"
@@ -134,7 +149,13 @@ class DragSpec:
 # ---------------------------------------------------------------------------
 @dataclass(frozen=True, slots=True)
 class SRPSpec:
-    """Solar radiation pressure force model."""
+    """Solar radiation pressure force model options.
+
+    Attributes:
+        enable_moon_eclipse: Include lunar occultation in SRP eclipse handling.
+        enable_albedo: Request Earth albedo handling (separate force model in
+            current assembly implementation).
+    """
 
     enable_moon_eclipse: bool = False
     enable_albedo: bool = False
@@ -149,6 +170,9 @@ class ThirdBodySpec:
 
     ``bodies`` is a sequence of lowercase celestial body names.
     Common choices: ``["sun", "moon"]``.
+
+    Attributes:
+        bodies: Celestial body names to include as third-body perturbations.
     """
 
     bodies: tuple[str, ...] = ("sun", "moon")
@@ -184,7 +208,12 @@ class SolidTidesSpec:
 
 @dataclass(frozen=True, slots=True)
 class OceanTidesSpec:
-    """Ocean tides perturbation."""
+    """Ocean tides perturbation options.
+
+    Attributes:
+        degree: Ocean tides degree.
+        order: Ocean tides order.
+    """
 
     degree: int = 5
     order: int = 5
@@ -208,3 +237,4 @@ ForceSpec = Union[
     SolidTidesSpec,
     OceanTidesSpec,
 ]
+"""Union of supported declarative force specification dataclasses."""

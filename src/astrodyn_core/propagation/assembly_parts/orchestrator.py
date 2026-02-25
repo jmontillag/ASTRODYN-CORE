@@ -55,22 +55,15 @@ def assemble_force_models(
 ) -> list[Any]:
     """Translate a sequence of ``ForceSpec`` objects into Orekit force models.
 
-    Parameters
-    ----------
-    force_specs:
-        Declarative force specifications.
-    spacecraft:
-        Physical spacecraft model (needed for drag / SRP shapes).
-    initial_orbit:
-        Orekit ``Orbit`` used to derive mu, frame, etc.
-    mu:
-        Gravitational parameter override.  If *None*, taken from
-        ``initial_orbit.getMu()``.
+    Args:
+        force_specs: Declarative force specifications.
+        spacecraft: Physical spacecraft model (needed for drag / SRP shapes).
+        initial_orbit: Orekit orbit used to derive ``mu`` when not provided.
+        mu: Optional gravitational parameter override.
+        universe: Optional universe config used by Earth/mu/IERS resolvers.
 
-    Returns
-    -------
-    list
-        Orekit ``ForceModel`` instances ready to be added to a builder.
+    Returns:
+        Orekit ``ForceModel`` instances ready to add to a builder.
     """
     if mu is None:
         if universe is None:
@@ -123,6 +116,14 @@ def assemble_attitude_provider(
 
     Returns *None* if no attitude law can be resolved (should not happen
     if validation passed, but kept defensive).
+
+    Args:
+        attitude: Declarative attitude specification.
+        initial_orbit: Orekit initial orbit used to resolve frames.
+        universe: Optional universe config (used for nadir pointing Earth shape).
+
+    Returns:
+        Orekit ``AttitudeProvider`` or ``None`` if no mode could be resolved.
     """
     # Pass-through escape hatch
     if attitude.provider is not None:
@@ -165,7 +166,17 @@ def _get_earth_shape(universe: Mapping[str, Any] | None = None) -> Any:
 
 
 def get_celestial_body(name: str) -> Any:
-    """Resolve a celestial body name to an Orekit CelestialBody."""
+    """Resolve a celestial body name to an Orekit ``CelestialBody``.
+
+    Args:
+        name: Lowercase body name (for example ``"sun"`` or ``"moon"``).
+
+    Returns:
+        Orekit celestial body instance.
+
+    Raises:
+        ValueError: If no mapping exists for ``name``.
+    """
     from org.orekit.bodies import CelestialBodyFactory
 
     _BODY_MAP = {
@@ -248,7 +259,15 @@ def _build_drag(
 
 
 def build_spacecraft_drag_shape(sc: SpacecraftSpec) -> Any | None:
-    """Build a box-wing shape if configured, otherwise return None (isotropic)."""
+    """Build a box-wing drag/SRP shape when configured.
+
+    Args:
+        sc: Spacecraft physical model.
+
+    Returns:
+        Orekit box-and-solar-array shape, or ``None`` to indicate isotropic
+        drag/SRP models should be used.
+    """
     if not sc.use_box_wing:
         return None
 
@@ -276,7 +295,16 @@ def build_spacecraft_drag_shape(sc: SpacecraftSpec) -> Any | None:
 
 
 def build_atmosphere(spec: DragSpec, universe: Mapping[str, Any] | None = None) -> Any | None:
-    """Create the Orekit atmosphere model from a DragSpec."""
+    """Create an Orekit atmosphere model from ``DragSpec``.
+
+    Args:
+        spec: Drag force model specification.
+        universe: Optional universe config used for Earth shape/IERS settings.
+
+    Returns:
+        Orekit atmosphere model instance, or ``None`` if the drag model is not
+        resolvable.
+    """
     model = spec.atmosphere_model
     earth_shape = _get_earth_shape(universe)
     sun = _get_sun()
@@ -305,7 +333,7 @@ def build_atmosphere(spec: DragSpec, universe: Mapping[str, Any] | None = None) 
 
 
 def _get_space_weather_provider(spec: DragSpec) -> Any:
-    """Resolve space-weather data provider for atmosphere models."""
+    """Resolve a space-weather data provider for weather-driven atmospheres."""
     from org.orekit.data import DataContext
     from org.orekit.models.earth.atmosphere.data import (
         CssiSpaceWeatherData,
@@ -356,7 +384,7 @@ def _get_space_weather_provider(spec: DragSpec) -> Any:
 
 
 def _build_weather_atmosphere(model: str, atmos_params: Any, sun: Any, earth_shape: Any) -> Any:
-    """Instantiate NRLMSISE00, DTM2000, or JB2008 atmosphere."""
+    """Instantiate a weather-driven atmosphere model by identifier."""
     if model == "nrlmsise00":
         from org.orekit.models.earth.atmosphere import NRLMSISE00
 

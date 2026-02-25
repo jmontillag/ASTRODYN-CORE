@@ -37,23 +37,19 @@ def solve_kep_gen(
 
     Finds *K* such that ``Lr - K - p1*cos(K) + p2*sin(K) = 0``.
 
-    Parameters
-    ----------
-    Lr : array
-        True longitude values.
-    p1, p2 : array
-        Eccentricity-like parameters.
-    k_initial : array, optional
-        Initial guess for *K*.  Defaults to *Lr*.
-    tol : float
-        Convergence tolerance.
-    max_iter : int
-        Maximum Newton-Raphson iterations.
+    Args:
+        Lr: True longitude values.
+        p1: Eccentricity-like parameter.
+        p2: Eccentricity-like parameter.
+        k_initial: Optional initial guess for ``K``. Defaults to ``Lr``.
+        tol: Convergence tolerance.
+        max_iter: Maximum Newton-Raphson iterations.
 
-    Returns
-    -------
-    K : array
-        Solved eccentric longitude values.
+    Returns:
+        Solved eccentric longitude values ``K``.
+
+    Raises:
+        RuntimeError: If Newton-Raphson fails to converge.
     """
     K = Lr.copy() if k_initial is None else k_initial.copy()
 

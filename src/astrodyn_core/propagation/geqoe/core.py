@@ -1,3 +1,12 @@
+"""Core GEqOE Taylor-series propagation API (staged J2 backend).
+
+This module provides both:
+
+- one-shot propagation helpers (`j2_taylor_propagator`, `taylor_cart_propagator`)
+- two-stage APIs that precompute dt-independent Taylor coefficients and then
+  evaluate them cheaply on arbitrary time grids
+"""
+
 from typing import Tuple, Union
 
 import numpy as np
@@ -17,6 +26,17 @@ from astrodyn_core.propagation.geqoe.taylor_order_4 import compute_coefficients_
 
 
 def _validate_order(order: int) -> int:
+    """Validate and normalize Taylor expansion order.
+
+    Args:
+        order: Requested Taylor order.
+
+    Returns:
+        Integer order in ``[1, 4]``.
+
+    Raises:
+        ValueError: If the order is outside ``[1, 4]``.
+    """
     order_int = int(order)
     if order_int < 1 or order_int > 4:
         raise ValueError("Taylor order must be an integer in the range [1, 4].")
@@ -29,6 +49,17 @@ def build_context(
     p: Union[BodyConstants, tuple, list],
     order: int,
 ) -> GEqOEPropagationContext:
+    """Build a normalized GEqOE propagation context for staged execution.
+
+    Args:
+        dt: Propagation time offset(s) in seconds.
+        y0: Initial GEqOE state vector ``[nu, q1, q2, p1, p2, Lr]``.
+        p: Body constants as ``BodyConstants`` or ``(j2, re, mu)`` tuple/list.
+        order: Taylor expansion order (1-4).
+
+    Returns:
+        Populated propagation context with normalized time/state scales.
+    """
     order = _validate_order(order)
     if isinstance(p, BodyConstants):
         j2, re, mu = p.j2, p.re, p.mu
@@ -60,6 +91,18 @@ def build_context(
 def _run_staged_j2(
     context: GEqOEPropagationContext,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Execute the staged GEqOE backend and assemble the GEqOE-level STM.
+
+    Args:
+        context: Propagation context prepared by :func:`build_context`.
+
+    Returns:
+        Tuple ``(y_prop, y_y0, map_components)`` containing propagated GEqOE
+        states, GEqOE-to-GEqOE STMs, and Taylor coefficient map components.
+
+    Raises:
+        RuntimeError: If the staged backend did not populate expected outputs.
+    """
     staged_dispatch = {
         1: compute_order_1,
         2: compute_order_2,
@@ -147,21 +190,17 @@ def prepare_taylor_coefficients(
     different time grids.  This avoids repeating the expensive coefficient
     computation (~95 % of the work) for each evaluation.
 
-    Parameters
-    ----------
-    y0:
-        Initial GEqOE state vector ``[nu, q1, q2, p1, p2, Lr]`` (6-element).
-    p:
-        Body constants -- either a :class:`~.conversion.BodyConstants` instance
-        or a ``(j2, re, mu)`` tuple.
-    order:
-        Taylor expansion order (1-4).
+    Args:
+        y0: Initial GEqOE state vector ``[nu, q1, q2, p1, p2, Lr]``.
+        p: Body constants as ``BodyConstants`` or ``(j2, re, mu)``.
+        order: Taylor expansion order (1-4).
 
-    Returns
-    -------
-    GEqOETaylorCoefficients
-        Frozen container with the precomputed coefficients and metadata needed
-        by :func:`evaluate_taylor`.
+    Returns:
+        Frozen coefficient container consumed by :func:`evaluate_taylor`.
+
+    Raises:
+        RuntimeError: If the staged coefficient backend did not populate
+            required outputs.
     """
     order = _validate_order(order)
 
@@ -230,21 +269,14 @@ def evaluate_taylor(
     :func:`prepare_taylor_coefficients`, this function performs only the cheap
     polynomial evaluation step (O(M)) for an arbitrary time grid ``dt``.
 
-    Parameters
-    ----------
-    coeffs:
-        Precomputed coefficient set from :func:`prepare_taylor_coefficients`.
-    dt:
-        Time offset(s) from the epoch in seconds.  May be a scalar or 1-D array.
+    Args:
+        coeffs: Precomputed coefficients from :func:`prepare_taylor_coefficients`.
+        dt: Time offset(s) from the epoch in seconds.
 
-    Returns
-    -------
-    y_prop : ndarray, shape (M, 6)
-        Propagated GEqOE state(s).
-    y_y0 : ndarray, shape (6, 6, M)
-        GEqOE-to-GEqOE State Transition Matrix for each time point.
-    map_components : ndarray, shape (6, order)
-        Taylor coefficient matrix (same as in coeffs, returned for API parity).
+    Returns:
+        Tuple ``(y_prop, y_y0, map_components)`` where ``y_prop`` are GEqOE
+        states, ``y_y0`` are GEqOE STMs, and ``map_components`` is the Taylor
+        coefficient matrix.
     """
     dt_arr = np.atleast_1d(np.asarray(dt, dtype=float))
     M = len(dt_arr)
@@ -303,24 +335,17 @@ def prepare_cart_coefficients(
     Use this together with :func:`evaluate_cart_taylor` when the same initial
     Cartesian state will be propagated to many different time grids.
 
-    Parameters
-    ----------
-    y0_cart:
-        Initial Cartesian state ``[rx, ry, rz, vx, vy, vz]`` (SI units).
-    p:
-        Body constants — either a :class:`~.conversion.BodyConstants` instance
-        or a ``(j2, re, mu)`` tuple.
-    order:
-        Taylor expansion order (1-4).
+    Args:
+        y0_cart: Initial Cartesian state ``[rx, ry, rz, vx, vy, vz]`` in SI.
+        p: Body constants as ``BodyConstants`` or ``(j2, re, mu)``.
+        order: Taylor expansion order (1-4).
 
-    Returns
-    -------
-    coeffs : GEqOETaylorCoefficients
-        Precomputed Taylor coefficients (dt-independent GEqOE-space quantities).
-    peq_py_0 : ndarray, shape (6, 6)
-        Jacobian ``d(GEqOE)/d(Cartesian)`` evaluated at the epoch.  This is
-        dt-independent and is cached by the caller for use in each Cartesian
-        STM composition step.
+    Returns:
+        Tuple ``(coeffs, peq_py_0)`` containing GEqOE Taylor coefficients and
+        the epoch Jacobian ``d(GEqOE)/d(Cartesian)``.
+
+    Raises:
+        ValueError: If ``y0_cart`` is not a 6-element state vector.
     """
     y0_flat = np.asarray(y0_cart, dtype=float).flatten()
     if y0_flat.shape != (6,):
@@ -349,21 +374,13 @@ def evaluate_cart_taylor(
     applies the ``geqoe2rv`` conversion and composes the full Cartesian
     State Transition Matrix using the cached epoch Jacobian ``peq_py_0``.
 
-    Parameters
-    ----------
-    coeffs:
-        Precomputed coefficient set from :func:`prepare_cart_coefficients`.
-    peq_py_0:
-        Cached ``d(GEqOE)/d(Cartesian)`` Jacobian at the epoch (6×6).
-    tspan:
-        Time offset(s) from the epoch in seconds.
+    Args:
+        coeffs: Precomputed coefficients from :func:`prepare_cart_coefficients`.
+        peq_py_0: Cached epoch Jacobian ``d(GEqOE)/d(Cartesian)`` (6x6).
+        tspan: Time offset(s) from the epoch in seconds.
 
-    Returns
-    -------
-    y_out : ndarray, shape (M, 6)
-        Cartesian states ``[rx, ry, rz, vx, vy, vz]`` at each time point.
-    dy_dy0 : ndarray, shape (6, 6, M)
-        Full Cartesian-to-Cartesian State Transition Matrix at each time point.
+    Returns:
+        Tuple ``(y_out, dy_dy0)`` with Cartesian states and Cartesian STMs.
     """
     tspan = np.atleast_1d(np.asarray(tspan, dtype=float))
     p = coeffs.body_params
@@ -388,6 +405,17 @@ def j2_taylor_propagator(
     p: Union[BodyConstants, tuple, list],
     order: int = 4,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """One-shot GEqOE-space J2 Taylor propagation.
+
+    Args:
+        dt: Time offset(s) from epoch in seconds.
+        y0: Initial GEqOE state vector ``(6,)``.
+        p: Body constants as ``BodyConstants`` or ``(j2, re, mu)``.
+        order: Taylor expansion order (1-4).
+
+    Returns:
+        Tuple ``(y_prop, y_y0, map_components)`` in GEqOE coordinates.
+    """
     context = build_context(dt=dt, y0=y0, p=p, order=order)
     return _run_staged_j2(context)
 
@@ -398,6 +426,21 @@ def taylor_cart_propagator(
     p: Union[BodyConstants, Tuple[float, float, float]],
     order: int = 4,
 ) -> Tuple[np.ndarray, np.ndarray]:
+    """One-shot Cartesian J2 Taylor propagation with Cartesian STM output.
+
+    Args:
+        tspan: Time offset(s) from epoch in seconds.
+        y0: Initial Cartesian state vector ``[rx, ry, rz, vx, vy, vz]``.
+        p: Body constants as ``BodyConstants`` or ``(j2, re, mu)``.
+        order: Taylor expansion order (1-4).
+
+    Returns:
+        Tuple ``(y_out, dy_dy0)`` with Cartesian states ``(N, 6)`` and STMs
+        ``(6, 6, N)``.
+
+    Raises:
+        ValueError: If ``y0`` is not a 6-element vector.
+    """
     y0_flat = np.asarray(y0, dtype=float).flatten()
     if y0_flat.shape != (6,):
         raise ValueError("y0 must be a 6-element state vector [rx, ry, rz, vx, vy, vz].")

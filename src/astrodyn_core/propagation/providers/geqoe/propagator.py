@@ -33,14 +33,12 @@ from astrodyn_core.propagation.geqoe.state import GEqOETaylorCoefficients
 def _orekit_state_to_cartesian(state: Any) -> tuple[np.ndarray, Any, Any, float, float]:
     """Extract Cartesian position/velocity from an Orekit SpacecraftState.
 
-    Returns
-    -------
-    y0 : ndarray, shape (6,)
-        ``[rx, ry, rz, vx, vy, vz]`` in metres / metres-per-second.
-    frame : Orekit Frame
-    date : Orekit AbsoluteDate
-    mu : float  (m^3/s^2)
-    mass : float (kg)
+    Args:
+        state: Orekit ``SpacecraftState``.
+
+    Returns:
+        Tuple ``(y0, frame, date, mu, mass)`` where ``y0`` is a Cartesian
+        ``[rx, ry, rz, vx, vy, vz]`` vector in SI units.
     """
     orbit = state.getOrbit()
     frame = orbit.getFrame()
@@ -132,7 +130,12 @@ def _check_mu_consistency(orbit_mu: float, body_mu: float) -> None:
 
 @dataclass
 class _NativeResult:
-    """Container for backend-specific GEqOE propagation output."""
+    """Container for backend-specific GEqOE propagation output.
+
+    Attributes:
+        geqoe_cartesian: Cartesian propagated state vector ``(6,)`` in SI units.
+        stm: Cartesian state transition matrix ``(6, 6)``.
+    """
 
     geqoe_cartesian: np.ndarray  # (6,) Cartesian at target epoch
     stm: np.ndarray  # (6, 6) state transition matrix
@@ -232,9 +235,16 @@ class GEqOEPropagator:
         """Propagate from *start* to *target* and return a ``SpacecraftState``.
 
         Follows the Orekit ``AbstractPropagator.propagate(start, target)``
-        two-argument convention.  When called with a single argument, that
+        two-argument convention. When called with a single argument, that
         argument is treated as the target date and the initial epoch is used
         as the start date.
+
+        Args:
+            start: Start date or target date in single-argument form.
+            target: Optional target date.
+
+        Returns:
+            Orekit ``SpacecraftState`` at the target epoch.
         """
         if target is None:
             # Single-argument form: propagate(target_date)
@@ -280,6 +290,10 @@ class GEqOEPropagator:
         simulation workflows that apply impulsive maneuvers or estimator
         iterations.  The Taylor coefficients are recomputed once from the
         new state so that subsequent ``propagate()`` calls remain fast.
+
+        Args:
+            state: New Orekit ``SpacecraftState`` used as the propagation epoch
+                and initial condition.
         """
         self._y0, self._frame, self._epoch, self._mu, self._mass_kg = (
             _orekit_state_to_cartesian(state)
@@ -303,17 +317,12 @@ class GEqOEPropagator:
     def get_native_state(self, target_date: Any) -> tuple[np.ndarray, np.ndarray]:
         """Propagate and return raw numpy Cartesian state + STM.
 
-        Parameters
-        ----------
-        target_date : Orekit AbsoluteDate
-            Target epoch.
+        Args:
+            target_date: Orekit ``AbsoluteDate`` target epoch.
 
-        Returns
-        -------
-        y : ndarray, shape (6,)
-            Cartesian state ``[rx, ry, rz, vx, vy, vz]`` (SI).
-        stm : ndarray, shape (6, 6)
-            State transition matrix mapping initial → final state.
+        Returns:
+            Tuple ``(y, stm)`` where ``y`` is Cartesian ``(6,)`` and ``stm`` is
+            the Cartesian state transition matrix ``(6, 6)``.
         """
         # Propagate (populates self._last_native as a side-effect)
         self.propagate(target_date)
@@ -326,17 +335,12 @@ class GEqOEPropagator:
     ) -> tuple[np.ndarray, np.ndarray]:
         """Batch propagation returning raw numpy arrays (no Orekit objects).
 
-        Parameters
-        ----------
-        dt_seconds : ndarray, shape (N,)
-            Time offsets from the initial epoch in seconds.
+        Args:
+            dt_seconds: Time offsets from the initial epoch in seconds.
 
-        Returns
-        -------
-        y_out : ndarray, shape (N, 6)
-            Cartesian states at each time step.
-        stm : ndarray, shape (6, 6, N)
-            State transition matrices at each time step.
+        Returns:
+            Tuple ``(y_out, stm)`` with Cartesian states ``(N, 6)`` and STMs
+            ``(6, 6, N)``.
         """
         if self._coeffs is None or self._peq_py_0 is None:
             raise RuntimeError(
@@ -352,10 +356,12 @@ class GEqOEPropagator:
 
     @property
     def order(self) -> int:
+        """Return the configured Taylor expansion order."""
         return self._order
 
     @property
     def body_constants(self) -> dict[str, float]:
+        """Return a copy of the body constants used by the backend."""
         return dict(self._body_constants)
 
 
@@ -372,12 +378,22 @@ def make_orekit_geqoe_propagator(
 ) -> Any:
     """Create a ``GEqOEPropagator`` that is also an Orekit ``AbstractPropagator``.
 
-    When Orekit is available, this returns an instance of a dynamically
-    created class that inherits from both ``GEqOEPropagator`` and
-    ``AbstractPropagator``, giving full Java-side interoperability.
+    When Orekit is available, this returns an instance of a dynamically created
+    class that inherits from ``AbstractPropagator`` and delegates to
+    ``GEqOEPropagator``.
 
     When Orekit is **not** available, this falls back to a plain
     ``GEqOEPropagator`` instance.
+
+    Args:
+        initial_orbit: Orekit initial orbit.
+        body_constants: Optional body constants mapping (``mu``, ``j2``, ``re``).
+        order: Taylor expansion order (1-4).
+        mass_kg: Spacecraft mass in kg.
+
+    Returns:
+        Orekit-compatible GEqOE propagator wrapper when possible, otherwise a
+        pure-Python ``GEqOEPropagator``.
     """
     try:
         from org.orekit.propagation import AbstractPropagator as _AP  # noqa: F401

@@ -59,24 +59,16 @@ def assemble_dsst_force_models(
 ) -> list[Any]:
     """Translate ``ForceSpec`` objects into Orekit DSST force models.
 
-    Parameters
-    ----------
-    force_specs:
-        Declarative force specifications (same types as numerical).
-    spacecraft:
-        Physical spacecraft model (needed for drag / SRP shapes).
-    initial_orbit:
-        Orekit ``Orbit`` — used to derive mu if not provided.
-    mu:
-        Gravitational parameter override.  If *None*, taken from
-        ``initial_orbit.getMu()`` or the universe config.
-    universe:
-        Optional universe configuration dict.
+    Args:
+        force_specs: Declarative force specifications (same types as numerical).
+        spacecraft: Physical spacecraft model (needed for drag / SRP shapes).
+        initial_orbit: Orekit orbit used to derive ``mu`` when not provided.
+        mu: Optional gravitational parameter override.
+        universe: Optional universe configuration mapping.
 
-    Returns
-    -------
-    list
-        Orekit ``DSSTForceModel`` instances ready for ``DSSTPropagatorBuilder.addForceModel()``.
+    Returns:
+        Orekit ``DSSTForceModel`` instances ready for
+        ``DSSTPropagatorBuilder.addForceModel()``.
     """
     if mu is None:
         if universe is None:

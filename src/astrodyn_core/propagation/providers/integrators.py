@@ -6,7 +6,19 @@ from astrodyn_core.propagation.specs import IntegratorSpec
 
 
 def create_orekit_integrator_builder(spec: IntegratorSpec):
-    """Create an Orekit ODEIntegratorBuilder from an IntegratorSpec."""
+    """Create an Orekit ``ODEIntegratorBuilder`` from ``IntegratorSpec``.
+
+    Args:
+        spec: Declarative integrator configuration.
+
+    Returns:
+        Orekit integrator builder instance matching ``spec.kind``.
+
+    Raises:
+        RuntimeError: If Orekit classes are unavailable.
+        ValueError: If the integrator kind is unsupported or required fields are
+            missing.
+    """
 
     try:
         from org.orekit.propagation.conversion import (
@@ -67,6 +79,7 @@ def create_orekit_integrator_builder(spec: IntegratorSpec):
 
 
 def _required(value, field_name: str):
+    """Return a required spec field value or raise a clear error."""
     if value is None:
         raise ValueError(f"IntegratorSpec.{field_name} is required for this integrator kind.")
     return value

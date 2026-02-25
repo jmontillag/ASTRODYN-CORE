@@ -36,6 +36,13 @@ class GEqOEProvider:
 
         Requires Orekit to be initialised (for ``AbstractPropagator`` base
         class and ``SpacecraftState`` conversion).
+
+        Args:
+            spec: Propagator spec (reads ``orekit_options['taylor_order']``).
+            context: Build context providing initial orbit and body constants.
+
+        Returns:
+            GEqOE propagator instance compatible with the provider pipeline.
         """
         from astrodyn_core.propagation.providers.geqoe.propagator import (
             make_orekit_geqoe_propagator,

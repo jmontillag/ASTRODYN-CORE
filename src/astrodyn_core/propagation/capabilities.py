@@ -9,30 +9,17 @@ from dataclasses import dataclass
 class CapabilityDescriptor:
     """Describes what a provider supports.
 
-    Attributes
-    ----------
-    supports_builder:
-        Provider implements ``build_builder()`` returning a propagator builder.
-    supports_propagator:
-        Provider implements ``build_propagator()`` returning a propagator.
-    supports_stm:
-        Propagator supports State Transition Matrix extraction.
-    supports_field_state:
-        Propagator supports Taylor-algebra / Field-based state propagation.
-    supports_multi_satellite:
-        Provider supports simultaneous multi-satellite propagation.
-    supports_bounded_output:
-        Propagator output is bounded to a fixed time interval.
-        ``True`` for ephemeris-based propagators, ``False`` for unbounded or
-        not applicable (default).
-    is_analytical:
-        Propagator is a custom/analytical implementation (not Orekit-native
-        numerical).  Analytical providers typically use ``body_constants``
-        from :class:`BuildContext` instead of Orekit force model objects.
-    supports_custom_output:
-        Propagator can expose backend-specific output (e.g. raw numpy
-        arrays, internal element states) alongside standard Orekit-compatible
-        ``SpacecraftState`` results.
+    Attributes:
+        supports_builder: Provider implements ``build_builder()``.
+        supports_propagator: Provider implements ``build_propagator()``.
+        supports_stm: Propagator supports State Transition Matrix extraction.
+        supports_field_state: Propagator supports field/Taylor state propagation.
+        supports_multi_satellite: Provider supports multi-satellite propagation.
+        supports_bounded_output: Output is bounded to a fixed time interval.
+        is_analytical: Custom/analytical implementation (not Orekit-native
+            numerical).
+        supports_custom_output: Provider can expose backend-specific output in
+            addition to standard Orekit-compatible states.
     """
 
     supports_builder: bool = True
