@@ -1,10 +1,9 @@
-# Architecture Hardening Plan (Pre-release + Finalization)
+# Architecture Hardening Plan (Completed for v1.0)
 
 Last updated: 2026-02-25
 
-This document defines the structural hardening plan for `src/astrodyn_core` so
-the repository can be released now with low migration risk, while converging to
-a strict long-term package architecture.
+This document records the structural hardening work for `src/astrodyn_core`
+through the final architecture selected for v1.0.
 
 ## 0) Current progress snapshot (2026-02-25)
 
@@ -15,20 +14,18 @@ Completed in code:
   - `src/astrodyn_core/orekit_env/frames.py`
   - `src/astrodyn_core/orekit_env/earth.py`
   - `src/astrodyn_core/orekit_env/__init__.py`
-- Converted to compatibility shims:
-  - `src/astrodyn_core/propagation/universe.py`
-  - `src/astrodyn_core/propagation/assembly.py`
-  - `src/astrodyn_core/propagation/dsst_assembly.py`
 - Introduced canonical assembly module paths used internally:
   - `src/astrodyn_core/propagation/assembly_parts/`
   - `src/astrodyn_core/propagation/dsst_parts/`
-- Added transition tests:
-  - `tests/test_universe_shim_compat.py`
-  - `tests/test_assembly_shim_compat.py`
+- Implemented compatibility transition (Phase A + B) to migrate imports safely
+- Finalized architecture for v1.0 (Phase C):
+  - Removed compatibility shim modules
+  - Removed shim compatibility tests
+  - Tightened hygiene tests to reject shim imports and assert shim files stay removed
 
 Immediate next milestone:
 
-- Phase B (deprecation enforcement + canonical import hygiene).
+- Release packaging/docs/tagging (architecture migration is complete).
 
 ## 1) Scope and goals
 
@@ -45,9 +42,9 @@ Current architectural strengths:
 - Registry/factory/provider separation for propagation.
 - Good coverage of API hygiene and provider behavior in tests.
 
-Main structural concerns to address:
+Main structural concerns addressed in this plan:
 
-- Shared Orekit environment concerns currently live under
+- Shared Orekit environment concerns historically lived under
   `propagation/universe.py` but are used outside propagation.
 - `propagation/assembly.py` and `propagation/dsst_assembly.py` aggregate many
   responsibilities, which increases maintenance cost.
@@ -126,13 +123,13 @@ Release policy in this phase:
 - No example breakage.
 - Prefer additive changes + deprecation warnings where needed.
 
-### Phase B (next minor): deprecation enforcement
+### Phase B (transition phase): deprecation enforcement
 
 1. Emit `DeprecationWarning` on shim module imports.
 2. Add tests that fail on new internal usage of shim paths.
 3. Update docs/examples to canonical imports only.
 
-Execution checklist (next steps):
+Execution checklist (historical):
 
 1. Add `DeprecationWarning` in:
   - `propagation/universe.py`
@@ -144,9 +141,20 @@ Execution checklist (next steps):
   but avoid direct imports from shim modules.
 4. Add docs migration table: old path -> canonical path.
 5. Run transition test gate in project env:
-  - `conda run -n astrodyn-core-env pytest -q -rs tests/test_universe_config.py tests/test_universe_shim_compat.py tests/test_assembly_shim_compat.py tests/test_dsst_assembly.py tests/test_registry_factory.py tests/test_api_boundary_hygiene.py`
+  - `conda run -n astrodyn-core-env pytest -q -rs tests/test_universe_config.py tests/test_dsst_assembly.py tests/test_registry_factory.py tests/test_api_boundary_hygiene.py`
 
-### Phase C (next major): finalization
+### Phase B migration table (for docs/release notes)
+
+Use these canonical imports for all code. The deprecated paths listed below were
+available only during the transition window and have now been removed in v1.0.
+
+| Deprecated path | Canonical path | Notes |
+|---|---|---|
+| `astrodyn_core.propagation.universe` | `astrodyn_core.orekit_env` | Shared universe/frame/earth config helpers |
+| `astrodyn_core.propagation.assembly` | `astrodyn_core.propagation.assembly_parts` | Force/attitude assembly helpers |
+| `astrodyn_core.propagation.dsst_assembly` | `astrodyn_core.propagation.dsst_parts` | DSST force assembly helpers |
+
+### Phase C (executed for v1.0): finalization
 
 1. Remove compatibility shims:
    - `propagation/universe.py`
@@ -155,7 +163,9 @@ Execution checklist (next steps):
 2. Keep only canonical package paths.
 3. Tighten boundary-hygiene tests to reject shim imports entirely.
 
-Execution checklist (major release prep):
+Status: **Completed for v1.0** (2026-02-25).
+
+Execution checklist (completed):
 
 1. Remove shim files and update all references to canonical modules.
 2. If naming cleanup is accepted, fold `assembly_parts`/`dsst_parts` into
@@ -166,16 +176,14 @@ Execution checklist (major release prep):
 
 ## 4) Risk controls
 
-- Keep function/symbol names stable through shims during Phase A.
-- Migrate internal imports first, then examples/docs, then enforce warnings.
+- Migrate internal imports first, then examples/docs, then remove shims.
 - Execute targeted test batches before full suite:
   - `tests/test_universe_config.py`
   - `tests/test_dsst_assembly.py`
   - `tests/test_registry_factory.py`
   - `tests/test_api_boundary_hygiene.py`
-- Add shim compatibility tests during transition:
-  - `tests/test_universe_shim_compat.py`
-  - `tests/test_assembly_shim_compat.py`
+- During the transition window, shim compatibility tests were used and then removed
+  after finalization.
 
 ## 5) Ownership boundaries (steady state)
 
@@ -194,10 +202,12 @@ The architecture is considered fully formalized when all are true:
 3. Boundary hygiene tests include and enforce final path policy.
 4. Shims removed in major release with migration notes published.
 
+Status: **Met for v1.0** (shim modules removed early before public adoption).
+
 ## 7) Recommended next action now
 
-Implement Phase B.1 and B.2 in one PR:
+Prepare release artifacts/documentation:
 
-1. Add deprecation warnings to shim modules.
-2. Enforce internal no-shim-import policy in hygiene tests.
-3. Keep compatibility tests until major release.
+1. Publish release notes including the canonical import paths (migration table above).
+2. Tag and release v1.0.
+3. Optionally add CI to re-run `conda run -n astrodyn-core-env pytest -q` on pushes/PRs.

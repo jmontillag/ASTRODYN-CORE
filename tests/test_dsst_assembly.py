@@ -1,4 +1,4 @@
-"""Tests for DSST force model assembly (dsst_assembly module).
+"""Tests for DSST force model assembly.
 
 Covers both pure-Python unit tests (no JVM) and Orekit integration tests.
 """
@@ -32,7 +32,7 @@ def test_assemble_dsst_force_models_importable_from_package() -> None:
 
 def test_unsupported_specs_emit_warnings() -> None:
     """RelativitySpec, SolidTidesSpec, OceanTidesSpec should warn and be skipped."""
-    from astrodyn_core.propagation.dsst_assembly import assemble_dsst_force_models
+    from astrodyn_core.propagation.dsst_parts import assemble_dsst_force_models
 
     unsupported = [RelativitySpec(), SolidTidesSpec(), OceanTidesSpec()]
     sc = SpacecraftSpec()
@@ -54,7 +54,7 @@ def test_unsupported_specs_emit_warnings() -> None:
 
 def test_unknown_spec_type_raises_type_error() -> None:
     """A completely unknown spec type should raise TypeError."""
-    from astrodyn_core.propagation.dsst_assembly import assemble_dsst_force_models
+    from astrodyn_core.propagation.dsst_parts import assemble_dsst_force_models
 
     class _BogusSpec:
         pass
@@ -69,7 +69,7 @@ def test_unknown_spec_type_raises_type_error() -> None:
 
 def test_point_mass_gravity_returns_empty() -> None:
     """GravitySpec(degree=0, order=0) should produce an empty list (point mass)."""
-    from astrodyn_core.propagation.dsst_assembly import assemble_dsst_force_models
+    from astrodyn_core.propagation.dsst_parts import assemble_dsst_force_models
 
     class _FakeOrbit:
         def getMu(self):
@@ -119,7 +119,7 @@ def _make_leo_orbit():
 
 def test_gravity_spec_produces_dsst_zonal_and_tesseral() -> None:
     """GravitySpec with degree>0 and order>0 should produce DSSTZonal + DSSTTesseral."""
-    from astrodyn_core.propagation.dsst_assembly import assemble_dsst_force_models
+    from astrodyn_core.propagation.dsst_parts import assemble_dsst_force_models
     from org.orekit.propagation.semianalytical.dsst.forces import DSSTTesseral, DSSTZonal
 
     orbit = _make_leo_orbit()
@@ -135,7 +135,7 @@ def test_gravity_spec_produces_dsst_zonal_and_tesseral() -> None:
 
 def test_gravity_zonal_only_when_order_zero() -> None:
     """GravitySpec with order=0 (but degree>0) should produce only DSSTZonal."""
-    from astrodyn_core.propagation.dsst_assembly import assemble_dsst_force_models
+    from astrodyn_core.propagation.dsst_parts import assemble_dsst_force_models
     from org.orekit.propagation.semianalytical.dsst.forces import DSSTZonal
 
     orbit = _make_leo_orbit()
@@ -149,7 +149,7 @@ def test_gravity_zonal_only_when_order_zero() -> None:
 
 def test_third_body_produces_dsst_third_body() -> None:
     """ThirdBodySpec should produce DSSTThirdBody instances."""
-    from astrodyn_core.propagation.dsst_assembly import assemble_dsst_force_models
+    from astrodyn_core.propagation.dsst_parts import assemble_dsst_force_models
 
     orbit = _make_leo_orbit()
     result = assemble_dsst_force_models(
@@ -163,7 +163,7 @@ def test_third_body_produces_dsst_third_body() -> None:
 
 def test_drag_spec_produces_dsst_atmospheric_drag() -> None:
     """DragSpec should produce a DSSTAtmosphericDrag instance."""
-    from astrodyn_core.propagation.dsst_assembly import assemble_dsst_force_models
+    from astrodyn_core.propagation.dsst_parts import assemble_dsst_force_models
 
     orbit = _make_leo_orbit()
     result = assemble_dsst_force_models(
@@ -176,7 +176,7 @@ def test_drag_spec_produces_dsst_atmospheric_drag() -> None:
 
 def test_srp_spec_produces_dsst_solar_radiation_pressure() -> None:
     """SRPSpec should produce a DSSTSolarRadiationPressure instance."""
-    from astrodyn_core.propagation.dsst_assembly import assemble_dsst_force_models
+    from astrodyn_core.propagation.dsst_parts import assemble_dsst_force_models
 
     orbit = _make_leo_orbit()
     result = assemble_dsst_force_models(
@@ -189,7 +189,7 @@ def test_srp_spec_produces_dsst_solar_radiation_pressure() -> None:
 
 def test_mixed_specs_correct_count() -> None:
     """Multiple specs combined should produce the expected total count."""
-    from astrodyn_core.propagation.dsst_assembly import assemble_dsst_force_models
+    from astrodyn_core.propagation.dsst_parts import assemble_dsst_force_models
 
     orbit = _make_leo_orbit()
     specs = [

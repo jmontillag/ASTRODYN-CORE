@@ -62,10 +62,10 @@ Environment setup (recommended):
 
 ```bash
 python setup_env.py
-conda activate astrodyn-core-env
+conda run -n astrodyn-core-env python -m pip install -e .[dev]
 ```
 
-Testing environment (important):
+Run code and tests in the project Conda env (`astrodyn-core-env`):
 
 ```bash
 conda run -n astrodyn-core-env pytest -q
@@ -75,6 +75,21 @@ To inspect skipped tests (for example, missing `orekit` in the wrong interpreter
 
 ```bash
 conda run -n astrodyn-core-env pytest -q -rs
+```
+
+Environment policy:
+
+- Use `conda run -n astrodyn-core-env ...` for Python commands, builds, and tests
+- Avoid the system Python for this repo unless intentionally debugging env issues
+- Orekit-backed tests should also run in the same env
+
+Convenience shortcuts (optional):
+
+```bash
+make help
+make install-dev
+make test
+make test-transition
 ```
 
 ```python
@@ -111,10 +126,10 @@ states = app.state
 Run from the project root:
 
 ```bash
-python examples/quickstart.py --mode all
-python examples/scenario_missions.py --mode all
-python examples/uncertainty.py
-python examples/geqoe_propagator.py --mode all
+conda run -n astrodyn-core-env python examples/quickstart.py --mode all
+conda run -n astrodyn-core-env python examples/scenario_missions.py --mode all
+conda run -n astrodyn-core-env python examples/uncertainty.py
+conda run -n astrodyn-core-env python examples/geqoe_propagator.py --mode all
 ```
 
 ### Cookbook
@@ -151,4 +166,13 @@ Generated artifacts from examples are written to:
 - Implementation plan and architecture: `docs/implementation-plan.md`
 - API governance and boundary policy: `docs/api-governance.md`
 - Extension guide for custom propagators: `docs/extending-propagators.md`
-- Architecture hardening and finalization roadmap: `docs/architecture-hardening-plan.md`
+- Architecture hardening and finalization roadmap (archived after v1.0 completion): `docs/archive/architecture-hardening-plan.md`
+
+## Developer command shortcuts (`Makefile`)
+
+This repository includes a lightweight `Makefile` for developer task shortcuts
+only (tests, examples, install helpers). It does not replace the native build
+configuration in `CMakeLists.txt`.
+
+- `CMakeLists.txt` configures native/C++ builds
+- `Makefile` provides ergonomic wrappers like `make test` and `make test-transition`

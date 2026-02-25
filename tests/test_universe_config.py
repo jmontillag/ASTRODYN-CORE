@@ -1,4 +1,4 @@
-from astrodyn_core.propagation.universe import get_universe_config, load_universe_from_dict
+from astrodyn_core.orekit_env import get_universe_config, load_universe_from_dict
 
 
 def test_universe_config_defaults_from_empty_dict() -> None:

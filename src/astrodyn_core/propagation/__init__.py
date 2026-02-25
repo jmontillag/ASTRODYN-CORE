@@ -21,8 +21,8 @@ Assembly and config helpers:
     register_default_orekit_providers, register_analytical_providers,
     register_all_providers
 
-Universe config helpers (available via ``propagation.config`` or ``propagation.universe``):
-    get_mu, get_earth_shape, get_iers_conventions, get_itrf_frame, etc.
+Shared Orekit environment helpers:
+    import from ``astrodyn_core.orekit_env`` (get_mu, get_earth_shape, etc.)
 """
 
 from astrodyn_core.propagation.assembly_parts import assemble_attitude_provider, assemble_force_models

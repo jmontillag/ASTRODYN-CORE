@@ -41,6 +41,7 @@ orekit-data/
 *.secret
 secrets.ini
 secrets*.ini
+!secrets copy.ini
 
 # Generated outputs
 *.png

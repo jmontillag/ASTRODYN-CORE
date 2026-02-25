@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "astrodyn-core"
-version = "0.1.0"
+version = "1.0.0"
 description = "Builder-first astrodynamics propagation core with Orekit-native semantics."
 readme = "README.md"
 requires-python = ">=3.11"
