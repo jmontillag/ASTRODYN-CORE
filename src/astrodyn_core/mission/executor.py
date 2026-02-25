@@ -42,22 +42,14 @@ from astrodyn_core.states.orekit_resolvers import resolve_frame
 class ManeuverFiredEvent:
     """Record of a single maneuver trigger event during detector-driven execution.
 
-    Attributes
-    ----------
-    maneuver_name:
-        Name of the maneuver as defined in the scenario file.
-    epoch:
-        ISO-8601 UTC string of the exact time the detector fired.
-    trigger_type:
-        The trigger condition that fired (``"apogee"``, ``"perigee"``, etc.).
-    dv_inertial_mps:
-        Applied delta-v vector in the inertial frame (m/s). ``None`` if skipped
-        before delta-v resolution.
-    applied:
-        ``True`` if the impulse was applied; ``False`` if skipped by a guard,
-        occurrence policy, or active-window constraint.
-    guard_skip_reason:
-        Human-readable reason for skipping, or ``None`` if the maneuver fired.
+    Attributes:
+        maneuver_name: Maneuver name from the scenario file.
+        epoch: ISO-8601 UTC string when the detector fired.
+        trigger_type: Trigger condition that fired (for example ``apogee``).
+        dv_inertial_mps: Applied inertial delta-v vector (m/s), or ``None`` if
+            skipped before delta-v resolution.
+        applied: ``True`` if the impulse was applied.
+        guard_skip_reason: Human-readable skip reason, or ``None`` if applied.
     """
 
     maneuver_name: str
@@ -72,16 +64,11 @@ class ManeuverFiredEvent:
 class MissionExecutionReport:
     """Summary of a detector-driven scenario execution.
 
-    Attributes
-    ----------
-    events:
-        Tuple of all :class:`ManeuverFiredEvent` instances, in chronological order.
-    total_dv_mps:
-        Scalar total delta-v applied (m/s), summed over all applied events.
-    propagation_start:
-        ISO-8601 UTC string for the propagation start epoch.
-    propagation_end:
-        ISO-8601 UTC string for the propagation end epoch.
+    Attributes:
+        events: All maneuver events in chronological order.
+        total_dv_mps: Scalar total applied delta-v (m/s).
+        propagation_start: Propagation start epoch (ISO-8601 UTC).
+        propagation_end: Propagation end epoch (ISO-8601 UTC).
     """
 
     events: tuple[ManeuverFiredEvent, ...]
@@ -111,16 +98,11 @@ class ScenarioExecutor:
         executor = ScenarioExecutor(propagator, scenario)
         state_series, report = executor.run_and_sample(epoch_spec)
 
-    Parameters
-    ----------
-    propagator:
-        A built Orekit NumericalPropagator (or DSST) instance. Event detectors
-        will be added to it via ``addEventDetector()``. The propagator's initial
-        state is used as the mission start epoch.
-    scenario:
-        Loaded :class:`~astrodyn_core.states.models.ScenarioStateFile`.
-    universe:
-        Optional universe configuration for frame resolution.
+    Args:
+        propagator: Built Orekit numerical/DSST propagator exposing
+            ``addEventDetector``.
+        scenario: Loaded scenario state file model.
+        universe: Optional universe configuration for frame resolution.
     """
 
     def __init__(
@@ -177,14 +159,11 @@ class ScenarioExecutor:
     def run(self, target_date_or_epoch: Any) -> tuple[Any, MissionExecutionReport]:
         """Propagate to the target epoch and return the final state + report.
 
-        Parameters
-        ----------
-        target_date_or_epoch:
-            Either an Orekit ``AbsoluteDate`` or an ISO-8601 UTC string.
+        Args:
+            target_date_or_epoch: Orekit ``AbsoluteDate`` or ISO-8601 UTC string.
 
-        Returns
-        -------
-        tuple[SpacecraftState, MissionExecutionReport]
+        Returns:
+            Tuple ``(final_state, MissionExecutionReport)``.
         """
         if not self._configured:
             self.configure()
@@ -221,24 +200,16 @@ class ScenarioExecutor:
         tracks state resets from detectors, each ``propagate(date)`` call returns
         the physically correct post-maneuver state.
 
-        Parameters
-        ----------
-        epoch_spec:
-            Output epoch specification.
-        series_name:
-            Name for the returned :class:`~astrodyn_core.states.models.StateSeries`.
-        representation:
-            Output orbit representation.
-        frame:
-            Output frame name.
-        mu_m3_s2:
-            Gravitational parameter for output records.
-        default_mass_kg:
-            Fallback spacecraft mass.
+        Args:
+            epoch_spec: Output epoch specification.
+            series_name: Name for the returned state series.
+            representation: Output orbit representation.
+            frame: Output frame name.
+            mu_m3_s2: Gravitational parameter for output records.
+            default_mass_kg: Fallback spacecraft mass.
 
-        Returns
-        -------
-        tuple[StateSeries, MissionExecutionReport]
+        Returns:
+            Tuple ``(StateSeries, MissionExecutionReport)``.
         """
         if not isinstance(epoch_spec, OutputEpochSpec):
             raise TypeError("epoch_spec must be an OutputEpochSpec instance.")
@@ -289,6 +260,7 @@ class ScenarioExecutor:
         return state_series, report
 
     def _build_report(self, propagation_end: str) -> MissionExecutionReport:
+        """Build the final execution report from the internal log buffer."""
         events = tuple(
             ManeuverFiredEvent(
                 maneuver_name=entry["maneuver_name"],
@@ -328,6 +300,20 @@ def _state_to_record(
     mu_m3_s2: float | str,
     default_mass_kg: float,
 ) -> OrbitStateRecord:
+    """Convert an Orekit state into a serializable mission output record.
+
+    Args:
+        state: Orekit ``SpacecraftState``.
+        epoch: Output epoch string.
+        representation: Output representation (cartesian/keplerian/equinoctial).
+        frame_name: Output frame label.
+        output_frame: Orekit frame used to extract coordinates.
+        mu_m3_s2: Gravitational parameter stored in the record.
+        default_mass_kg: Fallback mass when state has no mass accessor.
+
+    Returns:
+        Serialized orbit state record.
+    """
     import math
 
     from org.orekit.orbits import CartesianOrbit, EquinoctialOrbit, KeplerianOrbit

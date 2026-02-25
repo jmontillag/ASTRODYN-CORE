@@ -14,6 +14,19 @@ from astrodyn_core.mission.kinematics import (
 
 
 def resolve_delta_v_vector(model: Mapping[str, Any], state: Any, trigger_type: str):
+    """Resolve a maneuver model into an inertial delta-v vector.
+
+    Supports direct impulsive vectors and higher-level intent maneuvers
+    (raise perigee, raise semimajor axis, change inclination).
+
+    Args:
+        model: Maneuver ``model`` mapping from the scenario file.
+        state: Orekit ``SpacecraftState`` at trigger time.
+        trigger_type: Trigger type that fired the maneuver.
+
+    Returns:
+        Orekit ``Vector3D`` inertial delta-v in m/s.
+    """
     if not isinstance(model, Mapping):
         raise TypeError("maneuver.model must be a mapping.")
 
@@ -53,6 +66,15 @@ def resolve_delta_v_vector(model: Mapping[str, Any], state: Any, trigger_type: s
 
 
 def intent_raise_perigee(model: Mapping[str, Any], state: Any):
+    """Compute an apogee burn to raise perigee.
+
+    Args:
+        model: Intent model mapping with ``target_perigee_m`` or ``delta_perigee_m``.
+        state: Orekit state at burn time (expected near apogee).
+
+    Returns:
+        Orekit ``Vector3D`` inertial delta-v.
+    """
     from org.orekit.orbits import KeplerianOrbit
 
     target_defined = "target_perigee_m" in model
@@ -85,6 +107,17 @@ def intent_raise_perigee(model: Mapping[str, Any], state: Any):
 
 
 def intent_raise_semimajor_axis(model: Mapping[str, Any], state: Any):
+    """Compute a tangential burn to raise semimajor axis.
+
+    Args:
+        model: Intent model mapping with ``target_a_m``/``delta_a_m`` and
+            optional ``min_a_m`` guard shortcut.
+        state: Orekit state at burn time.
+
+    Returns:
+        Orekit ``Vector3D`` inertial delta-v (zero vector when already above
+        ``min_a_m``).
+    """
     from org.hipparchus.geometry.euclidean.threed import Vector3D
     from org.orekit.orbits import KeplerianOrbit
 
@@ -119,6 +152,15 @@ def intent_raise_semimajor_axis(model: Mapping[str, Any], state: Any):
 
 
 def intent_change_inclination(model: Mapping[str, Any], state: Any):
+    """Compute an instantaneous plane-change delta-v.
+
+    Args:
+        model: Intent model mapping with ``target_i_deg`` or ``delta_i_deg``.
+        state: Orekit state at burn time.
+
+    Returns:
+        Orekit ``Vector3D`` inertial delta-v.
+    """
     from org.orekit.orbits import KeplerianOrbit
 
     kep = KeplerianOrbit(state.getOrbit())

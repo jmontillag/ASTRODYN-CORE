@@ -7,6 +7,16 @@ from typing import Any, Sequence
 
 
 def local_to_inertial_delta_v(state: Any, components: tuple[float, float, float], frame_name: str):
+    """Convert local-frame delta-v components to an inertial vector.
+
+    Args:
+        state: Orekit ``SpacecraftState`` defining local axes.
+        components: Components in the requested local frame.
+        frame_name: Local maneuver frame name (``TNW``, ``RTN``, ``INERTIAL``).
+
+    Returns:
+        Orekit ``Vector3D`` inertial delta-v.
+    """
     from org.hipparchus.geometry.euclidean.threed import Vector3D
 
     c1, c2, c3 = components
@@ -15,6 +25,15 @@ def local_to_inertial_delta_v(state: Any, components: tuple[float, float, float]
 
 
 def local_basis_vectors(state: Any, frame_name: str):
+    """Return local-frame basis vectors at the spacecraft state.
+
+    Args:
+        state: Orekit ``SpacecraftState``.
+        frame_name: Local frame name (``TNW``, ``RTN``, ``INERTIAL``).
+
+    Returns:
+        Tuple of three Orekit ``Vector3D`` basis vectors.
+    """
     from org.hipparchus.geometry.euclidean.threed import Vector3D
 
     pv = state.getPVCoordinates()
@@ -41,6 +60,7 @@ def local_basis_vectors(state: Any, frame_name: str):
 
 
 def rotate_vector_about_axis(vector: Any, axis: Any, angle_rad: float):
+    """Rotate a vector around an axis using Rodrigues' rotation formula."""
     from org.hipparchus.geometry.euclidean.threed import Vector3D
 
     c = math.cos(angle_rad)
@@ -52,6 +72,7 @@ def rotate_vector_about_axis(vector: Any, axis: Any, angle_rad: float):
 
 
 def unit(vector: Any):
+    """Return the normalized version of an Orekit ``Vector3D``-like object."""
     norm = float(vector.getNorm())
     if norm <= 0.0:
         raise ValueError("Cannot normalize zero-length vector.")
@@ -59,6 +80,7 @@ def unit(vector: Any):
 
 
 def to_vector_tuple(values: Any, *, key_name: str) -> tuple[float, float, float]:
+    """Validate and coerce a 3-component numeric sequence to a float tuple."""
     if values is None or isinstance(values, (str, bytes)):
         raise ValueError(f"{key_name} must be a 3-element numeric sequence.")
     if len(values) != 3:
@@ -67,6 +89,7 @@ def to_vector_tuple(values: Any, *, key_name: str) -> tuple[float, float, float]
 
 
 def tuple_to_vector(values: Sequence[float]):
+    """Convert a 3-component tuple/list into an Orekit ``Vector3D``."""
     from org.hipparchus.geometry.euclidean.threed import Vector3D
 
     return Vector3D(float(values[0]), float(values[1]), float(values[2]))

@@ -18,7 +18,21 @@ def plot_orbital_elements_series(
     universe: Mapping[str, Any] | None = None,
     title: str | None = None,
 ) -> Path:
-    """Plot time evolution of Keplerian elements and save to PNG."""
+    """Plot time evolution of Keplerian elements and save to PNG.
+
+    Args:
+        series: Input state series.
+        output_png: Destination PNG path.
+        universe: Optional universe config for record-to-Orekit conversion.
+        title: Optional plot title override.
+
+    Returns:
+        Resolved PNG output path.
+
+    Raises:
+        TypeError: If ``series`` is not a ``StateSeries``.
+        RuntimeError: If ``matplotlib`` is unavailable.
+    """
     if not isinstance(series, StateSeries):
         raise TypeError("series must be a StateSeries.")
 
@@ -86,6 +100,16 @@ def _record_to_keplerian_elements(
     *,
     universe: Mapping[str, Any] | None,
 ) -> dict[str, float]:
+    """Extract keplerian elements from a record (convert if needed).
+
+    Args:
+        record: Input orbit state record.
+        universe: Optional universe config for Orekit conversion.
+
+    Returns:
+        Mapping with ``a_m``, ``e``, ``i_deg``, ``argp_deg``, ``raan_deg``,
+        and ``anomaly_deg``.
+    """
     if record.representation == "keplerian":
         el = record.elements or {}
         return {

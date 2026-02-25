@@ -11,6 +11,19 @@ from astrodyn_core.states.orekit_dates import from_orekit_date, to_orekit_date
 
 
 def resolve_trigger_date(trigger: Mapping[str, Any], state: Any) -> tuple[str, Any]:
+    """Resolve a maneuver trigger to a concrete Orekit date.
+
+    Args:
+        trigger: Maneuver trigger mapping.
+        state: Orekit ``SpacecraftState`` used as the planning reference state.
+
+    Returns:
+        Tuple ``(trigger_type, date)`` where ``date`` is an Orekit absolute date.
+
+    Raises:
+        TypeError: If ``trigger`` is not a mapping.
+        ValueError: If the trigger is invalid or not reachable from ``state``.
+    """
     if not isinstance(trigger, Mapping):
         raise TypeError("maneuver.trigger must be a mapping.")
 
@@ -66,6 +79,16 @@ def resolve_maneuver_trigger(
     state: Any,
     timeline: Mapping[str, ResolvedTimelineEvent],
 ) -> tuple[str, Any, dict[str, Any]]:
+    """Resolve a maneuver trigger, including timeline event references.
+
+    Args:
+        trigger: Maneuver trigger mapping.
+        state: Orekit planning state used as the reference epoch.
+        timeline: Resolved timeline event mapping.
+
+    Returns:
+        Tuple ``(trigger_type, date, metadata)``.
+    """
     trigger_type = str(trigger.get("type", "epoch")).strip().lower()
     if trigger_type != "event":
         resolved_type, date = resolve_trigger_date(trigger, state)
@@ -91,6 +114,19 @@ def resolve_timeline_events(
     timeline: Sequence[TimelineEventRecord],
     initial_state: Any,
 ) -> dict[str, ResolvedTimelineEvent]:
+    """Resolve all timeline events to absolute epochs.
+
+    Args:
+        timeline: Timeline event records in scenario order.
+        initial_state: Orekit mission-start state.
+
+    Returns:
+        Mapping from event id to resolved timeline event.
+
+    Raises:
+        ValueError: If timeline event definitions are invalid or reference
+            unknown/forward events.
+    """
     resolved: dict[str, ResolvedTimelineEvent] = {}
     event_states: dict[str, Any] = {}
     initial_epoch = from_orekit_date(initial_state.getDate())
@@ -188,6 +224,7 @@ def resolve_timeline_events(
 
 
 def keplerian_propagate_state(state: Any, target_date: Any):
+    """Propagate a state with a temporary Keplerian propagator for planning."""
     from org.orekit.propagation import SpacecraftState
     from org.orekit.propagation.analytical import KeplerianPropagator
 
@@ -202,6 +239,7 @@ def keplerian_propagate_state(state: Any, target_date: Any):
 def delta_time_to_target_mean_anomaly(
     m_current: float, m_target: float, mean_motion: float
 ) -> float:
+    """Return positive time-to-go for the next target mean anomaly crossing."""
     delta_m = normalize_angle(m_target - m_current)
     if delta_m < 1.0e-12:
         delta_m = 2.0 * math.pi
@@ -209,6 +247,7 @@ def delta_time_to_target_mean_anomaly(
 
 
 def true_to_mean_anomaly(true_anomaly: float, eccentricity: float) -> float:
+    """Convert true anomaly to mean anomaly for an elliptical orbit."""
     nu = float(true_anomaly)
     e = float(eccentricity)
     sin_half = math.sin(0.5 * nu)
@@ -222,6 +261,7 @@ def true_to_mean_anomaly(true_anomaly: float, eccentricity: float) -> float:
 
 
 def normalize_angle(angle_rad: float) -> float:
+    """Wrap an angle into the ``[0, 2π)`` interval."""
     twopi = 2.0 * math.pi
     value = math.fmod(angle_rad, twopi)
     if value < 0.0:
@@ -230,6 +270,17 @@ def normalize_angle(angle_rad: float) -> float:
 
 
 def parse_duration_seconds(value: Any, *, key_name: str) -> float:
+    """Parse a numeric/compact duration value into seconds.
+
+    Supports raw numeric seconds and strings with suffixes ``s``, ``m``, ``h``.
+
+    Args:
+        value: Duration value.
+        key_name: Config key name used in error messages.
+
+    Returns:
+        Duration in seconds.
+    """
     if isinstance(value, (int, float)):
         return float(value)
     if not isinstance(value, str):

@@ -103,6 +103,7 @@ class _OccurrencePolicy:
     """Tracks occurrence count and determines whether to apply a maneuver."""
 
     def __init__(self, occurrence: str, n: int, max_count: int) -> None:
+        """Initialize occurrence-policy counters and limits."""
         self.occurrence = occurrence
         self.target_n = n
         self.max_count = max_count
@@ -123,6 +124,7 @@ class _OccurrencePolicy:
 
     @classmethod
     def from_trigger(cls, trigger: Mapping[str, Any]) -> _OccurrencePolicy:
+        """Build an occurrence policy from a trigger mapping."""
         occurrence = str(trigger.get("occurrence", "every")).strip().lower()
         n = int(trigger.get("n", 1))
         max_count = int(trigger.get("max", 0))
@@ -144,6 +146,7 @@ class _OccurrencePolicy:
 
 
 def _apply_impulse(state: Any, dv_inertial: tuple[float, float, float]) -> Any:
+    """Apply an instantaneous inertial delta-v to a spacecraft state."""
     from org.hipparchus.geometry.euclidean.threed import Vector3D
     from org.orekit.orbits import CartesianOrbit
     from org.orekit.propagation import SpacecraftState
@@ -385,24 +388,14 @@ def build_detectors_from_scenario(
 ) -> list[Any]:
     """Build Orekit EventDetector instances for all maneuvers in a scenario.
 
-    Parameters
-    ----------
-    scenario:
-        The scenario file. ``scenario.maneuvers`` is iterated.
-    initial_state:
-        Orekit ``SpacecraftState`` at the mission start epoch.
-    resolved_timeline:
-        Mapping ``{event_id: ResolvedTimelineEvent}`` as returned by
-        ``mission.timeline.resolve_timeline_events``.
-    execution_log:
-        Mutable list that each handler appends log-entry dicts to during
-        propagation. Converted to ``ManeuverFiredEvent`` objects by the executor.
-    universe:
-        Optional universe configuration (passed through for frame resolution).
+    Args:
+        scenario: Scenario file model whose maneuvers are translated.
+        initial_state: Orekit mission-start state.
+        resolved_timeline: Mapping returned by ``resolve_timeline_events``.
+        execution_log: Mutable log list appended to by detector handlers.
+        universe: Optional universe config (reserved passthrough).
 
-    Returns
-    -------
-    list
+    Returns:
         List of Orekit ``EventDetector`` instances.
     """
     orbit = initial_state.getOrbit()

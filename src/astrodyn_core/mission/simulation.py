@@ -25,7 +25,18 @@ def compile_scenario_maneuvers(
     scenario: ScenarioStateFile,
     initial_state: Any,
 ) -> tuple[CompiledManeuver, ...]:
-    """Compile scenario maneuvers to absolute epochs + inertial delta-v vectors."""
+    """Compile scenario maneuvers to absolute epochs and inertial delta-v vectors.
+
+    Args:
+        scenario: Scenario model containing maneuvers and timeline.
+        initial_state: Orekit ``SpacecraftState`` used as mission start/planning state.
+
+    Returns:
+        Tuple of compiled maneuvers in execution order.
+
+    Raises:
+        TypeError: If inputs are not scenario/state-like objects.
+    """
     if not isinstance(scenario, ScenarioStateFile):
         raise TypeError("scenario must be a ScenarioStateFile.")
     if not hasattr(initial_state, "getDate") or not hasattr(initial_state, "getOrbit"):
@@ -73,7 +84,24 @@ def simulate_scenario_series(
     universe: Mapping[str, Any] | None = None,
     default_mass_kg: float = 1000.0,
 ) -> tuple[StateSeries, tuple[CompiledManeuver, ...]]:
-    """Propagate a trajectory while applying scenario maneuvers, then sample it."""
+    """Propagate a trajectory while applying scenario maneuvers, then sample it.
+
+    Args:
+        propagator: Orekit propagator exposing ``propagate`` and
+            ``resetInitialState`` when maneuvers exist.
+        scenario: Scenario model containing maneuvers.
+        epoch_spec: Output epoch specification.
+        series_name: Output state-series name.
+        representation: Output orbit representation.
+        frame: Output frame name.
+        mu_m3_s2: Gravitational parameter stored in output records.
+        interpolation_samples: Interpolation metadata sample count.
+        universe: Optional universe config for frame resolution.
+        default_mass_kg: Fallback spacecraft mass for output records.
+
+    Returns:
+        Tuple ``(StateSeries, compiled_maneuvers)``.
+    """
     if not isinstance(epoch_spec, OutputEpochSpec):
         raise TypeError("epoch_spec must be an OutputEpochSpec.")
 
@@ -152,7 +180,25 @@ def export_scenario_series(
     universe: Mapping[str, Any] | None = None,
     default_mass_kg: float = 1000.0,
 ) -> tuple[Path, tuple[CompiledManeuver, ...]]:
-    """Execute scenario maneuvers during propagation and export sampled states."""
+    """Execute scenario maneuvers during propagation and export sampled states.
+
+    Args:
+        propagator: Orekit propagator used for simulation.
+        scenario: Scenario model containing maneuvers.
+        epoch_spec: Output epoch specification.
+        output_path: Destination YAML/JSON/HDF5 path.
+        series_name: Output state-series name.
+        representation: Output orbit representation.
+        frame: Output frame name.
+        mu_m3_s2: Gravitational parameter stored in output records.
+        interpolation_samples: Interpolation metadata sample count.
+        dense_yaml: Dense row formatting for YAML compact export.
+        universe: Optional universe config for frame resolution.
+        default_mass_kg: Fallback spacecraft mass for output records.
+
+    Returns:
+        Tuple ``(saved_path, compiled_maneuvers)``.
+    """
     series, compiled = simulate_scenario_series(
         propagator,
         scenario,
@@ -176,6 +222,15 @@ def export_scenario_series(
 
 
 def keplerian_propagate_state(state: Any, target_date: Any):
+    """Propagate a state with a temporary Keplerian propagator for planning.
+
+    Args:
+        state: Orekit ``SpacecraftState``.
+        target_date: Orekit target date, must be >= current state date.
+
+    Returns:
+        Propagated ``SpacecraftState`` preserving spacecraft mass.
+    """
     from org.orekit.propagation import SpacecraftState
     from org.orekit.propagation.analytical import KeplerianPropagator
 
@@ -188,6 +243,15 @@ def keplerian_propagate_state(state: Any, target_date: Any):
 
 
 def apply_impulse_to_state(state: Any, delta_v: Any):
+    """Apply an instantaneous inertial delta-v to a state.
+
+    Args:
+        state: Orekit ``SpacecraftState``.
+        delta_v: Orekit ``Vector3D`` inertial delta-v in m/s.
+
+    Returns:
+        New ``SpacecraftState`` at the same epoch with updated Cartesian velocity.
+    """
     from org.orekit.orbits import CartesianOrbit
     from org.orekit.propagation import SpacecraftState
     from org.orekit.utils import PVCoordinates
@@ -212,6 +276,20 @@ def state_to_record(
     mu_m3_s2: float | str,
     default_mass_kg: float,
 ) -> OrbitStateRecord:
+    """Convert an Orekit state into a serializable mission output record.
+
+    Args:
+        state: Orekit ``SpacecraftState``.
+        epoch: Output epoch string.
+        representation: Output representation (cartesian/keplerian/equinoctial).
+        frame_name: Output frame label for the record.
+        output_frame: Orekit frame used to extract coordinates.
+        mu_m3_s2: Gravitational parameter stored in the record.
+        default_mass_kg: Fallback mass when state has no mass accessor.
+
+    Returns:
+        Serialized orbit state record.
+    """
     from org.orekit.orbits import CartesianOrbit, EquinoctialOrbit, KeplerianOrbit
 
     mass = float(state.getMass()) if hasattr(state, "getMass") else float(default_mass_kg)
