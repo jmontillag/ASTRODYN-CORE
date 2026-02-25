@@ -1,0 +1,1873 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Builder-first astrodynamics tooling with Orekit-native workflows.">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/jmontillag/ASTRODYN-CORE/tutorials/propagation-quickstart/">
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../scenario-missions/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+    
+    
+      
+        <title>Propagation Quickstart - ASTRODYN-CORE</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tutorial-propagation-quickstart" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ASTRODYN-CORE" class="md-header__button md-logo" aria-label="ASTRODYN-CORE" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ASTRODYN-CORE
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Propagation Quickstart
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/jmontillag/ASTRODYN-CORE" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jmontillag/ASTRODYN-CORE
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ASTRODYN-CORE" class="md-nav__button md-logo" aria-label="ASTRODYN-CORE" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ASTRODYN-CORE
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/jmontillag/ASTRODYN-CORE" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jmontillag/ASTRODYN-CORE
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/orekit-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Orekit Data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first-propagation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Propagation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Propagation Quickstart
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Propagation Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#learning-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-script-executable-truth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source script (executable truth)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-run-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you run it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-the-script-is-structured-important-mental-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the script is structured (important mental model)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-basics-mode-no-orekit-modelspec-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Basics mode (no Orekit, model/spec discovery)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-keplerian-propagation-simplest-orekit-backed-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Keplerian propagation (simplest Orekit-backed run)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-numerical-propagation-forces-spacecraft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Numerical propagation (forces + spacecraft)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-dsst-propagation-semi-analytical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: DSST propagation (semi-analytical)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-5-tle-propagation-analytical-tle-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: TLE propagation (analytical TLE mode)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-6-tle-resolve-mode-download-cache-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6: TLE resolve mode (download + cache, optional)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-7-export-plot-mode-state-workflow-bridge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 7: Export + plot mode (state workflow bridge)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#suggested-learning-path-best-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Suggested learning path (best order)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-this-tutorial-page-connects-to-the-docs-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How this tutorial page connects to the docs system
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-tutorial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next tutorial
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scenario-missions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scenario + Mission Workflows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uncertainty/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uncertainty Workflows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../geqoe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GEqOE Propagator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How-To / Cookbook
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    How-To / Cookbook
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/orbit-representation-roundtrip/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Orbit Representation Round-Trip
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/api/astrodyn_core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    astrodyn_core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/api/propagation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    propagation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/api/orekit_env/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    orekit_env
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Troubleshooting
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting/common-setup-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Common Setup Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced Docs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Advanced Docs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#learning-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-script-executable-truth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source script (executable truth)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-run-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you run it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-the-script-is-structured-important-mental-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the script is structured (important mental model)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-basics-mode-no-orekit-modelspec-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Basics mode (no Orekit, model/spec discovery)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-keplerian-propagation-simplest-orekit-backed-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Keplerian propagation (simplest Orekit-backed run)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-numerical-propagation-forces-spacecraft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Numerical propagation (forces + spacecraft)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-dsst-propagation-semi-analytical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: DSST propagation (semi-analytical)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-5-tle-propagation-analytical-tle-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: TLE propagation (analytical TLE mode)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-6-tle-resolve-mode-download-cache-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6: TLE resolve mode (download + cache, optional)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-7-export-plot-mode-state-workflow-bridge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 7: Export + plot mode (state workflow bridge)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#suggested-learning-path-best-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Suggested learning path (best order)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-this-tutorial-page-connects-to-the-docs-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How this tutorial page connects to the docs system
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-tutorial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next tutorial
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="tutorial-propagation-quickstart">Tutorial: Propagation Quickstart<a class="headerlink" href="#tutorial-propagation-quickstart" title="Permanent link">&para;</a></h1>
+<p>This tutorial walks through the main workflows demonstrated in
+<code>examples/quickstart.py</code>.</p>
+<p>It is the best first tutorial because it exercises the facade-first API and
+shows multiple propagator types in one place.</p>
+<h2 id="learning-goals">Learning goals<a class="headerlink" href="#learning-goals" title="Permanent link">&para;</a></h2>
+<p>By the end of this tutorial, you should be able to:</p>
+<ul>
+<li>choose an API tier (facade-first vs advanced)</li>
+<li>build a propagator from typed specs and a <code>BuildContext</code></li>
+<li>run <code>keplerian</code>, <code>numerical</code>, <code>dsst</code>, and <code>tle</code> propagation examples</li>
+<li>understand when Orekit initialization is required</li>
+<li>export a trajectory and generate a basic orbital-elements plot</li>
+</ul>
+<h2 id="source-script-executable-truth">Source script (executable truth)<a class="headerlink" href="#source-script-executable-truth" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>examples/quickstart.py</code></li>
+</ul>
+<p>Use the script while reading this page:</p>
+<div class="highlight"><pre><span></span><code>conda<span class="w"> </span>run<span class="w"> </span>-n<span class="w"> </span>astrodyn-core-env<span class="w"> </span>python<span class="w"> </span>examples/quickstart.py<span class="w"> </span>--mode<span class="w"> </span>all
+</code></pre></div>
+<p>The script supports these modes:</p>
+<ul>
+<li><code>basics</code></li>
+<li><code>keplerian</code></li>
+<li><code>numerical</code></li>
+<li><code>dsst</code></li>
+<li><code>tle</code></li>
+<li><code>tle_resolve</code></li>
+<li><code>plot</code></li>
+<li><code>all</code> (runs everything in sequence)</li>
+</ul>
+<h2 id="before-you-run-it">Before you run it<a class="headerlink" href="#before-you-run-it" title="Permanent link">&para;</a></h2>
+<p>Prerequisites:</p>
+<ul>
+<li>project installed in <code>astrodyn-core-env</code></li>
+<li>Orekit available in that environment (for all modes except <code>basics</code>)</li>
+<li>run from the repo root so example paths and Orekit data helpers resolve as expected</li>
+</ul>
+<p>See:</p>
+<ul>
+<li><a href="../../getting-started/install/">Install</a></li>
+<li><a href="../../getting-started/orekit-data/">Orekit Data</a></li>
+<li><a href="../../troubleshooting/common-setup-issues/">Common Setup Issues</a></li>
+</ul>
+<h2 id="how-the-script-is-structured-important-mental-model">How the script is structured (important mental model)<a class="headerlink" href="#how-the-script-is-structured-important-mental-model" title="Permanent link">&para;</a></h2>
+<p><code>examples/quickstart.py</code> is organized as one function per workflow:</p>
+<ul>
+<li><code>run_basics()</code> (no Orekit required)</li>
+<li><code>run_keplerian()</code></li>
+<li><code>run_numerical()</code></li>
+<li><code>run_dsst()</code></li>
+<li><code>run_tle()</code></li>
+<li><code>run_tle_resolve()</code> (downloads/caches TLEs, requires credentials)</li>
+<li><code>run_plot()</code> (exports a trajectory + plot)</li>
+</ul>
+<p>It also uses shared helpers in:</p>
+<ul>
+<li><code>examples/_common.py</code></li>
+</ul>
+<p>Those helpers do three key things:</p>
+<ul>
+<li>initialize Orekit once per process</li>
+<li>create <code>examples/generated/</code> when needed</li>
+<li>build a representative LEO orbit for demos</li>
+</ul>
+<h2 id="step-1-basics-mode-no-orekit-modelspec-discovery">Step 1: Basics mode (no Orekit, model/spec discovery)<a class="headerlink" href="#step-1-basics-mode-no-orekit-modelspec-discovery" title="Permanent link">&para;</a></h2>
+<p>Run:</p>
+<div class="highlight"><pre><span></span><code>conda<span class="w"> </span>run<span class="w"> </span>-n<span class="w"> </span>astrodyn-core-env<span class="w"> </span>python<span class="w"> </span>examples/quickstart.py<span class="w"> </span>--mode<span class="w"> </span>basics
+</code></pre></div>
+<p>What it teaches:</p>
+<ul>
+<li>discover bundled propagation and spacecraft presets</li>
+<li>validate a <code>PropagatorSpec</code> and <code>SpacecraftSpec</code></li>
+<li>load YAML-based dynamics and spacecraft config presets</li>
+</ul>
+<p>This is useful even before dealing with JVM/Orekit initialization.</p>
+<p>Key API concepts involved:</p>
+<ul>
+<li><code>PropagatorSpec</code></li>
+<li><code>IntegratorSpec</code></li>
+<li><code>SpacecraftSpec</code></li>
+<li><code>load_dynamics_config(...)</code></li>
+<li><code>load_spacecraft_config(...)</code></li>
+</ul>
+<p>See API reference scaffolds:</p>
+<ul>
+<li><a href="../../reference/api/astrodyn_core/">API: <code>astrodyn_core</code></a></li>
+<li><a href="../../reference/api/propagation/">API: <code>astrodyn_core.propagation</code></a></li>
+</ul>
+<h2 id="step-2-keplerian-propagation-simplest-orekit-backed-run">Step 2: Keplerian propagation (simplest Orekit-backed run)<a class="headerlink" href="#step-2-keplerian-propagation-simplest-orekit-backed-run" title="Permanent link">&para;</a></h2>
+<p>Run:</p>
+<div class="highlight"><pre><span></span><code>conda<span class="w"> </span>run<span class="w"> </span>-n<span class="w"> </span>astrodyn-core-env<span class="w"> </span>python<span class="w"> </span>examples/quickstart.py<span class="w"> </span>--mode<span class="w"> </span>keplerian
+</code></pre></div>
+<p>What happens in the script:</p>
+<ol>
+<li>Orekit is initialized (<code>init_orekit()</code>)</li>
+<li>A sample LEO orbit is created (<code>make_leo_orbit()</code>)</li>
+<li><code>AstrodynClient</code> is instantiated</li>
+<li>A <code>PropagatorSpec(kind=KEPLERIAN, ...)</code> is created</li>
+<li>A builder is created with <code>BuildContext(initial_orbit=orbit)</code></li>
+<li>The Orekit propagator is built and propagated to <code>epoch + 1h</code></li>
+<li>Position is printed</li>
+</ol>
+<p>Core pattern to remember (facade-first):</p>
+<div class="highlight"><pre><span></span><code><span class="n">app</span> <span class="o">=</span> <span class="n">AstrodynClient</span><span class="p">()</span>
+<span class="n">builder</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">propagation</span><span class="o">.</span><span class="n">build_builder</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">BuildContext</span><span class="p">(</span><span class="n">initial_orbit</span><span class="o">=</span><span class="n">orbit</span><span class="p">))</span>
+<span class="n">propagator</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">buildPropagator</span><span class="p">(</span><span class="n">builder</span><span class="o">.</span><span class="n">getSelectedNormalizedParameters</span><span class="p">())</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">propagator</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">target_date</span><span class="p">)</span>
+</code></pre></div>
+<p>This pattern is the basis for the numerical and DSST modes too.</p>
+<h2 id="step-3-numerical-propagation-forces-spacecraft">Step 3: Numerical propagation (forces + spacecraft)<a class="headerlink" href="#step-3-numerical-propagation-forces-spacecraft" title="Permanent link">&para;</a></h2>
+<p>Run:</p>
+<div class="highlight"><pre><span></span><code>conda<span class="w"> </span>run<span class="w"> </span>-n<span class="w"> </span>astrodyn-core-env<span class="w"> </span>python<span class="w"> </span>examples/quickstart.py<span class="w"> </span>--mode<span class="w"> </span>numerical
+</code></pre></div>
+<p>What this demonstrates:</p>
+<ul>
+<li>loading a bundled "medium_fidelity" dynamics preset</li>
+<li>attaching a spacecraft configuration</li>
+<li>building an Orekit numerical propagator</li>
+<li>inspecting which force models were assembled</li>
+<li>propagating and printing position/velocity</li>
+</ul>
+<p>Why it matters:</p>
+<ul>
+<li>this is the likely default path for many users doing realistic LEO propagation</li>
+<li>it shows how typed config and Orekit-native force models work together</li>
+</ul>
+<p>Watch for this pattern in the script:</p>
+<ul>
+<li><code>spec = load_dynamics_config(...)</code></li>
+<li><code>spec = spec.with_spacecraft(...)</code></li>
+</ul>
+<p>That is the transition from preset config -&gt; customized runtime spec.</p>
+<h2 id="step-4-dsst-propagation-semi-analytical">Step 4: DSST propagation (semi-analytical)<a class="headerlink" href="#step-4-dsst-propagation-semi-analytical" title="Permanent link">&para;</a></h2>
+<p>Run:</p>
+<div class="highlight"><pre><span></span><code>conda<span class="w"> </span>run<span class="w"> </span>-n<span class="w"> </span>astrodyn-core-env<span class="w"> </span>python<span class="w"> </span>examples/quickstart.py<span class="w"> </span>--mode<span class="w"> </span>dsst
+</code></pre></div>
+<p>What this demonstrates:</p>
+<ul>
+<li>using <code>PropagatorKind.DSST</code></li>
+<li>configuring DSST-specific propagation/state types</li>
+<li>building a DSST propagator through the same facade workflow</li>
+</ul>
+<p>This is a good example of why the typed-spec layer is valuable:</p>
+<ul>
+<li>the high-level build flow remains stable</li>
+<li>only the spec fields change depending on propagator kind</li>
+</ul>
+<h2 id="step-5-tle-propagation-analytical-tle-mode">Step 5: TLE propagation (analytical TLE mode)<a class="headerlink" href="#step-5-tle-propagation-analytical-tle-mode" title="Permanent link">&para;</a></h2>
+<p>Run:</p>
+<div class="highlight"><pre><span></span><code>conda<span class="w"> </span>run<span class="w"> </span>-n<span class="w"> </span>astrodyn-core-env<span class="w"> </span>python<span class="w"> </span>examples/quickstart.py<span class="w"> </span>--mode<span class="w"> </span>tle
+</code></pre></div>
+<p>What this demonstrates:</p>
+<ul>
+<li>constructing a <code>TLESpec</code> directly from TLE lines</li>
+<li>building a TLE propagator with <code>BuildContext()</code></li>
+<li>propagating from the TLE epoch and inspecting orbit elements</li>
+</ul>
+<p>This is the fastest path to try ASTRODYN-CORE with real-world style orbital
+inputs without building a custom initial Orekit orbit object.</p>
+<h2 id="step-6-tle-resolve-mode-download-cache-optional">Step 6: TLE resolve mode (download + cache, optional)<a class="headerlink" href="#step-6-tle-resolve-mode-download-cache-optional" title="Permanent link">&para;</a></h2>
+<p>Run:</p>
+<div class="highlight"><pre><span></span><code>conda<span class="w"> </span>run<span class="w"> </span>-n<span class="w"> </span>astrodyn-core-env<span class="w"> </span>python<span class="w"> </span>examples/quickstart.py<span class="w"> </span>--mode<span class="w"> </span>tle_resolve
+</code></pre></div>
+<p>This mode is optional and more operationally complex.</p>
+<p>Requirements:</p>
+<ul>
+<li><code>spacetrack</code> extra installed</li>
+<li>valid credentials in repo-root <code>secrets.ini</code></li>
+<li>network access</li>
+</ul>
+<p>What it demonstrates:</p>
+<ul>
+<li>TLE query construction</li>
+<li>resolution against a target epoch</li>
+<li>local cache usage (<code>examples/generated/tle_cache/</code>)</li>
+<li>subsequent propagation using the resolved <code>TLESpec</code></li>
+</ul>
+<p>If you are just learning the API, skip this mode at first and come back later.</p>
+<h2 id="step-7-export-plot-mode-state-workflow-bridge">Step 7: Export + plot mode (state workflow bridge)<a class="headerlink" href="#step-7-export-plot-mode-state-workflow-bridge" title="Permanent link">&para;</a></h2>
+<p>Run:</p>
+<div class="highlight"><pre><span></span><code>conda<span class="w"> </span>run<span class="w"> </span>-n<span class="w"> </span>astrodyn-core-env<span class="w"> </span>python<span class="w"> </span>examples/quickstart.py<span class="w"> </span>--mode<span class="w"> </span>plot
+</code></pre></div>
+<p>What this demonstrates:</p>
+<ul>
+<li>building a simple Keplerian propagator</li>
+<li>generating an <code>OutputEpochSpec</code></li>
+<li>exporting a trajectory via <code>app.state</code></li>
+<li>reloading the series and plotting orbital elements via <code>app.mission</code></li>
+</ul>
+<p>Outputs written under:</p>
+<ul>
+<li><code>examples/generated/quickstart_orbit_series.yaml</code></li>
+<li><code>examples/generated/quickstart_orbit_elements.png</code></li>
+</ul>
+<p>This is the key bridge between propagation and downstream analysis/mission tooling.</p>
+<h2 id="suggested-learning-path-best-order">Suggested learning path (best order)<a class="headerlink" href="#suggested-learning-path-best-order" title="Permanent link">&para;</a></h2>
+<p>Use this sequence instead of <code>--mode all</code> when learning:</p>
+<ol>
+<li><code>basics</code></li>
+<li><code>keplerian</code></li>
+<li><code>numerical</code></li>
+<li><code>plot</code></li>
+<li><code>dsst</code></li>
+<li><code>tle</code></li>
+<li><code>tle_resolve</code> (last, optional)</li>
+</ol>
+<p>Why:</p>
+<ul>
+<li>you learn the facade + spec pattern first</li>
+<li>then see higher-fidelity propagation</li>
+<li>then see how results flow into state/mission outputs</li>
+<li>finally add special modes (DSST/TLE)</li>
+</ul>
+<h2 id="how-this-tutorial-page-connects-to-the-docs-system">How this tutorial page connects to the docs system<a class="headerlink" href="#how-this-tutorial-page-connects-to-the-docs-system" title="Permanent link">&para;</a></h2>
+<p>This page is included in the site navigation through <code>mkdocs.yml</code> under:</p>
+<ul>
+<li><code>Tutorials -&gt; Propagation Quickstart</code></li>
+</ul>
+<p>The API pages linked above are generated using <code>mkdocstrings</code>, which reads Python
+docstrings directly from <code>src/astrodyn_core/...</code>.</p>
+<p>That means:</p>
+<ul>
+<li>this tutorial explains the workflow</li>
+<li>API reference pages explain classes/functions in detail</li>
+<li>example scripts remain runnable truth for end-to-end behavior</li>
+</ul>
+<h2 id="next-tutorial">Next tutorial<a class="headerlink" href="#next-tutorial" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../scenario-missions/">Scenario + Mission Workflows</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "content.code.copy", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

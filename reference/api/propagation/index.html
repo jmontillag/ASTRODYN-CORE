@@ -1,0 +1,7046 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Builder-first astrodynamics tooling with Orekit-native workflows.">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/jmontillag/ASTRODYN-CORE/reference/api/propagation/">
+      
+      
+        <link rel="prev" href="../astrodyn_core/">
+      
+      
+        <link rel="next" href="../orekit_env/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+    
+    
+      
+        <title>propagation - ASTRODYN-CORE</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#api-astrodyn_corepropagation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="ASTRODYN-CORE" class="md-header__button md-logo" aria-label="ASTRODYN-CORE" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ASTRODYN-CORE
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              propagation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/jmontillag/ASTRODYN-CORE" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jmontillag/ASTRODYN-CORE
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="ASTRODYN-CORE" class="md-nav__button md-logo" aria-label="ASTRODYN-CORE" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ASTRODYN-CORE
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/jmontillag/ASTRODYN-CORE" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jmontillag/ASTRODYN-CORE
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/orekit-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Orekit Data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-propagation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Propagation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/propagation-quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Propagation Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/scenario-missions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scenario + Mission Workflows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/uncertainty/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uncertainty Workflows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/geqoe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GEqOE Propagator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How-To / Cookbook
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    How-To / Cookbook
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../how-to/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../how-to/orbit-representation-roundtrip/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Orbit Representation Round-Trip
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../astrodyn_core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    astrodyn_core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    propagation
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    propagation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        propagation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="propagation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation--public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.ForceSpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ForceSpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.AttitudeSpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AttitudeSpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.BuildContext" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BuildContext
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BuildContext">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.BuildContext.from_state_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        from_state_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.BuildContext.require_body_constants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        require_body_constants
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.BuildContext.require_initial_orbit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        require_initial_orbit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.CapabilityDescriptor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CapabilityDescriptor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.DragSpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DragSpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.GravitySpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GravitySpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.IntegratorSpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IntegratorSpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.OceanTidesSpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OceanTidesSpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagationClient" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PropagationClient
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PropagationClient">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagationClient.build_builder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_builder
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagationClient.build_factory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_factory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagationClient.build_propagator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_propagator
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagationClient.build_propagator_from_state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_propagator_from_state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagationClient.context_from_state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        context_from_state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagationClient.load_dynamics_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_dynamics_config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagationClient.load_dynamics_from_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_dynamics_from_dict
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagationClient.load_spacecraft_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_spacecraft_config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagationClient.load_spacecraft_from_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_spacecraft_from_dict
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagatorFactory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PropagatorFactory
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PropagatorFactory">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagatorFactory.build_builder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_builder
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagatorFactory.build_propagator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_propagator
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagatorKind" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PropagatorKind
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagatorSpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PropagatorSpec
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PropagatorSpec">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagatorSpec.with_spacecraft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        with_spacecraft
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.ProviderRegistry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ProviderRegistry
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ProviderRegistry">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.ProviderRegistry.available_builder_kinds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        available_builder_kinds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.ProviderRegistry.available_propagator_kinds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        available_propagator_kinds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.ProviderRegistry.get_builder_provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_builder_provider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.ProviderRegistry.get_propagator_provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_propagator_provider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.ProviderRegistry.register_builder_provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        register_builder_provider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.ProviderRegistry.register_propagator_provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        register_propagator_provider
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.RelativitySpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RelativitySpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.SRPSpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SRPSpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.SolidTidesSpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SolidTidesSpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.SpacecraftSpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SpacecraftSpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.TLESpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TLESpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.ThirdBodySpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ThirdBodySpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.assemble_attitude_provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        assemble_attitude_provider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.assemble_dsst_force_models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        assemble_dsst_force_models
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.assemble_force_models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        assemble_force_models
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.load_dynamics_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_dynamics_config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.load_dynamics_from_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_dynamics_from_dict
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.load_spacecraft_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_spacecraft_config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.load_spacecraft_from_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_spacecraft_from_dict
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.register_all_providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        register_all_providers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.register_analytical_providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        register_analytical_providers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.register_default_orekit_providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        register_default_orekit_providers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../orekit_env/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    orekit_env
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Troubleshooting
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshooting/common-setup-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Common Setup Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced Docs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Advanced Docs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        propagation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="propagation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation--public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.ForceSpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ForceSpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.AttitudeSpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AttitudeSpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.BuildContext" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BuildContext
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BuildContext">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.BuildContext.from_state_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        from_state_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.BuildContext.require_body_constants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        require_body_constants
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.BuildContext.require_initial_orbit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        require_initial_orbit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.CapabilityDescriptor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CapabilityDescriptor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.DragSpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DragSpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.GravitySpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GravitySpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.IntegratorSpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IntegratorSpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.OceanTidesSpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OceanTidesSpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagationClient" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PropagationClient
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PropagationClient">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagationClient.build_builder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_builder
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagationClient.build_factory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_factory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagationClient.build_propagator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_propagator
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagationClient.build_propagator_from_state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_propagator_from_state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagationClient.context_from_state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        context_from_state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagationClient.load_dynamics_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_dynamics_config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagationClient.load_dynamics_from_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_dynamics_from_dict
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagationClient.load_spacecraft_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_spacecraft_config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagationClient.load_spacecraft_from_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_spacecraft_from_dict
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagatorFactory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PropagatorFactory
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PropagatorFactory">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagatorFactory.build_builder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_builder
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagatorFactory.build_propagator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_propagator
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagatorKind" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PropagatorKind
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagatorSpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PropagatorSpec
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PropagatorSpec">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.PropagatorSpec.with_spacecraft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        with_spacecraft
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.ProviderRegistry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ProviderRegistry
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ProviderRegistry">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.ProviderRegistry.available_builder_kinds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        available_builder_kinds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.ProviderRegistry.available_propagator_kinds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        available_propagator_kinds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.ProviderRegistry.get_builder_provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_builder_provider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.ProviderRegistry.get_propagator_provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_propagator_provider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.ProviderRegistry.register_builder_provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        register_builder_provider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.ProviderRegistry.register_propagator_provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        register_propagator_provider
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.RelativitySpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RelativitySpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.SRPSpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SRPSpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.SolidTidesSpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SolidTidesSpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.SpacecraftSpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SpacecraftSpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.TLESpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TLESpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.ThirdBodySpec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ThirdBodySpec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.assemble_attitude_provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        assemble_attitude_provider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.assemble_dsst_force_models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        assemble_dsst_force_models
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.assemble_force_models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        assemble_force_models
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.load_dynamics_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_dynamics_config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.load_dynamics_from_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_dynamics_from_dict
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.load_spacecraft_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_spacecraft_config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.load_spacecraft_from_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_spacecraft_from_dict
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.register_all_providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        register_all_providers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.register_analytical_providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        register_analytical_providers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#astrodyn_core.propagation.register_default_orekit_providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        register_default_orekit_providers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="api-astrodyn_corepropagation">API: <code>astrodyn_core.propagation</code><a class="headerlink" href="#api-astrodyn_corepropagation" title="Permanent link">&para;</a></h1>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="astrodyn_core.propagation" class="doc doc-heading">
+            <code>astrodyn_core.propagation</code>
+
+
+<a href="#astrodyn_core.propagation" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents first">
+
+        <p>Propagation core public API.</p>
+<h4 id="astrodyn_core.propagation--public-api">Public API<a class="headerlink" href="#astrodyn_core.propagation--public-api" title="Permanent link">&para;</a></h4>
+<p>PropagationClient          Facade for ergonomic builder/propagator workflows.
+PropagatorFactory          Low-level factory for building propagators from specs.
+ProviderRegistry           Registry of propagation backend providers.
+BuildContext               Context for propagator construction (orbit, universe, metadata).</p>
+
+
+<details class="specs-and-models" open>
+  <summary>Specs and models</summary>
+  <p>PropagatorSpec, PropagatorKind, IntegratorSpec, TLESpec,
+AttitudeSpec, SpacecraftSpec,
+ForceSpec, GravitySpec, DragSpec, SRPSpec, ThirdBodySpec,
+RelativitySpec, SolidTidesSpec, OceanTidesSpec,
+CapabilityDescriptor</p>
+</details>
+
+<details class="assembly-and-config-helpers" open>
+  <summary>Assembly and config helpers</summary>
+  <p>assemble_force_models, assemble_attitude_provider,
+load_dynamics_config, load_dynamics_from_dict,
+load_spacecraft_config, load_spacecraft_from_dict,
+register_default_orekit_providers, register_analytical_providers,
+register_all_providers</p>
+</details>
+
+<details class="shared-orekit-environment-helpers" open>
+  <summary>Shared Orekit environment helpers</summary>
+  <p>import from <code>astrodyn_core.orekit_env</code> (get_mu, get_earth_shape, etc.)</p>
+</details>
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="astrodyn_core.propagation.ForceSpec" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">ForceSpec</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">GravitySpec</span><span class="p">,</span> <span class="n">DragSpec</span><span class="p">,</span> <span class="n">SRPSpec</span><span class="p">,</span> <span class="n">ThirdBodySpec</span><span class="p">,</span> <span class="n">RelativitySpec</span><span class="p">,</span> <span class="n">SolidTidesSpec</span><span class="p">,</span> <span class="n">OceanTidesSpec</span><span class="p">]</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+<a href="#astrodyn_core.propagation.ForceSpec" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Union of supported declarative force specification dataclasses.</p>
+
+    </div>
+
+</div>
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="astrodyn_core.propagation.AttitudeSpec" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">AttitudeSpec</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;inertial&#39;</span><span class="p">,</span> <span class="n">provider</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#astrodyn_core.propagation.AttitudeSpec" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Attitude configuration for propagation.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.AttitudeSpec.mode">mode</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Predefined attitude mode (<code>qsw</code>, <code>vvlh</code>, <code>tnw</code>, <code>nadir</code>,
+<code>inertial</code>). Ignored when <code>provider</code> is supplied.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.AttitudeSpec.provider">provider</span></code></td>
+            <td>
+                  <code><span title="typing.Any">Any</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional pre-built Orekit <code>AttitudeProvider</code> instance used
+as a pass-through escape hatch for custom attitude laws.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="astrodyn_core.propagation.BuildContext" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">BuildContext</span><span class="p">(</span><span class="n">initial_orbit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">position_tolerance</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">attitude_provider</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_models</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(),</span> <span class="n">universe</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="n">body_constants</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#astrodyn_core.propagation.BuildContext" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Runtime context required by provider implementations.</p>
+<p>Orekit-native providers use <code>initial_orbit</code> and <code>force_models</code>.
+Custom/analytical providers may instead rely on <code>body_constants</code> for
+physical parameters like <code>mu</code>, <code>J2</code>, and equatorial radius.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.BuildContext.initial_orbit">initial_orbit</span></code></td>
+            <td>
+                  <code><span title="typing.Any">Any</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Orekit initial orbit for the propagation build.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.BuildContext.position_tolerance">position_tolerance</span></code></td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Position tolerance used by some Orekit builders.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.BuildContext.attitude_provider">attitude_provider</span></code></td>
+            <td>
+                  <code><span title="typing.Any">Any</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Orekit <code>AttitudeProvider</code> override.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.BuildContext.force_models">force_models</span></code></td>
+            <td>
+                  <code><span title="typing.Sequence">Sequence</span>[<span title="typing.Any">Any</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Assembled Orekit force models for numerical/DSST builds.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.BuildContext.universe">universe</span></code></td>
+            <td>
+                  <code><span title="typing.Mapping">Mapping</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>] | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Universe configuration mapping used for assembly/resolvers.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.BuildContext.metadata">metadata</span></code></td>
+            <td>
+                  <code><span title="typing.Mapping">Mapping</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Free-form metadata (for example initial mass).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.BuildContext.body_constants">body_constants</span></code></td>
+            <td>
+                  <code><span title="typing.Mapping">Mapping</span>[<span title="str">str</span>, <span title="float">float</span>] | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional analytical constants mapping (<code>mu</code>, <code>j2</code>,
+<code>re</code>).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.BuildContext.from_state_record" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">from_state_record</span><span class="p">(</span><span class="n">state_record</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">universe</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">position_tolerance</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">attitude_provider</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_models</span><span class="o">=</span><span class="p">(),</span> <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">body_constants</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+<a href="#astrodyn_core.propagation.BuildContext.from_state_record" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a BuildContext from a serializable state record.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>state_record</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="OrbitStateRecord(epoch, frame='GCRF', representation='keplerian', position_m=None, velocity_mps=None, elements=None, mu_m3_s2='WGS84', mass_kg=None, metadata=dict())
+
+  
+      dataclass
+   (astrodyn_core.states.models.OrbitStateRecord)" href="../astrodyn_core/#astrodyn_core.OrbitStateRecord">OrbitStateRecord</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Serializable initial state record.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>universe</code>
+            </td>
+            <td>
+                  <code><span title="typing.Mapping">Mapping</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>] | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional universe configuration mapping.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>position_tolerance</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Builder position tolerance.</p>
+              </div>
+            </td>
+            <td>
+                  <code>10.0</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>attitude_provider</code>
+            </td>
+            <td>
+                  <code><span title="typing.Any">Any</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional pre-built Orekit attitude provider.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>force_models</code>
+            </td>
+            <td>
+                  <code><span title="typing.Sequence">Sequence</span>[<span title="typing.Any">Any</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional pre-assembled Orekit force models.</p>
+              </div>
+            </td>
+            <td>
+                  <code>()</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>metadata</code>
+            </td>
+            <td>
+                  <code><span title="typing.Mapping">Mapping</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>] | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional metadata merged into the context.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>body_constants</code>
+            </td>
+            <td>
+                  <code><span title="typing.Mapping">Mapping</span>[<span title="str">str</span>, <span title="float">float</span>] | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional analytical constants mapping with keys
+<code>mu</code> (m^3/s^2), <code>j2</code> (dimensionless), and <code>re</code> (m).</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="BuildContext(initial_orbit=None, position_tolerance=10.0, attitude_provider=None, force_models=tuple(), universe=None, metadata=dict(), body_constants=None)
+
+  
+      dataclass
+   (astrodyn_core.propagation.interfaces.BuildContext)" href="#astrodyn_core.propagation.BuildContext">BuildContext</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Build context with an Orekit <code>initial_orbit</code> converted from the</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="BuildContext(initial_orbit=None, position_tolerance=10.0, attitude_provider=None, force_models=tuple(), universe=None, metadata=dict(), body_constants=None)
+
+  
+      dataclass
+   (astrodyn_core.propagation.interfaces.BuildContext)" href="#astrodyn_core.propagation.BuildContext">BuildContext</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>state record.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.BuildContext.require_body_constants" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">require_body_constants</span><span class="p">()</span></code>
+
+<a href="#astrodyn_core.propagation.BuildContext.require_body_constants" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return body constants or raise if not provided.</p>
+<p>Analytical providers should call this to get <code>mu</code>, <code>j2</code>, and <code>re</code>.
+If not explicitly set on the context, the constants are resolved from
+Orekit <code>Constants.WGS84_*</code> at call time.</p>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="typing.Mapping">Mapping</span>[<span title="str">str</span>, <span title="float">float</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Mapping containing <code>mu</code>, <code>j2</code>, and <code>re</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="RuntimeError">RuntimeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If constants are not provided and Orekit is
+unavailable for lazy resolution.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.BuildContext.require_initial_orbit" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">require_initial_orbit</span><span class="p">()</span></code>
+
+<a href="#astrodyn_core.propagation.BuildContext.require_initial_orbit" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return <code>initial_orbit</code> or raise if it was not provided.</p>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="astrodyn_core.propagation.CapabilityDescriptor" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">CapabilityDescriptor</span><span class="p">(</span><span class="n">supports_builder</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">supports_propagator</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">supports_stm</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">supports_field_state</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">supports_multi_satellite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">supports_bounded_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">is_analytical</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">supports_custom_output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#astrodyn_core.propagation.CapabilityDescriptor" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Describes what a provider supports.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.CapabilityDescriptor.supports_builder">supports_builder</span></code></td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Provider implements <code>build_builder()</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.CapabilityDescriptor.supports_propagator">supports_propagator</span></code></td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Provider implements <code>build_propagator()</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.CapabilityDescriptor.supports_stm">supports_stm</span></code></td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Propagator supports State Transition Matrix extraction.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.CapabilityDescriptor.supports_field_state">supports_field_state</span></code></td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Propagator supports field/Taylor state propagation.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.CapabilityDescriptor.supports_multi_satellite">supports_multi_satellite</span></code></td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Provider supports multi-satellite propagation.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.CapabilityDescriptor.supports_bounded_output">supports_bounded_output</span></code></td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Output is bounded to a fixed time interval.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.CapabilityDescriptor.is_analytical">is_analytical</span></code></td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Custom/analytical implementation (not Orekit-native
+numerical).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.CapabilityDescriptor.supports_custom_output">supports_custom_output</span></code></td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Provider can expose backend-specific output in
+addition to standard Orekit-compatible states.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="astrodyn_core.propagation.DragSpec" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">DragSpec</span><span class="p">(</span><span class="n">atmosphere_model</span><span class="o">=</span><span class="s1">&#39;nrlmsise00&#39;</span><span class="p">,</span> <span class="n">space_weather_source</span><span class="o">=</span><span class="s1">&#39;cssi&#39;</span><span class="p">,</span> <span class="n">solar_activity_strength</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">,</span> <span class="n">space_weather_data</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">ref_rho</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ref_alt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scale_height</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#astrodyn_core.propagation.DragSpec" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Atmospheric drag force model.</p>
+<p>Parameters for <code>SimpleExponential</code> atmosphere (<code>ref_rho</code>, <code>ref_alt</code>,
+<code>scale_height</code>) are only required when
+<code>atmosphere_model="simpleexponential"</code>.</p>
+<p><code>space_weather_source</code> and <code>solar_activity_strength</code> apply to models
+that consume space-weather data (NRLMSISE00, DTM2000, JB2008).</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.DragSpec.atmosphere_model">atmosphere_model</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Atmosphere model identifier.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.DragSpec.space_weather_source">space_weather_source</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Space-weather provider source (<code>cssi</code>/<code>msafe</code>).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.DragSpec.solar_activity_strength">solar_activity_strength</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Strength profile for <code>msafe</code> forecasts.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.DragSpec.space_weather_data">space_weather_data</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Reserved/custom data source selector.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.DragSpec.ref_rho">ref_rho</span></code></td>
+            <td>
+                  <code><span title="float">float</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Reference density for <code>simpleexponential</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.DragSpec.ref_alt">ref_alt</span></code></td>
+            <td>
+                  <code><span title="float">float</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Reference altitude (m) for <code>simpleexponential</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.DragSpec.scale_height">scale_height</span></code></td>
+            <td>
+                  <code><span title="float">float</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Scale height (m) for <code>simpleexponential</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="astrodyn_core.propagation.GravitySpec" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">GravitySpec</span><span class="p">(</span><span class="n">degree</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">normalized</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#astrodyn_core.propagation.GravitySpec" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Earth gravity field model.</p>
+<p>Set <code>degree=order=0</code> for a simple point-mass (Keplerian) model.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.GravitySpec.degree">degree</span></code></td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Spherical harmonics degree.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.GravitySpec.order">order</span></code></td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Spherical harmonics order.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.GravitySpec.normalized">normalized</span></code></td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Whether to request a normalized gravity provider.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="astrodyn_core.propagation.IntegratorSpec" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">IntegratorSpec</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="n">min_step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">position_tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="nb">dict</span><span class="p">())</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#astrodyn_core.propagation.IntegratorSpec" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Integrator builder configuration for numerical and DSST builders.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.IntegratorSpec.kind">kind</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Integrator kind identifier (for example <code>"dp853"</code>).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.IntegratorSpec.min_step">min_step</span></code></td>
+            <td>
+                  <code><span title="float">float</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Minimum integration step size in seconds (adaptive methods).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.IntegratorSpec.max_step">max_step</span></code></td>
+            <td>
+                  <code><span title="float">float</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Maximum integration step size in seconds (adaptive methods).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.IntegratorSpec.position_tolerance">position_tolerance</span></code></td>
+            <td>
+                  <code><span title="float">float</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Position tolerance used to derive Orekit tolerances.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.IntegratorSpec.step">step</span></code></td>
+            <td>
+                  <code><span title="float">float</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Fixed step size in seconds (fixed-step methods).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.IntegratorSpec.n_steps">n_steps</span></code></td>
+            <td>
+                  <code><span title="int">int</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional auxiliary step count for custom providers.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.IntegratorSpec.extra">extra</span></code></td>
+            <td>
+                  <code><span title="typing.Mapping">Mapping</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Provider-specific integrator options.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="astrodyn_core.propagation.OceanTidesSpec" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">OceanTidesSpec</span><span class="p">(</span><span class="n">degree</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#astrodyn_core.propagation.OceanTidesSpec" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Ocean tides perturbation options.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.OceanTidesSpec.degree">degree</span></code></td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Ocean tides degree.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.OceanTidesSpec.order">order</span></code></td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Ocean tides order.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="astrodyn_core.propagation.PropagationClient" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">PropagationClient</span><span class="p">(</span><span class="n">universe</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#astrodyn_core.propagation.PropagationClient" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Facade for ergonomic propagation factory/context usage.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>universe</code>
+            </td>
+            <td>
+                  <code><span title="typing.Mapping">Mapping</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>] | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional default universe configuration used when converting
+state records into Orekit orbits for build contexts.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.PropagationClient.build_builder" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">build_builder</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.PropagationClient.build_builder" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build a propagator builder from a spec and build context.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>spec</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="PropagatorSpec(kind, mass_kg=1000.0, position_angle_type='MEAN', dsst_propagation_type='MEAN', dsst_state_type='OSCULATING', integrator=None, tle=None, force_specs=tuple(), spacecraft=None, attitude=None, orekit_options=dict())
+
+  
+      dataclass
+   (astrodyn_core.propagation.specs.PropagatorSpec)" href="#astrodyn_core.propagation.PropagatorSpec">PropagatorSpec</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Declarative propagator configuration.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>context</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="BuildContext(initial_orbit=None, position_tolerance=10.0, attitude_provider=None, force_models=tuple(), universe=None, metadata=dict(), body_constants=None)
+
+  
+      dataclass
+   (astrodyn_core.propagation.interfaces.BuildContext)" href="#astrodyn_core.propagation.BuildContext">BuildContext</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Runtime build context (initial orbit, forces, etc.).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="typing.Any">Any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Provider-specific propagator builder (typically Orekit-native).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.PropagationClient.build_factory" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">build_factory</span><span class="p">()</span></code>
+
+<a href="#astrodyn_core.propagation.PropagationClient.build_factory" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Create a PropagatorFactory with all built-in providers registered.</p>
+<p>This includes both Orekit-native providers (numerical, keplerian, DSST,
+TLE) and built-in analytical providers (currently <code>geqoe</code>).</p>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="PropagatorFactory(registry=ProviderRegistry())
+
+  
+      dataclass
+   (astrodyn_core.propagation.factory.PropagatorFactory)" href="#astrodyn_core.propagation.PropagatorFactory">PropagatorFactory</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A factory with built-in providers pre-registered.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.PropagationClient.build_propagator" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">build_propagator</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.PropagationClient.build_propagator" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build a propagator directly from a spec and build context.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>spec</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="PropagatorSpec(kind, mass_kg=1000.0, position_angle_type='MEAN', dsst_propagation_type='MEAN', dsst_state_type='OSCULATING', integrator=None, tle=None, force_specs=tuple(), spacecraft=None, attitude=None, orekit_options=dict())
+
+  
+      dataclass
+   (astrodyn_core.propagation.specs.PropagatorSpec)" href="#astrodyn_core.propagation.PropagatorSpec">PropagatorSpec</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Declarative propagator configuration.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>context</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="BuildContext(initial_orbit=None, position_tolerance=10.0, attitude_provider=None, force_models=tuple(), universe=None, metadata=dict(), body_constants=None)
+
+  
+      dataclass
+   (astrodyn_core.propagation.interfaces.BuildContext)" href="#astrodyn_core.propagation.BuildContext">BuildContext</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Runtime build context (initial orbit, forces, etc.).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="typing.Any">Any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Provider-specific propagator instance.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.PropagationClient.build_propagator_from_state" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">build_propagator_from_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">universe</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.PropagationClient.build_propagator_from_state" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build a propagator from an initial state record and a spec.</p>
+<p>Works with any registered propagator kind (numerical, keplerian, DSST,
+TLE, or custom/analytical).</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>state</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="OrbitStateRecord(epoch, frame='GCRF', representation='keplerian', position_m=None, velocity_mps=None, elements=None, mu_m3_s2='WGS84', mass_kg=None, metadata=dict())
+
+  
+      dataclass
+   (astrodyn_core.states.models.OrbitStateRecord)" href="../astrodyn_core/#astrodyn_core.OrbitStateRecord">OrbitStateRecord</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Serializable initial orbit state.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>spec</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="PropagatorSpec(kind, mass_kg=1000.0, position_angle_type='MEAN', dsst_propagation_type='MEAN', dsst_state_type='OSCULATING', integrator=None, tle=None, force_specs=tuple(), spacecraft=None, attitude=None, orekit_options=dict())
+
+  
+      dataclass
+   (astrodyn_core.propagation.specs.PropagatorSpec)" href="#astrodyn_core.propagation.PropagatorSpec">PropagatorSpec</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Declarative propagator configuration.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>universe</code>
+            </td>
+            <td>
+                  <code><span title="typing.Mapping">Mapping</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>] | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional per-call universe config override.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>metadata</code>
+            </td>
+            <td>
+                  <code><span title="typing.Mapping">Mapping</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>] | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional build-context metadata.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="typing.Any">Any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Built propagator instance created from the provider's builder lane.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.PropagationClient.context_from_state" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">context_from_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">universe</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.PropagationClient.context_from_state" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Create a <code>BuildContext</code> from an <code>OrbitStateRecord</code>.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>state</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="OrbitStateRecord(epoch, frame='GCRF', representation='keplerian', position_m=None, velocity_mps=None, elements=None, mu_m3_s2='WGS84', mass_kg=None, metadata=dict())
+
+  
+      dataclass
+   (astrodyn_core.states.models.OrbitStateRecord)" href="../astrodyn_core/#astrodyn_core.OrbitStateRecord">OrbitStateRecord</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Serializable initial orbit state.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>universe</code>
+            </td>
+            <td>
+                  <code><span title="typing.Mapping">Mapping</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>] | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional per-call universe config override.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>metadata</code>
+            </td>
+            <td>
+                  <code><span title="typing.Mapping">Mapping</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>] | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional metadata merged into the build context.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="BuildContext(initial_orbit=None, position_tolerance=10.0, attitude_provider=None, force_models=tuple(), universe=None, metadata=dict(), body_constants=None)
+
+  
+      dataclass
+   (astrodyn_core.propagation.interfaces.BuildContext)" href="#astrodyn_core.propagation.BuildContext">BuildContext</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Build context containing an Orekit orbit converted from <code>state</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.PropagationClient.load_dynamics_config" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">load_dynamics_config</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">spacecraft</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.PropagationClient.load_dynamics_config" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Load a dynamics YAML config as <code>PropagatorSpec</code>.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>path</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | <span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Dynamics YAML file path.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>spacecraft</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | <span title="pathlib.Path">Path</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional spacecraft YAML file path to merge into the
+returned spec.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="PropagatorSpec(kind, mass_kg=1000.0, position_angle_type='MEAN', dsst_propagation_type='MEAN', dsst_state_type='OSCULATING', integrator=None, tle=None, force_specs=tuple(), spacecraft=None, attitude=None, orekit_options=dict())
+
+  
+      dataclass
+   (astrodyn_core.propagation.specs.PropagatorSpec)" href="#astrodyn_core.propagation.PropagatorSpec">PropagatorSpec</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Parsed propagator spec.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.PropagationClient.load_dynamics_from_dict" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">load_dynamics_from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.PropagationClient.load_dynamics_from_dict" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Load a dynamics config mapping as <code>PropagatorSpec</code>.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>data</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Parsed dynamics configuration mapping.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="PropagatorSpec(kind, mass_kg=1000.0, position_angle_type='MEAN', dsst_propagation_type='MEAN', dsst_state_type='OSCULATING', integrator=None, tle=None, force_specs=tuple(), spacecraft=None, attitude=None, orekit_options=dict())
+
+  
+      dataclass
+   (astrodyn_core.propagation.specs.PropagatorSpec)" href="#astrodyn_core.propagation.PropagatorSpec">PropagatorSpec</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Parsed propagator spec.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.PropagationClient.load_spacecraft_config" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">load_spacecraft_config</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.PropagationClient.load_spacecraft_config" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Load a spacecraft YAML config as <code>SpacecraftSpec</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.PropagationClient.load_spacecraft_from_dict" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">load_spacecraft_from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.PropagationClient.load_spacecraft_from_dict" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Load a spacecraft config mapping as <code>SpacecraftSpec</code>.</p>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="astrodyn_core.propagation.PropagatorFactory" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">PropagatorFactory</span><span class="p">(</span><span class="n">registry</span><span class="o">=</span><span class="n">ProviderRegistry</span><span class="p">())</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#astrodyn_core.propagation.PropagatorFactory" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Build builders or propagators from specs via a provider registry.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>registry</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="ProviderRegistry(_builder_providers=dict(), _propagator_providers=dict())
+
+  
+      dataclass
+   (astrodyn_core.propagation.registry.ProviderRegistry)" href="#astrodyn_core.propagation.ProviderRegistry">ProviderRegistry</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Provider registry used to resolve builder/propagator lanes by
+<code>spec.kind</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="ProviderRegistry(_builder_providers=dict(), _propagator_providers=dict())
+
+  
+      dataclass
+   (astrodyn_core.propagation.registry.ProviderRegistry)" href="#astrodyn_core.propagation.ProviderRegistry">ProviderRegistry</a>()</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.PropagatorFactory.build_builder" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">build_builder</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.PropagatorFactory.build_builder" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build a provider-specific builder for a propagator spec.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>spec</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="PropagatorSpec(kind, mass_kg=1000.0, position_angle_type='MEAN', dsst_propagation_type='MEAN', dsst_state_type='OSCULATING', integrator=None, tle=None, force_specs=tuple(), spacecraft=None, attitude=None, orekit_options=dict())
+
+  
+      dataclass
+   (astrodyn_core.propagation.specs.PropagatorSpec)" href="#astrodyn_core.propagation.PropagatorSpec">PropagatorSpec</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Declarative propagator configuration.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>context</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="BuildContext(initial_orbit=None, position_tolerance=10.0, attitude_provider=None, force_models=tuple(), universe=None, metadata=dict(), body_constants=None)
+
+  
+      dataclass
+   (astrodyn_core.propagation.interfaces.BuildContext)" href="#astrodyn_core.propagation.BuildContext">BuildContext</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Runtime build context.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="typing.Any">Any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Provider-specific builder object.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.PropagatorFactory.build_propagator" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">build_propagator</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.PropagatorFactory.build_propagator" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build a provider-specific propagator for a propagator spec.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>spec</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="PropagatorSpec(kind, mass_kg=1000.0, position_angle_type='MEAN', dsst_propagation_type='MEAN', dsst_state_type='OSCULATING', integrator=None, tle=None, force_specs=tuple(), spacecraft=None, attitude=None, orekit_options=dict())
+
+  
+      dataclass
+   (astrodyn_core.propagation.specs.PropagatorSpec)" href="#astrodyn_core.propagation.PropagatorSpec">PropagatorSpec</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Declarative propagator configuration.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>context</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="BuildContext(initial_orbit=None, position_tolerance=10.0, attitude_provider=None, force_models=tuple(), universe=None, metadata=dict(), body_constants=None)
+
+  
+      dataclass
+   (astrodyn_core.propagation.interfaces.BuildContext)" href="#astrodyn_core.propagation.BuildContext">BuildContext</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Runtime build context.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="typing.Any">Any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Provider-specific propagator object.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="astrodyn_core.propagation.PropagatorKind" class="doc doc-heading">
+            <code>PropagatorKind</code>
+
+
+<a href="#astrodyn_core.propagation.PropagatorKind" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="str">str</span></code>, <code><span title="enum.Enum">Enum</span></code></p>
+
+
+
+        <p>Built-in propagator kinds.</p>
+<p>Custom/analytical propagators should define their own string kind
+(e.g. <code>"geqoe"</code>) and register it with the :class:<code>ProviderRegistry</code>.
+The registry accepts any string as a kind key, so contributors are not
+required to modify this enum when adding new propagators.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="astrodyn_core.propagation.PropagatorSpec" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">PropagatorSpec</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="n">mass_kg</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span> <span class="n">position_angle_type</span><span class="o">=</span><span class="s1">&#39;MEAN&#39;</span><span class="p">,</span> <span class="n">dsst_propagation_type</span><span class="o">=</span><span class="s1">&#39;MEAN&#39;</span><span class="p">,</span> <span class="n">dsst_state_type</span><span class="o">=</span><span class="s1">&#39;OSCULATING&#39;</span><span class="p">,</span> <span class="n">integrator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_specs</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(),</span> <span class="n">spacecraft</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attitude</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">orekit_options</span><span class="o">=</span><span class="nb">dict</span><span class="p">())</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#astrodyn_core.propagation.PropagatorSpec" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Top-level propagation configuration.</p>
+<p>The <code>kind</code> field accepts any :class:<code>PropagatorKind</code> enum member for
+built-in Orekit propagators, or a plain string for custom/analytical
+propagators registered via :class:<code>ProviderRegistry</code>.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.PropagatorSpec.kind">kind</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="PropagatorKind (astrodyn_core.propagation.specs.PropagatorKind)" href="#astrodyn_core.propagation.PropagatorKind">PropagatorKind</a> | <span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Built-in or custom propagator kind key.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.PropagatorSpec.mass_kg">mass_kg</span></code></td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Spacecraft mass used by builders/propagators.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.PropagatorSpec.position_angle_type">position_angle_type</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Orekit position-angle convention for relevant
+propagator builders.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.PropagatorSpec.dsst_propagation_type">dsst_propagation_type</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>DSST propagation type (<code>MEAN</code>/<code>OSCULATING</code>).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.PropagatorSpec.dsst_state_type">dsst_state_type</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>DSST initial state type (<code>MEAN</code>/<code>OSCULATING</code>).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.PropagatorSpec.integrator">integrator</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="IntegratorSpec(kind, min_step=None, max_step=None, position_tolerance=None, step=None, n_steps=None, extra=dict())
+
+  
+      dataclass
+   (astrodyn_core.propagation.specs.IntegratorSpec)" href="#astrodyn_core.propagation.IntegratorSpec">IntegratorSpec</a> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Integrator configuration (required for numerical/DSST).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.PropagatorSpec.tle">tle</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="TLESpec(line1, line2)
+
+  
+      dataclass
+   (astrodyn_core.propagation.specs.TLESpec)" href="#astrodyn_core.propagation.TLESpec">TLESpec</a> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Raw TLE lines (required for TLE propagator).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.PropagatorSpec.force_specs">force_specs</span></code></td>
+            <td>
+                  <code><span title="typing.Sequence">Sequence</span>[<a class="autorefs autorefs-internal" title="ForceSpec = Union[GravitySpec, DragSpec, SRPSpec, ThirdBodySpec, RelativitySpec, SolidTidesSpec, OceanTidesSpec]
+
+  
+      module-attribute
+   (astrodyn_core.propagation.forces.ForceSpec)" href="#astrodyn_core.propagation.ForceSpec">ForceSpec</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Declarative force model specs.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.PropagatorSpec.spacecraft">spacecraft</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="SpacecraftSpec(mass=1000.0, drag_area=10.0, drag_coeff=2.2, srp_area=10.0, srp_coeff=1.5, use_box_wing=False, x_length=1.0, y_length=1.0, z_length=1.0, solar_array_area=20.0, solar_array_axis=(0.0, 1.0, 0.0), box_drag_coeff=2.2, box_lift_coeff=0.0, box_abs_coeff=0.7, box_ref_coeff=0.3)
+
+  
+      dataclass
+   (astrodyn_core.propagation.spacecraft.SpacecraftSpec)" href="#astrodyn_core.propagation.SpacecraftSpec">SpacecraftSpec</a> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Spacecraft physical model for drag/SRP assembly.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.PropagatorSpec.attitude">attitude</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="AttitudeSpec(mode='inertial', provider=None)
+
+  
+      dataclass
+   (astrodyn_core.propagation.attitude.AttitudeSpec)" href="#astrodyn_core.propagation.AttitudeSpec">AttitudeSpec</a> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Declarative attitude configuration.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.PropagatorSpec.orekit_options">orekit_options</span></code></td>
+            <td>
+                  <code><span title="typing.Mapping">Mapping</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Provider-specific Orekit/native options passthrough.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.PropagatorSpec.with_spacecraft" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">with_spacecraft</span><span class="p">(</span><span class="n">spacecraft</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.PropagatorSpec.with_spacecraft" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return a copy of the spec with a spacecraft model attached.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>spacecraft</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="SpacecraftSpec(mass=1000.0, drag_area=10.0, drag_coeff=2.2, srp_area=10.0, srp_coeff=1.5, use_box_wing=False, x_length=1.0, y_length=1.0, z_length=1.0, solar_array_area=20.0, solar_array_axis=(0.0, 1.0, 0.0), box_drag_coeff=2.2, box_lift_coeff=0.0, box_abs_coeff=0.7, box_ref_coeff=0.3)
+
+  
+      dataclass
+   (astrodyn_core.propagation.spacecraft.SpacecraftSpec)" href="#astrodyn_core.propagation.SpacecraftSpec">SpacecraftSpec</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Spacecraft physical model specification.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="PropagatorSpec(kind, mass_kg=1000.0, position_angle_type='MEAN', dsst_propagation_type='MEAN', dsst_state_type='OSCULATING', integrator=None, tle=None, force_specs=tuple(), spacecraft=None, attitude=None, orekit_options=dict())
+
+  
+      dataclass
+   (astrodyn_core.propagation.specs.PropagatorSpec)" href="#astrodyn_core.propagation.PropagatorSpec">PropagatorSpec</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>New <code>PropagatorSpec</code> with <code>spacecraft</code> replaced.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="astrodyn_core.propagation.ProviderRegistry" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">ProviderRegistry</span><span class="p">(</span><span class="n">_builder_providers</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="n">_propagator_providers</span><span class="o">=</span><span class="nb">dict</span><span class="p">())</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#astrodyn_core.propagation.ProviderRegistry" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>In-memory provider registry keyed by propagator kind (any string).</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.ProviderRegistry.available_builder_kinds" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">available_builder_kinds</span><span class="p">()</span></code>
+
+<a href="#astrodyn_core.propagation.ProviderRegistry.available_builder_kinds" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return sorted builder-provider kinds.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.ProviderRegistry.available_propagator_kinds" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">available_propagator_kinds</span><span class="p">()</span></code>
+
+<a href="#astrodyn_core.propagation.ProviderRegistry.available_propagator_kinds" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return sorted propagator-provider kinds.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.ProviderRegistry.get_builder_provider" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_builder_provider</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.ProviderRegistry.get_builder_provider" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Resolve a builder provider by kind.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>kind</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Propagator kind key.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="typing.Any">Any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Registered builder provider.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="KeyError">KeyError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If no builder provider is registered for <code>kind</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.ProviderRegistry.get_propagator_provider" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_propagator_provider</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.ProviderRegistry.get_propagator_provider" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Resolve a propagator provider by kind.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>kind</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Propagator kind key.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="typing.Any">Any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Registered propagator provider.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="KeyError">KeyError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If no propagator provider is registered for <code>kind</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.ProviderRegistry.register_builder_provider" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">register_builder_provider</span><span class="p">(</span><span class="n">provider</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.ProviderRegistry.register_builder_provider" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Register or replace a builder-lane provider.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>provider</code>
+            </td>
+            <td>
+                  <code><span title="typing.Any">Any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Object exposing <code>kind</code> and <code>build_builder</code>.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="astrodyn_core.propagation.ProviderRegistry.register_propagator_provider" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">register_propagator_provider</span><span class="p">(</span><span class="n">provider</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.ProviderRegistry.register_propagator_provider" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Register or replace a propagator-lane provider.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>provider</code>
+            </td>
+            <td>
+                  <code><span title="typing.Any">Any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Object exposing <code>kind</code> and <code>build_propagator</code>.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="astrodyn_core.propagation.RelativitySpec" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">RelativitySpec</span><span class="p">()</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#astrodyn_core.propagation.RelativitySpec" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Relativistic correction (Schwarzschild effect).</p>
+<p>Presence of this spec in the force list enables the correction.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="astrodyn_core.propagation.SRPSpec" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">SRPSpec</span><span class="p">(</span><span class="n">enable_moon_eclipse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">enable_albedo</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#astrodyn_core.propagation.SRPSpec" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Solar radiation pressure force model options.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.SRPSpec.enable_moon_eclipse">enable_moon_eclipse</span></code></td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Include lunar occultation in SRP eclipse handling.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.SRPSpec.enable_albedo">enable_albedo</span></code></td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Request Earth albedo handling (separate force model in
+current assembly implementation).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="astrodyn_core.propagation.SolidTidesSpec" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">SolidTidesSpec</span><span class="p">()</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#astrodyn_core.propagation.SolidTidesSpec" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Solid Earth tides perturbation.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="astrodyn_core.propagation.SpacecraftSpec" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">SpacecraftSpec</span><span class="p">(</span><span class="n">mass</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span> <span class="n">drag_area</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">drag_coeff</span><span class="o">=</span><span class="mf">2.2</span><span class="p">,</span> <span class="n">srp_area</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">srp_coeff</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">use_box_wing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">x_length</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">y_length</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">z_length</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">solar_array_area</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">solar_array_axis</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">box_drag_coeff</span><span class="o">=</span><span class="mf">2.2</span><span class="p">,</span> <span class="n">box_lift_coeff</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">box_abs_coeff</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">box_ref_coeff</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#astrodyn_core.propagation.SpacecraftSpec" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Physical spacecraft model used by drag and SRP assembly.</p>
+<p>When <code>use_box_wing=False</code> (default), the isotropic parameters are used:
+<code>drag_area</code>, <code>drag_coeff</code>, <code>srp_area</code>, <code>srp_coeff</code>.</p>
+<p>When <code>use_box_wing=True</code>, the box-and-solar-array geometry is used
+instead. The isotropic parameters are ignored in that case.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.SpacecraftSpec.mass">mass</span></code></td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Spacecraft mass in kg.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.SpacecraftSpec.drag_area">drag_area</span></code></td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Isotropic drag area (m^2).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.SpacecraftSpec.drag_coeff">drag_coeff</span></code></td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Isotropic drag coefficient.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.SpacecraftSpec.srp_area">srp_area</span></code></td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Isotropic SRP area (m^2).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.SpacecraftSpec.srp_coeff">srp_coeff</span></code></td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Isotropic SRP reflection coefficient.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.SpacecraftSpec.use_box_wing">use_box_wing</span></code></td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Enable box-and-solar-array geometry model.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.SpacecraftSpec.x_length">x_length</span></code></td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Box dimension along X (m).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.SpacecraftSpec.y_length">y_length</span></code></td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Box dimension along Y (m).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.SpacecraftSpec.z_length">z_length</span></code></td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Box dimension along Z (m).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.SpacecraftSpec.solar_array_area">solar_array_area</span></code></td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Solar array area (m^2).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.SpacecraftSpec.solar_array_axis">solar_array_axis</span></code></td>
+            <td>
+                  <code><span title="tuple">tuple</span>[<span title="float">float</span>, <span title="float">float</span>, <span title="float">float</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Solar array rotation axis (normalized in
+<code>__post_init__</code> when non-zero).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.SpacecraftSpec.box_drag_coeff">box_drag_coeff</span></code></td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Box drag coefficient.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.SpacecraftSpec.box_lift_coeff">box_lift_coeff</span></code></td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Box lift coefficient.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.SpacecraftSpec.box_abs_coeff">box_abs_coeff</span></code></td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Box absorptivity coefficient.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.SpacecraftSpec.box_ref_coeff">box_ref_coeff</span></code></td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Box reflectivity coefficient.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="astrodyn_core.propagation.TLESpec" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">TLESpec</span><span class="p">(</span><span class="n">line1</span><span class="p">,</span> <span class="n">line2</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#astrodyn_core.propagation.TLESpec" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Raw TLE line pair for SGP4/TLE propagator construction.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.TLESpec.line1">line1</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>TLE line 1 text (must start with <code>"1 "</code>).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.TLESpec.line2">line2</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>TLE line 2 text (must start with <code>"2 "</code>).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="astrodyn_core.propagation.ThirdBodySpec" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">ThirdBodySpec</span><span class="p">(</span><span class="n">bodies</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;sun&#39;</span><span class="p">,</span> <span class="s1">&#39;moon&#39;</span><span class="p">))</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#astrodyn_core.propagation.ThirdBodySpec" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Third-body gravitational attractions.</p>
+<p><code>bodies</code> is a sequence of lowercase celestial body names.
+Common choices: <code>["sun", "moon"]</code>.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="astrodyn_core.propagation.ThirdBodySpec.bodies">bodies</span></code></td>
+            <td>
+                  <code><span title="tuple">tuple</span>[<span title="str">str</span>, ...]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Celestial body names to include as third-body perturbations.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="astrodyn_core.propagation.assemble_attitude_provider" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">assemble_attitude_provider</span><span class="p">(</span><span class="n">attitude</span><span class="p">,</span> <span class="n">initial_orbit</span><span class="p">,</span> <span class="n">universe</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.assemble_attitude_provider" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Translate an <code>AttitudeSpec</code> into an Orekit <code>AttitudeProvider</code>.</p>
+<p>Returns <em>None</em> if no attitude law can be resolved (should not happen
+if validation passed, but kept defensive).</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>attitude</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="AttitudeSpec(mode='inertial', provider=None)
+
+  
+      dataclass
+   (astrodyn_core.propagation.attitude.AttitudeSpec)" href="#astrodyn_core.propagation.AttitudeSpec">AttitudeSpec</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Declarative attitude specification.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>initial_orbit</code>
+            </td>
+            <td>
+                  <code><span title="typing.Any">Any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Orekit initial orbit used to resolve frames.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>universe</code>
+            </td>
+            <td>
+                  <code><span title="typing.Mapping">Mapping</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>] | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional universe config (used for nadir pointing Earth shape).</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="typing.Any">Any</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Orekit <code>AttitudeProvider</code> or <code>None</code> if no mode could be resolved.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="astrodyn_core.propagation.assemble_dsst_force_models" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">assemble_dsst_force_models</span><span class="p">(</span><span class="n">force_specs</span><span class="p">,</span> <span class="n">spacecraft</span><span class="p">,</span> <span class="n">initial_orbit</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">universe</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.assemble_dsst_force_models" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Translate <code>ForceSpec</code> objects into Orekit DSST force models.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>force_specs</code>
+            </td>
+            <td>
+                  <code><span title="typing.Sequence">Sequence</span>[<a class="autorefs autorefs-internal" title="ForceSpec = Union[GravitySpec, DragSpec, SRPSpec, ThirdBodySpec, RelativitySpec, SolidTidesSpec, OceanTidesSpec]
+
+  
+      module-attribute
+   (astrodyn_core.propagation.forces.ForceSpec)" href="#astrodyn_core.propagation.ForceSpec">ForceSpec</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Declarative force specifications (same types as numerical).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>spacecraft</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="SpacecraftSpec(mass=1000.0, drag_area=10.0, drag_coeff=2.2, srp_area=10.0, srp_coeff=1.5, use_box_wing=False, x_length=1.0, y_length=1.0, z_length=1.0, solar_array_area=20.0, solar_array_axis=(0.0, 1.0, 0.0), box_drag_coeff=2.2, box_lift_coeff=0.0, box_abs_coeff=0.7, box_ref_coeff=0.3)
+
+  
+      dataclass
+   (astrodyn_core.propagation.spacecraft.SpacecraftSpec)" href="#astrodyn_core.propagation.SpacecraftSpec">SpacecraftSpec</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Physical spacecraft model (needed for drag / SRP shapes).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>initial_orbit</code>
+            </td>
+            <td>
+                  <code><span title="typing.Any">Any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Orekit orbit used to derive <code>mu</code> when not provided.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>mu</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional gravitational parameter override.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>universe</code>
+            </td>
+            <td>
+                  <code><span title="typing.Mapping">Mapping</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>] | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional universe configuration mapping.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="list">list</span>[<span title="typing.Any">Any</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Orekit <code>DSSTForceModel</code> instances ready for</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="list">list</span>[<span title="typing.Any">Any</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p><code>DSSTPropagatorBuilder.addForceModel()</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="astrodyn_core.propagation.assemble_force_models" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">assemble_force_models</span><span class="p">(</span><span class="n">force_specs</span><span class="p">,</span> <span class="n">spacecraft</span><span class="p">,</span> <span class="n">initial_orbit</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">universe</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.assemble_force_models" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Translate a sequence of <code>ForceSpec</code> objects into Orekit force models.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>force_specs</code>
+            </td>
+            <td>
+                  <code><span title="typing.Sequence">Sequence</span>[<a class="autorefs autorefs-internal" title="ForceSpec = Union[GravitySpec, DragSpec, SRPSpec, ThirdBodySpec, RelativitySpec, SolidTidesSpec, OceanTidesSpec]
+
+  
+      module-attribute
+   (astrodyn_core.propagation.forces.ForceSpec)" href="#astrodyn_core.propagation.ForceSpec">ForceSpec</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Declarative force specifications.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>spacecraft</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="SpacecraftSpec(mass=1000.0, drag_area=10.0, drag_coeff=2.2, srp_area=10.0, srp_coeff=1.5, use_box_wing=False, x_length=1.0, y_length=1.0, z_length=1.0, solar_array_area=20.0, solar_array_axis=(0.0, 1.0, 0.0), box_drag_coeff=2.2, box_lift_coeff=0.0, box_abs_coeff=0.7, box_ref_coeff=0.3)
+
+  
+      dataclass
+   (astrodyn_core.propagation.spacecraft.SpacecraftSpec)" href="#astrodyn_core.propagation.SpacecraftSpec">SpacecraftSpec</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Physical spacecraft model (needed for drag / SRP shapes).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>initial_orbit</code>
+            </td>
+            <td>
+                  <code><span title="typing.Any">Any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Orekit orbit used to derive <code>mu</code> when not provided.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>mu</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional gravitational parameter override.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>universe</code>
+            </td>
+            <td>
+                  <code><span title="typing.Mapping">Mapping</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>] | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional universe config used by Earth/mu/IERS resolvers.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="list">list</span>[<span title="typing.Any">Any</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Orekit <code>ForceModel</code> instances ready to add to a builder.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="astrodyn_core.propagation.load_dynamics_config" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">load_dynamics_config</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">spacecraft</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.load_dynamics_config" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Load a dynamics configuration YAML and return a <code>PropagatorSpec</code>.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>path</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | <span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Dynamics YAML file path.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>spacecraft</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | <span title="pathlib.Path">Path</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional spacecraft YAML file to parse and attach to the
+resulting spec.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="PropagatorSpec(kind, mass_kg=1000.0, position_angle_type='MEAN', dsst_propagation_type='MEAN', dsst_state_type='OSCULATING', integrator=None, tle=None, force_specs=tuple(), spacecraft=None, attitude=None, orekit_options=dict())
+
+  
+      dataclass
+   (astrodyn_core.propagation.specs.PropagatorSpec)" href="#astrodyn_core.propagation.PropagatorSpec">PropagatorSpec</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Parsed propagator spec.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="astrodyn_core.propagation.load_dynamics_from_dict" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">load_dynamics_from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.load_dynamics_from_dict" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build a <code>PropagatorSpec</code> from an already-parsed dictionary.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>data</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Parsed dynamics configuration mapping.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="PropagatorSpec(kind, mass_kg=1000.0, position_angle_type='MEAN', dsst_propagation_type='MEAN', dsst_state_type='OSCULATING', integrator=None, tle=None, force_specs=tuple(), spacecraft=None, attitude=None, orekit_options=dict())
+
+  
+      dataclass
+   (astrodyn_core.propagation.specs.PropagatorSpec)" href="#astrodyn_core.propagation.PropagatorSpec">PropagatorSpec</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Parsed propagator spec.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If <code>data</code> is not a dict.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="astrodyn_core.propagation.load_spacecraft_config" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">load_spacecraft_config</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.load_spacecraft_config" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Load a spacecraft configuration YAML and return a <code>SpacecraftSpec</code>.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>path</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | <span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Spacecraft YAML file path.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="SpacecraftSpec(mass=1000.0, drag_area=10.0, drag_coeff=2.2, srp_area=10.0, srp_coeff=1.5, use_box_wing=False, x_length=1.0, y_length=1.0, z_length=1.0, solar_array_area=20.0, solar_array_axis=(0.0, 1.0, 0.0), box_drag_coeff=2.2, box_lift_coeff=0.0, box_abs_coeff=0.7, box_ref_coeff=0.3)
+
+  
+      dataclass
+   (astrodyn_core.propagation.spacecraft.SpacecraftSpec)" href="#astrodyn_core.propagation.SpacecraftSpec">SpacecraftSpec</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Parsed spacecraft spec.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="astrodyn_core.propagation.load_spacecraft_from_dict" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">load_spacecraft_from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.load_spacecraft_from_dict" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build a <code>SpacecraftSpec</code> from an already-parsed dictionary.</p>
+<p>Supports both a flat dataclass-like mapping and the structured schema-v1
+<code>spacecraft.model</code> layout.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>data</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Parsed spacecraft configuration mapping.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="SpacecraftSpec(mass=1000.0, drag_area=10.0, drag_coeff=2.2, srp_area=10.0, srp_coeff=1.5, use_box_wing=False, x_length=1.0, y_length=1.0, z_length=1.0, solar_array_area=20.0, solar_array_axis=(0.0, 1.0, 0.0), box_drag_coeff=2.2, box_lift_coeff=0.0, box_abs_coeff=0.7, box_ref_coeff=0.3)
+
+  
+      dataclass
+   (astrodyn_core.propagation.spacecraft.SpacecraftSpec)" href="#astrodyn_core.propagation.SpacecraftSpec">SpacecraftSpec</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Parsed spacecraft spec.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="TypeError">TypeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If <code>data</code> is not a dict.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="astrodyn_core.propagation.register_all_providers" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">register_all_providers</span><span class="p">(</span><span class="n">registry</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.register_all_providers" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Register all built-in providers (Orekit-native + analytical).</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>registry</code>
+            </td>
+            <td>
+                  <code><span title="typing.Any">Any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Provider registry to mutate.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="astrodyn_core.propagation.register_analytical_providers" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">register_analytical_providers</span><span class="p">(</span><span class="n">registry</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.register_analytical_providers" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Register built-in analytical (non-Orekit-native) providers.</p>
+<p>Currently registers:
+- <code>GEqOEProvider</code> (kind <code>"geqoe"</code>) — J2 Taylor-series propagator in
+  Generalized Equinoctial Orbital Elements.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>registry</code>
+            </td>
+            <td>
+                  <code><span title="typing.Any">Any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Provider registry to mutate.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="astrodyn_core.propagation.register_default_orekit_providers" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">register_default_orekit_providers</span><span class="p">(</span><span class="n">registry</span><span class="p">)</span></code>
+
+<a href="#astrodyn_core.propagation.register_default_orekit_providers" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Register built-in Orekit-native providers in both registry lanes.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>registry</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="ProviderRegistry(_builder_providers=dict(), _propagator_providers=dict())
+
+  
+      dataclass
+   (astrodyn_core.propagation.registry.ProviderRegistry)" href="#astrodyn_core.propagation.ProviderRegistry">ProviderRegistry</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Provider registry to mutate.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "content.code.copy", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
