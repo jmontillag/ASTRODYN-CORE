@@ -1,10 +1,6 @@
-"""Compatibility shim for propagation assembly helpers.
+"""Canonical propagation force/attitude assembly submodules."""
 
-Canonical force/attitude assembly now lives in
-``astrodyn_core.propagation.assembly_parts``.
-"""
-
-from astrodyn_core.propagation.assembly_parts import (
+from astrodyn_core.propagation.assembly_parts.orchestrator import (
     assemble_attitude_provider,
     assemble_force_models,
     build_atmosphere,

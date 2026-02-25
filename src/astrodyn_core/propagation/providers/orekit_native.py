@@ -5,10 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from astrodyn_core.propagation.assembly import assemble_attitude_provider, assemble_force_models
-from astrodyn_core.propagation.dsst_assembly import assemble_dsst_force_models
+from astrodyn_core.propagation.assembly_parts import assemble_attitude_provider, assemble_force_models
+from astrodyn_core.propagation.dsst_parts import assemble_dsst_force_models
 from astrodyn_core.propagation.capabilities import CapabilityDescriptor
-from astrodyn_core.propagation.universe import get_mu
+from astrodyn_core.orekit_env import get_mu
 from astrodyn_core.propagation.interfaces import BuildContext
 from astrodyn_core.propagation.providers.integrators import create_orekit_integrator_builder
 from astrodyn_core.propagation.registry import ProviderRegistry

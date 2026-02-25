@@ -25,8 +25,8 @@ Universe config helpers (available via ``propagation.config`` or ``propagation.u
     get_mu, get_earth_shape, get_iers_conventions, get_itrf_frame, etc.
 """
 
-from astrodyn_core.propagation.assembly import assemble_attitude_provider, assemble_force_models
-from astrodyn_core.propagation.dsst_assembly import assemble_dsst_force_models
+from astrodyn_core.propagation.assembly_parts import assemble_attitude_provider, assemble_force_models
+from astrodyn_core.propagation.dsst_parts import assemble_dsst_force_models
 from astrodyn_core.propagation.attitude import AttitudeSpec
 from astrodyn_core.propagation.capabilities import CapabilityDescriptor
 from astrodyn_core.propagation.client import PropagationClient
