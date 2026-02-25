@@ -10,7 +10,17 @@ from astrodyn_core.tle.models import TLERecord
 
 
 def parse_tle_epoch(tle_line1: str) -> datetime:
-    """Parse TLE epoch (line1 columns 19-32) into UTC datetime."""
+    """Parse the TLE epoch field from line 1 into a UTC datetime.
+
+    Args:
+        tle_line1: TLE line 1 text containing the epoch field at columns 19-32.
+
+    Returns:
+        Parsed timezone-aware UTC epoch.
+
+    Raises:
+        ValueError: If line 1 is too short to contain an epoch field.
+    """
     if len(tle_line1) < 32:
         raise ValueError("TLE line1 is too short to contain an epoch field.")
 
@@ -22,14 +32,34 @@ def parse_tle_epoch(tle_line1: str) -> datetime:
 
 
 def parse_norad_id(tle_line1: str) -> int:
-    """Parse NORAD id from line1 columns 3-7."""
+    """Parse the NORAD catalog identifier from TLE line 1.
+
+    Args:
+        tle_line1: TLE line 1 text.
+
+    Returns:
+        Parsed NORAD identifier.
+
+    Raises:
+        ValueError: If line 1 is too short to contain the NORAD field.
+    """
     if len(tle_line1) < 7:
         raise ValueError("TLE line1 is too short to contain NORAD id.")
     return int(tle_line1[2:7].strip())
 
 
 def parse_tle_file(path: str | Path) -> tuple[TLERecord, ...]:
-    """Read a .tle file and return sorted TLE records (ascending by epoch)."""
+    """Parse a local ``.tle`` file into sorted TLE records.
+
+    The parser scans the file line-by-line, accepting adjacent line pairs that
+    look like TLE line 1 / line 2 records and skipping malformed pairs.
+
+    Args:
+        path: Path to a local ``.tle`` file.
+
+    Returns:
+        Tuple of parsed records sorted by ascending epoch.
+    """
     file_path = Path(path)
     lines = [line.strip() for line in file_path.read_text().splitlines() if line.strip()]
 
@@ -59,7 +89,15 @@ def parse_tle_file(path: str | Path) -> tuple[TLERecord, ...]:
 
 
 def find_best_tle(records: Iterable[TLERecord], target_epoch: datetime) -> TLERecord | None:
-    """Return latest record with epoch <= target_epoch."""
+    """Select the latest record with epoch less than or equal to ``target_epoch``.
+
+    Args:
+        records: Candidate TLE records.
+        target_epoch: Desired epoch (naive datetimes are treated as UTC).
+
+    Returns:
+        The best matching record, or ``None`` if no record qualifies.
+    """
     if target_epoch.tzinfo is None:
         target_epoch = target_epoch.replace(tzinfo=timezone.utc)
     target_epoch = target_epoch.astimezone(timezone.utc)
@@ -72,5 +110,13 @@ def find_best_tle(records: Iterable[TLERecord], target_epoch: datetime) -> TLERe
 
 
 def find_best_tle_in_file(path: str | Path, target_epoch: datetime) -> TLERecord | None:
-    """Parse a file and return latest record with epoch <= target_epoch."""
+    """Parse a file and select the best record for a target epoch.
+
+    Args:
+        path: Path to a local ``.tle`` file.
+        target_epoch: Desired epoch (naive datetimes are treated as UTC).
+
+    Returns:
+        The best matching record, or ``None`` if no record qualifies.
+    """
     return find_best_tle(parse_tle_file(path), target_epoch)

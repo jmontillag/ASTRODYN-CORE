@@ -10,7 +10,17 @@ from astrodyn_core.tle.models import TLEDownloadResult
 
 
 def get_tle_file_path(norad_id: int, year: int, month: int, base_dir: str | Path = "data/tle") -> Path:
-    """Return canonical monthly cache path: {base}/{norad}/{norad}_YYYY-MM.tle."""
+    """Return the canonical monthly TLE cache file path.
+
+    Args:
+        norad_id: NORAD catalog identifier.
+        year: UTC year.
+        month: UTC month in ``[1, 12]``.
+        base_dir: Root cache directory.
+
+    Returns:
+        Canonical path ``{base}/{norad}/{norad}_YYYY-MM.tle``.
+    """
     return Path(base_dir) / str(norad_id) / f"{norad_id}_{year:04d}-{month:02d}.tle"
 
 
@@ -24,7 +34,21 @@ def download_tles_for_month(
 ) -> TLEDownloadResult:
     """Download one month of TLEs via an authenticated Space-Track client.
 
-    The client must implement: ``gp_history(norad_cat_id=..., epoch=..., orderby=..., format='tle')``.
+    The client must implement:
+    ``gp_history(norad_cat_id=..., epoch=..., orderby=..., format='tle')``.
+
+    Args:
+        norad_id: NORAD catalog identifier.
+        year: UTC year.
+        month: UTC month in ``[1, 12]``.
+        space_track_client: Authenticated Space-Track client.
+        base_dir: Root cache directory where the monthly file is written.
+
+    Returns:
+        Structured result describing success/failure and cache file output.
+
+    Raises:
+        ValueError: If ``norad_id`` or ``month`` are invalid.
     """
     if norad_id <= 0:
         raise ValueError("norad_id must be positive.")
@@ -86,7 +110,24 @@ def ensure_tles_available(
     *,
     base_dir: str | Path = "data/tle",
 ) -> tuple[Path, ...]:
-    """Ensure current month cache exists; include previous month when target day <= 8."""
+    """Ensure monthly cache files exist for resolving a target epoch.
+
+    The current month is always required. The previous month is also included
+    when the target day is ``<= 8`` so resolution can still find the latest TLE
+    preceding early-month epochs.
+
+    Args:
+        norad_id: NORAD catalog identifier.
+        target_epoch: Resolution epoch (naive datetimes are treated as UTC).
+        space_track_client: Authenticated Space-Track client used for downloads.
+        base_dir: Root cache directory.
+
+    Returns:
+        Tuple of existing local monthly cache file paths.
+
+    Raises:
+        RuntimeError: If the required current month download fails.
+    """
     if target_epoch.tzinfo is None:
         target_epoch = target_epoch.replace(tzinfo=timezone.utc)
     target_epoch = target_epoch.astimezone(timezone.utc)
