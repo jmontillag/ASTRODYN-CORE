@@ -45,6 +45,7 @@ secrets*.ini
 
 # Generated outputs
 *.png
+site/
 examples/generated/*
 !examples/generated/.gitkeep
 

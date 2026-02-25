@@ -16,6 +16,14 @@ dependencies = ["orekit>=13.1", "pyyaml>=6.0"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "ruff>=0.8.0", "mypy>=1.12"]
+docs = [
+  "mkdocs>=1.6,<2",
+  "mkdocs-material>=9.5,<10",
+  "mkdocstrings[python]>=0.26",
+  "mkdocs-gen-files>=0.5",
+  "mkdocs-literate-nav>=0.6",
+  "pymdown-extensions>=10.0",
+]
 tle = ["spacetrack>=1.4"]
 
 [tool.scikit-build]

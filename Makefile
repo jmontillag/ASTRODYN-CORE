@@ -5,6 +5,7 @@ CONDA_RUN := conda run -n $(CONDA_ENV)
 BUILD_DIR ?= build
 
 .PHONY: help setup-env install-dev test test-rs test-fast test-transition \
+	docs-install docs-serve docs-build \
 	example-quickstart example-geqoe native-config native-build
 
 help:
@@ -13,6 +14,7 @@ help:
 	@echo "Environment:"
 	@echo "  make setup-env             # run repo setup helper"
 	@echo "  make install-dev           # pip install -e .[dev] in $(CONDA_ENV)"
+	@echo "  make docs-install          # install docs tooling in $(CONDA_ENV)"
 	@echo ""
 	@echo "Tests:"
 	@echo "  make test                 # full pytest -q"
@@ -24,6 +26,10 @@ help:
 	@echo "  make example-quickstart   # run examples/quickstart.py --mode all"
 	@echo "  make example-geqoe        # run examples/geqoe_propagator.py --mode all"
 	@echo ""
+	@echo "Docs:"
+	@echo "  make docs-serve           # serve MkDocs site locally"
+	@echo "  make docs-build           # build MkDocs site"
+	@echo ""
 	@echo "Native build:"
 	@echo "  make native-config        # cmake -S . -B $(BUILD_DIR)"
 	@echo "  make native-build         # cmake --build $(BUILD_DIR)"
@@ -33,6 +39,9 @@ setup-env:
 
 install-dev:
 	$(CONDA_RUN) python -m pip install -e .[dev]
+
+docs-install:
+	$(CONDA_RUN) python -m pip install -e .[docs]
 
 test:
 	$(CONDA_RUN) pytest -q
@@ -55,6 +64,12 @@ example-quickstart:
 
 example-geqoe:
 	$(CONDA_RUN) python examples/geqoe_propagator.py --mode all
+
+docs-serve:
+	$(CONDA_RUN) mkdocs serve
+
+docs-build:
+	$(CONDA_RUN) mkdocs build --strict
 
 native-config:
 	cmake -S . -B $(BUILD_DIR)
