@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://github.com/jmontillag/ASTRODYN-CORE/tutorials/uncertainty/">
+        <link rel="canonical" href="https://jmontillag.github.io/ASTRODYN-CORE/tutorials/uncertainty/">
       
       
         <link rel="prev" href="../scenario-missions/">
@@ -70,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#tutorial-uncertainty-workflows" class="md-skip">
+        <a href="#tutorial-uncertainty-workflows-covariance-stm" class="md-skip">
           Skip to content
         </a>
       
@@ -626,10 +626,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#source-script" class="md-nav__link">
+  <a href="#learning-goals" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Source script
+        Learning goals
       
     </span>
   </a>
@@ -637,10 +637,153 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#planned-topics" class="md-nav__link">
+  <a href="#source-script-executable-truth" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Planned topics
+        Source script (executable truth)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-run-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you run it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mental-model-what-this-example-teaches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mental model (what this example teaches)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inputs-and-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inputs and setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-1-cartesian-covariance-propagation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part 1: Cartesian covariance propagation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-2-keplerian-covariance-propagation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part 2: Keplerian covariance propagation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-3-stm-only-extraction-no-covariance-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part 3: STM-only extraction (no covariance required)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-4-representation-consistency-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part 4: Representation consistency check
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-5-psd-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part 5: PSD verification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-6-yaml-round-trip-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part 6: YAML round-trip verification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#output-files-what-they-are-for" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output files (what they are for)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-pitfalls-and-interpretation-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common pitfalls and interpretation tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-to-go-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where to go next
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related docs
       
     </span>
   </a>
@@ -760,6 +903,90 @@
     
   
     Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/tle-propagation-from-lines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLE Propagation from Two Lines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/numerical-propagation-from-state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Numerical Propagation from Typed Initial State
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/export-trajectory-from-propagator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Export Trajectory from Propagator
   
 
     
@@ -1271,10 +1498,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#source-script" class="md-nav__link">
+  <a href="#learning-goals" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Source script
+        Learning goals
       
     </span>
   </a>
@@ -1282,10 +1509,153 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#planned-topics" class="md-nav__link">
+  <a href="#source-script-executable-truth" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Planned topics
+        Source script (executable truth)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-run-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you run it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mental-model-what-this-example-teaches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mental model (what this example teaches)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inputs-and-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inputs and setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-1-cartesian-covariance-propagation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part 1: Cartesian covariance propagation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-2-keplerian-covariance-propagation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part 2: Keplerian covariance propagation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-3-stm-only-extraction-no-covariance-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part 3: STM-only extraction (no covariance required)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-4-representation-consistency-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part 4: Representation consistency check
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-5-psd-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part 5: PSD verification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-6-yaml-round-trip-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part 6: YAML round-trip verification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#output-files-what-they-are-for" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output files (what they are for)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-pitfalls-and-interpretation-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common pitfalls and interpretation tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-to-go-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where to go next
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related docs
       
     </span>
   </a>
@@ -1312,18 +1682,207 @@
   
 
 
-<h1 id="tutorial-uncertainty-workflows">Tutorial: Uncertainty Workflows<a class="headerlink" href="#tutorial-uncertainty-workflows" title="Permanent link">&para;</a></h1>
-<p>Status: scaffolded (content to be expanded from <code>examples/uncertainty.py</code>)</p>
-<h2 id="source-script">Source script<a class="headerlink" href="#source-script" title="Permanent link">&para;</a></h2>
+<h1 id="tutorial-uncertainty-workflows-covariance-stm">Tutorial: Uncertainty Workflows (Covariance + STM)<a class="headerlink" href="#tutorial-uncertainty-workflows-covariance-stm" title="Permanent link">&para;</a></h1>
+<p>This tutorial walks through the covariance/STM workflow demonstrated in
+<code>examples/uncertainty.py</code>.</p>
+<p>It is an advanced example, but it is one of the best learning tools in the repo
+because it shows not only <em>how</em> to run covariance propagation, but also how to
+validate the results.</p>
+<h2 id="learning-goals">Learning goals<a class="headerlink" href="#learning-goals" title="Permanent link">&para;</a></h2>
+<p>By the end of this tutorial, you should understand how to:</p>
+<ul>
+<li>propagate a covariance with the STM method</li>
+<li>compare Cartesian and Keplerian covariance representations</li>
+<li>extract raw STM matrices without an initial covariance</li>
+<li>validate covariance results (PSD checks, representation consistency, I/O round-trip)</li>
+<li>save uncertainty outputs to YAML (and optionally HDF5)</li>
+</ul>
+<h2 id="source-script-executable-truth">Source script (executable truth)<a class="headerlink" href="#source-script-executable-truth" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>examples/uncertainty.py</code></li>
 </ul>
-<h2 id="planned-topics">Planned topics<a class="headerlink" href="#planned-topics" title="Permanent link">&para;</a></h2>
+<p>Run it from the repo root:</p>
+<div class="highlight"><pre><span></span><code>conda<span class="w"> </span>run<span class="w"> </span>-n<span class="w"> </span>astrodyn-core-env<span class="w"> </span>python<span class="w"> </span>examples/uncertainty.py
+</code></pre></div>
+<h2 id="before-you-run-it">Before you run it<a class="headerlink" href="#before-you-run-it" title="Permanent link">&para;</a></h2>
+<p>Prerequisites:</p>
 <ul>
-<li>covariance propagation setup</li>
-<li>STM usage and interpretation</li>
-<li>output formats and plotting</li>
-<li>numerical caveats and validation tips</li>
+<li>project installed in <code>astrodyn-core-env</code></li>
+<li><code>orekit</code> available in that environment</li>
+<li><code>numpy</code> available (installed via project dependencies)</li>
+<li>optional: <code>h5py</code> if you want HDF5 covariance output</li>
+</ul>
+<p>This script writes outputs under:</p>
+<ul>
+<li><code>examples/generated/</code></li>
+</ul>
+<h2 id="mental-model-what-this-example-teaches">Mental model (what this example teaches)<a class="headerlink" href="#mental-model-what-this-example-teaches" title="Permanent link">&para;</a></h2>
+<p>The script is structured as a sequence of increasingly strict checks:</p>
+<ol>
+<li><strong>Propagate Cartesian covariance</strong></li>
+<li><strong>Propagate equivalent Keplerian covariance</strong></li>
+<li><strong>Extract raw STM (Φ)</strong></li>
+<li><strong>Check representation consistency</strong></li>
+<li><strong>Check PSD validity</strong></li>
+<li><strong>Check YAML round-trip serialization</strong></li>
+</ol>
+<p>That makes it both a tutorial and a validation harness.</p>
+<h2 id="inputs-and-setup">Inputs and setup<a class="headerlink" href="#inputs-and-setup" title="Permanent link">&para;</a></h2>
+<p>The script defines:</p>
+<ul>
+<li>a Keplerian <code>OrbitStateRecord</code> (<code>INITIAL_STATE</code>)</li>
+<li>a Cartesian 6×6 covariance (<code>INITIAL_COV_CART</code>)</li>
+<li>a 3-day <code>OutputEpochSpec</code> sampled every 30 minutes</li>
+<li>a helper <code>_build_propagator()</code> that returns a fresh numerical propagator</li>
+</ul>
+<p>Why the "fresh propagator" helper matters:</p>
+<ul>
+<li>numerical propagators and STM-enabled wrappers may carry internal state</li>
+<li>the script intentionally builds a new propagator per workflow to avoid
+  cross-contamination between runs</li>
+</ul>
+<h2 id="part-1-cartesian-covariance-propagation">Part 1: Cartesian covariance propagation<a class="headerlink" href="#part-1-cartesian-covariance-propagation" title="Permanent link">&para;</a></h2>
+<p>The first run propagates a Cartesian covariance using:</p>
+<ul>
+<li><code>UncertaintySpec(method="stm", orbit_type="CARTESIAN")</code></li>
+<li><code>app.uncertainty.propagate_with_covariance(...)</code></li>
+</ul>
+<p>Outputs:</p>
+<ul>
+<li><code>examples/generated/cov_cart_trajectory.yaml</code></li>
+<li><code>examples/generated/cov_cart_series.yaml</code></li>
+</ul>
+<p>What to look for in the printed output:</p>
+<ul>
+<li>1σ position and velocity growth over time</li>
+<li>growth factors over 12-hour intervals</li>
+</ul>
+<p>Interpretation:</p>
+<ul>
+<li>this shows how uncertainty grows under the chosen dynamics model</li>
+<li>the script uses a numerical propagator with a low-order gravity model (J2 2x2)</li>
+</ul>
+<h2 id="part-2-keplerian-covariance-propagation">Part 2: Keplerian covariance propagation<a class="headerlink" href="#part-2-keplerian-covariance-propagation" title="Permanent link">&para;</a></h2>
+<p>The script then converts the same physical initial covariance from Cartesian to
+Keplerian coordinates and runs a second propagation:</p>
+<ul>
+<li><code>orbit_type="KEPLERIAN"</code></li>
+<li><code>position_angle="MEAN"</code></li>
+</ul>
+<p>Outputs:</p>
+<ul>
+<li><code>examples/generated/cov_kep_trajectory.yaml</code></li>
+<li><code>examples/generated/cov_kep_series.yaml</code></li>
+<li><code>examples/generated/cov_kep_series.h5</code> (optional; only if <code>h5py</code> is installed)</li>
+</ul>
+<p>What to look for:</p>
+<ul>
+<li><code>σ_a</code> (semimajor axis uncertainty) often stays comparatively stable</li>
+<li><code>σ_M</code> (mean anomaly uncertainty) tends to grow, capturing along-track divergence</li>
+</ul>
+<p>This is a core reason Keplerian covariance is useful:</p>
+<ul>
+<li>it often aligns more directly with how orbital uncertainty is discussed in OD
+  and mission analysis workflows</li>
+</ul>
+<h2 id="part-3-stm-only-extraction-no-covariance-required">Part 3: STM-only extraction (no covariance required)<a class="headerlink" href="#part-3-stm-only-extraction-no-covariance-required" title="Permanent link">&para;</a></h2>
+<p>The script uses:</p>
+<ul>
+<li><code>setup_stm_propagator(...)</code></li>
+<li><code>propagate_with_stm(epoch)</code></li>
+</ul>
+<p>to obtain raw STM matrices <code>Φ(t, t0)</code> at selected epochs.</p>
+<p>This is useful when you want:</p>
+<ul>
+<li>direct access to the state transition matrix</li>
+<li>custom covariance propagation logic</li>
+<li>diagnostics/conditioning analysis independent of the higher-level client flow</li>
+</ul>
+<p>The script prints:</p>
+<ul>
+<li><code>|det(Φ) - 1|</code></li>
+<li>Frobenius norm <code>||Φ||_F</code></li>
+<li>condition number</li>
+<li>maximum absolute entry</li>
+</ul>
+<p>These are practical diagnostics for understanding numerical behavior over time.</p>
+<h2 id="part-4-representation-consistency-check">Part 4: Representation consistency check<a class="headerlink" href="#part-4-representation-consistency-check" title="Permanent link">&para;</a></h2>
+<p>This is the most instructive part of the script.</p>
+<p>At daily checkpoints it compares:</p>
+<ul>
+<li>covariance propagated directly in Cartesian space</li>
+<li>covariance propagated in Keplerian space then converted back to Cartesian</li>
+<li>covariance reconstructed manually as <code>Φ P0 Φᵀ</code></li>
+</ul>
+<p>What the script demonstrates:</p>
+<ul>
+<li>Keplerian-vs-Cartesian representation changes are not introducing meaningful
+  extra error beyond numerical integration path differences</li>
+</ul>
+<p>If you are developing your own uncertainty workflows, this is the pattern to
+copy for trust-building and regression checks.</p>
+<h2 id="part-5-psd-verification">Part 5: PSD verification<a class="headerlink" href="#part-5-psd-verification" title="Permanent link">&para;</a></h2>
+<p>Covariance matrices should be positive semi-definite (PSD).</p>
+<p>The script checks eigenvalues of every covariance record in both series and
+reports any violations.</p>
+<p>Why this matters:</p>
+<ul>
+<li>a covariance that is not PSD can break downstream estimation/analysis code</li>
+<li>PSD checks are a cheap, high-value validation step for saved outputs</li>
+</ul>
+<h2 id="part-6-yaml-round-trip-verification">Part 6: YAML round-trip verification<a class="headerlink" href="#part-6-yaml-round-trip-verification" title="Permanent link">&para;</a></h2>
+<p>The script reloads the saved covariance series and compares matrix arrays with
+the in-memory results.</p>
+<p>This verifies:</p>
+<ul>
+<li>serialization format integrity</li>
+<li>I/O helpers in the <code>uncertainty</code> client/module</li>
+<li>no accidental precision loss beyond the expected tolerance</li>
+</ul>
+<h2 id="output-files-what-they-are-for">Output files (what they are for)<a class="headerlink" href="#output-files-what-they-are-for" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>cov_cart_trajectory.yaml</code>: state series used alongside Cartesian covariance run</li>
+<li><code>cov_cart_series.yaml</code>: Cartesian covariance records over time</li>
+<li><code>cov_kep_trajectory.yaml</code>: state series used alongside Keplerian covariance run</li>
+<li><code>cov_kep_series.yaml</code>: Keplerian covariance records over time</li>
+<li><code>cov_kep_series.h5</code>: optional HDF5 form of Keplerian covariance series</li>
+</ul>
+<h2 id="common-pitfalls-and-interpretation-tips">Common pitfalls and interpretation tips<a class="headerlink" href="#common-pitfalls-and-interpretation-tips" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>Different representations describe the same physical uncertainty</strong>
+  The numbers do not look similar component-by-component, especially between
+  Cartesian and Keplerian forms. Compare them only after converting to the same
+  representation.</p>
+</li>
+<li>
+<p><strong>Fresh propagators matter</strong>
+  Reusing the exact same propagator object across multiple runs can complicate
+  reproducibility and interpretation in advanced workflows.</p>
+</li>
+<li>
+<p><strong>PSD checks are not optional in production</strong>
+  Keep the PSD verification pattern when adapting this example to your own data.</p>
+</li>
+<li>
+<p><strong>HDF5 output may be skipped</strong>
+  If <code>h5py</code> is not installed, the script still runs and prints a note.</p>
+</li>
+</ul>
+<h2 id="where-to-go-next">Where to go next<a class="headerlink" href="#where-to-go-next" title="Permanent link">&para;</a></h2>
+<p>After running this tutorial:</p>
+<ol>
+<li>Adapt <code>INITIAL_STATE</code> and <code>INITIAL_COV_CART</code> to your mission case</li>
+<li>Reduce the time span to create a faster development loop</li>
+<li>Add your own representation-consistency checkpoints</li>
+<li>Export results and compare with downstream mission/estimation tooling</li>
+</ol>
+<h2 id="related-docs">Related docs<a class="headerlink" href="#related-docs" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../propagation-quickstart/">Propagation Quickstart</a></li>
+<li><a href="../scenario-missions/">Scenario + Mission Workflows</a></li>
+<li><a href="../../troubleshooting/common-setup-issues/">Common Setup Issues</a></li>
+<li><a href="../../reference/api/astrodyn_core/">API: <code>astrodyn_core</code></a></li>
 </ul>
 
 

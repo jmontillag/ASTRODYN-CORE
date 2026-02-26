@@ -1,79 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://github.com/jmontillag/ASTRODYN-CORE/</loc>
-         <lastmod>2026-02-25</lastmod>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
-         <loc>https://github.com/jmontillag/ASTRODYN-CORE/advanced/</loc>
-         <lastmod>2026-02-25</lastmod>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/advanced/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
-         <loc>https://github.com/jmontillag/ASTRODYN-CORE/getting-started/examples/</loc>
-         <lastmod>2026-02-25</lastmod>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/getting-started/examples/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
-         <loc>https://github.com/jmontillag/ASTRODYN-CORE/getting-started/first-propagation/</loc>
-         <lastmod>2026-02-25</lastmod>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/getting-started/first-propagation/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
-         <loc>https://github.com/jmontillag/ASTRODYN-CORE/getting-started/install/</loc>
-         <lastmod>2026-02-25</lastmod>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/getting-started/install/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
-         <loc>https://github.com/jmontillag/ASTRODYN-CORE/getting-started/orekit-data/</loc>
-         <lastmod>2026-02-25</lastmod>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/getting-started/orekit-data/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
-         <loc>https://github.com/jmontillag/ASTRODYN-CORE/how-to/</loc>
-         <lastmod>2026-02-25</lastmod>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/how-to/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
-         <loc>https://github.com/jmontillag/ASTRODYN-CORE/how-to/orbit-representation-roundtrip/</loc>
-         <lastmod>2026-02-25</lastmod>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/how-to/export-trajectory-from-propagator/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
-         <loc>https://github.com/jmontillag/ASTRODYN-CORE/reference/</loc>
-         <lastmod>2026-02-25</lastmod>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/how-to/numerical-propagation-from-state/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
-         <loc>https://github.com/jmontillag/ASTRODYN-CORE/reference/api/</loc>
-         <lastmod>2026-02-25</lastmod>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/how-to/orbit-representation-roundtrip/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
-         <loc>https://github.com/jmontillag/ASTRODYN-CORE/reference/api/astrodyn_core/</loc>
-         <lastmod>2026-02-25</lastmod>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/how-to/tle-propagation-from-lines/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
-         <loc>https://github.com/jmontillag/ASTRODYN-CORE/reference/api/orekit_env/</loc>
-         <lastmod>2026-02-25</lastmod>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/reference/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
-         <loc>https://github.com/jmontillag/ASTRODYN-CORE/reference/api/propagation/</loc>
-         <lastmod>2026-02-25</lastmod>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/reference/api/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
-         <loc>https://github.com/jmontillag/ASTRODYN-CORE/troubleshooting/common-setup-issues/</loc>
-         <lastmod>2026-02-25</lastmod>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/reference/api/astrodyn_core/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
-         <loc>https://github.com/jmontillag/ASTRODYN-CORE/tutorials/</loc>
-         <lastmod>2026-02-25</lastmod>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/reference/api/orekit_env/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
-         <loc>https://github.com/jmontillag/ASTRODYN-CORE/tutorials/geqoe/</loc>
-         <lastmod>2026-02-25</lastmod>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/reference/api/propagation/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
-         <loc>https://github.com/jmontillag/ASTRODYN-CORE/tutorials/propagation-quickstart/</loc>
-         <lastmod>2026-02-25</lastmod>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/troubleshooting/common-setup-issues/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
-         <loc>https://github.com/jmontillag/ASTRODYN-CORE/tutorials/scenario-missions/</loc>
-         <lastmod>2026-02-25</lastmod>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/tutorials/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
-         <loc>https://github.com/jmontillag/ASTRODYN-CORE/tutorials/uncertainty/</loc>
-         <lastmod>2026-02-25</lastmod>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/tutorials/geqoe/</loc>
+         <lastmod>2026-02-26</lastmod>
+    </url>
+    <url>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/tutorials/propagation-quickstart/</loc>
+         <lastmod>2026-02-26</lastmod>
+    </url>
+    <url>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/tutorials/scenario-missions/</loc>
+         <lastmod>2026-02-26</lastmod>
+    </url>
+    <url>
+         <loc>https://jmontillag.github.io/ASTRODYN-CORE/tutorials/uncertainty/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
 </urlset>

@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://github.com/jmontillag/ASTRODYN-CORE/tutorials/geqoe/">
+        <link rel="canonical" href="https://jmontillag.github.io/ASTRODYN-CORE/tutorials/geqoe/">
       
       
         <link rel="prev" href="../uncertainty/">
@@ -654,10 +654,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#source-script" class="md-nav__link">
+  <a href="#learning-goals" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Source script
+        Learning goals
       
     </span>
   </a>
@@ -665,10 +665,120 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#planned-topics" class="md-nav__link">
+  <a href="#source-script-executable-truth" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Planned topics
+        Source script (executable truth)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-run-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you run it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mental-model-four-api-tiers-for-the-same-geqoe-capability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mental model: four API tiers for the same GEqOE capability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mode-1-provider-recommended-starting-point" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mode 1: provider (recommended starting point)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mode-2-adapter-direct-geqoepropagator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mode 2: adapter (direct GEqOEPropagator)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mode-3-numpy-pure-numpy-geqoe-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mode 3: numpy (pure-numpy GEqOE engine)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mode-4-benchmark-cached-coefficients-and-performance-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mode 4: benchmark (cached coefficients and performance behavior)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#which-geqoe-mode-should-you-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which GEqOE mode should you use?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#geqoe-vs-other-propagator-kinds-practical-guidance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GEqOE vs other propagator kinds (practical guidance)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-pitfalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common pitfalls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related docs
       
     </span>
   </a>
@@ -760,6 +870,90 @@
     
   
     Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/tle-propagation-from-lines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLE Propagation from Two Lines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/numerical-propagation-from-state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Numerical Propagation from Typed Initial State
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/export-trajectory-from-propagator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Export Trajectory from Propagator
   
 
     
@@ -1271,10 +1465,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#source-script" class="md-nav__link">
+  <a href="#learning-goals" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Source script
+        Learning goals
       
     </span>
   </a>
@@ -1282,10 +1476,120 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#planned-topics" class="md-nav__link">
+  <a href="#source-script-executable-truth" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Planned topics
+        Source script (executable truth)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-run-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you run it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mental-model-four-api-tiers-for-the-same-geqoe-capability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mental model: four API tiers for the same GEqOE capability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mode-1-provider-recommended-starting-point" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mode 1: provider (recommended starting point)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mode-2-adapter-direct-geqoepropagator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mode 2: adapter (direct GEqOEPropagator)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mode-3-numpy-pure-numpy-geqoe-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mode 3: numpy (pure-numpy GEqOE engine)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mode-4-benchmark-cached-coefficients-and-performance-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mode 4: benchmark (cached coefficients and performance behavior)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#which-geqoe-mode-should-you-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which GEqOE mode should you use?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#geqoe-vs-other-propagator-kinds-practical-guidance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GEqOE vs other propagator kinds (practical guidance)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-pitfalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common pitfalls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related docs
       
     </span>
   </a>
@@ -1313,18 +1617,174 @@
 
 
 <h1 id="tutorial-geqoe-propagator">Tutorial: GEqOE Propagator<a class="headerlink" href="#tutorial-geqoe-propagator" title="Permanent link">&para;</a></h1>
-<p>Status: scaffolded (content to be expanded from <code>examples/geqoe_propagator.py</code>)</p>
-<h2 id="source-script">Source script<a class="headerlink" href="#source-script" title="Permanent link">&para;</a></h2>
+<p>This tutorial walks through <code>examples/geqoe_propagator.py</code>, which demonstrates
+the GEqOE J2 Taylor-series propagator at four usage levels.</p>
+<p>It is an advanced tutorial intended for users who want to evaluate or adopt the
+analytical GEqOE workflow, either through the standard ASTRODYN-CORE provider
+pipeline or through lower-level interfaces.</p>
+<h2 id="learning-goals">Learning goals<a class="headerlink" href="#learning-goals" title="Permanent link">&para;</a></h2>
+<p>By the end of this tutorial, you should be able to:</p>
+<ul>
+<li>build a GEqOE propagator through the standard <code>AstrodynClient</code> pipeline</li>
+<li>use the direct <code>GEqOEPropagator</code> adapter with Orekit objects</li>
+<li>run the pure-numpy GEqOE engine without Orekit</li>
+<li>understand the cached-coefficient benchmark mode at a high level</li>
+<li>choose which GEqOE usage level fits your use case</li>
+</ul>
+<h2 id="source-script-executable-truth">Source script (executable truth)<a class="headerlink" href="#source-script-executable-truth" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>examples/geqoe_propagator.py</code></li>
 </ul>
-<h2 id="planned-topics">Planned topics<a class="headerlink" href="#planned-topics" title="Permanent link">&para;</a></h2>
+<p>Run all modes:</p>
+<div class="highlight"><pre><span></span><code>conda<span class="w"> </span>run<span class="w"> </span>-n<span class="w"> </span>astrodyn-core-env<span class="w"> </span>python<span class="w"> </span>examples/geqoe_propagator.py<span class="w"> </span>--mode<span class="w"> </span>all
+</code></pre></div>
+<p>Supported modes:</p>
 <ul>
-<li>when GEqOE is a good fit</li>
-<li>provider integration usage</li>
-<li>staged coefficient flow (high level)</li>
-<li>comparison against other propagators</li>
-<li>current C++ parity/performance status</li>
+<li><code>provider</code></li>
+<li><code>adapter</code></li>
+<li><code>numpy</code></li>
+<li><code>benchmark</code></li>
+<li><code>all</code></li>
+</ul>
+<h2 id="before-you-run-it">Before you run it<a class="headerlink" href="#before-you-run-it" title="Permanent link">&para;</a></h2>
+<p>Prerequisites depend on the mode:</p>
+<ul>
+<li><code>provider</code>: requires Orekit (uses <code>AstrodynClient</code> + provider registry)</li>
+<li><code>adapter</code>: requires Orekit (direct Orekit adapter wrapper)</li>
+<li><code>numpy</code>: no Orekit required (pure numpy GEqOE engine)</li>
+<li><code>benchmark</code>: requires Orekit (constructs <code>GEqOEPropagator</code> and compares strategies)</li>
+</ul>
+<p>If you are just learning the concepts, start with:</p>
+<ul>
+<li><code>provider</code></li>
+<li>then <code>adapter</code></li>
+<li>then <code>numpy</code></li>
+<li>and leave <code>benchmark</code> for last</li>
+</ul>
+<h2 id="mental-model-four-api-tiers-for-the-same-geqoe-capability">Mental model: four API tiers for the same GEqOE capability<a class="headerlink" href="#mental-model-four-api-tiers-for-the-same-geqoe-capability" title="Permanent link">&para;</a></h2>
+<p>The script intentionally shows the same propagator family at different levels of
+abstraction:</p>
+<ol>
+<li><strong>Provider pipeline</strong> (most consistent with the rest of ASTRODYN-CORE)</li>
+<li><strong>Direct Orekit adapter</strong> (advanced control, still Orekit-centric)</li>
+<li><strong>Pure-numpy engine</strong> (algorithm-level access)</li>
+<li><strong>Benchmark mode</strong> (performance behavior, coefficient caching)</li>
+</ol>
+<p>This is useful because different teams need different integration styles.</p>
+<h2 id="mode-1-provider-recommended-starting-point">Mode 1: <code>provider</code> (recommended starting point)<a class="headerlink" href="#mode-1-provider-recommended-starting-point" title="Permanent link">&para;</a></h2>
+<p>Run:</p>
+<div class="highlight"><pre><span></span><code>conda<span class="w"> </span>run<span class="w"> </span>-n<span class="w"> </span>astrodyn-core-env<span class="w"> </span>python<span class="w"> </span>examples/geqoe_propagator.py<span class="w"> </span>--mode<span class="w"> </span>provider
+</code></pre></div>
+<p>What this demonstrates:</p>
+<ul>
+<li>create <code>PropagatorSpec(kind=\"geqoe\")</code></li>
+<li>build via <code>app.propagation.build_propagator(spec, ctx)</code></li>
+<li>use the resulting propagator through a standard ASTRODYN-CORE interface</li>
+<li>inspect resolved body constants (<code>mu</code>, <code>j2</code>, <code>re</code>) from Orekit</li>
+</ul>
+<p>Why this mode matters:</p>
+<ul>
+<li>it proves GEqOE can be used through the same facade/provider workflow as
+  <code>numerical</code>, <code>keplerian</code>, <code>dsst</code>, and <code>tle</code></li>
+<li>this is the best entry point for user code that may switch propagator kinds</li>
+</ul>
+<h2 id="mode-2-adapter-direct-geqoepropagator">Mode 2: <code>adapter</code> (direct <code>GEqOEPropagator</code>)<a class="headerlink" href="#mode-2-adapter-direct-geqoepropagator" title="Permanent link">&para;</a></h2>
+<p>Run:</p>
+<div class="highlight"><pre><span></span><code>conda<span class="w"> </span>run<span class="w"> </span>-n<span class="w"> </span>astrodyn-core-env<span class="w"> </span>python<span class="w"> </span>examples/geqoe_propagator.py<span class="w"> </span>--mode<span class="w"> </span>adapter
+</code></pre></div>
+<p>What this demonstrates:</p>
+<ul>
+<li>instantiate <code>GEqOEPropagator</code> directly from an Orekit orbit</li>
+<li>call <code>propagate(target_date)</code> for <code>SpacecraftState</code> output</li>
+<li>call <code>get_native_state(target_date)</code> for raw numpy state + STM</li>
+<li>call <code>propagate_array(dt_grid)</code> for batch propagation</li>
+<li>call <code>resetInitialState(...)</code> for maneuver-like workflows</li>
+</ul>
+<p>Use this mode when:</p>
+<ul>
+<li>you want GEqOE-specific methods not exposed by the higher-level facade</li>
+<li>you are integrating with custom analysis logic that consumes raw numpy arrays</li>
+<li>you want an Orekit-facing adapter but not the full factory flow</li>
+</ul>
+<h2 id="mode-3-numpy-pure-numpy-geqoe-engine">Mode 3: <code>numpy</code> (pure-numpy GEqOE engine)<a class="headerlink" href="#mode-3-numpy-pure-numpy-geqoe-engine" title="Permanent link">&para;</a></h2>
+<p>Run:</p>
+<div class="highlight"><pre><span></span><code>conda<span class="w"> </span>run<span class="w"> </span>-n<span class="w"> </span>astrodyn-core-env<span class="w"> </span>python<span class="w"> </span>examples/geqoe_propagator.py<span class="w"> </span>--mode<span class="w"> </span>numpy
+</code></pre></div>
+<p>What this demonstrates:</p>
+<ul>
+<li>direct use of <code>taylor_cart_propagator(...)</code></li>
+<li>manual state vector <code>y0</code> in SI units</li>
+<li>explicit Earth/body constants</li>
+<li>Taylor-order comparison (1..4)</li>
+<li>trajectory and STM output arrays over a time grid</li>
+</ul>
+<p>Why this mode is useful:</p>
+<ul>
+<li>no Orekit dependency (algorithm experimentation / testing)</li>
+<li>easiest way to study GEqOE numerical behavior in isolation</li>
+<li>convenient for validating staged implementations and parity</li>
+</ul>
+<h2 id="mode-4-benchmark-cached-coefficients-and-performance-behavior">Mode 4: <code>benchmark</code> (cached coefficients and performance behavior)<a class="headerlink" href="#mode-4-benchmark-cached-coefficients-and-performance-behavior" title="Permanent link">&para;</a></h2>
+<p>Run:</p>
+<div class="highlight"><pre><span></span><code>conda<span class="w"> </span>run<span class="w"> </span>-n<span class="w"> </span>astrodyn-core-env<span class="w"> </span>python<span class="w"> </span>examples/geqoe_propagator.py<span class="w"> </span>--mode<span class="w"> </span>benchmark
+</code></pre></div>
+<p>What the benchmark compares:</p>
+<ul>
+<li>baseline: repeated calls to the lower-level <code>taylor_cart_propagator(...)</code>
+  (recomputes coefficients each time)</li>
+<li><code>GEqOEPropagator.propagate()</code> loop (uses cached coefficients)</li>
+<li><code>GEqOEPropagator.propagate_array()</code> batch call (cached + vectorized)</li>
+</ul>
+<p>What to take away:</p>
+<ul>
+<li>cached coefficients matter when propagating many epochs from the same initial
+  condition</li>
+<li><code>propagate_array()</code> is typically fastest for batch workloads</li>
+<li>the script also performs a parity check against the baseline implementation</li>
+</ul>
+<p>This mode is primarily for performance intuition and validation, not first-time
+adoption.</p>
+<h2 id="which-geqoe-mode-should-you-use">Which GEqOE mode should you use?<a class="headerlink" href="#which-geqoe-mode-should-you-use" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Most application scripts</strong>: <code>provider</code></li>
+<li><strong>Advanced Orekit-centric workflows</strong>: <code>adapter</code></li>
+<li><strong>Algorithm research / parity work / unit tests</strong>: <code>numpy</code></li>
+<li><strong>Performance characterization</strong>: <code>benchmark</code></li>
+</ul>
+<h2 id="geqoe-vs-other-propagator-kinds-practical-guidance">GEqOE vs other propagator kinds (practical guidance)<a class="headerlink" href="#geqoe-vs-other-propagator-kinds-practical-guidance" title="Permanent link">&para;</a></h2>
+<p>GEqOE is a specialized analytical/semi-analytical option in this project.</p>
+<p>Use GEqOE when you want:</p>
+<ul>
+<li>fast repeated propagation from a fixed initial condition</li>
+<li>access to native arrays / STM-friendly workflows</li>
+<li>a J2-focused analytical model and benchmarkable Taylor behavior</li>
+</ul>
+<p>Use <code>numerical</code> / <code>dsst</code> when you need:</p>
+<ul>
+<li>broader force-model realism via Orekit force assemblies</li>
+<li>workflows already aligned to standard Orekit numerical/DSST semantics</li>
+</ul>
+<h2 id="common-pitfalls">Common pitfalls<a class="headerlink" href="#common-pitfalls" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>Units in pure-numpy mode are SI</strong>
+  <code>y0</code> and body constants are in meters / m/s / SI units.</p>
+</li>
+<li>
+<p><strong>Do not start with benchmark mode</strong>
+  It is easy to confuse performance behavior with API usage behavior.</p>
+</li>
+<li>
+<p><strong>Provider mode still returns a real propagator object</strong>
+  You can use it like other propagators in the ASTRODYN-CORE ecosystem.</p>
+</li>
+</ul>
+<h2 id="related-docs">Related docs<a class="headerlink" href="#related-docs" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../propagation-quickstart/">Propagation Quickstart</a></li>
+<li><a href="../../how-to/">How-To / Cookbook</a></li>
+<li><a href="../../reference/api/propagation/">API: <code>astrodyn_core.propagation</code></a></li>
+<li><a href="../../advanced/">Advanced Docs</a></li>
 </ul>
 
 

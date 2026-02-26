@@ -10,28 +10,28 @@
       
       
       
-        <link rel="canonical" href="https://jmontillag.github.io/ASTRODYN-CORE/reference/">
+        <link rel="canonical" href="https://jmontillag.github.io/ASTRODYN-CORE/how-to/numerical-propagation-from-state/">
       
       
-        <link rel="prev" href="../how-to/orbit-representation-roundtrip/">
+        <link rel="prev" href="../tle-propagation-from-lines/">
       
       
-        <link rel="next" href="api/">
+        <link rel="next" href="../export-trajectory-from-propagator/">
       
       
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
-        <title>Overview - ASTRODYN-CORE</title>
+        <title>Numerical Propagation from Typed Initial State - ASTRODYN-CORE</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
       
 
@@ -50,9 +50,9 @@
       
     
     
-      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -70,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#reference" class="md-skip">
+        <a href="#how-to-numerical-propagation-from-a-typed-initial-state-self-contained" class="md-skip">
           Skip to content
         </a>
       
@@ -86,7 +86,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="ASTRODYN-CORE" class="md-header__button md-logo" aria-label="ASTRODYN-CORE" data-md-component="logo">
+    <a href="../.." title="ASTRODYN-CORE" class="md-header__button md-logo" aria-label="ASTRODYN-CORE" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -106,7 +106,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Overview
+              Numerical Propagation from Typed Initial State
             
           </span>
         </div>
@@ -198,7 +198,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="ASTRODYN-CORE" class="md-nav__button md-logo" aria-label="ASTRODYN-CORE" data-md-component="logo">
+    <a href="../.." title="ASTRODYN-CORE" class="md-nav__button md-logo" aria-label="ASTRODYN-CORE" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -228,7 +228,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -309,7 +309,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/install/" class="md-nav__link">
+      <a href="../../getting-started/install/" class="md-nav__link">
         
   
   
@@ -337,7 +337,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/orekit-data/" class="md-nav__link">
+      <a href="../../getting-started/orekit-data/" class="md-nav__link">
         
   
   
@@ -365,7 +365,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/first-propagation/" class="md-nav__link">
+      <a href="../../getting-started/first-propagation/" class="md-nav__link">
         
   
   
@@ -393,7 +393,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/examples/" class="md-nav__link">
+      <a href="../../getting-started/examples/" class="md-nav__link">
         
   
   
@@ -482,7 +482,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tutorials/" class="md-nav__link">
+      <a href="../../tutorials/" class="md-nav__link">
         
   
   
@@ -510,7 +510,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tutorials/propagation-quickstart/" class="md-nav__link">
+      <a href="../../tutorials/propagation-quickstart/" class="md-nav__link">
         
   
   
@@ -538,7 +538,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tutorials/scenario-missions/" class="md-nav__link">
+      <a href="../../tutorials/scenario-missions/" class="md-nav__link">
         
   
   
@@ -566,7 +566,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tutorials/uncertainty/" class="md-nav__link">
+      <a href="../../tutorials/uncertainty/" class="md-nav__link">
         
   
   
@@ -594,7 +594,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tutorials/geqoe/" class="md-nav__link">
+      <a href="../../tutorials/geqoe/" class="md-nav__link">
         
   
   
@@ -602,207 +602,6 @@
     
   
     GEqOE Propagator
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
-    
-      
-        
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    How-To / Cookbook
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    How-To / Cookbook
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../how-to/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../how-to/tle-propagation-from-lines/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    TLE Propagation from Two Lines
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../how-to/numerical-propagation-from-state/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Numerical Propagation from Typed Initial State
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../how-to/export-trajectory-from-propagator/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Export Trajectory from Propagator
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../how-to/orbit-representation-roundtrip/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Orbit Representation Round-Trip
   
 
     
@@ -845,17 +644,17 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
             
   
   
   <span class="md-ellipsis">
     
   
-    Reference
+    How-To / Cookbook
   
 
     
@@ -866,16 +665,72 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_5">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Reference
+    How-To / Cookbook
   
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tle-propagation-from-lines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLE Propagation from Two Lines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -900,7 +755,7 @@
   <span class="md-ellipsis">
     
   
-    Overview
+    Numerical Propagation from Typed Initial State
   
 
     
@@ -918,7 +773,7 @@
   <span class="md-ellipsis">
     
   
-    Overview
+    Numerical Propagation from Typed Initial State
   
 
     
@@ -944,10 +799,76 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#notes" class="md-nav__link">
+  <a href="#when-to-use-this-recipe" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Notes
+        When to use this recipe
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-copy-paste" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run (copy-paste)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-this-demonstrates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What this demonstrates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-pattern-is-useful-for-research-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why this pattern is useful for research workflows
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extended-repo-examples-same-ideas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extended repo examples (same ideas)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next steps
       
     </span>
   </a>
@@ -958,6 +879,151 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../export-trajectory-from-propagator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Export Trajectory from Propagator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../orbit-representation-roundtrip/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Orbit Representation Round-Trip
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1021,7 +1087,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/" class="md-nav__link">
+      <a href="../../reference/api/" class="md-nav__link">
         
   
   
@@ -1049,7 +1115,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/astrodyn_core/" class="md-nav__link">
+      <a href="../../reference/api/astrodyn_core/" class="md-nav__link">
         
   
   
@@ -1077,7 +1143,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/propagation/" class="md-nav__link">
+      <a href="../../reference/api/propagation/" class="md-nav__link">
         
   
   
@@ -1105,7 +1171,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/orekit_env/" class="md-nav__link">
+      <a href="../../reference/api/orekit_env/" class="md-nav__link">
         
   
   
@@ -1192,7 +1258,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../troubleshooting/common-setup-issues/" class="md-nav__link">
+      <a href="../../troubleshooting/common-setup-issues/" class="md-nav__link">
         
   
   
@@ -1289,7 +1355,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/" class="md-nav__link">
+      <a href="../../advanced/" class="md-nav__link">
         
   
   
@@ -1344,10 +1410,76 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#notes" class="md-nav__link">
+  <a href="#when-to-use-this-recipe" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Notes
+        When to use this recipe
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-copy-paste" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run (copy-paste)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-this-demonstrates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What this demonstrates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-pattern-is-useful-for-research-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why this pattern is useful for research workflows
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extended-repo-examples-same-ideas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extended repo examples (same ideas)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next steps
       
     </span>
   </a>
@@ -1374,18 +1506,131 @@
   
 
 
-<h1 id="reference">Reference<a class="headerlink" href="#reference" title="Permanent link">&para;</a></h1>
-<p>The reference section is split into:</p>
+<h1 id="how-to-numerical-propagation-from-a-typed-initial-state-self-contained">How-To: Numerical Propagation from a Typed Initial State (Self-Contained)<a class="headerlink" href="#how-to-numerical-propagation-from-a-typed-initial-state-self-contained" title="Permanent link">&para;</a></h1>
+<p>This recipe is designed for <strong>package users</strong> who installed <code>astrodyn-core</code>
+with <code>pip</code> and want a realistic Orekit-backed propagation example without
+cloning the repo.</p>
+<p>It uses:</p>
 <ul>
-<li><strong>API reference</strong> (generated from docstrings)</li>
-<li><strong>Troubleshooting</strong> (setup/runtime/build issues)</li>
-<li><strong>Advanced docs</strong> (architecture and extension guidance)</li>
+<li><code>OrbitStateRecord</code> for the initial condition (serializable, state-file-friendly)</li>
+<li><code>PropagatorSpec</code> + <code>IntegratorSpec</code> + <code>GravitySpec</code> for the propagator config</li>
+<li><code>AstrodynClient.propagation.build_propagator_from_state(...)</code> for the facade-first workflow</li>
 </ul>
-<h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
+<h2 id="when-to-use-this-recipe">When to use this recipe<a class="headerlink" href="#when-to-use-this-recipe" title="Permanent link">&para;</a></h2>
+<p>Use this when you want to:</p>
 <ul>
-<li>API pages are scaffolded and will improve as docstring coverage expands.</li>
-<li>Existing advanced design docs remain in the repository <code>docs/</code> folder and are
-  linked from the Advanced section.</li>
+<li>run a numerical propagator from a typed state record</li>
+<li>avoid manual Orekit orbit construction in your first script</li>
+<li>build intuition for the facade + spec API pattern</li>
+</ul>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>astrodyn-core</code> installed</li>
+<li>Orekit data configured</li>
+</ul>
+<p>This snippet assumes <code>orekit-data.zip</code> is in the current working directory and
+uses <code>setup_orekit_curdir()</code>. If that is not true in your setup, see:</p>
+<ul>
+<li><a href="../../getting-started/orekit-data/">Orekit Data Setup</a></li>
+</ul>
+<h2 id="run-copy-paste">Run (copy-paste)<a class="headerlink" href="#run-copy-paste" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">orekit</span>
+<span class="n">orekit</span><span class="o">.</span><span class="n">initVM</span><span class="p">()</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">orekit.pyhelpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_orekit_curdir</span>
+<span class="n">setup_orekit_curdir</span><span class="p">()</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">org.orekit.frames</span><span class="w"> </span><span class="kn">import</span> <span class="n">FramesFactory</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">astrodyn_core</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AstrodynClient</span><span class="p">,</span>
+    <span class="n">GravitySpec</span><span class="p">,</span>
+    <span class="n">IntegratorSpec</span><span class="p">,</span>
+    <span class="n">OrbitStateRecord</span><span class="p">,</span>
+    <span class="n">PropagatorKind</span><span class="p">,</span>
+    <span class="n">PropagatorSpec</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">AstrodynClient</span><span class="p">()</span>
+
+<span class="c1"># Serializable initial condition (can later be saved to a state file)</span>
+<span class="n">initial_state</span> <span class="o">=</span> <span class="n">OrbitStateRecord</span><span class="p">(</span>
+    <span class="n">epoch</span><span class="o">=</span><span class="s2">&quot;2026-02-19T00:00:00Z&quot;</span><span class="p">,</span>
+    <span class="n">frame</span><span class="o">=</span><span class="s2">&quot;GCRF&quot;</span><span class="p">,</span>
+    <span class="n">representation</span><span class="o">=</span><span class="s2">&quot;keplerian&quot;</span><span class="p">,</span>
+    <span class="n">elements</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;a_m&quot;</span><span class="p">:</span> <span class="mf">7578137.0</span><span class="p">,</span>
+        <span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+        <span class="s2">&quot;i_deg&quot;</span><span class="p">:</span> <span class="mf">51.6</span><span class="p">,</span>
+        <span class="s2">&quot;argp_deg&quot;</span><span class="p">:</span> <span class="mf">45.0</span><span class="p">,</span>
+        <span class="s2">&quot;raan_deg&quot;</span><span class="p">:</span> <span class="mf">120.0</span><span class="p">,</span>
+        <span class="s2">&quot;anomaly_deg&quot;</span><span class="p">:</span> <span class="mf">30.0</span><span class="p">,</span>
+        <span class="s2">&quot;anomaly_type&quot;</span><span class="p">:</span> <span class="s2">&quot;MEAN&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">mu_m3_s2</span><span class="o">=</span><span class="s2">&quot;WGS84&quot;</span><span class="p">,</span>
+    <span class="n">mass_kg</span><span class="o">=</span><span class="mf">450.0</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Numerical propagator configuration (typed spec)</span>
+<span class="n">spec</span> <span class="o">=</span> <span class="n">PropagatorSpec</span><span class="p">(</span>
+    <span class="n">kind</span><span class="o">=</span><span class="n">PropagatorKind</span><span class="o">.</span><span class="n">NUMERICAL</span><span class="p">,</span>
+    <span class="n">mass_kg</span><span class="o">=</span><span class="mf">450.0</span><span class="p">,</span>
+    <span class="n">integrator</span><span class="o">=</span><span class="n">IntegratorSpec</span><span class="p">(</span>
+        <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;dp853&quot;</span><span class="p">,</span>
+        <span class="n">min_step</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span>
+        <span class="n">max_step</span><span class="o">=</span><span class="mf">300.0</span><span class="p">,</span>
+        <span class="n">position_tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">force_specs</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">GravitySpec</span><span class="p">(</span><span class="n">degree</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">8</span><span class="p">),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">propagator</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">propagation</span><span class="o">.</span><span class="n">build_propagator_from_state</span><span class="p">(</span><span class="n">initial_state</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
+
+<span class="n">start_date</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">to_orekit_date</span><span class="p">(</span><span class="n">initial_state</span><span class="o">.</span><span class="n">epoch</span><span class="p">)</span>
+<span class="n">target_date</span> <span class="o">=</span> <span class="n">start_date</span><span class="o">.</span><span class="n">shiftedBy</span><span class="p">(</span><span class="mf">3600.0</span><span class="p">)</span>  <span class="c1"># +1 hour</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">propagator</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">target_date</span><span class="p">)</span>
+
+<span class="n">orbit</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">getOrbit</span><span class="p">()</span>
+<span class="n">pos</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">getPVCoordinates</span><span class="p">(</span><span class="n">FramesFactory</span><span class="o">.</span><span class="n">getGCRF</span><span class="p">())</span><span class="o">.</span><span class="n">getPosition</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;a = </span><span class="si">{</span><span class="n">orbit</span><span class="o">.</span><span class="n">getA</span><span class="p">()</span><span class="o">/</span><span class="mf">1e3</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> km&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;e = </span><span class="si">{</span><span class="n">orbit</span><span class="o">.</span><span class="n">getE</span><span class="p">()</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;i = </span><span class="si">{</span><span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">orbit</span><span class="o">.</span><span class="n">getI</span><span class="p">())</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> deg&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;r = (</span><span class="si">{</span><span class="n">pos</span><span class="o">.</span><span class="n">getX</span><span class="p">()</span><span class="o">/</span><span class="mf">1e3</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">pos</span><span class="o">.</span><span class="n">getY</span><span class="p">()</span><span class="o">/</span><span class="mf">1e3</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">pos</span><span class="o">.</span><span class="n">getZ</span><span class="p">()</span><span class="o">/</span><span class="mf">1e3</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">) km&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="what-this-demonstrates">What this demonstrates<a class="headerlink" href="#what-this-demonstrates" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>OrbitStateRecord</code> as a user-facing initial condition format</li>
+<li>typed numerical propagation config via <code>PropagatorSpec</code></li>
+<li>facade method <code>build_propagator_from_state(...)</code></li>
+<li>propagation to a target epoch and basic state inspection</li>
+</ul>
+<h2 id="why-this-pattern-is-useful-for-research-workflows">Why this pattern is useful for research workflows<a class="headerlink" href="#why-this-pattern-is-useful-for-research-workflows" title="Permanent link">&para;</a></h2>
+<p>This is a good baseline for student/research code because:</p>
+<ul>
+<li>the initial condition is explicit and serializable</li>
+<li>the numerical configuration is explicit and versionable</li>
+<li>the same <code>OrbitStateRecord</code> can later be reused in:</li>
+<li>state files</li>
+<li>mission scenarios</li>
+<li>uncertainty workflows</li>
+</ul>
+<h2 id="extended-repo-examples-same-ideas">Extended repo examples (same ideas)<a class="headerlink" href="#extended-repo-examples-same-ideas" title="Permanent link">&para;</a></h2>
+<p>If you cloned the repo, see:</p>
+<ul>
+<li><code>examples/quickstart.py --mode numerical</code></li>
+<li><code>examples/cookbook/multi_fidelity_comparison.py</code></li>
+<li><code>examples/cookbook/force_model_sweep.py</code></li>
+</ul>
+<h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../export-trajectory-from-propagator/">Export a Trajectory to YAML/HDF5</a></li>
+<li><a href="../../tutorials/propagation-quickstart/">Propagation Quickstart</a></li>
+<li><a href="../../tutorials/scenario-missions/">Scenario + Mission Workflows</a></li>
 </ul>
 
 
@@ -1442,10 +1687,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "content.code.copy", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

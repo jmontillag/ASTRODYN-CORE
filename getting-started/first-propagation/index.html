@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://github.com/jmontillag/ASTRODYN-CORE/getting-started/first-propagation/">
+        <link rel="canonical" href="https://jmontillag.github.io/ASTRODYN-CORE/getting-started/first-propagation/">
       
       
         <link rel="prev" href="../orekit-data/">
@@ -436,10 +436,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#minimal-example-facade-first" class="md-nav__link">
+  <a href="#fastest-runnable-example-pip-friendly-tle-propagation-from-two-lines" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Minimal example (facade-first)
+        Fastest runnable example (pip-friendly): TLE propagation from two lines
       
     </span>
   </a>
@@ -447,10 +447,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#where-does-initial_orbit-come-from" class="md-nav__link">
+  <a href="#same-workflow-from-the-repo-examples-extended-version" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Where does initial_orbit come from?
+        Same workflow from the repo examples (extended version)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-step-numerical-propagation-more-realistic-force-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next step: numerical propagation (more realistic force models)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-page-starts-with-tle-instead-of-numerical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why this page starts with TLE instead of numerical
       
     </span>
   </a>
@@ -782,6 +804,90 @@
     
   
     Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/tle-propagation-from-lines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLE Propagation from Two Lines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/numerical-propagation-from-state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Numerical Propagation from Typed Initial State
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/export-trajectory-from-propagator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Export Trajectory from Propagator
   
 
     
@@ -1304,10 +1410,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#minimal-example-facade-first" class="md-nav__link">
+  <a href="#fastest-runnable-example-pip-friendly-tle-propagation-from-two-lines" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Minimal example (facade-first)
+        Fastest runnable example (pip-friendly): TLE propagation from two lines
       
     </span>
   </a>
@@ -1315,10 +1421,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#where-does-initial_orbit-come-from" class="md-nav__link">
+  <a href="#same-workflow-from-the-repo-examples-extended-version" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Where does initial_orbit come from?
+        Same workflow from the repo examples (extended version)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-step-numerical-propagation-more-realistic-force-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next step: numerical propagation (more realistic force models)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-page-starts-with-tle-instead-of-numerical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why this page starts with TLE instead of numerical
       
     </span>
   </a>
@@ -1357,48 +1485,100 @@
 
 
 <h1 id="first-propagation">First Propagation<a class="headerlink" href="#first-propagation" title="Permanent link">&para;</a></h1>
-<p>This page shows the shortest facade-first workflow to build an Orekit propagator
-from typed specs.</p>
+<p>This page shows the shortest <strong>self-contained</strong> propagation workflow you can run
+after installing the package with <code>pip</code>, plus the repo-based path for deeper examples.</p>
 <h2 id="goal">Goal<a class="headerlink" href="#goal" title="Permanent link">&para;</a></h2>
-<p>Learn the core objects you will use most often:</p>
+<p>Learn the core objects and patterns you will use most often:</p>
 <ul>
 <li><code>AstrodynClient</code></li>
 <li><code>PropagatorSpec</code></li>
-<li><code>IntegratorSpec</code></li>
 <li><code>BuildContext</code></li>
+<li>(optional later) <code>IntegratorSpec</code> for numerical/DSST propagators</li>
 </ul>
-<h2 id="minimal-example-facade-first">Minimal example (facade-first)<a class="headerlink" href="#minimal-example-facade-first" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">astrodyn_core</span><span class="w"> </span><span class="kn">import</span> <span class="n">AstrodynClient</span><span class="p">,</span> <span class="n">BuildContext</span><span class="p">,</span> <span class="n">IntegratorSpec</span><span class="p">,</span> <span class="n">PropagatorKind</span><span class="p">,</span> <span class="n">PropagatorSpec</span>
+<h2 id="fastest-runnable-example-pip-friendly-tle-propagation-from-two-lines">Fastest runnable example (pip-friendly): TLE propagation from two lines<a class="headerlink" href="#fastest-runnable-example-pip-friendly-tle-propagation-from-two-lines" title="Permanent link">&para;</a></h2>
+<p>This example is self-contained and does <strong>not</strong> require the repo <code>examples/</code>
+folder. It uses a TLE propagator because that avoids manually constructing an
+Orekit initial orbit for the very first run.</p>
+<p>It still requires:</p>
+<ul>
+<li><code>orekit</code> installed (pulled in by <code>astrodyn-core</code>)</li>
+<li>Orekit data configured (this snippet assumes <code>orekit-data.zip</code> is available in
+  the current working directory and uses <code>setup_orekit_curdir()</code>)</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">orekit</span>
+<span class="n">orekit</span><span class="o">.</span><span class="n">initVM</span><span class="p">()</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">orekit.pyhelpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_orekit_curdir</span>
+<span class="n">setup_orekit_curdir</span><span class="p">()</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">org.orekit.frames</span><span class="w"> </span><span class="kn">import</span> <span class="n">FramesFactory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">org.orekit.propagation.analytical.tle</span><span class="w"> </span><span class="kn">import</span> <span class="n">TLE</span> <span class="k">as</span> <span class="n">OrekitTLE</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">astrodyn_core</span><span class="w"> </span><span class="kn">import</span> <span class="n">AstrodynClient</span><span class="p">,</span> <span class="n">BuildContext</span><span class="p">,</span> <span class="n">PropagatorKind</span><span class="p">,</span> <span class="n">PropagatorSpec</span><span class="p">,</span> <span class="n">TLESpec</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">AstrodynClient</span><span class="p">()</span>
 
-<span class="n">spec</span> <span class="o">=</span> <span class="n">PropagatorSpec</span><span class="p">(</span>
-    <span class="n">kind</span><span class="o">=</span><span class="n">PropagatorKind</span><span class="o">.</span><span class="n">NUMERICAL</span><span class="p">,</span>
-    <span class="n">mass_kg</span><span class="o">=</span><span class="mf">1200.0</span><span class="p">,</span>
-    <span class="n">integrator</span><span class="o">=</span><span class="n">IntegratorSpec</span><span class="p">(</span>
-        <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;dormand_prince_853&quot;</span><span class="p">,</span>
-        <span class="n">min_step</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
-        <span class="n">max_step</span><span class="o">=</span><span class="mf">300.0</span><span class="p">,</span>
-        <span class="n">position_tolerance</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
-    <span class="p">),</span>
+<span class="n">tle</span> <span class="o">=</span> <span class="n">TLESpec</span><span class="p">(</span>
+    <span class="n">line1</span><span class="o">=</span><span class="s2">&quot;1 25544U 98067A   24001.50000000  .00016717  00000-0  10270-3 0  9002&quot;</span><span class="p">,</span>
+    <span class="n">line2</span><span class="o">=</span><span class="s2">&quot;2 25544  51.6400  10.0000 0006000  50.0000 310.0000 15.49000000000000&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="c1"># Supply an Orekit orbit object obtained from your own setup code.</span>
-<span class="n">ctx</span> <span class="o">=</span> <span class="n">BuildContext</span><span class="p">(</span><span class="n">initial_orbit</span><span class="o">=</span><span class="n">initial_orbit</span><span class="p">,</span> <span class="n">position_tolerance</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
+<span class="n">propagator</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">propagation</span><span class="o">.</span><span class="n">build_propagator</span><span class="p">(</span>
+    <span class="n">PropagatorSpec</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="n">PropagatorKind</span><span class="o">.</span><span class="n">TLE</span><span class="p">,</span> <span class="n">tle</span><span class="o">=</span><span class="n">tle</span><span class="p">),</span>
+    <span class="n">BuildContext</span><span class="p">(),</span>
+<span class="p">)</span>
 
-<span class="n">builder</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">propagation</span><span class="o">.</span><span class="n">build_builder</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
-<span class="n">propagator</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">buildPropagator</span><span class="p">(</span><span class="n">builder</span><span class="o">.</span><span class="n">getSelectedNormalizedParameters</span><span class="p">())</span>
+<span class="n">tle_epoch</span> <span class="o">=</span> <span class="n">OrekitTLE</span><span class="p">(</span><span class="n">tle</span><span class="o">.</span><span class="n">line1</span><span class="p">,</span> <span class="n">tle</span><span class="o">.</span><span class="n">line2</span><span class="p">)</span><span class="o">.</span><span class="n">getDate</span><span class="p">()</span>
+<span class="n">target</span> <span class="o">=</span> <span class="n">tle_epoch</span><span class="o">.</span><span class="n">shiftedBy</span><span class="p">(</span><span class="mf">45.0</span> <span class="o">*</span> <span class="mf">60.0</span><span class="p">)</span>  <span class="c1"># +45 min</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">propagator</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+
+<span class="n">orbit</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">getOrbit</span><span class="p">()</span>
+<span class="n">pos</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">getPVCoordinates</span><span class="p">(</span><span class="n">FramesFactory</span><span class="o">.</span><span class="n">getGCRF</span><span class="p">())</span><span class="o">.</span><span class="n">getPosition</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;a = </span><span class="si">{</span><span class="n">orbit</span><span class="o">.</span><span class="n">getA</span><span class="p">()</span><span class="o">/</span><span class="mf">1e3</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> km&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;e = </span><span class="si">{</span><span class="n">orbit</span><span class="o">.</span><span class="n">getE</span><span class="p">()</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;i = </span><span class="si">{</span><span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">orbit</span><span class="o">.</span><span class="n">getI</span><span class="p">())</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> deg&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;r = (</span><span class="si">{</span><span class="n">pos</span><span class="o">.</span><span class="n">getX</span><span class="p">()</span><span class="o">/</span><span class="mf">1e3</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">pos</span><span class="o">.</span><span class="n">getY</span><span class="p">()</span><span class="o">/</span><span class="mf">1e3</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">pos</span><span class="o">.</span><span class="n">getZ</span><span class="p">()</span><span class="o">/</span><span class="mf">1e3</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">) km&quot;</span><span class="p">)</span>
 </code></pre></div>
-<h2 id="where-does-initial_orbit-come-from">Where does <code>initial_orbit</code> come from?<a class="headerlink" href="#where-does-initial_orbit-come-from" title="Permanent link">&para;</a></h2>
-<p>It is an Orekit orbit instance (for example <code>KeplerianOrbit</code>). For a runnable
-end-to-end script, start with:</p>
+<p>What this teaches:</p>
 <ul>
-<li><code>examples/quickstart.py</code></li>
+<li>facade-first usage (<code>AstrodynClient</code>)</li>
+<li>typed propagator selection (<code>PropagatorSpec(kind=TLE, ...)</code>)</li>
+<li>builder context usage (<code>BuildContext()</code>)</li>
+<li>propagation to a target epoch and basic orbit/state inspection</li>
 </ul>
+<h2 id="same-workflow-from-the-repo-examples-extended-version">Same workflow from the repo examples (extended version)<a class="headerlink" href="#same-workflow-from-the-repo-examples-extended-version" title="Permanent link">&para;</a></h2>
+<p>If you cloned the repo and want the maintained script version of this flow:</p>
+<div class="highlight"><pre><span></span><code>conda<span class="w"> </span>run<span class="w"> </span>-n<span class="w"> </span>astrodyn-core-env<span class="w"> </span>python<span class="w"> </span>examples/quickstart.py<span class="w"> </span>--mode<span class="w"> </span>tle
+</code></pre></div>
+<p>The repo example adds:</p>
+<ul>
+<li>shared helpers (<code>examples/_common.py</code>)</li>
+<li>nicer output formatting</li>
+<li>consistent example conventions used across the project</li>
+</ul>
+<h2 id="next-step-numerical-propagation-more-realistic-force-models">Next step: numerical propagation (more realistic force models)<a class="headerlink" href="#next-step-numerical-propagation-more-realistic-force-models" title="Permanent link">&para;</a></h2>
+<p>After the TLE example, the next learning step is a numerical propagator built
+from typed specs and an Orekit initial orbit. That pattern is explained in:</p>
+<ul>
+<li><a href="../../tutorials/propagation-quickstart/">Propagation Quickstart</a></li>
+</ul>
+<p>and demonstrated in the repo script:</p>
+<ul>
+<li><code>examples/quickstart.py --mode numerical</code></li>
+</ul>
+<h2 id="why-this-page-starts-with-tle-instead-of-numerical">Why this page starts with TLE instead of numerical<a class="headerlink" href="#why-this-page-starts-with-tle-instead-of-numerical" title="Permanent link">&para;</a></h2>
+<p>Numerical propagation is more representative for many mission-analysis use
+cases, but it requires extra setup to construct an Orekit orbit object.</p>
+<p>Starting with TLE gives package users a fully self-contained, first-success
+example that still exercises the ASTRODYN-CORE propagation facade.</p>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Read <a href="../examples/">Run Examples</a></li>
-<li>Continue to the propagation tutorial in <a href="../../tutorials/propagation-quickstart/">Tutorials</a></li>
+<li>Read <a href="../orekit-data/">Orekit data setup</a> if the snippet cannot find data</li>
+<li>Read <a href="../examples/">Run Examples</a> for repo-based workflows</li>
+<li>Continue to <a href="../../tutorials/propagation-quickstart/">Propagation Quickstart</a></li>
 </ul>
 
 

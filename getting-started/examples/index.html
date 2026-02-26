@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://github.com/jmontillag/ASTRODYN-CORE/getting-started/examples/">
+        <link rel="canonical" href="https://jmontillag.github.io/ASTRODYN-CORE/getting-started/examples/">
       
       
         <link rel="prev" href="../first-propagation/">
@@ -453,6 +453,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#two-kinds-of-examples-in-the-docs-ecosystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Two kinds of examples in the docs ecosystem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#core-entry-point-examples" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -490,6 +501,17 @@
     <span class="md-ellipsis">
       
         Choosing an example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation-growth-path-what-to-expect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation growth path (what to expect)
       
     </span>
   </a>
@@ -782,6 +804,90 @@
     
   
     Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/tle-propagation-from-lines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLE Propagation from Two Lines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/numerical-propagation-from-state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Numerical Propagation from Typed Initial State
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/export-trajectory-from-propagator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Export Trajectory from Propagator
   
 
     
@@ -1293,6 +1399,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#two-kinds-of-examples-in-the-docs-ecosystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Two kinds of examples in the docs ecosystem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#core-entry-point-examples" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1336,6 +1453,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#documentation-growth-path-what-to-expect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation growth path (what to expect)
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1359,6 +1487,18 @@
 <h1 id="run-examples">Run Examples<a class="headerlink" href="#run-examples" title="Permanent link">&para;</a></h1>
 <p>The project ships executable examples and cookbook scripts. Treat them as the
 source of truth for runnable workflows while the tutorials/docs expand.</p>
+<h2 id="two-kinds-of-examples-in-the-docs-ecosystem">Two kinds of examples in the docs ecosystem<a class="headerlink" href="#two-kinds-of-examples-in-the-docs-ecosystem" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Docs-embedded examples (self-contained)</strong>: copy-paste snippets in tutorial/how-to pages for <code>pip</code> users</li>
+<li><strong>Repo examples (<code>examples/</code>)</strong>: fuller scripts for repo users and contributors</li>
+</ul>
+<p>Recommended usage:</p>
+<ul>
+<li>If you installed with <code>pip</code>, start with docs-embedded examples first</li>
+<li>If you cloned the repo, use the <code>examples/</code> scripts as executable references</li>
+</ul>
+<p>The goal is for docs pages to remain useful even when the <code>examples/</code> folder is
+not available in your installation.</p>
 <h2 id="core-entry-point-examples">Core entry-point examples<a class="headerlink" href="#core-entry-point-examples" title="Permanent link">&para;</a></h2>
 <p>Run from the repo root:</p>
 <div class="highlight"><pre><span></span><code>conda<span class="w"> </span>run<span class="w"> </span>-n<span class="w"> </span>astrodyn-core-env<span class="w"> </span>python<span class="w"> </span>examples/quickstart.py<span class="w"> </span>--mode<span class="w"> </span>all
@@ -1390,6 +1530,14 @@ conda<span class="w"> </span>run<span class="w"> </span>-n<span class="w"> </spa
 <li>GEqOE: <code>examples/geqoe_propagator.py</code></li>
 </ul>
 <p>See <code>examples/README.md</code> for mode breakdowns and script-specific notes.</p>
+<h2 id="documentation-growth-path-what-to-expect">Documentation growth path (what to expect)<a class="headerlink" href="#documentation-growth-path-what-to-expect" title="Permanent link">&para;</a></h2>
+<p>New docs pages are being written with a consistent pattern:</p>
+<ol>
+<li><strong>Self-contained example</strong> (works for package users)</li>
+<li><strong>Extended repo example</strong> (links to <code>examples/...</code>)</li>
+<li><strong>API/reference links</strong> (for deeper exploration)</li>
+</ol>
+<p>This keeps the docs useful for both package users and repo contributors.</p>
 
 
 

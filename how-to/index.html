@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://github.com/jmontillag/ASTRODYN-CORE/how-to/">
+        <link rel="canonical" href="https://jmontillag.github.io/ASTRODYN-CORE/how-to/">
       
       
         <link rel="prev" href="../tutorials/geqoe/">
       
       
-        <link rel="next" href="orbit-representation-roundtrip/">
+        <link rel="next" href="tle-propagation-from-lines/">
       
       
         
@@ -780,6 +780,90 @@
   
   
     <li class="md-nav__item">
+      <a href="tle-propagation-from-lines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLE Propagation from Two Lines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="numerical-propagation-from-state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Numerical Propagation from Typed Initial State
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="export-trajectory-from-propagator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Export Trajectory from Propagator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="orbit-representation-roundtrip/" class="md-nav__link">
         
   
@@ -1313,8 +1397,13 @@
 
 
 <h1 id="how-to-cookbook">How-To / Cookbook<a class="headerlink" href="#how-to-cookbook" title="Permanent link">&para;</a></h1>
-<p>This section will provide short, task-oriented guides built from the
-<code>examples/cookbook/</code> scripts.</p>
+<p>This section provides short, task-oriented guides.</p>
+<p>Each recipe should aim to include:</p>
+<ol>
+<li>A <strong>self-contained example</strong> (usable by <code>pip</code> users without the repo <code>examples/</code> folder)</li>
+<li>A link to the <strong>extended repo example</strong> (when available)</li>
+<li>Expected outputs and common pitfalls</li>
+</ol>
 <h2 id="initial-recipe-targets">Initial recipe targets<a class="headerlink" href="#initial-recipe-targets" title="Permanent link">&para;</a></h2>
 <ul>
 <li>compare propagator fidelity levels</li>
@@ -1330,6 +1419,9 @@
 </ul>
 <h2 id="available-recipes">Available recipes<a class="headerlink" href="#available-recipes" title="Permanent link">&para;</a></h2>
 <ul>
+<li><a href="tle-propagation-from-lines/">TLE Propagation from Two Lines (Self-Contained)</a></li>
+<li><a href="numerical-propagation-from-state/">Numerical Propagation from a Typed Initial State (Self-Contained)</a></li>
+<li><a href="export-trajectory-from-propagator/">Export a Trajectory from a Propagator (YAML / HDF5)</a></li>
 <li><a href="orbit-representation-roundtrip/">Validate an Orbit Representation Round-Trip</a></li>
 </ul>
 
