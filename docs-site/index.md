@@ -15,6 +15,19 @@ If you are new to the project, follow this path:
 3. [First propagation](getting-started/first-propagation.md)
 4. [Run examples](getting-started/examples.md)
 
+## Choose a learning path
+
+If you already know what you want to do, use one of these paths:
+
+- **General propagation + state workflows**:
+  [Propagation Quickstart](tutorials/propagation-quickstart.md) ->
+  [Scenario + Mission Workflows](tutorials/scenario-missions.md) ->
+  [How-To / Cookbook](how-to/index.md)
+- **Covariance / STM workflows**:
+  [Uncertainty Workflows](tutorials/uncertainty.md)
+- **GEqOE analytical propagator workflows (advanced)**:
+  [GEqOE Propagator](tutorials/geqoe.md)
+
 ## Documentation map
 
 - **Getting Started**: shortest path to a working propagation run
@@ -31,3 +44,12 @@ ASTRODYN-CORE exposes two practical usage tiers:
 
 See `README.md` in the repo root for a broader project overview and current
 feature status.
+
+## What to expect from the docs
+
+- Tutorials are based on the runnable scripts in `examples/`
+- How-to pages are task-oriented recipes (shorter than tutorials)
+- API reference is generated from docstrings and improves as coverage increases
+
+If a page feels incomplete, check the corresponding example script first and use
+that as the executable reference.

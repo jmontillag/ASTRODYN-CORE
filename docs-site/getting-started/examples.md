@@ -3,6 +3,19 @@
 The project ships executable examples and cookbook scripts. Treat them as the
 source of truth for runnable workflows while the tutorials/docs expand.
 
+## Two kinds of examples in the docs ecosystem
+
+- **Docs-embedded examples (self-contained)**: copy-paste snippets in tutorial/how-to pages for `pip` users
+- **Repo examples (`examples/`)**: fuller scripts for repo users and contributors
+
+Recommended usage:
+
+- If you installed with `pip`, start with docs-embedded examples first
+- If you cloned the repo, use the `examples/` scripts as executable references
+
+The goal is for docs pages to remain useful even when the `examples/` folder is
+not available in your installation.
+
 ## Core entry-point examples
 
 Run from the repo root:
@@ -42,3 +55,13 @@ Typical outputs include:
 - GEqOE: `examples/geqoe_propagator.py`
 
 See `examples/README.md` for mode breakdowns and script-specific notes.
+
+## Documentation growth path (what to expect)
+
+New docs pages are being written with a consistent pattern:
+
+1. **Self-contained example** (works for package users)
+2. **Extended repo example** (links to `examples/...`)
+3. **API/reference links** (for deeper exploration)
+
+This keeps the docs useful for both package users and repo contributors.
