@@ -9,9 +9,15 @@ Current contents:
 - `skills/orekit-mcp/`
   - canonical copy of the global `orekit-mcp` skill installed in
     `~/.codex/skills/orekit-mcp`
+- `skills/astrodyn-core-consumer/`
+  - canonical skill template for dependent repositories that should use
+    `astrodyn_core` facade APIs for propagation/state/mission workflows
 - `agents-snippets/orekit-mcp-usage.md`
   - reusable `AGENTS.md` section for repos that use Orekit + the `orekit_docs`
     MCP server
+- `agents-snippets/astrodyn-core-consumer.md`
+  - reusable `AGENTS.md` section for repositories that consume
+    `/home/astror/Projects/ASTRODYN-CORE` as an editable dependency
 - `codex-config-snippets/orekit-docs-mcp.toml`
   - reusable `~/.codex/config.toml` MCP server snippets (direct Python and
     `conda run --no-capture-output` variants)

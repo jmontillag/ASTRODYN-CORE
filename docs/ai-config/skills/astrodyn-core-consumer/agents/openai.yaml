@@ -1,0 +1,4 @@
+interface:
+  display_name: "ASTRODYN-CORE Consumer"
+  short_description: "Use astrodyn_core facades in dependent repos"
+  default_prompt: "Use astrodyn_core as the primary interface for propagation, state, mission, uncertainty, TLE, and ephemeris tasks. Prefer AstrodynClient facades and typed specs, and avoid raw Orekit setup unless explicitly required."
