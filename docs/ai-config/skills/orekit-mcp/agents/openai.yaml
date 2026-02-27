@@ -1,5 +1,4 @@
 interface:
   display_name: "Orekit MCP"
   short_description: "Use Orekit MCP tools for API lookups"
-  default_prompt: "Use the orekit_docs MCP tools to search Javadocs and fetch class/member docs before writing Orekit-related code."
-
+  default_prompt: "Use the orekit_docs MCP tools to search Javadocs and fetch class/member docs before writing Orekit-related code. If tool calls are unavailable, use the orekit://* MCP resources as a fallback (orekit://search/..., orekit://class/..., orekit://member/...)."
