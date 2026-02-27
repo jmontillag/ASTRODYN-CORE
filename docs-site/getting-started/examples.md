@@ -25,7 +25,14 @@ conda run -n astrodyn-core-env python examples/quickstart.py --mode all
 conda run -n astrodyn-core-env python examples/scenario_missions.py --mode all
 conda run -n astrodyn-core-env python examples/uncertainty.py
 conda run -n astrodyn-core-env python examples/geqoe_propagator.py --mode all
+conda run -n astrodyn-core-env python examples/tle_batch_high_fidelity_ephemeris.py
 ```
+
+Notes for the batch TLE example:
+
+- Reads NORAD IDs + target epoch from `examples/state_files/tle_norad_batch.yaml`
+- Uses Space-Track credentials from repo-root `secrets.ini`
+- Writes date-windowed HDF5 outputs under `examples/generated/tle_hf_ephemerides/`
 
 ## Cookbook examples
 

@@ -24,6 +24,7 @@ For now, use:
 ## Available recipes
 
 - [TLE Propagation from Two Lines (Self-Contained)](tle-propagation-from-lines.md)
+- [Batch NORAD TLE to High-Fidelity Ephemeris](batch-tle-to-high-fidelity-ephemeris.md)
 - [Numerical Propagation from a Typed Initial State (Self-Contained)](numerical-propagation-from-state.md)
 - [Export a Trajectory from a Propagator (YAML / HDF5)](export-trajectory-from-propagator.md)
 - [Validate an Orbit Representation Round-Trip](orbit-representation-roundtrip.md)

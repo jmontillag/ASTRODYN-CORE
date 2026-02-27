@@ -134,6 +134,7 @@ conda run -n astrodyn-core-env python examples/quickstart.py --mode all
 conda run -n astrodyn-core-env python examples/scenario_missions.py --mode all
 conda run -n astrodyn-core-env python examples/uncertainty.py
 conda run -n astrodyn-core-env python examples/geqoe_propagator.py --mode all
+conda run -n astrodyn-core-env python examples/tle_batch_high_fidelity_ephemeris.py
 ```
 
 ## Documentation

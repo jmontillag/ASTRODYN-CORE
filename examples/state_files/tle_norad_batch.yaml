@@ -1,0 +1,14 @@
+# Batch NORAD-to-ephemeris input for
+# examples/tle_batch_high_fidelity_ephemeris.py
+#
+# target_epoch: propagation epoch used to:
+#   1) resolve the best TLE at-or-before this time
+#   2) extract TLE state in EME2000
+#   3) seed high-fidelity numerical propagation
+target_epoch: "2025-02-19T00:00:00Z"
+
+# One or more NORAD catalog IDs.
+norad_ids:
+  - 25544
+  - 28649
+  - 35812

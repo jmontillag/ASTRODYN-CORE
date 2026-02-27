@@ -55,6 +55,7 @@ nav:
   - How-To / Cookbook:
       - Overview: how-to/index.md
       - TLE Propagation from Two Lines: how-to/tle-propagation-from-lines.md
+      - Batch NORAD TLE to High-Fidelity Ephemeris: how-to/batch-tle-to-high-fidelity-ephemeris.md
       - Numerical Propagation from Typed Initial State: how-to/numerical-propagation-from-state.md
       - Export Trajectory from Propagator: how-to/export-trajectory-from-propagator.md
       - Orbit Representation Round-Trip: how-to/orbit-representation-roundtrip.md

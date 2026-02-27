@@ -68,6 +68,34 @@ Examples:
 - `ephemeris_from_oem.py` — OEM file parse and ephemeris round-trip
 - `sma_maintenance_analysis.py` — Full SMA maintenance mission workflow (scenario -> detector execution -> analysis)
 
+## 5) Batch TLE -> High-Fidelity Ephemeris
+
+Resolve a YAML list of NORAD IDs to TLE, seed high-fidelity numerical propagation
+from EME2000 states, generate bounded ephemerides (+3 days), and export HDF5
+trajectories sampled every 60 seconds:
+
+```bash
+conda run -n astrodyn-core-env python examples/tle_batch_high_fidelity_ephemeris.py
+```
+
+Default config:
+
+- `examples/state_files/tle_norad_batch.yaml`
+
+Default TLE cache directory:
+
+- `examples/generated/tle_cache/`
+
+Credentials:
+
+- Reads Space-Track credentials from repo-root `secrets.ini`:
+  - `credentials.spacetrack_identity`
+  - `credentials.spacetrack_password`
+
+Export naming:
+
+- `norad_<id>_hf_ephemeris_<YYYY-MM-DD>_to_<YYYY-MM-DD>.h5`
+
 ## Generated outputs
 
 Scripts write generated artifacts under:
