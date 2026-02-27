@@ -1,0 +1,48 @@
+# Canonical MCP server snippets for the local Orekit docs MCP server.
+# Copy ONE variant into ~/.codex/config.toml (do not enable both at once under
+# the same server name).
+#
+# Why two variants?
+# - Direct env Python is the most reliable for stdio MCP servers.
+# - `conda run` can work, but needs `--no-capture-output` to avoid stdio
+#   handshake issues with MCP.
+# - The runtime code path below is home-directory based (`~/.codex/mcp/...`) so
+#   it can be reused across repo sessions.
+# - The preferred runtime environment is a dedicated Conda env (`mcp-tools-env`)
+#   rather than a project-specific environment.
+
+# ---------------------------------------------------------------------------
+# Preferred variant: direct interpreter from the Conda env (most reliable)
+# ---------------------------------------------------------------------------
+[mcp_servers.orekit_docs]
+command = "/home/astror/miniconda3/envs/mcp-tools-env/bin/python"
+args = [
+  "-u",
+  "/home/astror/.codex/mcp/orekit-docs/tools/orekit_docs_mcp/server.py",
+]
+
+[mcp_servers.orekit_docs.env]
+OREKIT_CACHE_ROOT = "/home/astror/.cache/orekit"
+OREKIT_JAVADOC_VERSION = "13.1.4"
+
+
+# ---------------------------------------------------------------------------
+# Alternative variant: conda run (requires no stdout/stderr capture for MCP)
+# Copy this block instead of the one above if you prefer conda-managed launch.
+# ---------------------------------------------------------------------------
+#
+# [mcp_servers.orekit_docs]
+# command = "/home/astror/miniconda3/bin/conda"
+# args = [
+#   "run",
+#   "--no-capture-output",
+#   "-n",
+#   "mcp-tools-env",
+#   "python",
+#   "-u",
+#   "/home/astror/.codex/mcp/orekit-docs/tools/orekit_docs_mcp/server.py",
+# ]
+#
+# [mcp_servers.orekit_docs.env]
+# OREKIT_CACHE_ROOT = "/home/astror/.cache/orekit"
+# OREKIT_JAVADOC_VERSION = "13.1.4"
