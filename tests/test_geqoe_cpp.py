@@ -186,8 +186,8 @@ class TestGEqOE2RV:
     rather than 1e-13.  The mismatches occur exclusively in the z-velocity
     of near-equatorial orbits where the true value is ~0.  The difference
     (~5e-13) arises from NumPy vectorised vs C++ scalar intermediate
-    rounding.  Positions are exact to 1e-13; velocity *relative* error
-    (rtol) is also 1e-13.
+    rounding.  Positions are exact to 1e-14; velocity *relative* error
+    (rtol) is also 1e-14 — both well within double-precision ULP.
     """
 
     _VEL_ATOL = 1e-11   # 10 pm/s -- purely for near-zero z-velocity noise
@@ -204,9 +204,9 @@ class TestGEqOE2RV:
         py_rv, py_rpv = py_geqoe2rv(0.0, geqoe, (_J2, _Re, _mu))
         cpp_rv, cpp_rpv = cpp_geqoe2rv(geqoe, _J2, _Re, _mu)
 
-        npt.assert_allclose(cpp_rv, py_rv, rtol=1e-13, atol=1e-13,
+        npt.assert_allclose(cpp_rv, py_rv, rtol=1e-14, atol=1e-13,
                             err_msg="Position mismatch")
-        npt.assert_allclose(cpp_rpv, py_rpv, rtol=1e-13, atol=self._VEL_ATOL,
+        npt.assert_allclose(cpp_rpv, py_rpv, rtol=1e-14, atol=self._VEL_ATOL,
                             err_msg="Velocity mismatch")
 
     def test_parity_batch_100(self) -> None:
@@ -216,8 +216,8 @@ class TestGEqOE2RV:
         py_rv, py_rpv = py_geqoe2rv(0.0, geqoe, (_J2, _Re, _mu))
         cpp_rv, cpp_rpv = cpp_geqoe2rv(geqoe, _J2, _Re, _mu)
 
-        npt.assert_allclose(cpp_rv, py_rv, rtol=1e-13, atol=1e-13)
-        npt.assert_allclose(cpp_rpv, py_rpv, rtol=1e-13, atol=self._VEL_ATOL)
+        npt.assert_allclose(cpp_rv, py_rv, rtol=1e-14, atol=1e-13)
+        npt.assert_allclose(cpp_rpv, py_rpv, rtol=1e-14, atol=self._VEL_ATOL)
 
     def test_single_state(self) -> None:
         """Single state, 1-D GEqOE input (6,)."""
@@ -227,8 +227,8 @@ class TestGEqOE2RV:
         py_rv, py_rpv = py_geqoe2rv(0.0, geqoe, (_J2, _Re, _mu))
         cpp_rv, cpp_rpv = cpp_geqoe2rv(geqoe, _J2, _Re, _mu)
 
-        npt.assert_allclose(cpp_rv, py_rv, rtol=1e-13, atol=1e-13)
-        npt.assert_allclose(cpp_rpv, py_rpv, rtol=1e-13, atol=self._VEL_ATOL)
+        npt.assert_allclose(cpp_rv, py_rv, rtol=1e-14, atol=1e-13)
+        npt.assert_allclose(cpp_rpv, py_rpv, rtol=1e-14, atol=self._VEL_ATOL)
 
 
 # ---------------------------------------------------------------------------
@@ -247,9 +247,10 @@ class TestRoundtrip:
         # Inverse  (geqoe -> cart)  via C++
         rv_back, rpv_back = cpp_geqoe2rv(geqoe, _J2, _Re, _mu)
 
-        npt.assert_allclose(rv_back, cart[:, :3], rtol=1e-11, atol=1e-6,
+        # Observed: pos max|diff| ~8e-9 m (rel ~3e-13), vel ~1e-11 m/s (rel ~1e-14)
+        npt.assert_allclose(rv_back, cart[:, :3], rtol=1e-12, atol=1e-7,
                             err_msg="Position roundtrip failed")
-        npt.assert_allclose(rpv_back, cart[:, 3:], rtol=1e-11, atol=1e-3,
+        npt.assert_allclose(rpv_back, cart[:, 3:], rtol=1e-13, atol=1e-9,
                             err_msg="Velocity roundtrip failed")
 
     def test_roundtrip_single(self) -> None:
@@ -260,17 +261,20 @@ class TestRoundtrip:
 
         rv_back, rpv_back = cpp_geqoe2rv(geqoe, _J2, _Re, _mu)
 
-        npt.assert_allclose(rv_back.flatten(), cart[:3], rtol=1e-11, atol=1e-6)
-        npt.assert_allclose(rpv_back.flatten(), cart[3:], rtol=1e-11, atol=1e-3)
+        npt.assert_allclose(rv_back.flatten(), cart[:3], rtol=1e-12, atol=1e-7)
+        npt.assert_allclose(rpv_back.flatten(), cart[3:], rtol=1e-13, atol=1e-9)
 
 
 # ---------------------------------------------------------------------------
 # Jacobian parity: get_pEqpY
 # ---------------------------------------------------------------------------
 class TestGetPEqPY:
-    """d(Eq)/d(Y) Jacobian: C++ vs Python parity."""
+    """d(Eq)/d(Y) Jacobian: C++ vs Python parity.
 
-    _ATOL = 1e-11  # near-zero element noise (same rationale as geqoe2rv velocity)
+    Observed max absolute difference is ~2e-19 (essentially bitwise).
+    """
+
+    _ATOL = 1e-14  # near-zero element noise; observed max|diff| ~ 2e-19
 
     def test_parity_batch_20(self) -> None:
         states = _random_cart_states(20, seed=42)
@@ -278,7 +282,7 @@ class TestGetPEqPY:
         py_jac = py_get_pEqpY(0.0, states, (_J2, _Re, _mu))
         cpp_jac = cpp_get_pEqpY(states, _J2, _Re, _mu)
 
-        npt.assert_allclose(cpp_jac, py_jac, rtol=1e-12, atol=self._ATOL,
+        npt.assert_allclose(cpp_jac, py_jac, rtol=1e-14, atol=self._ATOL,
                             err_msg="get_pEqpY mismatch")
 
     def test_parity_batch_100(self) -> None:
@@ -287,7 +291,7 @@ class TestGetPEqPY:
         py_jac = py_get_pEqpY(0.0, states, (_J2, _Re, _mu))
         cpp_jac = cpp_get_pEqpY(states, _J2, _Re, _mu)
 
-        npt.assert_allclose(cpp_jac, py_jac, rtol=1e-12, atol=self._ATOL,
+        npt.assert_allclose(cpp_jac, py_jac, rtol=1e-14, atol=self._ATOL,
                             err_msg="get_pEqpY mismatch (100 states)")
 
     def test_single_state(self) -> None:
@@ -296,7 +300,7 @@ class TestGetPEqPY:
         py_jac = py_get_pEqpY(0.0, state, (_J2, _Re, _mu))
         cpp_jac = cpp_get_pEqpY(state, _J2, _Re, _mu)
 
-        npt.assert_allclose(cpp_jac, py_jac, rtol=1e-12, atol=self._ATOL)
+        npt.assert_allclose(cpp_jac, py_jac, rtol=1e-14, atol=self._ATOL)
 
 
 # ---------------------------------------------------------------------------
@@ -310,7 +314,7 @@ class TestGetPYPEq:
     norm, h from sqrt(c^2 - 2*r^2*U)) that accumulate more FP noise
     than get_pEqpY.  The mismatches are exclusively in near-zero
     z-component partials while non-zero elements (~1e+9) match
-    to rtol=1e-12.  Inverse consistency (pEqpY @ pYpEq = I) holds to
+    to rtol=1e-13.  Inverse consistency (pEqpY @ pYpEq = I) holds to
     much tighter tolerance, confirming mathematical correctness.
     """
 
@@ -327,7 +331,7 @@ class TestGetPYPEq:
         py_jac = py_get_pYpEq(0.0, geqoe, (_J2, _Re, _mu))
         cpp_jac = cpp_get_pYpEq(geqoe, _J2, _Re, _mu)
 
-        npt.assert_allclose(cpp_jac, py_jac, rtol=1e-12, atol=self._ATOL,
+        npt.assert_allclose(cpp_jac, py_jac, rtol=1e-13, atol=self._ATOL,
                             err_msg="get_pYpEq mismatch")
 
     def test_parity_batch_100(self) -> None:
@@ -337,7 +341,7 @@ class TestGetPYPEq:
         py_jac = py_get_pYpEq(0.0, geqoe, (_J2, _Re, _mu))
         cpp_jac = cpp_get_pYpEq(geqoe, _J2, _Re, _mu)
 
-        npt.assert_allclose(cpp_jac, py_jac, rtol=1e-12, atol=self._ATOL,
+        npt.assert_allclose(cpp_jac, py_jac, rtol=1e-13, atol=self._ATOL,
                             err_msg="get_pYpEq mismatch (100 states)")
 
     def test_single_state(self) -> None:
@@ -347,7 +351,7 @@ class TestGetPYPEq:
         py_jac = py_get_pYpEq(0.0, np.atleast_2d(geqoe), (_J2, _Re, _mu))
         cpp_jac = cpp_get_pYpEq(geqoe, _J2, _Re, _mu)
 
-        npt.assert_allclose(cpp_jac, py_jac, rtol=1e-12, atol=self._ATOL)
+        npt.assert_allclose(cpp_jac, py_jac, rtol=1e-13, atol=self._ATOL)
 
     def test_jacobian_inverse_consistency(self) -> None:
         """pEqpY @ pYpEq should approximate the identity matrix."""
@@ -357,6 +361,7 @@ class TestGetPYPEq:
         jac_eq_y = cpp_get_pEqpY(cart, _J2, _Re, _mu)
         jac_y_eq = cpp_get_pYpEq(geqoe, _J2, _Re, _mu)
 
+        # Observed max|prod - I| ~ 1e-12
         for i in range(10):
             product = jac_eq_y[i] @ jac_y_eq[i]
             npt.assert_allclose(product, np.eye(6), atol=1e-11,

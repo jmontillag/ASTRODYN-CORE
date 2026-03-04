@@ -52,6 +52,7 @@ class GEqOEProvider:
         initial_orbit = context.require_initial_orbit()
 
         order = spec.orekit_options.get("taylor_order", 4)
+        backend = spec.orekit_options.get("backend", "cpp")
         mass_kg = spec.mass_kg
 
         return make_orekit_geqoe_propagator(
@@ -59,4 +60,5 @@ class GEqOEProvider:
             body_constants=body_constants,
             order=order,
             mass_kg=mass_kg,
+            backend=backend,
         )

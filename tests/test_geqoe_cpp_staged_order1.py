@@ -36,14 +36,15 @@ def test_staged_order1_geqoe_parity_vs_python() -> None:
     coeffs_py = py_core.prepare_taylor_coefficients(y0=eq0, p=(_J2, _Re, _mu), order=1)
     y_py, stm_py, map_py = py_core.evaluate_taylor(coeffs_py, dt)
 
-    npt.assert_allclose(y_cpp, y_py, rtol=1e-12, atol=1e-12)
-    npt.assert_allclose(stm_cpp, stm_py, rtol=1e-12, atol=1e-12)
-    npt.assert_allclose(map_cpp, map_py, rtol=1e-12, atol=1e-12)
+    # GEqOE-level differences are < 1e-15 (1–2 ULP); observed max ~7e-15 on stm.
+    npt.assert_allclose(y_cpp, y_py, rtol=1e-14, atol=1e-14)
+    npt.assert_allclose(stm_cpp, stm_py, rtol=1e-14, atol=1e-14)
+    npt.assert_allclose(map_cpp, map_py, rtol=1e-14, atol=1e-14)
 
 
 def test_staged_order1_cartesian_parity_vs_python() -> None:
     y0 = _reference_cart_state()
-    tspan = np.array([0.0, 30.0, 120.0, 600.0], dtype=float)
+    tspan = np.array([0.0, 30.0, 120.0, 600.0, 1800.0], dtype=float)
 
     coeffs_cpp, peq_py_0_cpp = prepare_cart_coefficients_cpp(y0, _J2, _Re, _mu, order=1)
     y_cpp, stm_cpp = evaluate_cart_taylor_cpp(coeffs_cpp, peq_py_0_cpp, tspan)
@@ -51,5 +52,8 @@ def test_staged_order1_cartesian_parity_vs_python() -> None:
     coeffs_py, peq_py_0_py = py_core.prepare_cart_coefficients(y0_cart=y0, p=(_J2, _Re, _mu), order=1)
     y_py, stm_py = py_core.evaluate_cart_taylor(coeffs_py, peq_py_0_py, tspan)
 
-    npt.assert_allclose(y_cpp, y_py, rtol=1e-11, atol=1e-10)
-    npt.assert_allclose(stm_cpp, stm_py, rtol=1e-11, atol=1e-10)
+    # Cartesian-level differences arise from geqoe2rv FP rounding (numpy
+    # vectorised vs C++ scalar).  Observed max: pos ~6e-9 m, vel ~6e-12 m/s,
+    # stm ~2e-11 — all sub-ULP relative error (~1e-15).
+    npt.assert_allclose(y_cpp, y_py, rtol=1e-13, atol=1e-8)
+    npt.assert_allclose(stm_cpp, stm_py, rtol=1e-13, atol=1e-11)

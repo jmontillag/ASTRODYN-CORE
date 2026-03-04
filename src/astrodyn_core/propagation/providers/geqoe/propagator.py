@@ -165,6 +165,9 @@ class GEqOEPropagator:
         Taylor expansion order (1–4).
     mass_kg : float
         Spacecraft mass in kilograms.
+    backend : str
+        Evaluation backend: ``"cpp"`` (default) for the C++ accelerated
+        pipeline, ``"python"`` for the pure-numpy implementation.
     """
 
     def __init__(
@@ -173,6 +176,7 @@ class GEqOEPropagator:
         body_constants: Mapping[str, float] | None = None,
         order: int = 4,
         mass_kg: float = 1000.0,
+        backend: str = "cpp",
     ) -> None:
         # Try to initialise as a proper AbstractPropagator subclass.
         # If Orekit is not available, we skip the super().__init__() call
@@ -193,6 +197,9 @@ class GEqOEPropagator:
         if body_constants is None:
             body_constants = _resolve_body_constants_from_orekit()
 
+        if backend not in ("cpp", "python"):
+            raise ValueError(f"backend must be 'cpp' or 'python', got {backend!r}")
+        self._backend = backend
         self._order = int(order)
         self._mass_kg = float(mass_kg)
         self._body_constants = dict(body_constants)
@@ -214,9 +221,7 @@ class GEqOEPropagator:
             # Precompute dt-independent Taylor coefficients and epoch Jacobian.
             # These are reused across all propagate() / propagate_array() calls
             # until the next resetInitialState().
-            self._coeffs, self._peq_py_0 = prepare_cart_coefficients(
-                self._y0, self._bc, self._order
-            )
+            self._coeffs, self._peq_py_0 = self._prepare(self._y0)
         else:
             self._y0 = None
             self._frame = None
@@ -226,6 +231,28 @@ class GEqOEPropagator:
             self._peq_py_0: np.ndarray | None = None
 
         self._last_native: _NativeResult | None = None
+
+    # ------------------------------------------------------------------
+    # Backend dispatch helpers
+    # ------------------------------------------------------------------
+
+    def _prepare(self, y0: np.ndarray) -> tuple[Any, np.ndarray]:
+        """Prepare Taylor coefficients using the configured backend."""
+        if self._backend == "cpp":
+            from astrodyn_core.geqoe_cpp import prepare_cart_coefficients_cpp
+
+            return prepare_cart_coefficients_cpp(
+                y0, self._bc.j2, self._bc.re, self._bc.mu, self._order
+            )
+        return prepare_cart_coefficients(y0, self._bc, self._order)
+
+    def _evaluate(self, tspan: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """Evaluate the cached Taylor expansion at *tspan*."""
+        if self._backend == "cpp":
+            from astrodyn_core.geqoe_cpp import evaluate_cart_taylor_cpp
+
+            return evaluate_cart_taylor_cpp(self._coeffs, self._peq_py_0, tspan)
+        return evaluate_cart_taylor(self._coeffs, self._peq_py_0, tspan)
 
     # ------------------------------------------------------------------
     # Orekit-compatible interface
@@ -265,7 +292,7 @@ class GEqOEPropagator:
         assert self._coeffs is not None and self._peq_py_0 is not None, (
             "Taylor coefficients not initialised. Orekit must be available at construction."
         )
-        y_out, stm = evaluate_cart_taylor(self._coeffs, self._peq_py_0, tspan)
+        y_out, stm = self._evaluate(tspan)
 
         y_final = y_out[0, :]  # shape (6,)
         stm_final = stm[:, :, 0]  # shape (6, 6)
@@ -299,9 +326,7 @@ class GEqOEPropagator:
             _orekit_state_to_cartesian(state)
         )
         # Recompute the precomputed cache for the new initial state.
-        self._coeffs, self._peq_py_0 = prepare_cart_coefficients(
-            self._y0, self._bc, self._order
-        )
+        self._coeffs, self._peq_py_0 = self._prepare(self._y0)
         self._last_native = None
 
     def getInitialState(self) -> Any:
@@ -348,7 +373,7 @@ class GEqOEPropagator:
                 "Orekit may not have been initialised when the propagator was created."
             )
         tspan = np.atleast_1d(np.asarray(dt_seconds, dtype=float))
-        return evaluate_cart_taylor(self._coeffs, self._peq_py_0, tspan)
+        return self._evaluate(tspan)
 
     # ------------------------------------------------------------------
     # Metadata
@@ -375,6 +400,7 @@ def make_orekit_geqoe_propagator(
     body_constants: Mapping[str, float] | None = None,
     order: int = 4,
     mass_kg: float = 1000.0,
+    backend: str = "cpp",
 ) -> Any:
     """Create a ``GEqOEPropagator`` that is also an Orekit ``AbstractPropagator``.
 
@@ -390,6 +416,7 @@ def make_orekit_geqoe_propagator(
         body_constants: Optional body constants mapping (``mu``, ``j2``, ``re``).
         order: Taylor expansion order (1-4).
         mass_kg: Spacecraft mass in kg.
+        backend: ``"cpp"`` (default) or ``"python"``.
 
     Returns:
         Orekit-compatible GEqOE propagator wrapper when possible, otherwise a
@@ -405,7 +432,7 @@ def make_orekit_geqoe_propagator(
             class _OrekitGEqOEPropagator(_AP):  # type: ignore[misc]
                 """GEqOEPropagator with Orekit AbstractPropagator base."""
 
-                def __init__(self, initial_orbit, body_constants, order, mass_kg):
+                def __init__(self, initial_orbit, body_constants, order, mass_kg, backend):
                     _AP.__init__(self)
                     # Re-use GEqOEPropagator init logic
                     self._impl = GEqOEPropagator(
@@ -413,6 +440,7 @@ def make_orekit_geqoe_propagator(
                         body_constants=body_constants,
                         order=order,
                         mass_kg=mass_kg,
+                        backend=backend,
                     )
                     # Set the initial state on the Java side
                     self.resetInitialState(self._impl.getInitialState())
@@ -447,7 +475,7 @@ def make_orekit_geqoe_propagator(
             make_orekit_geqoe_propagator._cls = _OrekitGEqOEPropagator  # type: ignore[attr-defined]
 
         cls = make_orekit_geqoe_propagator._cls  # type: ignore[attr-defined]
-        return cls(initial_orbit, body_constants, order, mass_kg)
+        return cls(initial_orbit, body_constants, order, mass_kg, backend)
 
     except Exception:
         # Orekit not available — return plain Python propagator
@@ -456,4 +484,5 @@ def make_orekit_geqoe_propagator(
             body_constants=body_constants,
             order=order,
             mass_kg=mass_kg,
+            backend=backend,
         )
