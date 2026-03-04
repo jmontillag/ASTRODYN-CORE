@@ -141,10 +141,11 @@ StmAccumulatorView Order1EvaluationScratch::view() const {
     };
 }
 
-void compute_coefficients_1(
+static void compute_coefficients_1_core(
     const double* y0,
     const PropagationConstants& constants,
-    Order1Coefficients& out
+    Order1Coefficients& out,
+    Order1Intermediates* inter
 ) {
     const double T = constants.time_scale;
     const double mu_norm = constants.mu_norm;
@@ -193,6 +194,7 @@ void compute_coefficients_1(
 
     const double r2 = r * r;
     const double r3 = r2 * r;
+    const double r3p = 3.0 * r2 * rp;
 
     const double fir = derivatives_of_inverse_1(r);
     const double fir3 = derivatives_of_inverse_1(r3);
@@ -612,32 +614,380 @@ void compute_coefficients_1(
     out.map_components_col0[4] = p2p_0;
     out.map_components_col0[5] = Lrp_0;
 
-    (void)beta_nu;
-    (void)beta_q1;
-    (void)beta_q2;
-    (void)beta_Lr;
-    (void)delta_nu;
-    (void)delta_Lr;
-    (void)delta_p1;
-    (void)delta_p2;
-    (void)firp_nu;
-    (void)firp_Lr;
-    (void)firp_q1;
-    (void)firp_q2;
-    (void)firp_p1;
-    (void)firp_p2;
-    (void)fir2p_nu;
-    (void)fir2p_Lr;
-    (void)fir2p_q1;
-    (void)fir2p_q2;
-    (void)fir2p_p1;
-    (void)fir2p_p2;
-    (void)fir3_p_nu;
-    (void)fir3_p_Lr;
-    (void)fir3_p_q1;
-    (void)fir3_p_q2;
-    (void)fir3_p_p1;
-    (void)fir3_p_p2;
+    // Suppress warnings for variables only used by intermediates
+    (void)beta_nu; (void)beta_q1; (void)beta_q2; (void)beta_Lr;
+    (void)delta_nu; (void)delta_Lr; (void)delta_p1; (void)delta_p2;
+    (void)firp_nu; (void)firp_Lr; (void)firp_q1; (void)firp_q2; (void)firp_p1; (void)firp_p2;
+    (void)fir2p_nu; (void)fir2p_Lr; (void)fir2p_q1; (void)fir2p_q2; (void)fir2p_p1; (void)fir2p_p2;
+    (void)fir3_p_nu; (void)fir3_p_Lr; (void)fir3_p_q1; (void)fir3_p_q2; (void)fir3_p_p1; (void)fir3_p_p2;
+
+    if (!inter) return;
+
+    // Compute the 14 intermediates not needed by Order 1 but required by Order 2+
+    const double Xp = rp * cosL - h / r * sinL;
+    const double Yp = rp * sinL + h / r * cosL;
+    const double fih = 1.0 / h;
+    const double hr_i = h * fir;  // 'hr' in Python scratch
+    const double firp_i = -(rp) * fir * fir;  // d/dt(1/r) = -rp/r^2
+    const double fir2p_i = -(2.0 * r * rp) * fir2 * fir2;  // d/dt(1/r^2) = -2r*rp/r^4
+    const double fir3p_i = -(3.0 * r2 * rp) * fir3 * fir3;  // d/dt(1/r^3) = -3r^2*rp/r^6
+    const double fiDp = 0.0;  // placeholder — recomputed by Order 2
+    const double fih_nu = derivatives_of_inverse_wrt_param_1(h, h_nu);
+    const double fih_Lr = derivatives_of_inverse_wrt_param_1(h, h_Lr);
+    const double fih_q1 = derivatives_of_inverse_wrt_param_1(h, h_q1);
+    const double fih_q2 = derivatives_of_inverse_wrt_param_1(h, h_q2);
+    const double fih_p1 = derivatives_of_inverse_wrt_param_1(h, h_p1);
+    const double fih_p2 = derivatives_of_inverse_wrt_param_1(h, h_p2);
+
+    // Fill all intermediates
+    inter->nu_0 = nu_0;
+    inter->q1_0 = q1_0;
+    inter->q2_0 = q2_0;
+    inter->p1_0 = p1_0;
+    inter->p2_0 = p2_0;
+    inter->Lr_0 = Lr_0;
+    inter->T = T;
+    inter->mu_norm = mu_norm;
+    inter->A = A;
+    inter->a = a;
+    inter->a_nu = a_nu;
+    inter->r = r;
+    inter->rp = rp;
+    inter->r2 = r2;
+    inter->r3 = r3;
+    inter->X = X;
+    inter->Y = Y;
+    inter->Xp = Xp;
+    inter->Yp = Yp;
+    inter->cosL = cosL;
+    inter->sinL = sinL;
+    inter->alpha = alpha;
+    inter->beta = beta;
+    inter->fib = fib;
+    inter->fic = fic;
+    inter->fih = fih;
+    inter->fir = fir;
+    inter->firp = firp_i;
+    inter->fir2 = fir2;
+    inter->fir2p = fir2p_i;
+    inter->fir3 = fir3;
+    inter->fir3p = fir3p_i;
+    inter->fihr3 = fihr3;
+    inter->fiD = fiD;
+    inter->fiDp = fiDp;
+    inter->c = c;
+    inter->h = h;
+    inter->hr = hr_i;
+    inter->hr3 = hr3;
+    inter->d = d;
+    inter->wh = wh;
+    inter->I = I;
+    inter->U = U;
+    inter->delta = delta;
+    inter->zg = zg;
+    inter->GAMMA_ = GAMMA_;
+    inter->xi1 = xi1;
+    inter->xi2 = xi2;
+    inter->fUz = fUz;
+    inter->qs = qs;
+    inter->q1s = q1s;
+    inter->q2s = q2s;
+    inter->p1s = p1s;
+    inter->p2s = p2s;
+    inter->C = C;
+    inter->D = D;
+    inter->rpn = rpn;
+    inter->fialpha = fialpha;
+    inter->f2rp = f2rp;
+    inter->p1p_0 = p1p_0;
+    inter->p2p_0 = p2p_0;
+    inter->Lrp_0 = Lrp_0;
+    inter->q1p_0 = q1p_0;
+    inter->q2p_0 = q2p_0;
+    inter->r_nu = r_nu;
+    inter->r_Lr = r_Lr;
+    inter->r_q1 = r_q1;
+    inter->r_q2 = r_q2;
+    inter->r_p1 = r_p1;
+    inter->r_p2 = r_p2;
+    inter->rp_nu = rp_nu;
+    inter->rp_Lr = rp_Lr;
+    inter->rp_q1 = rp_q1;
+    inter->rp_q2 = rp_q2;
+    inter->rp_p1 = rp_p1;
+    inter->rp_p2 = rp_p2;
+    inter->r2_nu = r2_nu;
+    inter->r2_Lr = r2_Lr;
+    inter->r2_q1 = r2_q1;
+    inter->r2_q2 = r2_q2;
+    inter->r2_p1 = r2_p1;
+    inter->r2_p2 = r2_p2;
+    inter->r3_nu = r3_nu;
+    inter->r3_Lr = r3_Lr;
+    inter->r3_q1 = r3_q1;
+    inter->r3_q2 = r3_q2;
+    inter->r3_p1 = r3_p1;
+    inter->r3_p2 = r3_p2;
+    inter->beta_nu = beta_nu;
+    inter->beta_Lr = beta_Lr;
+    inter->beta_q1 = beta_q1;
+    inter->beta_q2 = beta_q2;
+    inter->beta_p1 = beta_p1;
+    inter->beta_p2 = beta_p2;
+    inter->alpha_nu = alpha_nu;
+    inter->alpha_Lr = alpha_Lr;
+    inter->alpha_q1 = alpha_q1;
+    inter->alpha_q2 = alpha_q2;
+    inter->alpha_p1 = alpha_p1;
+    inter->alpha_p2 = alpha_p2;
+    inter->fialpha_nu = fialpha_nu;
+    inter->fialpha_Lr = fialpha_Lr;
+    inter->fialpha_q1 = fialpha_q1;
+    inter->fialpha_q2 = fialpha_q2;
+    inter->fialpha_p1 = fialpha_p1;
+    inter->fialpha_p2 = fialpha_p2;
+    inter->c_nu = c_nu;
+    inter->c_Lr = c_Lr;
+    inter->c_q1 = c_q1;
+    inter->c_q2 = c_q2;
+    inter->c_p1 = c_p1;
+    inter->c_p2 = c_p2;
+    inter->fic_nu = fic_nu;
+    inter->fic_Lr = fic_Lr;
+    inter->fic_q1 = fic_q1;
+    inter->fic_q2 = fic_q2;
+    inter->fic_p1 = fic_p1;
+    inter->fic_p2 = fic_p2;
+    inter->h_nu = h_nu;
+    inter->h_Lr = h_Lr;
+    inter->h_q1 = h_q1;
+    inter->h_q2 = h_q2;
+    inter->h_p1 = h_p1;
+    inter->h_p2 = h_p2;
+    inter->fih_nu = fih_nu;
+    inter->fih_Lr = fih_Lr;
+    inter->fih_q1 = fih_q1;
+    inter->fih_q2 = fih_q2;
+    inter->fih_p1 = fih_p1;
+    inter->fih_p2 = fih_p2;
+    inter->X_nu = X_nu;
+    inter->X_Lr = X_Lr;
+    inter->X_q1 = X_q1;
+    inter->X_q2 = X_q2;
+    inter->X_p1 = X_p1;
+    inter->X_p2 = X_p2;
+    inter->Y_nu = Y_nu;
+    inter->Y_Lr = Y_Lr;
+    inter->Y_q1 = Y_q1;
+    inter->Y_q2 = Y_q2;
+    inter->Y_p1 = Y_p1;
+    inter->Y_p2 = Y_p2;
+    inter->cosL_nu = cosL_nu;
+    inter->cosL_Lr = cosL_Lr;
+    inter->cosL_q1 = cosL_q1;
+    inter->cosL_q2 = cosL_q2;
+    inter->cosL_p1 = cosL_p1;
+    inter->cosL_p2 = cosL_p2;
+    inter->sinL_nu = sinL_nu;
+    inter->sinL_Lr = sinL_Lr;
+    inter->sinL_q1 = sinL_q1;
+    inter->sinL_q2 = sinL_q2;
+    inter->sinL_p1 = sinL_p1;
+    inter->sinL_p2 = sinL_p2;
+    inter->zg_nu = zg_nu;
+    inter->zg_Lr = zg_Lr;
+    inter->zg_q1 = zg_q1;
+    inter->zg_q2 = zg_q2;
+    inter->zg_p1 = zg_p1;
+    inter->zg_p2 = zg_p2;
+    inter->fUz_nu = fUz_nu;
+    inter->fUz_Lr = fUz_Lr;
+    inter->fUz_q1 = fUz_q1;
+    inter->fUz_q2 = fUz_q2;
+    inter->fUz_p1 = fUz_p1;
+    inter->fUz_p2 = fUz_p2;
+    inter->U_nu = U_nu;
+    inter->U_Lr = U_Lr;
+    inter->U_q1 = U_q1;
+    inter->U_q2 = U_q2;
+    inter->U_p1 = U_p1;
+    inter->U_p2 = U_p2;
+    inter->hr3_nu = hr3_nu;
+    inter->hr3_Lr = hr3_Lr;
+    inter->hr3_q1 = hr3_q1;
+    inter->hr3_q2 = hr3_q2;
+    inter->hr3_p1 = hr3_p1;
+    inter->hr3_p2 = hr3_p2;
+    inter->fihr3_nu = fihr3_nu;
+    inter->fihr3_Lr = fihr3_Lr;
+    inter->fihr3_q1 = fihr3_q1;
+    inter->fihr3_q2 = fihr3_q2;
+    inter->fihr3_p1 = fihr3_p1;
+    inter->fihr3_p2 = fihr3_p2;
+    inter->delta_nu = delta_nu;
+    inter->delta_Lr = delta_Lr;
+    inter->delta_q1 = delta_q1;
+    inter->delta_q2 = delta_q2;
+    inter->delta_p1 = delta_p1;
+    inter->delta_p2 = delta_p2;
+    inter->I_nu = I_nu;
+    inter->I_Lr = I_Lr;
+    inter->I_q1 = I_q1;
+    inter->I_q2 = I_q2;
+    inter->I_p1 = I_p1;
+    inter->I_p2 = I_p2;
+    inter->d_nu = d_nu;
+    inter->d_Lr = d_Lr;
+    inter->d_q1 = d_q1;
+    inter->d_q2 = d_q2;
+    inter->d_p1 = d_p1;
+    inter->d_p2 = d_p2;
+    inter->wh_nu = wh_nu;
+    inter->wh_Lr = wh_Lr;
+    inter->wh_q1 = wh_q1;
+    inter->wh_q2 = wh_q2;
+    inter->wh_p1 = wh_p1;
+    inter->wh_p2 = wh_p2;
+    inter->GAMMA_nu = GAMMA_nu;
+    inter->GAMMA_Lr = GAMMA_Lr;
+    inter->GAMMA_q1 = GAMMA_q1;
+    inter->GAMMA_q2 = GAMMA_q2;
+    inter->GAMMA_p1 = GAMMA_p1;
+    inter->GAMMA_p2 = GAMMA_p2;
+    inter->xi1_nu = xi1_nu;
+    inter->xi1_Lr = xi1_Lr;
+    inter->xi1_q1 = xi1_q1;
+    inter->xi1_q2 = xi1_q2;
+    inter->xi1_p1 = xi1_p1;
+    inter->xi1_p2 = xi1_p2;
+    inter->xi2_nu = xi2_nu;
+    inter->xi2_Lr = xi2_Lr;
+    inter->xi2_q1 = xi2_q1;
+    inter->xi2_q2 = xi2_q2;
+    inter->xi2_p1 = xi2_p1;
+    inter->xi2_p2 = xi2_p2;
+    inter->q1p_nu = q1p_nu;
+    inter->q1p_Lr = q1p_Lr;
+    inter->q1p_q1 = q1p_q1;
+    inter->q1p_q2 = q1p_q2;
+    inter->q1p_p1 = q1p_p1;
+    inter->q1p_p2 = q1p_p2;
+    inter->q2p_nu = q2p_nu;
+    inter->q2p_Lr = q2p_Lr;
+    inter->q2p_q1 = q2p_q1;
+    inter->q2p_q2 = q2p_q2;
+    inter->q2p_p1 = q2p_p1;
+    inter->q2p_p2 = q2p_p2;
+    inter->p1p_nu = p1p_nu;
+    inter->p1p_Lr = p1p_Lr;
+    inter->p1p_q1 = p1p_q1;
+    inter->p1p_q2 = p1p_q2;
+    inter->p1p_p1 = p1p_p1;
+    inter->p1p_p2 = p1p_p2;
+    inter->p2p_nu = p2p_nu;
+    inter->p2p_Lr = p2p_Lr;
+    inter->p2p_q1 = p2p_q1;
+    inter->p2p_q2 = p2p_q2;
+    inter->p2p_p1 = p2p_p1;
+    inter->p2p_p2 = p2p_p2;
+    inter->Lrp_nu = Lrp_nu;
+    inter->Lrp_Lr = Lrp_Lr;
+    inter->Lrp_q1 = Lrp_q1;
+    inter->Lrp_q2 = Lrp_q2;
+    inter->Lrp_p1 = Lrp_p1;
+    inter->Lrp_p2 = Lrp_p2;
+    inter->rpn_nu = rpn_nu;
+    inter->rpn_Lr = rpn_Lr;
+    inter->rpn_q1 = rpn_q1;
+    inter->rpn_q2 = rpn_q2;
+    inter->rpn_p1 = rpn_p1;
+    inter->rpn_p2 = rpn_p2;
+    inter->D_nu = D_nu;
+    inter->D_Lr = D_Lr;
+    inter->D_q1 = D_q1;
+    inter->D_q2 = D_q2;
+    inter->D_p1 = D_p1;
+    inter->D_p2 = D_p2;
+    inter->fiD_nu = fiD_nu;
+    inter->fiD_Lr = fiD_Lr;
+    inter->fiD_q1 = fiD_q1;
+    inter->fiD_q2 = fiD_q2;
+    inter->fiD_p1 = fiD_p1;
+    inter->fiD_p2 = fiD_p2;
+    inter->C_nu = C_nu;
+    inter->C_Lr = C_Lr;
+    inter->C_q1 = C_q1;
+    inter->C_q2 = C_q2;
+    inter->C_p1 = C_p1;
+    inter->C_p2 = C_p2;
+    inter->fir3_p_nu = fir3_p_nu;
+    inter->fir3_p_Lr = fir3_p_Lr;
+    inter->fir3_p_q1 = fir3_p_q1;
+    inter->fir3_p_q2 = fir3_p_q2;
+    inter->fir3_p_p1 = fir3_p_p1;
+    inter->fir3_p_p2 = fir3_p_p2;
+    inter->fir_nu = fir_nu;
+    inter->fir_Lr = fir_Lr;
+    inter->fir_q1 = fir_q1;
+    inter->fir_q2 = fir_q2;
+    inter->fir_p1 = fir_p1;
+    inter->fir_p2 = fir_p2;
+    inter->firp_nu = firp_nu;
+    inter->firp_Lr = firp_Lr;
+    inter->firp_q1 = firp_q1;
+    inter->firp_q2 = firp_q2;
+    inter->firp_p1 = firp_p1;
+    inter->firp_p2 = firp_p2;
+    inter->fir2_nu = fir2_nu;
+    inter->fir2_Lr = fir2_Lr;
+    inter->fir2_q1 = fir2_q1;
+    inter->fir2_q2 = fir2_q2;
+    inter->fir2_p1 = fir2_p1;
+    inter->fir2_p2 = fir2_p2;
+    inter->fir2p_nu = fir2p_nu;
+    inter->fir2p_Lr = fir2p_Lr;
+    inter->fir2p_q1 = fir2p_q1;
+    inter->fir2p_q2 = fir2p_q2;
+    inter->fir2p_p1 = fir2p_p1;
+    inter->fir2p_p2 = fir2p_p2;
+    inter->fir3_nu = fir3_nu;
+    inter->fir3_Lr = fir3_Lr;
+    inter->fir3_q1 = fir3_q1;
+    inter->fir3_q2 = fir3_q2;
+    inter->fir3_p1 = fir3_p1;
+    inter->fir3_p2 = fir3_p2;
+    inter->f2rp_nu = f2rp_nu;
+    inter->f2rp_Lr = f2rp_Lr;
+    inter->f2rp_q1 = f2rp_q1;
+    inter->f2rp_q2 = f2rp_q2;
+    inter->f2rp_p1 = f2rp_p1;
+    inter->f2rp_p2 = f2rp_p2;
+    // Vector-only locals: stored in vectors but not in scratch.
+    inter->fibm1 = alpha;
+    inter->r3p = r3p;
+    inter->r3p_nu = r3p_nu;
+    inter->r3p_Lr = r3p_Lr;
+    inter->r3p_q1 = r3p_q1;
+    inter->r3p_q2 = r3p_q2;
+    inter->r3p_p1 = r3p_p1;
+    inter->r3p_p2 = r3p_p2;
+}
+
+void compute_coefficients_1(
+    const double* y0,
+    const PropagationConstants& constants,
+    Order1Coefficients& out
+) {
+    compute_coefficients_1_core(y0, constants, out, nullptr);
+}
+
+void compute_coefficients_1(
+    const double* y0,
+    const PropagationConstants& constants,
+    Order1Coefficients& out,
+    Order1Intermediates& inter
+) {
+    compute_coefficients_1_core(y0, constants, out, &inter);
 }
 
 void evaluate_order_1(

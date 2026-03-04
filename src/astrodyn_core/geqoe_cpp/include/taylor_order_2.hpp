@@ -3,118 +3,391 @@
 #include <cstddef>
 #include <vector>
 
-#include "propagator_core.hpp"
 #include "taylor_order_1.hpp"
 
 namespace astrodyn_core {
 namespace geqoe {
 
-struct Order2Coefficients {
-    // Second-order EOM values
-    double q1pp_0;
-    double q2pp_0;
-    double p1pp_0;
-    double p2pp_0;
-    double Lrpp_0;
-
-    // Second-order EOM partials wrt initial conditions
+struct Order2Intermediates {
+    double Xp;
+    double Yp;
+    double cosLp;
+    double sinLp;
+    double hp;
+    double dp;
+    double whp;
+    double Ip;
+    double Up;
+    double bp;
+    double cp;
+    double alphap;
+    double deltap;
+    double zgp;
+    double fUzp;
+    double GAMMAp_;
+    double xi1p;
+    double xi2p;
+    double qsp;
+    double psp;
+    double Cp;
+    double Dp;
+    double rpn_p;
+    double rpp;
+    double fiDp;
+    double fibp;
+    double ficp;
+    double fihp;
+    double fialphap;
+    double fibm1_p;
+    double fihr3;
+    double fihr3p;
+    double firp2;
+    double fir2p2;
+    double fir3p2;
+    double f2rpp;
+    double f2cp;
+    double r3p2;
+    double hr3p;
+    double Xp_nu;
+    double Xp_Lr;
+    double Xp_q1;
+    double Xp_q2;
+    double Xp_p1;
+    double Xp_p2;
+    double Yp_nu;
+    double Yp_Lr;
+    double Yp_q1;
+    double Yp_q2;
+    double Yp_p1;
+    double Yp_p2;
+    double cosLp_nu;
+    double cosLp_Lr;
+    double cosLp_q1;
+    double cosLp_q2;
+    double cosLp_p1;
+    double cosLp_p2;
+    double sinLp_nu;
+    double sinLp_Lr;
+    double sinLp_q1;
+    double sinLp_q2;
+    double sinLp_p1;
+    double sinLp_p2;
+    double zgp_nu;
+    double zgp_Lr;
+    double zgp_q1;
+    double zgp_q2;
+    double zgp_p1;
+    double zgp_p2;
+    double fUzp_nu;
+    double fUzp_Lr;
+    double fUzp_q1;
+    double fUzp_q2;
+    double fUzp_p1;
+    double fUzp_p2;
+    double Up_nu;
+    double Up_Lr;
+    double Up_q1;
+    double Up_q2;
+    double Up_p1;
+    double Up_p2;
+    double bp_nu;
+    double bp_Lr;
+    double bp_q1;
+    double bp_q2;
+    double bp_p1;
+    double bp_p2;
+    double cp_nu;
+    double cp_Lr;
+    double cp_q1;
+    double cp_q2;
+    double cp_p1;
+    double cp_p2;
+    double hp_nu;
+    double hp_Lr;
+    double hp_q1;
+    double hp_q2;
+    double hp_p1;
+    double hp_p2;
+    double alphap_nu;
+    double alphap_Lr;
+    double alphap_q1;
+    double alphap_q2;
+    double alphap_p1;
+    double alphap_p2;
+    double deltap_nu;
+    double deltap_Lr;
+    double deltap_q1;
+    double deltap_q2;
+    double deltap_p1;
+    double deltap_p2;
+    double Ip_nu;
+    double Ip_Lr;
+    double Ip_q1;
+    double Ip_q2;
+    double Ip_p1;
+    double Ip_p2;
+    double dp_nu;
+    double dp_Lr;
+    double dp_q1;
+    double dp_q2;
+    double dp_p1;
+    double dp_p2;
+    double whp_nu;
+    double whp_Lr;
+    double whp_q1;
+    double whp_q2;
+    double whp_p1;
+    double whp_p2;
+    double GAMMAp_nu;
+    double GAMMAp_Lr;
+    double GAMMAp_q1;
+    double GAMMAp_q2;
+    double GAMMAp_p1;
+    double GAMMAp_p2;
+    double xi1p_nu;
+    double xi1p_Lr;
+    double xi1p_q1;
+    double xi1p_q2;
+    double xi1p_p1;
+    double xi1p_p2;
+    double xi2p_nu;
+    double xi2p_Lr;
+    double xi2p_q1;
+    double xi2p_q2;
+    double xi2p_p1;
+    double xi2p_p2;
+    double qsp_nu;
+    double qsp_Lr;
+    double qsp_q1;
+    double qsp_q2;
+    double qsp_p1;
+    double qsp_p2;
+    double psp_nu;
+    double psp_Lr;
+    double psp_q1;
+    double psp_q2;
+    double psp_p1;
+    double psp_p2;
+    double Cp_nu;
+    double Cp_Lr;
+    double Cp_q1;
+    double Cp_q2;
+    double Cp_p1;
+    double Cp_p2;
+    double Dp_nu;
+    double Dp_Lr;
+    double Dp_q1;
+    double Dp_q2;
+    double Dp_p1;
+    double Dp_p2;
+    double fiDp_nu;
+    double fiDp_Lr;
+    double fiDp_q1;
+    double fiDp_q2;
+    double fiDp_p1;
+    double fiDp_p2;
+    double rpn_p_nu;
+    double rpn_p_Lr;
+    double rpn_p_q1;
+    double rpn_p_q2;
+    double rpn_p_p1;
+    double rpn_p_p2;
+    double rpp_nu;
+    double rpp_Lr;
+    double rpp_q1;
+    double rpp_q2;
+    double rpp_p1;
+    double rpp_p2;
+    double r3p2_nu;
+    double r3p2_Lr;
+    double r3p2_q1;
+    double r3p2_q2;
+    double r3p2_p1;
+    double r3p2_p2;
+    double hr3p_nu;
+    double hr3p_Lr;
+    double hr3p_q1;
+    double hr3p_q2;
+    double hr3p_p1;
+    double hr3p_p2;
+    double fihr3p_nu;
+    double fihr3p_Lr;
+    double fihr3p_q1;
+    double fihr3p_q2;
+    double fihr3p_p1;
+    double fihr3p_p2;
+    double firp2_nu;
+    double firp2_Lr;
+    double firp2_q1;
+    double firp2_q2;
+    double firp2_p1;
+    double firp2_p2;
+    double fir2p2_nu;
+    double fir2p2_Lr;
+    double fir2p2_q1;
+    double fir2p2_q2;
+    double fir2p2_p1;
+    double fir2p2_p2;
+    double fir3p2_nu;
+    double fir3p2_Lr;
+    double fir3p2_q1;
+    double fir3p2_q2;
+    double fir3p2_p1;
+    double fir3p2_p2;
+    double f2rpp_nu;
+    double f2rpp_Lr;
+    double f2rpp_q1;
+    double f2rpp_q2;
+    double f2rpp_p1;
+    double f2rpp_p2;
+    double f2cp_nu;
+    double f2cp_Lr;
+    double f2cp_q1;
+    double f2cp_q2;
+    double f2cp_p1;
+    double f2cp_p2;
+    double ficp_nu;
+    double ficp_Lr;
+    double ficp_q1;
+    double ficp_q2;
+    double ficp_p1;
+    double ficp_p2;
+    double fihp_nu;
+    double fihp_Lr;
+    double fihp_q1;
+    double fihp_q2;
+    double fihp_p1;
+    double fihp_p2;
+    double fialphap_nu;
+    double fialphap_Lr;
+    double fialphap_q1;
+    double fialphap_q2;
+    double fialphap_p1;
+    double fialphap_p2;
+    double fib_nu;
+    double fib_Lr;
+    double fib_q1;
+    double fib_q2;
+    double fib_p1;
+    double fib_p2;
+    double fibp_nu;
+    double fibp_Lr;
+    double fibp_q1;
+    double fibp_q2;
+    double fibp_p1;
+    double fibp_p2;
+    double fibm1_p_nu;
+    double fibm1_p_Lr;
+    double fibm1_p_q1;
+    double fibm1_p_q2;
+    double fibm1_p_p1;
+    double fibm1_p_p2;
+    double hr_nu;
+    double hr_Lr;
+    double hr_q1;
+    double hr_q2;
+    double hr_p1;
+    double hr_p2;
+    double qs_nu;
+    double qs_Lr;
+    double qs_q1;
+    double qs_q2;
+    double qs_p1;
+    double qs_p2;
+    double fic;
     double q1p2_nu;
     double q1p2_Lr;
     double q1p2_q1;
     double q1p2_q2;
     double q1p2_p1;
     double q1p2_p2;
-
     double q2p2_nu;
     double q2p2_Lr;
     double q2p2_q1;
     double q2p2_q2;
     double q2p2_p1;
     double q2p2_p2;
-
     double p1p2_nu;
     double p1p2_Lr;
     double p1p2_q1;
     double p1p2_q2;
     double p1p2_p1;
     double p1p2_p2;
-
     double p2p2_nu;
     double p2p2_Lr;
     double p2p2_q1;
     double p2p2_q2;
     double p2p2_p1;
     double p2p2_p2;
-
     double Lrp2_nu;
     double Lrp2_Lr;
     double Lrp2_q1;
     double Lrp2_q2;
     double Lrp2_p1;
     double Lrp2_p2;
+    double p1pp_0;
+    double p2pp_0;
+    double Lrpp_0;
+    double q1pp_0;
+    double q2pp_0;
+};
 
-    // Updated fic (overwritten by derivatives_of_inverse(c_vector))
-    double fic_updated;
-
+struct Order2Coefficients {
+    double q1pp_0;
+    double q2pp_0;
+    double p1pp_0;
+    double p2pp_0;
+    double Lrpp_0;
+    double q1p2_nu;
+    double q1p2_Lr;
+    double q1p2_q1;
+    double q1p2_q2;
+    double q1p2_p1;
+    double q1p2_p2;
+    double q2p2_nu;
+    double q2p2_Lr;
+    double q2p2_q1;
+    double q2p2_q2;
+    double q2p2_p1;
+    double q2p2_p2;
+    double p1p2_nu;
+    double p1p2_Lr;
+    double p1p2_q1;
+    double p1p2_q2;
+    double p1p2_p1;
+    double p1p2_p2;
+    double p2p2_nu;
+    double p2p2_Lr;
+    double p2p2_q1;
+    double p2p2_q2;
+    double p2p2_p1;
+    double p2p2_p2;
+    double Lrp2_nu;
+    double Lrp2_Lr;
+    double Lrp2_q1;
+    double Lrp2_q2;
+    double Lrp2_p1;
+    double Lrp2_p2;
     double map_components_col1[6];
 };
 
-struct Order2EvaluationScratch {
-    std::vector<double> nu_nu;
-
-    std::vector<double> q1_nu;
-    std::vector<double> q1_q1;
-    std::vector<double> q1_q2;
-    std::vector<double> q1_p1;
-    std::vector<double> q1_p2;
-    std::vector<double> q1_Lr;
-
-    std::vector<double> q2_nu;
-    std::vector<double> q2_q1;
-    std::vector<double> q2_q2;
-    std::vector<double> q2_p1;
-    std::vector<double> q2_p2;
-    std::vector<double> q2_Lr;
-
-    std::vector<double> p1_nu;
-    std::vector<double> p1_q1;
-    std::vector<double> p1_q2;
-    std::vector<double> p1_p1;
-    std::vector<double> p1_p2;
-    std::vector<double> p1_Lr;
-
-    std::vector<double> p2_nu;
-    std::vector<double> p2_q1;
-    std::vector<double> p2_q2;
-    std::vector<double> p2_p1;
-    std::vector<double> p2_p2;
-    std::vector<double> p2_Lr;
-
-    std::vector<double> Lr_nu;
-    std::vector<double> Lr_q1;
-    std::vector<double> Lr_q2;
-    std::vector<double> Lr_p1;
-    std::vector<double> Lr_p2;
-    std::vector<double> Lr_Lr;
-
-    void resize(std::size_t M);
-    StmAccumulatorView view() const;
-};
+// Order 2 reuses Order1EvaluationScratch
 
 void compute_coefficients_2(
     const double* y0,
     const PropagationConstants& constants,
+    Order1Coefficients& out1,
+    Order1Intermediates& inter1,
     Order2Coefficients& out,
-    Order1Coefficients& out1
+    Order2Intermediates& inter
 );
 
 void evaluate_order_2(
-    const Order1Coefficients& coeffs1,
-    const Order2Coefficients& coeffs2,
+    const Order2Coefficients& coeffs,
     const double* dt_norm,
     std::size_t M,
     double* y_prop,
-    Order2EvaluationScratch& scratch
+    Order1EvaluationScratch& scratch
 );
 
 } // namespace geqoe

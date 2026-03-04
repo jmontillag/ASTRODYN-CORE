@@ -5,6 +5,7 @@
 
 #include "propagator_core.hpp"
 #include "taylor_order_1.hpp"
+#include "taylor_order_2.hpp"
 
 namespace astrodyn_core {
 namespace geqoe {
@@ -15,6 +16,9 @@ struct PreparedTaylorCoefficients {
     double initial_geqoe[6];
     double map_components[24];
     Order1Coefficients order1;
+    Order1Intermediates inter1;
+    Order2Coefficients order2;
+    Order2Intermediates inter2;
 
     PreparedTaylorCoefficients();
 };
