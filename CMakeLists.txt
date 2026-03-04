@@ -22,6 +22,8 @@ pybind11_add_module(geqoe_utils_cpp
     src/astrodyn_core/geqoe_cpp/src/propagator_core.cpp
     src/astrodyn_core/geqoe_cpp/src/taylor_order_1.cpp
     src/astrodyn_core/geqoe_cpp/src/taylor_order_2.cpp
+    src/astrodyn_core/geqoe_cpp/src/taylor_order_3.cpp
+    src/astrodyn_core/geqoe_cpp/src/taylor_order_4.cpp
     src/astrodyn_core/geqoe_cpp/src/taylor_pipeline.cpp
     src/astrodyn_core/math_cpp/src/math_utils.cpp
 )

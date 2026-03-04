@@ -31,6 +31,7 @@ from tools.transpiler.data_flow import (
     build_vector_tracker,
     collect_deriv_calls,
     analyze_cross_order,
+    find_implicit_vector_reads,
     find_vector_only_locals,
 )
 from tools.transpiler.struct_generator import (
@@ -81,22 +82,93 @@ def transpile_order(
     map_col = extract_map_column(compute)
     print(f"[transpiler] Order {order} coefficients: {len(eval_fields)} fields, map col {map_col}")
 
-    # Detect vector-only locals from previous order
+    # Detect vector-only locals from ALL previous orders.
     # These are variables stored in vectors but not in scratch writes.
     # They need synthetic reads from the intermediates struct.
-    vec_only_locals: list = []
+    # For orders > 2, locals from different orders route to different inter structs.
+    vec_only_locals: dict | list = {}
     if order > 1 and seed_vt is not None:
-        prev_py = source_dir / f"taylor_order_{order - 1}.py"
-        prev_compute, _ = parse_order_file(prev_py, order - 1)
-        prev_vt = build_vector_tracker(prev_compute)
-        vec_only_locals = find_vector_only_locals(prev_compute, prev_vt)
-        if vec_only_locals:
-            print(f"[transpiler] Vector-only locals from order {order - 1}: {vec_only_locals}")
+        all_vol: dict = {}  # name → "interN"
+        for prev_o in range(1, order):
+            prev_py = source_dir / f"taylor_order_{prev_o}.py"
+            prev_compute_vol, _ = parse_order_file(prev_py, prev_o)
+            if prev_o > 1:
+                prev_seed = build_chained_vector_tracker(prev_o - 1, source_dir)
+            else:
+                prev_seed = None
+            prev_vt = build_vector_tracker(prev_compute_vol, prev_seed)
+            vol = find_vector_only_locals(prev_compute_vol, prev_vt)
+            for vname in vol:
+                if vname not in all_vol:
+                    all_vol[vname] = f"inter{prev_o}"
+        if all_vol:
+            # For order == 2, use simple list for backward compat
+            if order == 2:
+                vec_only_locals = sorted(all_vol.keys())
+            else:
+                vec_only_locals = all_vol
+            print(f"[transpiler] Vector-only locals: {vec_only_locals}")
+
+    # Build scratch routing map: key → "interN" for orders > 2
+    # Each scratch read routes to the order that wrote it.
+    scratch_routing: dict = {}
+    if order > 2:
+        from tools.transpiler.struct_generator import extract_intermediates_fields as _eif
+        from tools.transpiler.data_flow import get_scratch_reads as _gsr
+        curr_reads, _ = _gsr(compute)
+        for prev_o in range(order - 1, 0, -1):
+            prev_py_tmp = source_dir / f"taylor_order_{prev_o}.py"
+            prev_compute_tmp, _ = parse_order_file(prev_py_tmp, prev_o)
+            prev_fields = set(_eif(prev_compute_tmp))
+            for key in curr_reads:
+                if key not in scratch_routing and key in prev_fields:
+                    scratch_routing[key] = f"inter{prev_o}"
+        unrouted = curr_reads - set(scratch_routing.keys())
+        if unrouted:
+            print(f"[transpiler] WARNING: {len(unrouted)} unrouted scratch reads: {sorted(unrouted)[:10]}")
+
+    # Detect implicit vector element reads: elements from inherited vectors
+    # used in derivative calls but not explicitly read from scratch.
+    if order > 1 and seed_vt is not None:
+        from tools.transpiler.struct_generator import extract_intermediates_fields as _eif2
+        implicit = find_implicit_vector_reads(compute, seed_vt)
+        if implicit:
+            # Route each implicit read to the correct inter struct
+            implicit_routing: dict = {}
+            for vname in implicit:
+                for prev_o in range(order - 1, 0, -1):
+                    prev_py_tmp = source_dir / f"taylor_order_{prev_o}.py"
+                    prev_compute_tmp, _ = parse_order_file(prev_py_tmp, prev_o)
+                    prev_fields = set(_eif2(prev_compute_tmp))
+                    if vname in prev_fields:
+                        implicit_routing[vname] = f"inter{prev_o}"
+                        break
+                else:
+                    # Check if it's a vector-only local
+                    if isinstance(vec_only_locals, dict) and vname in vec_only_locals:
+                        pass  # already handled
+                    elif isinstance(vec_only_locals, list) and vname in vec_only_locals:
+                        pass  # already handled
+                    else:
+                        print(f"[transpiler] WARNING: implicit read '{vname}' not found in any order's intermediates")
+
+            # Merge into vec_only_locals (which handles synthetic reads)
+            if implicit_routing:
+                print(f"[transpiler] Implicit vector reads: {len(implicit_routing)} variables")
+                if isinstance(vec_only_locals, dict):
+                    for k, v in implicit_routing.items():
+                        if k not in vec_only_locals:
+                            vec_only_locals[k] = v
+                else:
+                    # Convert to dict for multi-source routing
+                    vol_dict = {k: (prev_inter or "inter1") for k in vec_only_locals}
+                    vol_dict.update(implicit_routing)
+                    vec_only_locals = vol_dict
 
     # Generate compute body
     prev_inter = f"inter{order - 1}" if order > 1 else None
     compute_body = generate_compute_coefficients(
-        order, compute, seed_vt, None, prev_inter, vec_only_locals)
+        order, compute, seed_vt, None, prev_inter, vec_only_locals, scratch_routing)
 
     # Generate evaluate body
     evaluate_body = generate_evaluate_order(order, evaluate)

@@ -15,6 +15,7 @@ from tools.transpiler.ast_parser import (
     DerivCallDoOne,
     DerivCallFull,
     ParsedFunction,
+    ScalarAssignment,
     ScratchRead,
     ScratchWrite,
     VectorConstruct,
@@ -111,6 +112,9 @@ def build_vector_tracker(
         # Pre-populate with vectors from previous order
         for k, v in seed.vectors.items():
             vt.vectors[k] = list(v)
+        # Also copy AST nodes so expression elements can be emitted as C++
+        for key, node in seed.ast_nodes.items():
+            vt.ast_nodes[key] = node
 
     for stmt in func.statements:
         if isinstance(stmt, VectorConstruct):
@@ -157,9 +161,10 @@ def find_vector_only_locals(
     They need to be in the intermediates struct so consuming orders
     can access them via derivative calls on the inherited vectors.
 
-    Only considers ``ast.Name`` elements (expression elements like
-    ``2 * f2rp`` don't introduce new variables — their sub-names are
-    assumed to be available via scratch reads).
+    Only considers variables that are **newly computed** in this function
+    (scalar assignments, derivative calls, element extracts) — not
+    variables inherited via scratch reads.  Also filters out expression
+    elements (non-Name AST nodes like ``2*f2rp``).
     """
     import ast as ast_mod
 
@@ -169,7 +174,21 @@ def find_vector_only_locals(
         if isinstance(stmt, ScratchWrite) and not stmt.key.endswith("_vector"):
             scratch_writes.add(stmt.key)
 
-    # Collect all Name-type vector elements
+    # Collect variables newly computed in this function
+    # (excludes ScratchRead — those are inherited, not computed here)
+    computed_in_func: Set[str] = set()
+    for stmt in func.statements:
+        if isinstance(stmt, ScalarAssignment):
+            computed_in_func.add(stmt.target)
+        elif isinstance(stmt, DerivCallDoOne):
+            computed_in_func.add(stmt.target)
+        elif isinstance(stmt, DerivCallFull):
+            computed_in_func.add(stmt.target)
+        elif isinstance(stmt, VectorElementExtract):
+            computed_in_func.add(stmt.target)
+
+    # Collect Name-type vector elements that are computed locally
+    # but NOT written to scratch
     needed: Set[str] = set()
     for vec_name, elements in vt.vectors.items():
         for i, elem in enumerate(elements):
@@ -178,12 +197,93 @@ def find_vector_only_locals(
                 # Only Name nodes introduce a variable reference
                 if isinstance(node, ast_mod.Name):
                     name = node.id
-                    if name not in scratch_writes:
+                    if name in computed_in_func and name not in scratch_writes:
                         needed.add(name)
             else:
-                # String element — check if it's in scratch writes
-                if elem not in scratch_writes:
+                # String element — must also be computed locally
+                if elem in computed_in_func and elem not in scratch_writes:
                     needed.add(elem)
+
+    return sorted(needed)
+
+
+def find_implicit_vector_reads(
+    func: ParsedFunction,
+    vt: VectorTracker,
+) -> List[str]:
+    """Find vector element names used in derivative calls but not in scratch reads.
+
+    When Order N uses a vector in a derivative call, the vector elements
+    must be available as C++ scalars.  If an element was added by a previous
+    order (via vector extend) and the current order doesn't explicitly read
+    it from scratch, it needs a synthetic read.
+
+    Only considers ``ast.Name`` elements (expression elements are emitted
+    inline by the C++ emitter).
+    """
+    import ast as ast_mod
+
+    # Collect all scratch read keys and all variables computed in this function
+    available: Set[str] = set()
+    for stmt in func.statements:
+        if isinstance(stmt, ScratchRead):
+            available.add(stmt.target)
+        elif isinstance(stmt, ScalarAssignment):
+            available.add(stmt.target)
+        elif isinstance(stmt, DerivCallDoOne):
+            available.add(stmt.target)
+        elif isinstance(stmt, DerivCallFull):
+            available.add(stmt.target)
+        elif isinstance(stmt, VectorElementExtract):
+            available.add(stmt.target)
+
+    # Walk through derivative calls incrementally, collecting needed elements
+    live_vt = VectorTracker()
+    for k, v in vt.vectors.items():
+        live_vt.vectors[k] = list(v)
+    for key, node in vt.ast_nodes.items():
+        live_vt.ast_nodes[key] = node
+
+    needed: Set[str] = set()
+    for stmt in func.statements:
+        if isinstance(stmt, VectorConstruct):
+            live_vt.construct(stmt.target, stmt.elements,
+                              getattr(stmt, 'element_nodes', None))
+        elif isinstance(stmt, VectorExtend):
+            live_vt.extend(stmt.target, stmt.element,
+                           getattr(stmt, 'element_node', None))
+        elif isinstance(stmt, ScratchRead) and stmt.key.endswith("_vector"):
+            if stmt.key in live_vt.vectors and stmt.target not in live_vt.vectors:
+                live_vt.vectors[stmt.target] = list(live_vt.vectors[stmt.key])
+                for (vname, idx), node in list(live_vt.ast_nodes.items()):
+                    if vname == stmt.key:
+                        live_vt.ast_nodes[(stmt.target, idx)] = node
+
+        if isinstance(stmt, (DerivCallDoOne, DerivCallFull)):
+            # Get vector elements used in this call
+            vec_name = stmt.vector_arg
+            if vec_name and vec_name in live_vt.vectors:
+                for i, elem in enumerate(live_vt.vectors[vec_name]):
+                    node = live_vt.ast_nodes.get((vec_name, i))
+                    if node is not None:
+                        if isinstance(node, ast_mod.Name):
+                            if node.id not in available and node.id not in needed:
+                                needed.add(node.id)
+                    else:
+                        if elem not in available and elem not in needed:
+                            needed.add(elem)
+            # Also check param vector
+            param_vec = getattr(stmt, 'param_vector_arg', None)
+            if param_vec and param_vec in live_vt.vectors:
+                for i, elem in enumerate(live_vt.vectors[param_vec]):
+                    node = live_vt.ast_nodes.get((param_vec, i))
+                    if node is not None:
+                        if isinstance(node, ast_mod.Name):
+                            if node.id not in available and node.id not in needed:
+                                needed.add(node.id)
+                    else:
+                        if elem not in available and elem not in needed:
+                            needed.add(elem)
 
     return sorted(needed)
 

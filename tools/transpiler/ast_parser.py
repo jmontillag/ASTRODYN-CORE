@@ -174,12 +174,22 @@ DERIV_FUNCS = {
 # ---------------------------------------------------------------------------
 
 def _is_scratch_subscript(node: ast.expr) -> Optional[str]:
-    """If ``node`` is ``s["key"]``, return key. Else None."""
+    """If ``node`` is ``s["key"]`` or ``s.get("key")``, return key. Else None."""
     if (isinstance(node, ast.Subscript)
             and isinstance(node.value, ast.Name) and node.value.id == "s"):
         sl = node.slice
         if isinstance(sl, ast.Constant) and isinstance(sl.value, str):
             return sl.value
+    # Also handle s.get("key")
+    if (isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == "s"
+            and node.func.attr == "get"
+            and len(node.args) >= 1
+            and isinstance(node.args[0], ast.Constant)
+            and isinstance(node.args[0].value, str)):
+        return node.args[0].value
     return None
 
 

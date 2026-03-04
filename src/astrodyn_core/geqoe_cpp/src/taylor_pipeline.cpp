@@ -56,7 +56,7 @@ void extract_eq0_from_rv2geqoe(
 
 } // namespace
 
-PreparedTaylorCoefficients::PreparedTaylorCoefficients() : constants{}, order(1), initial_geqoe{0.0}, map_components{0.0}, order1{}, inter1{}, order2{}, inter2{} {}
+PreparedTaylorCoefficients::PreparedTaylorCoefficients() : constants{}, order(1), initial_geqoe{0.0}, map_components{0.0}, order1{}, inter1{}, order2{}, inter2{}, order3{}, inter3{}, order4{} {}
 
 std::shared_ptr<PreparedTaylorCoefficients> prepare_taylor_coefficients_cpp(
     const double* y0,
@@ -68,10 +68,6 @@ std::shared_ptr<PreparedTaylorCoefficients> prepare_taylor_coefficients_cpp(
     if (!is_valid_order(order)) {
         throw std::runtime_error("Taylor order must be in [1, 4].");
     }
-    if (order > 2) {
-        throw std::runtime_error("C++ staged propagator currently supports order<=2 only.");
-    }
-
     auto prepared = std::make_shared<PreparedTaylorCoefficients>();
     prepared->constants = make_constants(j2, re, mu);
     prepared->order = order;
@@ -84,11 +80,22 @@ std::shared_ptr<PreparedTaylorCoefficients> prepare_taylor_coefficients_cpp(
 
     if (order == 1) {
         compute_coefficients_1(y0, prepared->constants, prepared->order1);
-    } else if (order >= 2) {
-        // Order 2's compute internally calls Order 1, filling order1 and inter1
+    } else if (order == 2) {
         compute_coefficients_2(y0, prepared->constants,
             prepared->order1, prepared->inter1,
             prepared->order2, prepared->inter2);
+    } else if (order == 3) {
+        compute_coefficients_3(y0, prepared->constants,
+            prepared->order1, prepared->inter1,
+            prepared->order2, prepared->inter2,
+            prepared->order3, prepared->inter3);
+    } else if (order >= 4) {
+        Order4Intermediates inter4_tmp;
+        compute_coefficients_4(y0, prepared->constants,
+            prepared->order1, prepared->inter1,
+            prepared->order2, prepared->inter2,
+            prepared->order3, prepared->inter3,
+            prepared->order4, inter4_tmp);
     }
 
     for (std::size_t row = 0; row < STATE_DIM; ++row) {
@@ -97,6 +104,16 @@ std::shared_ptr<PreparedTaylorCoefficients> prepare_taylor_coefficients_cpp(
     if (order >= 2) {
         for (std::size_t row = 0; row < STATE_DIM; ++row) {
             prepared->map_components[row * 4 + 1] = prepared->order2.map_components_col1[row];
+        }
+    }
+    if (order >= 3) {
+        for (std::size_t row = 0; row < STATE_DIM; ++row) {
+            prepared->map_components[row * 4 + 2] = prepared->order3.map_components_col2[row];
+        }
+    }
+    if (order >= 4) {
+        for (std::size_t row = 0; row < STATE_DIM; ++row) {
+            prepared->map_components[row * 4 + 3] = prepared->order4.map_components_col3[row];
         }
     }
 
@@ -111,10 +128,6 @@ void evaluate_taylor_cpp(
     double* y_y0,
     double* map_components
 ) {
-    if (coeffs.order > 2) {
-        throw std::runtime_error("C++ staged propagator currently supports order<=2 only.");
-    }
-
     std::vector<double> dt_norm(M, 0.0);
     normalize_time_grid(dt_seconds, M, coeffs.constants.time_scale, dt_norm.data());
 
@@ -124,6 +137,12 @@ void evaluate_taylor_cpp(
     evaluate_order_1(coeffs.order1, dt_norm.data(), M, y_prop, scratch);
     if (coeffs.order >= 2) {
         evaluate_order_2(coeffs.order2, dt_norm.data(), M, y_prop, scratch);
+    }
+    if (coeffs.order >= 3) {
+        evaluate_order_3(coeffs.order3, dt_norm.data(), M, y_prop, scratch);
+    }
+    if (coeffs.order >= 4) {
+        evaluate_order_4(coeffs.order4, dt_norm.data(), M, y_prop, scratch);
     }
 
     assemble_stm_and_denormalize_nu(scratch.view(), M, coeffs.constants.time_scale, y_prop, y_y0);

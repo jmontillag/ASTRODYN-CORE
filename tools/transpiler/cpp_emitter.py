@@ -519,17 +519,25 @@ def generate_compute_coefficients(
     cross_deps: Optional[CrossOrderDeps],
     prev_inter_name: Optional[str],
     vec_only_locals: Optional[List[str]] = None,
+    scratch_routing: Optional[Dict[str, str]] = None,
 ) -> str:
     """Generate the full ``compute_coefficients_N`` C++ function body."""
     lines: List[str] = []
 
-    # Emit synthetic reads for vector-only locals from the previous order.
+    # Emit synthetic reads for vector-only locals from previous orders.
     # These are variables stored in vectors but never written to scratch,
     # so they don't get normal scratch-read lines but are needed by
     # derivative calls that reference vector elements.
-    if vec_only_locals and prev_inter_name:
-        for vname in vec_only_locals:
-            lines.append(f"    const double {vname} = {prev_inter_name}.{vname};")
+    # vec_only_locals can be:
+    #   - list of names (all routed to prev_inter_name), or
+    #   - dict of {name: "interN"} for multi-order routing
+    if vec_only_locals:
+        if isinstance(vec_only_locals, dict):
+            for vname, inter_name in sorted(vec_only_locals.items()):
+                lines.append(f"    const double {vname} = {inter_name}.{vname};")
+        elif prev_inter_name:
+            for vname in vec_only_locals:
+                lines.append(f"    const double {vname} = {prev_inter_name}.{vname};")
 
     # Track variables that get reassigned (like fic in Order 2)
     assigned_vars: Set[str] = set()
@@ -599,7 +607,11 @@ def generate_compute_coefficients(
                 # Vector aliasing handled by live_vt tracker (already done above)
                 i += 1
                 continue
-            inter_prefix = prev_inter_name or "inter1"
+            # Route to correct intermediates struct
+            if scratch_routing and stmt.key in scratch_routing:
+                inter_prefix = scratch_routing[stmt.key]
+            else:
+                inter_prefix = prev_inter_name or "inter1"
             if stmt.target in mutable_vars:
                 lines.append(f"    double {stmt.target} = {inter_prefix}.{stmt.key};")
             else:
