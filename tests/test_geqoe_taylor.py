@@ -18,6 +18,7 @@ from astrodyn_core.geqoe_taylor.integrator import (
     extract_stm,
 )
 from astrodyn_core.geqoe_taylor.utils import K_to_L, solve_kepler_gen
+from astrodyn_core.geqoe_taylor.cowell import propagate_cowell_heyoka
 
 # Paper case (a): LEO circular i=45°
 R0_A = np.array([7178.1366, 0.0, 0.0])
@@ -191,3 +192,26 @@ class TestSTM:
         ta_v, _ = build_stm_integrator(PERT, ic, tol=1e-15)
         _, phi = extract_stm(ta_v.state)
         np.testing.assert_allclose(phi, np.eye(6), atol=1e-15)
+
+
+class TestCowellGroundTruth:
+    """Validate GEqOE against independent Cowell (Cartesian) integration."""
+
+    def test_12day_vs_cowell_heyoka(self):
+        """GEqOE Taylor matches heyoka Cowell ground truth to < 1e-6 km."""
+        r_cow, v_cow = propagate_cowell_heyoka(R0_A, V0_A, 12.0 * 86400.0)
+
+        ic = cart2geqoe(R0_A, V0_A, MU, PERT)
+        ta, _ = build_state_integrator(PERT, ic, tol=1e-15)
+        ta.propagate_until(12.0 * 86400.0)
+        rf, vf = geqoe2cart(ta.state, MU, PERT)
+
+        assert np.linalg.norm(rf - r_cow) < 1e-6  # km
+        assert np.linalg.norm(vf - v_cow) < 1e-9  # km/s
+
+    def test_cowell_vs_paper(self):
+        """Cowell ground truth is consistent with paper Dromo reference."""
+        r_cow, v_cow = propagate_cowell_heyoka(R0_A, V0_A, 12.0 * 86400.0)
+
+        assert np.linalg.norm(r_cow - RF_REF) < 1e-5  # km
+        assert np.linalg.norm(v_cow - VF_REF) < 1e-8  # km/s
