@@ -109,10 +109,17 @@ def _resolve_body_constants_from_orekit() -> dict[str, float]:
     }
 
 
+_mu_warning_emitted = False
+
+
 def _check_mu_consistency(orbit_mu: float, body_mu: float) -> None:
-    """Warn if the orbit mu and body_constants mu disagree."""
+    """Warn (once) if the orbit mu and body_constants mu disagree."""
+    global _mu_warning_emitted  # noqa: PLW0603
+    if _mu_warning_emitted:
+        return
     rel = abs(orbit_mu - body_mu) / max(abs(orbit_mu), 1.0)
     if rel > 1e-10:
+        _mu_warning_emitted = True
         _log.warning(
             "mu from orbit (%.10e) differs from body_constants (%.10e) "
             "by %.2e relative. The J2 integration uses body_constants while "
