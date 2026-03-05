@@ -18,16 +18,26 @@ Current contents:
 - `agents-snippets/astrodyn-core-consumer.md`
   - reusable `AGENTS.md` section for repositories that consume
     `/home/astror/Projects/ASTRODYN-CORE` as an editable dependency
+- `skills/heyoka-mcp/`
+  - canonical skill for the `heyoka_docs` MCP server (heyoka.py + heyoka C++)
+  - MCP server code lives at `~/.local/share/mcp-servers/heyoka-docs/`
 - `codex-config-snippets/orekit-docs-mcp.toml`
   - reusable `~/.codex/config.toml` MCP server snippets (direct Python and
     `conda run --no-capture-output` variants)
   - points to a global home-directory runtime install at
     `~/.codex/mcp/orekit-docs/`
+- `codex-config-snippets/heyoka-docs-mcp.toml`
+  - reusable MCP server snippet for the heyoka docs server
+  - points to `~/.local/share/mcp-servers/heyoka-docs/`
 - `environments/mcp-tools-env.yml`
-  - dedicated Conda environment spec for the Orekit docs MCP runtime
+  - dedicated Conda environment spec for MCP server runtimes (shared by
+    Orekit and heyoka docs servers)
 - `data-manifests/orekit-cache-manifest.md`
   - reproducibility manifest for the Orekit docs/tutorials cache in
     `~/.cache/orekit`
+- `data-manifests/heyoka-cache-manifest.md`
+  - reproducibility manifest for the heyoka docs cache in
+    `~/.cache/heyoka`
 - `../scripts/orekit_mcp/export_cache_bundle.sh`
 - `../scripts/orekit_mcp/import_cache_bundle.sh`
   - portability helpers to package/restore the Orekit cache bundle

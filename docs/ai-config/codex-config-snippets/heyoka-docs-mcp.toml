@@ -1,0 +1,20 @@
+# Canonical MCP server snippet for the local heyoka docs MCP server.
+# Copy into ~/.codex/config.toml or use the JSON equivalent in
+# ~/.claude/settings.json.
+#
+# The server runs in the shared `mcp-tools-env` Conda environment.
+# The MCP code lives at ~/.local/share/mcp-servers/heyoka-docs/
+# The docs cache lives at ~/.cache/heyoka/
+
+# ---------------------------------------------------------------------------
+# Preferred variant: direct interpreter from the Conda env (most reliable)
+# ---------------------------------------------------------------------------
+[mcp_servers.heyoka_docs]
+command = "/home/astror/miniconda3/envs/mcp-tools-env/bin/python"
+args = [
+  "-u",
+  "/home/astror/.local/share/mcp-servers/heyoka-docs/heyoka_docs_mcp/server.py",
+]
+
+[mcp_servers.heyoka_docs.env]
+HEYOKA_CACHE_ROOT = "/home/astror/.cache/heyoka"
