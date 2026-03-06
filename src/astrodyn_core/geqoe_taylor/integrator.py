@@ -61,13 +61,20 @@ def _build_variational_integrator(
     t0,
     tol,
     compact_mode,
+    with_params=False,
 ):
-    vsys = hy.var_ode_sys(sys, hy.var_args.vars, order=1)
+    vargs = hy.var_args.vars
+    if with_params and par_map:
+        vargs = vargs | hy.var_args.params
+
+    vsys = hy.var_ode_sys(sys, vargs, order=1)
     ic_list = list(ic)
-    identity_flat = [
-        1.0 if i == j else 0.0 for i in range(state_dim) for j in range(state_dim)
-    ]
-    ic_aug = ic_list + identity_flat
+    jac_cols = state_dim + (len(par_map) if with_params else 0)
+    jacobian_flat = []
+    for i in range(state_dim):
+        for j in range(jac_cols):
+            jacobian_flat.append(1.0 if j < state_dim and i == j else 0.0)
+    ic_aug = ic_list + jacobian_flat
     return hy.taylor_adaptive(
         vsys,
         state=ic_aug,
@@ -151,6 +158,7 @@ def build_stm_integrator(
         t0,
         tol,
         compact_mode,
+        with_params=False,
     )
     return ta, par_map
 
@@ -204,6 +212,38 @@ def build_thrust_stm_integrator(
         t0,
         tol,
         compact_mode,
+        with_params=False,
+    )
+    return ta, par_map
+
+
+def build_thrust_sensitivity_integrator(
+    perturbation: PerturbationModel,
+    ic: np.ndarray | list,
+    t0: float = 0.0,
+    tol: float = 1e-15,
+    compact_mode: bool = True,
+) -> tuple[hy.taylor_adaptive, dict]:
+    """Build a 7-state thrust integrator with sensitivities wrt state and params."""
+    if len(ic) != 7:
+        raise ValueError(
+            "build_thrust_sensitivity_integrator() expects a 7-element "
+            "GEqOE state [nu, p1, p2, K, q1, q2, m]."
+        )
+
+    sys, _, par_map = build_geqoe_mass_system(
+        perturbation, use_par=True, time_origin=t0
+    )
+    ta = _build_variational_integrator(
+        sys,
+        ic,
+        7,
+        perturbation,
+        par_map,
+        t0,
+        tol,
+        compact_mode,
+        with_params=True,
     )
     return ta, par_map
 
@@ -277,3 +317,33 @@ def extract_stm(
     y = state_aug[:state_dim]
     phi = state_aug[state_dim:].reshape(state_dim, state_dim)
     return y, phi
+
+
+def parameter_names_from_map(par_map: dict[str, int]) -> list[str]:
+    """Return runtime parameter names ordered by heyoka parameter index."""
+    return [name for name, _ in sorted(par_map.items(), key=lambda item: item[1])]
+
+
+def extract_variational_matrices(
+    state_aug: np.ndarray,
+    state_dim: int,
+    par_map: dict[str, int] | None = None,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, list[str]]:
+    """Extract the propagated state, STM, and parameter sensitivities.
+
+    The augmented Jacobian is returned in the same column order used by heyoka:
+    first the state variables, then the runtime parameters sorted by `par[i]`.
+    """
+    param_names = parameter_names_from_map(par_map or {})
+    n_param = len(param_names)
+    expected_size = state_dim + state_dim * (state_dim + n_param)
+    if len(state_aug) != expected_size:
+        raise ValueError(
+            f"Expected augmented state of length {expected_size}, got {len(state_aug)}."
+        )
+
+    y = state_aug[:state_dim]
+    jac = state_aug[state_dim:].reshape(state_dim, state_dim + n_param)
+    phi_x = jac[:, :state_dim]
+    phi_p = jac[:, state_dim:]
+    return y, phi_x, phi_p, param_names

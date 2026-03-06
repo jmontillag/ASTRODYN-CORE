@@ -27,7 +27,7 @@ Build a high-performance orbit propagator using **Generalized Equinoctial Orbita
 | 6 | General perturbations (third-body, non-conservative, higher geopotential) | DONE (core) |
 | 7a | Zonal harmonics (J2–Jn via auto-gradient) | DONE |
 | 7b | Post-review hardening + formal implementation note | DONE |
-| 8 | Continuous thrust and maneuver characterization framework | IN PROGRESS (8a core) |
+| 8 | Continuous thrust and maneuver characterization framework | IN PROGRESS (8a done, 8b core) |
 
 ### Achieved Performance (J2-only, tol=1e-15)
 
@@ -82,9 +82,20 @@ Build a high-performance orbit propagator using **Generalized Equinoctial Orbita
   $\dot{m} = -T / (g_0 I_{sp})$ using thrust magnitude in newtons and mass in kg
 - **GEqOE vs Cowell validation added** through a generic heyoka Cowell path for
   arbitrary perturbation models, including propagated mass
-- **57 GEqOE tests passing** (`test_geqoe_taylor.py`,
+- **59 GEqOE tests passing** (`test_geqoe_taylor.py`,
   `test_geqoe_taylor_general.py`, `test_geqoe_taylor_zonal.py`,
   `test_geqoe_taylor_thrust.py`)
+
+### Phase 8b Results (Sensitivity Core)
+
+- **State and parameter sensitivities implemented** for the 7-state thrust
+  system using `hy.var_args.vars | hy.var_args.params`
+- **Dedicated builder added**: `build_thrust_sensitivity_integrator()`
+- **Variational extraction helper added**:
+  `extract_variational_matrices()` returning `(y, Phi_x, Phi_p, param_names)`
+- **Runtime parameter ordering exposed** via `parameter_names_from_map()`
+- **Finite-difference regression added** for thrust-parameter endpoint
+  sensitivities
 
 ### Commits
 
@@ -807,19 +818,24 @@ Validation completed:
 Deferred within the broader Phase 8 roadmap:
 
 - spline / B-spline control laws
-- parameter-sensitivity convenience helpers
 - direct optimization transcription
 
 #### Phase 8b: Variational sensitivities wrt control coefficients
 
-Deliverables:
+Delivered in the initial 8b core:
 - STM wrt initial state and thrust parameters
-- endpoint Jacobian utilities
+- endpoint Jacobian extraction utility
 - regression tests against finite differences
 
-Validation:
+Validation completed:
 - directional derivative tests
-- sensitivity agreement vs finite differences / complex-step where possible
+- sensitivity agreement vs finite differences for thrust coefficients
+
+Deferred within Phase 8b:
+
+- convenience wrappers for selected-parameter submatrices
+- higher-level endpoint Jacobian assembly helpers for shooting / NLP layers
+- optional custom variational argument lists beyond `vars | params`
 
 #### Phase 8c: Multiple-shooting optimization prototype
 

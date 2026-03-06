@@ -20,9 +20,12 @@ from astrodyn_core.geqoe_taylor.integrator import (
     build_state_integrator,
     build_stm_integrator,
     build_thrust_state_integrator,
+    build_thrust_sensitivity_integrator,
     build_thrust_stm_integrator,
     propagate,
     extract_stm,
+    extract_variational_matrices,
+    parameter_names_from_map,
 )
 
 __all__ = [
@@ -33,5 +36,7 @@ __all__ = [
     "ContinuousThrustLaw", "ConstantRTNThrustLaw",
     "build_state_integrator", "build_stm_integrator",
     "build_thrust_state_integrator", "build_thrust_stm_integrator",
-    "propagate", "extract_stm",
+    "build_thrust_sensitivity_integrator",
+    "propagate", "extract_stm", "extract_variational_matrices",
+    "parameter_names_from_map",
 ]

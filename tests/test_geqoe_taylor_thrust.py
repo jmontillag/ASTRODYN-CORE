@@ -10,9 +10,11 @@ from astrodyn_core.geqoe_taylor.conversions import cart2geqoe, geqoe2cart
 from astrodyn_core.geqoe_taylor.cowell import propagate_cowell_heyoka_general
 from astrodyn_core.geqoe_taylor.integrator import (
     build_state_integrator,
+    build_thrust_sensitivity_integrator,
     build_thrust_state_integrator,
     build_thrust_stm_integrator,
     extract_stm,
+    extract_variational_matrices,
 )
 from astrodyn_core.geqoe_taylor.perturbations.composite import CompositePerturbation
 from astrodyn_core.geqoe_taylor.perturbations.j2 import J2Perturbation
@@ -140,6 +142,102 @@ class TestContinuousThrustCore:
 
         np.testing.assert_allclose(y, ic, atol=1e-14)
         np.testing.assert_allclose(phi, np.eye(7), atol=1e-14)
+
+    def test_thrust_param_sensitivity_identity_at_t0(self):
+        law = ConstantRTNThrustLaw(
+            thrust_r_newtons=0.1,
+            thrust_t_newtons=0.2,
+            thrust_n_newtons=0.05,
+            isp_s=2100.0,
+        )
+        pert = CompositePerturbation(
+            non_conservative=[ContinuousThrustPerturbation(law)]
+        )
+        ic = _build_mass_state(pert, 500.0)
+
+        ta, par_map = build_thrust_sensitivity_integrator(pert, ic, tol=1e-15)
+        y, phi_x, phi_p, param_names = extract_variational_matrices(
+            ta.state, state_dim=7, par_map=par_map
+        )
+
+        np.testing.assert_allclose(y, ic, atol=1e-14)
+        np.testing.assert_allclose(phi_x, np.eye(7), atol=1e-14)
+        np.testing.assert_allclose(phi_p, np.zeros((7, len(param_names))), atol=1e-14)
+        assert param_names == [
+            "mu",
+            "thrust.r_newtons",
+            "thrust.t_newtons",
+            "thrust.n_newtons",
+            "thrust.isp_s",
+        ]
+
+    def test_thrust_param_sensitivities_vs_finite_difference(self):
+        base_kwargs = dict(
+            thrust_r_newtons=0.03,
+            thrust_t_newtons=0.28,
+            thrust_n_newtons=0.02,
+            isp_s=2000.0,
+        )
+        mass_kg = 500.0
+        t_final = 2400.0
+
+        def build_pert(**kwargs):
+            return CompositePerturbation(
+                conservative=[J2Perturbation()],
+                non_conservative=[ContinuousThrustPerturbation(ConstantRTNThrustLaw(**kwargs))],
+            )
+
+        pert = build_pert(**base_kwargs)
+        ic = _build_mass_state(pert, mass_kg)
+        ta, par_map = build_thrust_sensitivity_integrator(
+            pert, ic, tol=1e-15, compact_mode=True
+        )
+        ta.propagate_until(t_final)
+        y, _, phi_p, param_names = extract_variational_matrices(
+            ta.state, state_dim=7, par_map=par_map
+        )
+        col_t = param_names.index("thrust.t_newtons")
+        col_isp = param_names.index("thrust.isp_s")
+
+        # Tangential thrust has the strongest orbital effect and is a good
+        # regression target for the full 7-state endpoint Jacobian.
+        dt = 1.0e-4
+        kwargs_p = dict(base_kwargs)
+        kwargs_m = dict(base_kwargs)
+        kwargs_p["thrust_t_newtons"] += dt
+        kwargs_m["thrust_t_newtons"] -= dt
+
+        ta_p, _ = build_thrust_state_integrator(
+            build_pert(**kwargs_p), ic, tol=1e-15, compact_mode=True
+        )
+        ta_m, _ = build_thrust_state_integrator(
+            build_pert(**kwargs_m), ic, tol=1e-15, compact_mode=True
+        )
+        ta_p.propagate_until(t_final)
+        ta_m.propagate_until(t_final)
+        fd_t = (ta_p.state - ta_m.state) / (2.0 * dt)
+
+        np.testing.assert_allclose(phi_p[:, col_t], fd_t, rtol=2e-4, atol=2e-8)
+
+        # Isp mainly enters through mass depletion; validate that coupling too.
+        di = 1.0
+        kwargs_p = dict(base_kwargs)
+        kwargs_m = dict(base_kwargs)
+        kwargs_p["isp_s"] += di
+        kwargs_m["isp_s"] -= di
+
+        ta_p, _ = build_thrust_state_integrator(
+            build_pert(**kwargs_p), ic, tol=1e-15, compact_mode=True
+        )
+        ta_m, _ = build_thrust_state_integrator(
+            build_pert(**kwargs_m), ic, tol=1e-15, compact_mode=True
+        )
+        ta_p.propagate_until(t_final)
+        ta_m.propagate_until(t_final)
+        fd_isp = (ta_p.state - ta_m.state) / (2.0 * di)
+
+        np.testing.assert_allclose(phi_p[6, col_isp], fd_isp[6], rtol=1e-7, atol=1e-11)
+        assert abs(phi_p[6, col_isp]) > 0.0
 
     def test_j2_plus_thrust_matches_cowell(self):
         law = ConstantRTNThrustLaw(

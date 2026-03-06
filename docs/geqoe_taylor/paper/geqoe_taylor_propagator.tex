@@ -358,6 +358,11 @@ symbolic graph can be reused while the control values change. Second, the
 mass-augmented GEqOE builder reuses the existing general equations and simply
 appends the scalar mass ODE, preserving derivative consistency between the
 force model, the state propagation, and future variational equations.
+The next extension is already enabled in the implementation: by constructing
+the variational system with
+\texttt{hy.var\_args.vars | hy.var\_args.params}, the same backend provides
+first-order sensitivities with respect to both the initial augmented state and
+the thrust-law runtime parameters.
 
 \section{Time Handling for Time-Dependent Perturbations}
 

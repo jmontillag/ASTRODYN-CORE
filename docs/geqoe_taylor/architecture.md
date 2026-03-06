@@ -723,11 +723,40 @@ Uses `hy.var_ode_sys(sys, hy.var_args.vars, order=1)` to automatically derive th
 
 **STM layout**: The 36 STM entries are stored in row-major order. Use `state[6:].reshape(6, 6)` to extract the 6×6 matrix. The initial condition is the 6×6 identity matrix (flattened).
 
-### 12.3 Propagation Helpers
+### 12.3 Mass-Augmented and Parameter-Sensitivity Builders
+
+Phase 8 adds three thrust-oriented wrappers on top of the same symbolic RHS:
+
+- `build_thrust_state_integrator(...)`: 7-state propagation for
+  `(nu, p1, p2, K, q1, q2, m)`
+- `build_thrust_stm_integrator(...)`: 7-state STM wrt the augmented initial
+  state only
+- `build_thrust_sensitivity_integrator(...)`: 7-state variational system wrt
+  both the augmented initial state and all runtime parameters
+
+The last builder uses:
+
+```python
+hy.var_ode_sys(sys, hy.var_args.vars | hy.var_args.params, order=1)
+```
+
+For a state dimension `n` and `k` runtime parameters, the augmented Jacobian
+has shape `n x (n + k)`. heyoka stores it in row-major order after the
+original state. The columns are ordered as:
+
+1. state variables in propagation order
+2. runtime parameters in increasing `par[i]` index order
+
+### 12.4 Propagation Helpers
 
 - `propagate(ta, t_final, max_delta_t=None)`: Step-by-step propagation collecting times and states at each step boundary.
 - `propagate_grid(ta, t_grid)`: Dense output at specified time grid points via heyoka's built-in `propagate_grid`.
 - `extract_stm(state_aug)`: Extract 6-element state and 6×6 STM from 42-element augmented state.
+- `extract_variational_matrices(state_aug, state_dim, par_map)`: Extract the
+  propagated state, state STM, parameter sensitivity matrix, and ordered
+  parameter names from a `vars | params` augmented system.
+- `parameter_names_from_map(par_map)`: Recover runtime parameter names ordered
+  by the underlying heyoka parameter indices.
 
 ---
 
@@ -874,6 +903,20 @@ Responsibilities:
 - `build_thrust_state_integrator()`: 7-state propagation for
   `(nu, p1, p2, K, q1, q2, m)`
 - `build_thrust_stm_integrator()`: 7-state STM wrt the augmented initial state
+- `build_thrust_sensitivity_integrator()`: 7-state sensitivities wrt the
+  augmented initial state and runtime parameters
+
+**Sensitivity extraction**:
+
+- `extract_variational_matrices()` returns:
+  - `Phi_x`: sensitivities wrt the initial augmented state
+  - `Phi_p`: sensitivities wrt all runtime parameters
+  - `param_names`: parameter names ordered consistently with the columns of
+    `Phi_p`
+
+This is the main Phase 8b bridge to multiple shooting and optimization: the
+endpoint Jacobian with respect to control coefficients comes straight from the
+same symbolic graph as the propagated state.
 
 The existing 6-state integrators intentionally reject perturbations that set
 `requires_mass = True`, so the API fails fast instead of silently dropping mass
@@ -973,7 +1016,7 @@ The GEqOE propagator should match the heyoka Cowell propagator to within the ele
 | `test_geqoe_taylor.py` | 14 | Conversions, Kepler eq, propagation, STM, Cowell J2 |
 | `test_geqoe_taylor_general.py` | 11 | General equations, third-body, composite, Cowell full |
 | `test_geqoe_taylor_zonal.py` | 22 | Legendre, zonal construction, J2 match, gradient FD, higher-order, Cowell zonal |
-| `test_geqoe_taylor_thrust.py` | 6 | Mass-augmented GEqOE, thrust runtime params, energy growth, STM, Cowell thrust |
+| `test_geqoe_taylor_thrust.py` | 8 | Mass-augmented GEqOE, thrust runtime params, energy growth, STM, Cowell thrust, parameter sensitivities |
 
 ---
 
