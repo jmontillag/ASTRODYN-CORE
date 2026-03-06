@@ -119,6 +119,16 @@ class GeneralPerturbationModel(PerturbationModel, Protocol):
 - `is_conservative`: True if P = 0.
 - `is_time_dependent`: True if U or P depends explicitly on time.
 
+Optional extensions used by the continuous-thrust stack:
+
+- `parameter_defaults()`: exposes runtime parameters that should be mapped to
+  `hy.par[i]`
+- `requires_mass = True`: flags models that need the 7-state mass-augmented
+  GEqOE system
+- `mass_flow_expr(...)`: returns the mass derivative for the augmented system
+- `P_and_mass_flow_expr(...)`: optional fused path used to avoid rebuilding the
+  same thrust expressions twice
+
 ### 3.3 Additional Flags
 
 Models may set optional flags that control code path selection:
@@ -151,9 +161,13 @@ The system provides three code paths, auto-selected based on the perturbation mo
 |------|------|-----------------|------------|
 | **J2-only** | `is_conservative`, not `is_time_dependent`, not `_force_general` | Ė=0, ν̇=0, 2U-rF_r=-U, inline J2 potential | hy.par[0]=μ, hy.par[1]=A |
 | **Zonal fast** | `_zonal_fast_path`, `is_conservative`, not `is_time_dependent` | Ė=0, ν̇=0, Euler identity for 2U-rF_r, no Cartesian | hy.par[0]=μ |
-| **General** | Everything else | Full Eqs. 45-51 | hy.par[0]=μ |
+| **General** | Everything else | Full Eqs. 45-51 | hy.par[0]=μ (+ model params) |
 
 All three paths share `_build_intermediates()` for computing orbital geometry from the state vector.
+
+The continuous-thrust mass-augmented builder (`build_geqoe_mass_system`) reuses
+the general path directly and simply appends the scalar mass state to it. There
+is intentionally no separate thrust-specific force decomposition.
 
 ---
 
@@ -798,9 +812,13 @@ Combines multiple perturbation models, maintaining the separation between conser
 **Aggregation**:
 - `U_expr`, `U_numeric`, `grad_U_expr`: Sum over conservative models
 - `P_expr`: Sum over non-conservative models
+- `mass_flow_expr`: Sum over mass-coupled non-conservative models
+- `P_and_mass_flow_expr`: Fused acceleration + mass-flow traversal for
+  mass-augmented propagation
 - `U_t_expr`: Sum over conservative models (if they have it)
 - `is_conservative`: True only if no non-conservative models
 - `is_time_dependent`: True if any child model is time-dependent
+- `requires_mass`: True if any child model requires the mass state
 - `_force_general`: True if any child model sets `_force_general`
 - `_j2_fast_path`: True only for the exact pure-J2 case (one conservative child with `_j2_fast_path=True` and no non-conservative children)
 
@@ -816,6 +834,50 @@ comp = CompositePerturbation(
     ]
 )
 ```
+
+### 13.5 Continuous-Thrust Stack (`thrust.py`, `perturbations/thrust.py`)
+
+Phase 8a adds a control layer on top of the existing non-conservative
+acceleration path rather than introducing a separate thrust solver.
+
+**Control law interface**:
+
+```python
+class ContinuousThrustLaw(Protocol):
+    def parameter_defaults(self, prefix: str) -> dict[str, float]: ...
+    def thrust_rtn_expr(self, state, t, pars, prefix) -> tuple: ...
+```
+
+The current shipped law is `ConstantRTNThrustLaw`, which exposes four runtime
+parameters:
+
+- `thrust.r_newtons`
+- `thrust.t_newtons`
+- `thrust.n_newtons`
+- `thrust.isp_s`
+
+These parameters are mapped into `hy.par[i]`, so the symbolic graph can be
+reused while thrust coefficients are varied or differentiated later.
+
+**Perturbation wrapper**: `ContinuousThrustPerturbation(law, name="thrust")`
+
+Responsibilities:
+
+- reconstruct the RTN basis from Cartesian `(r, v)`
+- convert RTN thrust force (newtons) into Cartesian acceleration `P` (km/s²)
+  using the propagated mass
+- propagate `ṁ = -T / (g_0 I_{sp})`
+- declare `requires_mass = True` so users must select the 7-state builders
+
+**Public integrators**:
+
+- `build_thrust_state_integrator()`: 7-state propagation for
+  `(nu, p1, p2, K, q1, q2, m)`
+- `build_thrust_stm_integrator()`: 7-state STM wrt the augmented initial state
+
+The existing 6-state integrators intentionally reject perturbations that set
+`requires_mass = True`, so the API fails fast instead of silently dropping mass
+depletion.
 
 ---
 
@@ -885,6 +947,7 @@ The implementation is validated at multiple levels:
 | ν conservation | ν(t) = ν(0) for conservative/time-independent | < 1e-14 |
 | 12-day vs paper reference | Appendix C final state | < 1e-5 km |
 | GEqOE vs Cowell (heyoka) | Same force model, Cartesian RHS | < 1e-6 km (J2), < 1e-4 km (zonal) |
+| GEqOE vs Cowell (continuous thrust) | Same RTN thrust law + mass flow | < 5e-4 km pos, < 1e-6 km/s vel |
 | STM vs finite differences | Perturbed trajectories | relative error < 1e-5 |
 | Legendre polynomials | Known values P₀–P₄ | Machine precision |
 | Gradient vs finite differences | (U(r+ε) - U(r-ε))/(2ε) | relative < 5e-5 |
@@ -897,7 +960,9 @@ Two independent Cartesian propagators serve as ground truth:
 1. **scipy DOP853** (`propagate_cowell`): rtol=atol=1e-14. Lower accuracy but independent of heyoka.
 2. **heyoka Taylor** (`propagate_cowell_heyoka`): tol=1e-15. Highest accuracy, same engine.
 3. **heyoka Taylor full** (`propagate_cowell_heyoka_full`): J2 + Sun + Moon via same ephemeris.
-4. **Zonal Cowell** (in test file): Cowell propagator using `ZonalPerturbation.grad_U_expr` for arbitrary zonal harmonics.
+4. **heyoka Taylor general** (`propagate_cowell_heyoka_general`): arbitrary
+   `U/P` perturbation models, optionally with propagated mass.
+5. **Zonal Cowell** (in test file): Cowell propagator using `ZonalPerturbation.grad_U_expr` for arbitrary zonal harmonics.
 
 The GEqOE propagator should match the heyoka Cowell propagator to within the element conversion precision, since both use the same underlying Taylor integrator and force model.
 
@@ -908,6 +973,7 @@ The GEqOE propagator should match the heyoka Cowell propagator to within the ele
 | `test_geqoe_taylor.py` | 14 | Conversions, Kepler eq, propagation, STM, Cowell J2 |
 | `test_geqoe_taylor_general.py` | 11 | General equations, third-body, composite, Cowell full |
 | `test_geqoe_taylor_zonal.py` | 22 | Legendre, zonal construction, J2 match, gradient FD, higher-order, Cowell zonal |
+| `test_geqoe_taylor_thrust.py` | 6 | Mass-augmented GEqOE, thrust runtime params, energy growth, STM, Cowell thrust |
 
 ---
 

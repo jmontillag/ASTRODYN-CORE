@@ -4,6 +4,8 @@ Implementations:
   - propagate_cowell: scipy DOP853 (J2-only, no extra dependencies)
   - propagate_cowell_heyoka: heyoka Taylor (J2-only, highest accuracy)
   - propagate_cowell_heyoka_full: heyoka Taylor (J2 + Sun + Moon)
+  - propagate_cowell_heyoka_general: heyoka Taylor for arbitrary U/P models,
+    optionally with propagated mass
 """
 
 from __future__ import annotations
@@ -12,6 +14,26 @@ import numpy as np
 from scipy.integrate import solve_ivp
 
 from astrodyn_core.geqoe_taylor.constants import MU, A_J2
+
+
+def _parameter_defaults(perturbation) -> dict[str, float]:
+    defaults = getattr(perturbation, "parameter_defaults", None)
+    if defaults is None:
+        return {}
+    return dict(defaults())
+
+
+def _build_par_values(perturbation, par_map):
+    if not par_map:
+        return []
+    n_pars = max(par_map.values()) + 1
+    par_values = [0.0] * n_pars
+    if "mu" in par_map:
+        par_values[par_map["mu"]] = getattr(perturbation, "mu", MU)
+    for name, value in _parameter_defaults(perturbation).items():
+        if name in par_map:
+            par_values[par_map[name]] = float(value)
+    return par_values
 
 
 def _cowell_rhs(t: float, y: np.ndarray, mu: float, A: float) -> np.ndarray:
@@ -111,6 +133,131 @@ def propagate_cowell_heyoka(
     ta.propagate_until(t_final)
 
     return ta.state[:3].copy(), ta.state[3:].copy()
+
+
+def _build_cowell_heyoka_general_system(
+    perturbation,
+    mu_val: float | None = None,
+    use_par: bool = True,
+    time_origin: float = 0.0,
+    with_mass: bool = False,
+):
+    """Build a general Cartesian Cowell system from the perturbation interface."""
+    import heyoka as hy
+
+    if with_mass:
+        x, y, z, vx, vy, vz, m = hy.make_vars("x", "y", "z", "vx", "vy", "vz", "m")
+        state_vars = [x, y, z, vx, vy, vz, m]
+    else:
+        x, y, z, vx, vy, vz = hy.make_vars("x", "y", "z", "vx", "vy", "vz")
+        state_vars = [x, y, z, vx, vy, vz]
+        m = None
+
+    if use_par:
+        mu = hy.par[0]
+        par_map = {"mu": 0}
+        pars = {"mu": mu}
+        for idx, (name, _) in enumerate(_parameter_defaults(perturbation).items(), start=1):
+            par_map[name] = idx
+            pars[name] = hy.par[idx]
+    else:
+        mu = float(mu_val if mu_val is not None else MU)
+        par_map = {}
+        pars = {"mu": mu}
+        for name, value in _parameter_defaults(perturbation).items():
+            pars[name] = float(value)
+
+    if with_mass:
+        pars["mass"] = m
+
+    r2 = x * x + y * y + z * z
+    r = hy.sqrt(r2)
+    r3 = r2 * r
+    t_expr = hy.time - float(time_origin)
+
+    dUdx, dUdy, dUdz = perturbation.grad_U_expr(x, y, z, r, t_expr, pars)
+    if with_mass and hasattr(perturbation, "P_and_mass_flow_expr"):
+        Px, Py, Pz, m_dot = perturbation.P_and_mass_flow_expr(
+            x, y, z, vx, vy, vz, r, t_expr, pars
+        )
+    else:
+        Px, Py, Pz = perturbation.P_expr(x, y, z, vx, vy, vz, r, t_expr, pars)
+        if with_mass and hasattr(perturbation, "mass_flow_expr"):
+            m_dot = perturbation.mass_flow_expr(
+                x, y, z, vx, vy, vz, r, t_expr, pars
+            )
+        elif with_mass:
+            m_dot = 0.0 * m
+
+    ax = -mu * x / r3 + Px - dUdx
+    ay = -mu * y / r3 + Py - dUdy
+    az = -mu * z / r3 + Pz - dUdz
+
+    sys = [
+        (x, vx), (y, vy), (z, vz),
+        (vx, ax), (vy, ay), (vz, az),
+    ]
+    if with_mass:
+        sys.append((m, m_dot))
+
+    return sys, state_vars, par_map
+
+
+def propagate_cowell_heyoka_general(
+    perturbation,
+    r0: np.ndarray,
+    v0: np.ndarray,
+    t_final: float,
+    t0: float = 0.0,
+    m0: float | None = None,
+    mu: float = MU,
+    tol: float = 1e-15,
+    compact_mode: bool = True,
+):
+    """Propagate a Cartesian state with a general perturbation model via heyoka.
+
+    Args:
+        perturbation: model providing ``grad_U_expr`` and ``P_expr``.
+        r0: initial position in km.
+        v0: initial velocity in km/s.
+        t_final: target integrator time in seconds.
+        t0: initial integrator time in seconds.
+        m0: optional initial mass in kg. If provided, a 7th mass state is
+            propagated using ``mass_flow_expr``.
+        mu: central-body gravitational parameter.
+        tol: Taylor tolerance.
+        compact_mode: heyoka compact-mode toggle.
+
+    Returns:
+        ``(r, v)`` for the 6-state case, or ``(r, v, m)`` when ``m0`` is set.
+    """
+    import heyoka as hy
+
+    with_mass = m0 is not None
+    sys, _, par_map = _build_cowell_heyoka_general_system(
+        perturbation,
+        mu_val=mu,
+        use_par=True,
+        time_origin=t0,
+        with_mass=with_mass,
+    )
+    ic = list(r0) + list(v0)
+    if with_mass:
+        ic.append(float(m0))
+
+    ta = hy.taylor_adaptive(
+        sys,
+        state=ic,
+        time=t0,
+        pars=_build_par_values(perturbation, par_map),
+        tol=tol,
+        compact_mode=compact_mode,
+    )
+    ta.propagate_until(t_final)
+
+    if with_mass:
+        return ta.state[:3].copy(), ta.state[3:6].copy(), float(ta.state[6])
+    return ta.state[:3].copy(), ta.state[3:6].copy()
 
 
 def _build_cowell_heyoka_full_system(

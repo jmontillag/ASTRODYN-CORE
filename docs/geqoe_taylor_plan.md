@@ -27,7 +27,7 @@ Build a high-performance orbit propagator using **Generalized Equinoctial Orbita
 | 6 | General perturbations (third-body, non-conservative, higher geopotential) | DONE (core) |
 | 7a | Zonal harmonics (J2–Jn via auto-gradient) | DONE |
 | 7b | Post-review hardening + formal implementation note | DONE |
-| 8 | Continuous thrust and maneuver characterization framework | PLANNED |
+| 8 | Continuous thrust and maneuver characterization framework | IN PROGRESS (8a core) |
 
 ### Achieved Performance (J2-only, tol=1e-15)
 
@@ -68,6 +68,24 @@ Build a high-performance orbit propagator using **Generalized Equinoctial Orbita
   symbolic relative time `hy.time - t0`
 - **Formal LaTeX implementation note added** in `docs/geqoe_taylor/paper/`
 
+### Phase 8a Results (Continuous-Thrust Core)
+
+- **7-state GEqOE propagation implemented** with mass-augmented state
+  $(\nu, p_1, p_2, K, q_1, q_2, m)$
+- **Continuous-thrust control layer added** via `ContinuousThrustLaw`,
+  `ConstantRTNThrustLaw`, and `ContinuousThrustPerturbation`
+- **Control coefficients exposed through `hy.par[i]`** so thrust magnitude and
+  `I_{sp}` can be changed without rebuilding the symbolic graph
+- **Dedicated thrust integrator builders added**:
+  `build_thrust_state_integrator()` and `build_thrust_stm_integrator()`
+- **Mass depletion implemented** with
+  $\dot{m} = -T / (g_0 I_{sp})$ using thrust magnitude in newtons and mass in kg
+- **GEqOE vs Cowell validation added** through a generic heyoka Cowell path for
+  arbitrary perturbation models, including propagated mass
+- **57 GEqOE tests passing** (`test_geqoe_taylor.py`,
+  `test_geqoe_taylor_general.py`, `test_geqoe_taylor_zonal.py`,
+  `test_geqoe_taylor_thrust.py`)
+
 ### Commits
 
 - `c101e50`: feat: Add heyoka-based GEqOE Taylor propagator with automatic STM (10 files, 849 lines)
@@ -105,14 +123,17 @@ src/astrodyn_core/geqoe_taylor/
         __init__.py
         base.py                    # PerturbationModel protocol
         j2.py                      # J2 zonal harmonic (symbolic + numeric)
+        thrust.py                  # Continuous-thrust wrapper -> Cartesian P + m_dot
         zonal.py                   # Arbitrary zonal harmonics J2-Jn (auto-gradient)
     rhs.py                         # GEqOE RHS builder (symbolic heyoka expressions)
     integrator.py                  # Wrapper: build/run heyoka integrators
     conversions.py                 # Cartesian <-> GEqOE conversions (numerical)
+    thrust.py                      # Continuous-thrust law abstractions
     utils.py                       # Helpers (Kepler solve for L<->K)
-    cowell.py                      # Cowell J2 ground truth (scipy + heyoka)
+    cowell.py                      # Cowell ground truth helpers (J2 + general)
 tests/
     test_geqoe_taylor.py           # 14 tests: conversions, propagation, STM, Cowell
+    test_geqoe_taylor_thrust.py    # 6 tests: thrust core, mass flow, Cowell match
 examples/
     geqoe_taylor_demo.py           # Interactive demo (7 sections)
 ```
@@ -535,7 +556,7 @@ For high-degree models ($N > 30$), a **Cowell formulation** with compiled accele
 
 ---
 
-## Phase 8: Continuous Thrust and Maneuver Characterization (PLANNED)
+## Phase 8: Continuous Thrust and Maneuver Characterization (IN PROGRESS)
 
 This phase adds continuous thrust as a first-class non-conservative component of
 the GEqOE Taylor framework and is the recommended path toward maneuver
@@ -584,7 +605,7 @@ From the research review, the strongest engineering conclusions are:
 - **Generalized TFC/Fourier-in-K is a Phase-2 research extension**, not the
   lowest-risk initial implementation
 
-### 8.3 Proposed Software Architecture
+### 8.3 Implemented Phase 8a Architecture
 
 The recommended architecture is:
 
@@ -609,12 +630,12 @@ Rationale:
 
 #### B. Add a control-law abstraction on top of `P_expr`
 
-Recommended new layer:
+Implemented layer:
 
 ```python
 class ContinuousThrustLaw(Protocol):
-    def thrust_components_expr(self, state, t, pars) -> tuple:
-        """Return thrust in an internal control frame plus throttle / mass-flow data."""
+    def thrust_rtn_expr(self, state, t, pars, prefix) -> tuple:
+        """Return (T_r, T_t, T_n, T_mag, Isp) in RTN coordinates."""
 ```
 
 and a perturbation wrapper:
@@ -629,6 +650,23 @@ This wrapper should:
 - optionally support inertial-frame thrust definitions
 - expose thrust magnitude, throttle, and $I_{sp}$ / power relations
 - return Cartesian $\mathbf{P}$ for compatibility with the existing general path
+
+The current implementation delivers:
+
+- `ContinuousThrustLaw` in `src/astrodyn_core/geqoe_taylor/thrust.py`
+- `ConstantRTNThrustLaw` as the first validation law
+- `ContinuousThrustPerturbation` in
+  `src/astrodyn_core/geqoe_taylor/perturbations/thrust.py`
+- `build_thrust_state_integrator()` / `build_thrust_stm_integrator()` as the
+  explicit 7-state public API
+- `geqoe2cart()` support for 7-state inputs by ignoring the trailing mass entry
+
+Not yet implemented inside Phase 8:
+
+- spline / B-spline control laws
+- convenience helpers for variational equations with respect to thrust
+  parameters (`hy.var_args.params`)
+- optimization / multiple-shooting transcription utilities
 
 #### C. Treat control coefficients as differentiable parameters
 
@@ -648,11 +686,23 @@ hy.var_ode_sys(sys, hy.var_args.vars | hy.var_args.params, order=1)
 This is the key enabler for performance: the same symbolic ODE defines both the
 state dynamics and the exact control sensitivities.
 
-### 8.4 Recommended Control Parameterization Strategy
+### 8.4 Control Parameterization Strategy
 
-#### Phase 8a (first implementation): cubic splines / B-splines in normalized arc time
+#### Phase 8a core (implemented): constant RTN law as the validation baseline
 
-This should be the initial parameterization for thrust direction and throttle.
+The first shipped control law is intentionally simple:
+
+- `ConstantRTNThrustLaw` with runtime parameters for `(T_r, T_t, T_n, I_{sp})`
+- smooth in the Taylor sense (no switching / piecewise-constant control)
+- enough to validate mass flow, energy growth, and GEqOE-vs-Cowell agreement
+
+This is a validation-oriented control law, not the final optimization-facing
+parameterization.
+
+#### Next step after 8a core: cubic splines / B-splines in normalized arc time
+
+This should be the next parameterization added on top of the existing thrust
+core for thrust direction and throttle.
 
 Why:
 - smooth enough for Taylor integration
@@ -740,17 +790,25 @@ This implies two non-negotiable requirements:
 
 #### Phase 8a: Continuous-thrust propagation core
 
-Deliverables:
+Delivered:
 - 7-state GEqOE + mass dynamics
 - `ContinuousThrustLaw` abstraction
 - `ContinuousThrustPerturbation`
-- smooth spline-based control parameterization
+- constant RTN thrust validation model (`ConstantRTNThrustLaw`)
+- dedicated 7-state integrator builders
 - state-only propagation with continuous thrust
+- 7-state STM propagation wrt the initial augmented state
 
-Validation:
+Validation completed:
 - constant tangential thrust sanity case
 - GEqOE vs Cartesian Cowell under the same thrust history
 - mass-flow consistency checks
+
+Deferred within the broader Phase 8 roadmap:
+
+- spline / B-spline control laws
+- parameter-sensitivity convenience helpers
+- direct optimization transcription
 
 #### Phase 8b: Variational sensitivities wrt control coefficients
 

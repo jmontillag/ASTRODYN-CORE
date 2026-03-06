@@ -125,7 +125,11 @@ def geqoe2cart(
     Returns:
         (r_vec, v_vec): position (3,) in km, velocity (3,) in km/s.
     """
-    nu, p1, p2, K, q1, q2 = state
+    state = np.asarray(state, dtype=float)
+    if state.shape[0] < 6:
+        raise ValueError("GEqOE state must contain at least 6 elements.")
+
+    nu, p1, p2, K, q1, q2 = state[:6]
 
     # Equinoctial frame (Eq. 37)
     q1s = q1**2

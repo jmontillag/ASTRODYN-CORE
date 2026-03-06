@@ -38,6 +38,36 @@ def _is_j2_only(perturbation) -> bool:
     return getattr(perturbation, "_j2_fast_path", False)
 
 
+def _requires_mass_state(perturbation) -> bool:
+    """Check whether the perturbation requires the 7-state mass system."""
+    return getattr(perturbation, "requires_mass", False)
+
+
+def _parameter_defaults(perturbation) -> dict[str, float]:
+    """Return runtime parameter defaults exposed by the perturbation."""
+    defaults = getattr(perturbation, "parameter_defaults", None)
+    if defaults is None:
+        return {}
+    return dict(defaults())
+
+
+def _extend_runtime_parameters(
+    perturbation,
+    pars: dict,
+    par_map: dict,
+    start_idx: int,
+    use_par: bool,
+) -> None:
+    """Append perturbation-defined runtime parameters to ``pars`` and ``par_map``."""
+    for name, value in _parameter_defaults(perturbation).items():
+        if use_par:
+            par_map[name] = start_idx
+            pars[name] = hy.par[start_idx]
+            start_idx += 1
+        else:
+            pars[name] = float(value)
+
+
 def build_geqoe_system(
     perturbation: PerturbationModel,
     mu_val: float | None = None,
@@ -64,6 +94,12 @@ def build_geqoe_system(
         state_vars: list of 6 heyoka variable expressions.
         par_map: dict mapping parameter names to par[] indices.
     """
+    if _requires_mass_state(perturbation):
+        raise ValueError(
+            "This perturbation requires the 7-state mass-augmented GEqOE system. "
+            "Use build_geqoe_mass_system() via build_thrust_state_integrator()."
+        )
+
     if _can_use_zonal_path(perturbation):
         return _build_zonal_system(perturbation, mu_val, use_par)
     elif _is_j2_only(perturbation):
@@ -72,6 +108,18 @@ def build_geqoe_system(
         return _build_general_system(
             perturbation, mu_val, use_par, time_origin=time_origin
         )
+
+
+def build_geqoe_mass_system(
+    perturbation: PerturbationModel,
+    mu_val: float | None = None,
+    use_par: bool = True,
+    time_origin: float = 0.0,
+):
+    """Build the 7-state GEqOE + mass ODE system as heyoka expressions."""
+    return _build_general_system(
+        perturbation, mu_val, use_par, time_origin=time_origin, with_mass=True
+    )
 
 
 def _build_intermediates(mu, nu, p1, p2, K, q1, q2):
@@ -250,23 +298,42 @@ def _build_zonal_system(perturbation, mu_val, use_par):
     return sys, state_vars, par_map
 
 
-def _build_general_system(perturbation, mu_val, use_par, time_origin: float = 0.0):
+def _build_general_system(
+    perturbation,
+    mu_val,
+    use_par,
+    time_origin: float = 0.0,
+    with_mass: bool = False,
+):
     """Build the full GEqOE ODE system (Eqs. 45-51, K from L).
 
     Supports arbitrary conservative (U) and non-conservative (P) perturbations.
+    When ``with_mass`` is true, the state is augmented with the spacecraft mass.
     """
-    nu, p1, p2, K, q1, q2 = hy.make_vars("nu", "p1", "p2", "K", "q1", "q2")
-    state_vars = [nu, p1, p2, K, q1, q2]
+    if with_mass:
+        nu, p1, p2, K, q1, q2, m = hy.make_vars(
+            "nu", "p1", "p2", "K", "q1", "q2", "m"
+        )
+        state_vars = [nu, p1, p2, K, q1, q2, m]
+    else:
+        nu, p1, p2, K, q1, q2 = hy.make_vars("nu", "p1", "p2", "K", "q1", "q2")
+        state_vars = [nu, p1, p2, K, q1, q2]
+        m = None
 
     if use_par:
         mu = hy.par[0]
         par_map = {"mu": 0}
+        pars = {"mu": mu}
+        _extend_runtime_parameters(perturbation, pars, par_map, 1, use_par=True)
     else:
         from astrodyn_core.geqoe_taylor.constants import MU
         mu = float(mu_val if mu_val is not None else MU)
         par_map = {}
+        pars = {"mu": mu}
+        _extend_runtime_parameters(perturbation, pars, par_map, 1, use_par=False)
 
-    pars = {"mu": mu}
+    if with_mass:
+        pars["mass"] = m
 
     im = _build_intermediates(mu, nu, p1, p2, K, q1, q2)
     sinK, cosK = im["sinK"], im["cosK"]
@@ -319,10 +386,21 @@ def _build_general_system(perturbation, mu_val, use_par, time_origin: float = 0.
         x_cart, y_cart, z_cart, r, t_expr, pars
     )
 
-    # Non-conservative acceleration P
-    Px, Py, Pz = perturbation.P_expr(
-        x_cart, y_cart, z_cart, vx_cart, vy_cart, vz_cart, r, t_expr, pars
-    )
+    # Non-conservative acceleration P and optional mass flow
+    if with_mass and hasattr(perturbation, "P_and_mass_flow_expr"):
+        Px, Py, Pz, m_dot = perturbation.P_and_mass_flow_expr(
+            x_cart, y_cart, z_cart, vx_cart, vy_cart, vz_cart, r, t_expr, pars
+        )
+    else:
+        Px, Py, Pz = perturbation.P_expr(
+            x_cart, y_cart, z_cart, vx_cart, vy_cart, vz_cart, r, t_expr, pars
+        )
+        if with_mass and hasattr(perturbation, "mass_flow_expr"):
+            m_dot = perturbation.mass_flow_expr(
+                x_cart, y_cart, z_cart, vx_cart, vy_cart, vz_cart, r, t_expr, pars
+            )
+        elif with_mass:
+            m_dot = 0.0 * m
 
     # Total perturbation force F = P - grad(U) (Eq. 3)
     Fx = Px - dUdx
@@ -394,4 +472,6 @@ def _build_general_system(perturbation, mu_val, use_par, time_origin: float = 0.
         (nu, nu_dot), (p1, p1_dot), (p2, p2_dot),
         (K, K_dot), (q1, q1_dot), (q2, q2_dot),
     ]
+    if with_mass:
+        sys.append((m, m_dot))
     return sys, state_vars, par_map

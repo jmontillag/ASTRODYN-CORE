@@ -335,6 +335,30 @@ The third-body choice follows the numerical guidance reported in the GEqOE
 paper: although third-body gravity derives from a potential, treating it as
 forcing is often numerically more robust for Earth-bound orbit propagation.
 
+\section{Continuous-Thrust Extension}
+
+Phase 8a extends the same general GEqOE forcing path to continuous thrust by
+augmenting the propagated state with spacecraft mass:
+\begin{equation}
+    \bm{y}_{\mathrm{thrust}} =
+    (\nu, p_1, p_2, K, q_1, q_2, m).
+\end{equation}
+The thrust model is introduced as a non-conservative term $\bm{P}$ rather than
+as an artificial conservative potential. In the current implementation, a
+control law provides thrust force components in the RTN frame together with
+their magnitude and specific impulse, and a wrapper converts those quantities
+into Cartesian acceleration and mass depletion:
+\begin{equation}
+    \dot{m} = -\frac{T}{g_0 I_{sp}}.
+\end{equation}
+
+Two implementation details matter for future optimization and estimation use.
+First, the thrust coefficients are mapped to \texttt{hy.par[i]} so the same
+symbolic graph can be reused while the control values change. Second, the
+mass-augmented GEqOE builder reuses the existing general equations and simply
+appends the scalar mass ODE, preserving derivative consistency between the
+force model, the state propagation, and future variational equations.
+
 \section{Time Handling for Time-Dependent Perturbations}
 
 One implementation detail is important enough to record explicitly for future

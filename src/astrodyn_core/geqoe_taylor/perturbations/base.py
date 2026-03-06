@@ -21,6 +21,11 @@ class PerturbationModel(Protocol):
     - U_t_expr: time derivative of U
     - is_conservative: True if P = 0
     - is_time_dependent: True if U depends on time
+
+    Models may optionally expose:
+    - parameter_defaults(): runtime parameter defaults keyed by public names
+    - requires_mass: True if the model needs the 7-state mass-augmented system
+    - mass_flow_expr(...): mass derivative contribution for the 7-state system
     """
 
     def U_expr(self, x, y, z, r_mag, t, pars: dict):
@@ -53,4 +58,24 @@ class GeneralPerturbationModel(PerturbationModel, Protocol):
 
     def U_t_expr(self, x, y, z, r_mag, t, pars: dict):
         """Partial time derivative of U (dU/dt). Zero for static potentials."""
+        ...
+
+
+@runtime_checkable
+class ParameterizedPerturbationModel(Protocol):
+    """Optional interface for perturbation runtime parameters."""
+
+    def parameter_defaults(self) -> dict[str, float]:
+        """Return runtime parameter defaults keyed by public parameter names."""
+        ...
+
+
+@runtime_checkable
+class MassFlowPerturbationModel(Protocol):
+    """Optional interface for mass-coupled non-conservative perturbations."""
+
+    requires_mass: bool
+
+    def mass_flow_expr(self, x, y, z, vx, vy, vz, r_mag, t, pars: dict):
+        """Return mass derivative contribution (kg/s)."""
         ...

@@ -6,12 +6,19 @@ propagation and dense output helpers.
 
 from __future__ import annotations
 
-import numpy as np
 import heyoka as hy
+import numpy as np
 
-from astrodyn_core.geqoe_taylor.rhs import build_geqoe_system
-from astrodyn_core.geqoe_taylor.perturbations.base import PerturbationModel
 from astrodyn_core.geqoe_taylor.constants import MU
+from astrodyn_core.geqoe_taylor.perturbations.base import PerturbationModel
+from astrodyn_core.geqoe_taylor.rhs import build_geqoe_mass_system, build_geqoe_system
+
+
+def _parameter_defaults(perturbation) -> dict[str, float]:
+    defaults = getattr(perturbation, "parameter_defaults", None)
+    if defaults is None:
+        return {}
+    return dict(defaults())
 
 
 def _build_par_values(perturbation, par_map):
@@ -28,7 +35,47 @@ def _build_par_values(perturbation, par_map):
                 "J2 fast-path perturbations must define an 'A' coefficient."
             )
         par_values[par_map["A_J2"]] = perturbation.A
+    for name, value in _parameter_defaults(perturbation).items():
+        if name in par_map:
+            par_values[par_map[name]] = float(value)
     return par_values
+
+
+def _build_taylor_adaptive(sys, ic, perturbation, par_map, t0, tol, compact_mode):
+    return hy.taylor_adaptive(
+        sys,
+        state=list(ic),
+        time=t0,
+        pars=_build_par_values(perturbation, par_map),
+        tol=tol,
+        compact_mode=compact_mode,
+    )
+
+
+def _build_variational_integrator(
+    sys,
+    ic,
+    state_dim,
+    perturbation,
+    par_map,
+    t0,
+    tol,
+    compact_mode,
+):
+    vsys = hy.var_ode_sys(sys, hy.var_args.vars, order=1)
+    ic_list = list(ic)
+    identity_flat = [
+        1.0 if i == j else 0.0 for i in range(state_dim) for j in range(state_dim)
+    ]
+    ic_aug = ic_list + identity_flat
+    return hy.taylor_adaptive(
+        vsys,
+        state=ic_aug,
+        time=t0,
+        pars=_build_par_values(perturbation, par_map),
+        tol=tol,
+        compact_mode=compact_mode,
+    )
 
 
 def build_state_integrator(
@@ -52,17 +99,15 @@ def build_state_integrator(
     Returns:
         (ta, par_map): integrator and parameter index mapping.
     """
+    if len(ic) != 6:
+        raise ValueError("build_state_integrator() expects a 6-element GEqOE state.")
+
     sys, _, par_map = build_geqoe_system(
         perturbation, use_par=True, time_origin=t0
     )
 
-    ta = hy.taylor_adaptive(
-        sys,
-        state=list(ic),
-        time=t0,
-        pars=_build_par_values(perturbation, par_map),
-        tol=tol,
-        compact_mode=compact_mode,
+    ta = _build_taylor_adaptive(
+        sys, ic, perturbation, par_map, t0, tol, compact_mode
     )
     return ta, par_map
 
@@ -90,24 +135,75 @@ def build_stm_integrator(
     Returns:
         (ta, par_map): integrator and parameter index mapping.
     """
+    if len(ic) != 6:
+        raise ValueError("build_stm_integrator() expects a 6-element GEqOE state.")
+
     sys, _, par_map = build_geqoe_system(
         perturbation, use_par=True, time_origin=t0
     )
 
-    vsys = hy.var_ode_sys(sys, hy.var_args.vars, order=1)
+    ta = _build_variational_integrator(
+        sys,
+        ic,
+        6,
+        perturbation,
+        par_map,
+        t0,
+        tol,
+        compact_mode,
+    )
+    return ta, par_map
 
-    # Augmented IC: state + flattened 6x6 identity matrix
-    ic_list = list(ic)
-    identity_flat = [1.0 if i == j else 0.0 for i in range(6) for j in range(6)]
-    ic_aug = ic_list + identity_flat
 
-    ta = hy.taylor_adaptive(
-        vsys,
-        state=ic_aug,
-        time=t0,
-        pars=_build_par_values(perturbation, par_map),
-        tol=tol,
-        compact_mode=compact_mode,
+def build_thrust_state_integrator(
+    perturbation: PerturbationModel,
+    ic: np.ndarray | list,
+    t0: float = 0.0,
+    tol: float = 1e-15,
+    compact_mode: bool = True,
+) -> tuple[hy.taylor_adaptive, dict]:
+    """Build a 7-state GEqOE + mass integrator for continuous-thrust propagation."""
+    if len(ic) != 7:
+        raise ValueError(
+            "build_thrust_state_integrator() expects a 7-element "
+            "GEqOE state [nu, p1, p2, K, q1, q2, m]."
+        )
+
+    sys, _, par_map = build_geqoe_mass_system(
+        perturbation, use_par=True, time_origin=t0
+    )
+    ta = _build_taylor_adaptive(
+        sys, ic, perturbation, par_map, t0, tol, compact_mode
+    )
+    return ta, par_map
+
+
+def build_thrust_stm_integrator(
+    perturbation: PerturbationModel,
+    ic: np.ndarray | list,
+    t0: float = 0.0,
+    tol: float = 1e-15,
+    compact_mode: bool = True,
+) -> tuple[hy.taylor_adaptive, dict]:
+    """Build a 7-state GEqOE + mass integrator with first-order variational equations."""
+    if len(ic) != 7:
+        raise ValueError(
+            "build_thrust_stm_integrator() expects a 7-element "
+            "GEqOE state [nu, p1, p2, K, q1, q2, m]."
+        )
+
+    sys, _, par_map = build_geqoe_mass_system(
+        perturbation, use_par=True, time_origin=t0
+    )
+    ta = _build_variational_integrator(
+        sys,
+        ic,
+        7,
+        perturbation,
+        par_map,
+        t0,
+        tol,
+        compact_mode,
     )
     return ta, par_map
 
@@ -164,15 +260,20 @@ def propagate_grid(
     return result[-1]
 
 
-def extract_stm(state_aug: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    """Extract the 6x6 STM from the 42-element augmented state.
+def extract_stm(
+    state_aug: np.ndarray,
+    state_dim: int = 6,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Extract the state and square STM from an augmented variational state.
 
     Args:
-        state_aug: 42-element array from a variational integrator.
+        state_aug: augmented state from a variational integrator.
+        state_dim: physical state dimension (6 for the legacy GEqOE state,
+            7 for the mass-augmented thrust state).
 
     Returns:
-        (y, phi): 6-element state and 6x6 STM matrix.
+        (y, phi): state vector and ``state_dim x state_dim`` STM matrix.
     """
-    y = state_aug[:6]
-    phi = state_aug[6:].reshape(6, 6)
+    y = state_aug[:state_dim]
+    phi = state_aug[state_dim:].reshape(state_dim, state_dim)
     return y, phi

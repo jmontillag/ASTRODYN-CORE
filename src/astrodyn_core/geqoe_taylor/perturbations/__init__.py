@@ -6,6 +6,7 @@ from astrodyn_core.geqoe_taylor.perturbations.base import (
 )
 from astrodyn_core.geqoe_taylor.perturbations.composite import CompositePerturbation
 from astrodyn_core.geqoe_taylor.perturbations.j2 import J2Perturbation
+from astrodyn_core.geqoe_taylor.perturbations.thrust import ContinuousThrustPerturbation
 from astrodyn_core.geqoe_taylor.perturbations.third_body import ThirdBodyPerturbation
 from astrodyn_core.geqoe_taylor.perturbations.zonal import ZonalPerturbation
 
@@ -14,6 +15,7 @@ __all__ = [
     "GeneralPerturbationModel",
     "J2Perturbation",
     "ThirdBodyPerturbation",
+    "ContinuousThrustPerturbation",
     "CompositePerturbation",
     "ZonalPerturbation",
 ]
