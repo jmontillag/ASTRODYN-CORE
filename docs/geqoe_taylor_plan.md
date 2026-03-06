@@ -27,7 +27,7 @@ Build a high-performance orbit propagator using **Generalized Equinoctial Orbita
 | 6 | General perturbations (third-body, non-conservative, higher geopotential) | DONE (core) |
 | 7a | Zonal harmonics (J2–Jn via auto-gradient) | DONE |
 | 7b | Post-review hardening + formal implementation note | DONE |
-| 8 | Continuous thrust and maneuver characterization framework | IN PROGRESS (8a done, 8b core + smooth law) |
+| 8 | Continuous thrust and maneuver characterization framework | IN PROGRESS (8a done, 8b sensitivities, 8c optimization prototype) |
 
 ### Achieved Performance (J2-only, tol=1e-15)
 

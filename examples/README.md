@@ -80,6 +80,7 @@ conda run -n astrodyn-core-env python examples/geqoe_taylor_shooting_demo.py
 Examples:
 - `geqoe_taylor_demo.py` — Propagation, STM, dense output, and Cowell comparison
 - `geqoe_taylor_shooting_demo.py` — Continuous-thrust multiple-shooting prototype with the SciPy optimization adapter
+  Note: the first shooting build compiles two variational systems, so expect a few seconds of startup time.
 
 ## 6) Batch TLE -> High-Fidelity Ephemeris
 

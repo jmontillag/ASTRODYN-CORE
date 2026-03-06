@@ -6,9 +6,14 @@ Run:
 This example builds a two-arc continuous-thrust problem, transcribes it as a
 GEqOE Taylor multiple-shooting solve, and runs the current SciPy-based
 minimum-propellant prototype with a cross-arc smoothness penalty.
+
+The first multiple-shooting build compiles two mass-augmented variational
+systems, so it can take a few seconds before the solve begins.
 """
 
 from __future__ import annotations
+
+import time
 
 import numpy as np
 
@@ -54,11 +59,20 @@ def main() -> None:
     pert0 = make_perturbation(0.18)
     pert1 = make_perturbation(0.22)
 
+    print("\nPreparing nominal split trajectory...", flush=True)
     x0 = np.concatenate([cart2geqoe(R0, V0, MU, pert0), [500.0]])
+    t0 = time.perf_counter()
     ta0, _ = build_thrust_state_integrator(pert0, x0, tol=1e-15, compact_mode=True)
     ta0.propagate_until(duration0)
     x1_nominal = ta0.state.copy()
+    print(f"  nominal arc prepared in {time.perf_counter() - t0:.2f} s", flush=True)
 
+    print(
+        "\nBuilding multiple-shooting problem "
+        "(compiles two sensitivity systems)...",
+        flush=True,
+    )
+    t0 = time.perf_counter()
     problem = MultiArcShootingProblem(
         [
             ShootingArc(
@@ -79,6 +93,7 @@ def main() -> None:
         tol=1e-15,
         compact_mode=True,
     )
+    print(f"  shooting problem built in {time.perf_counter() - t0:.2f} s", flush=True)
 
     x_nominal = problem.initial_guess()
     nominal_eval = problem.evaluate(x_nominal)
@@ -123,7 +138,10 @@ def main() -> None:
     print(f"  propellant objective only: {obj_init:.12f} kg")
     print(f"  smoothness penalty only:   {smooth_init:.12f}")
 
+    print("\nSolving prototype NLP...", flush=True)
+    t0 = time.perf_counter()
     solve = problem.solve(spec, decision_vector0=x_init)
+    print(f"  solve completed in {time.perf_counter() - t0:.2f} s", flush=True)
 
     idx_t0 = problem.decision_index("arc0.thrust.t_newtons")
     idx_t1 = problem.decision_index("arc1.thrust.t_newtons")

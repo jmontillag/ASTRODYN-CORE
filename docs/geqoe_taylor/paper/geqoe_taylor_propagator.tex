@@ -376,6 +376,30 @@ explicit terminal-constraint and smoothness-penalty specifications so that the
 same transcription can later be reused with richer sparse NLP backends or
 alternative weighted objectives.
 
+It is useful to state the present maneuvering capability explicitly. The
+implemented maneuvering stack now supports:
+\begin{itemize}
+    \item direct propagation of low-thrust arcs in the full, non-averaged GEqOE
+    dynamics with propagated mass,
+    \item RTN-frame constant thrust and smooth single-arc cubic Hermite thrust
+    laws,
+    \item exact first-order sensitivities with respect to both the initial
+    augmented state and the thrust-law coefficients,
+    \item multi-arc multiple-shooting transcription with continuity
+    constraints,
+    \item bounded terminal-output constraints on the final arc,
+    \item quadratic cross-arc smoothness regularization of selected control
+    variables, and
+    \item a working minimum-propellant prototype solve path.
+\end{itemize}
+This is already sufficient to study simple maneuver design and endpoint
+targeting problems in a derivative-consistent setting. What remains
+\emph{outside} the current implementation is equally important: sampled
+path-constraint handling along the arcs, richer weighted objectives (for
+example time-optimal or power-aware formulations), and alternative sparse NLP
+backends beyond the present SciPy prototype. These remaining items are
+architectural extensions, not blockers for the current maneuvering workflow.
+
 \section{Time Handling for Time-Dependent Perturbations}
 
 One implementation detail is important enough to record explicitly for future
