@@ -24,7 +24,6 @@ from pathlib import Path
 
 import matplotlib
 import numpy as np
-from scipy.optimize import NonlinearConstraint, minimize
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -34,6 +33,8 @@ from astrodyn_core.geqoe_taylor import (
     CompositePerturbation,
     ConstantRTNThrustLaw,
     ContinuousThrustPerturbation,
+    DecisionTrackingPenaltySpec,
+    DecisionTrackingTerm,
     InertialPositionMeasurementModel,
     J2Perturbation,
     MultiArcShootingProblem,
@@ -254,65 +255,6 @@ def _thrust_indices(problem: MultiArcShootingProblem) -> np.ndarray:
     )
 
 
-def _build_objective_cache(
-    problem: MultiArcShootingProblem,
-    measurements: list[SampledMeasurement],
-):
-    thrust_indices = _thrust_indices(problem)
-    cache: dict[str, object] = {
-        "x": None,
-        "measurement_eval": None,
-        "objective": None,
-        "gradient": None,
-    }
-
-    def _update_cache(x) -> None:
-        x_vec = np.asarray(x, dtype=float)
-        cached_x = cache["x"]
-        if cached_x is not None and np.array_equal(cached_x, x_vec):
-            return
-
-        measurement_eval = problem.evaluate_measurements(x_vec, measurements)
-        residual = measurement_eval.residual
-        jacobian = measurement_eval.jacobian
-
-        objective = 0.5 * float(residual @ residual)
-        gradient = np.asarray(jacobian.T @ residual, dtype=float).ravel()
-
-        thrusts = x_vec[thrust_indices]
-        thrust_residual = thrusts / SIGMA_THRUST_N
-        objective += 0.5 * float(thrust_residual @ thrust_residual)
-        gradient = gradient.copy()
-        gradient[thrust_indices] += thrusts / (SIGMA_THRUST_N**2)
-
-        cache["x"] = np.array(x_vec, dtype=float, copy=True)
-        cache["measurement_eval"] = measurement_eval
-        cache["objective"] = float(objective)
-        cache["gradient"] = gradient
-
-    def objective(x) -> float:
-        _update_cache(x)
-        return cache["objective"]  # type: ignore[return-value]
-
-    def objective_jac(x) -> np.ndarray:
-        _update_cache(x)
-        return cache["gradient"]  # type: ignore[return-value]
-
-    def continuity_fun(x) -> np.ndarray:
-        _update_cache(x)
-        measurement_eval = cache["measurement_eval"]
-        assert measurement_eval is not None
-        return measurement_eval.shooting_evaluation.continuity_residual
-
-    def continuity_jac(x):
-        _update_cache(x)
-        measurement_eval = cache["measurement_eval"]
-        assert measurement_eval is not None
-        return measurement_eval.shooting_evaluation.continuity_jacobian
-
-    return cache, objective, objective_jac, continuity_fun, continuity_jac
-
-
 def _plot_results(
     out_path: Path,
     truth_times: np.ndarray,
@@ -418,37 +360,31 @@ def main() -> None:
     print(f"Initial thrust guess (N): {x0[thrust_indices]}")
     print("Initial mass handling:    fixed at the known truth mass for this toy model")
 
-    cache, objective, objective_jac, continuity_fun, continuity_jac = _build_objective_cache(
-        problem,
-        measurements,
-    )
-    constraints = []
-    if problem.continuity_size > 0:
-        constraints.append(
-            NonlinearConstraint(
-                continuity_fun,
-                np.zeros(problem.continuity_size, dtype=float),
-                np.zeros(problem.continuity_size, dtype=float),
-                jac=continuity_jac,
+    tracking_penalty = DecisionTrackingPenaltySpec(
+        [
+            DecisionTrackingTerm(
+                selector="thrust.t_newtons",
+                target=0.0,
+                sigma=SIGMA_THRUST_N,
             )
-        )
+        ]
+    )
 
     _header("3. Solve The Position-Fit Reconstruction")
     t0 = time.perf_counter()
-    result = minimize(
-        objective,
-        x0,
-        jac=objective_jac,
-        method="trust-constr",
+    solve = problem.solve_measurement_fit(
+        measurements,
+        decision_vector0=x0,
         bounds=bounds,
-        constraints=constraints,
-        options={"verbose": 0, "gtol": 1.0e-9, "xtol": 1.0e-9, "maxiter": 500},
+        measurement_hessian_mode="quasi-newton",
+        decision_tracking_penalty=tracking_penalty,
+        options={"maxiter": 500},
     )
     solve_s = time.perf_counter() - t0
 
-    fit_eval = problem.evaluate_measurements(result.x, measurements)
-    fit_initial_state = result.x[:7]
-    fit_thrusts = result.x[thrust_indices]
+    fit_eval = problem.evaluate_measurements(solve.x, measurements)
+    fit_initial_state = solve.x[:7]
+    fit_thrusts = solve.x[thrust_indices]
     fit_times, fit_states, fit_positions = _sample_full_trajectory(
         fit_initial_state,
         fit_thrusts,
@@ -466,15 +402,15 @@ def main() -> None:
         fit_eval.shooting_evaluation.continuity_residual
     )
 
-    print(f"Solve success:            {result.success}")
-    print(f"Solver status:            {result.status}")
-    print(f"Solver message:           {result.message}")
+    print(f"Solve success:            {solve.scipy_result.success}")
+    print(f"Solver status:            {solve.scipy_result.status}")
+    print(f"Solver message:           {solve.scipy_result.message}")
     print(f"Wall time:                {solve_s:.2f} s")
     print(f"Recovered thrusts (N):    {fit_thrusts}")
     print(f"True thrusts (N):         {TRUTH_THRUSTS_N}")
     print(f"Position-fit RMS:         {rms_m:.3f} m")
     print(f"Continuity residual norm: {continuity_norm:.3e}")
-    print(f"Objective value:          {result.fun:.6e}")
+    print(f"Objective value:          {solve.objective:.6e}")
     print(f"Recovered mass use (kg):  {fit_states[0, 6] - fit_states[-1, 6]:.6f}")
 
     out_path = out_dir / "continuous_thrust_position_fit.png"

@@ -126,6 +126,8 @@ Build a high-performance orbit propagator using **Generalized Equinoctial Orbita
   `examples/geqoe_heyoka/maneuver_profile_gallery.py`
 - **Synthetic position-fit experiment added** via
   `examples/geqoe_reconstruction_lab/position_fit_demo.py`
+- **Mixed position+range reconstruction demo added** via
+  `examples/geqoe_reconstruction_lab/mixed_position_range_fit_demo.py`
 - **Finite-difference regression added** for continuity Jacobians and the
   minimum-propellant objective gradient, plus terminal-bounds and
   smoothness-regularized solve checks
@@ -137,12 +139,22 @@ Build a high-performance orbit propagator using **Generalized Equinoctial Orbita
 - **Toy inertial-position observation model added** via
   `InertialPositionMeasurementModel`, using exact state Jacobians chained
   through the existing GEqOE + mass sensitivities
+- **Toy inertial-range observation model added** via
+  `InertialRangeMeasurementModel`, reusing the inertial-position map and an
+  exact line-of-sight reduction
 - **Measurement weights made uncertainty-ready** with direct whitening-matrix
   support and convenience constructors from standard deviations/covariance
+- **Measurement-driven solve specs added** via `MeasurementObjectiveSpec`,
+  `DecisionTrackingPenaltySpec`, and `solve_measurement_fit(...)`
+- **Mixed batches across implemented toy models supported** because sampled
+  measurements are transcribed through a shared `MeasurementModel` interface
+- **Measurement solves default to exact first-order residual/Jacobian data plus
+  SciPy quasi-Newton curvature updates** for constrained multi-arc fits, while
+  the local Gauss-Newton Hessian remains available as an explicit option
 - **Reconstruction demo refactored** so intermediate inertial-position
   residuals now come from the shared GEqOE measurement/transcription layer
 - **Finite-difference regression added** for sampled measurement Jacobians and
-  measurement-weight scaling
+  measurement-weight scaling, plus mixed-batch and solve-spec coverage
 
 ### Commits
 

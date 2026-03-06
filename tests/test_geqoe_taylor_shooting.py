@@ -13,8 +13,12 @@ from astrodyn_core.geqoe_taylor.perturbations.j2 import J2Perturbation
 from astrodyn_core.geqoe_taylor.perturbations.thrust import ContinuousThrustPerturbation
 from astrodyn_core.geqoe_taylor import geqoe2cart
 from astrodyn_core.geqoe_taylor.shooting import (
+    DecisionTrackingPenaltySpec,
+    DecisionTrackingTerm,
     InertialPositionMeasurementModel,
+    InertialRangeMeasurementModel,
     MeasurementResidualEvaluation,
+    MeasurementObjectiveSpec,
     MultiArcShootingProblem,
     SampledMeasurement,
     ShootingArc,
@@ -160,6 +164,33 @@ class TestMultiArcShooting:
                 atol=1.0e-8,
             )
 
+    def test_inertial_range_measurement_model_matches_position_model_and_fd(self):
+        perturbation = _make_perturbation(0.18)
+        state = _build_mass_state(perturbation, 500.0)
+        reference = np.array([7050.0, -40.0, 25.0])
+        position_model = InertialPositionMeasurementModel()
+        range_model = InertialRangeMeasurementModel(reference)
+
+        position = position_model.evaluate(state, time_s=0.0, perturbation=perturbation)
+        predicted_range = range_model.evaluate(state, time_s=0.0, perturbation=perturbation)
+        assert predicted_range[0] == pytest.approx(np.linalg.norm(position - reference))
+
+        jacobian = range_model.state_jacobian(state, time_s=0.0, perturbation=perturbation)
+        for index, step in ((0, 1.0e-9), (3, 1.0e-7), (6, 1.0e-4)):
+            state_p = state.copy()
+            state_m = state.copy()
+            state_p[index] += step
+            state_m[index] -= step
+            pred_p = range_model.evaluate(state_p, time_s=0.0, perturbation=perturbation)
+            pred_m = range_model.evaluate(state_m, time_s=0.0, perturbation=perturbation)
+            fd_column = (pred_p - pred_m) / (2.0 * step)
+            np.testing.assert_allclose(
+                jacobian[:, index],
+                fd_column,
+                rtol=1.0e-5,
+                atol=1.0e-8,
+            )
+
     def test_continuity_residual_closes_on_split_nominal_trajectory(self):
         problem = _build_two_arc_problem()
         x = problem.initial_guess()
@@ -229,6 +260,68 @@ class TestMultiArcShooting:
             atol=1.0e-12,
         )
 
+    def test_mixed_position_and_range_batch_closes_and_matches_fd(self):
+        problem = _build_two_arc_problem()
+        x = problem.initial_guess()
+        position_model = InertialPositionMeasurementModel()
+        range_model = InertialRangeMeasurementModel(np.array([7050.0, -40.0, 25.0]))
+        placeholders = [
+            SampledMeasurement(
+                model=position_model,
+                value=np.zeros(3, dtype=float),
+                arc_name="arc0",
+                sample_time_s=0.5 * 600.0,
+                name="arc0_pos",
+            ),
+            SampledMeasurement(
+                model=range_model,
+                value=np.zeros(1, dtype=float),
+                arc_name="arc1",
+                sample_time_s=0.5 * 450.0,
+                name="arc1_range",
+            ),
+        ]
+        prediction_eval = problem.evaluate_measurements(x, placeholders)
+        measurements = [
+            SampledMeasurement.from_standard_deviation(
+                model=position_model,
+                value=prediction_eval.sample_results[0].predicted,
+                sigma=0.05,
+                arc_name="arc0",
+                sample_time_s=0.5 * 600.0,
+                name="arc0_pos",
+            ),
+            SampledMeasurement.from_standard_deviation(
+                model=range_model,
+                value=prediction_eval.sample_results[1].predicted,
+                sigma=0.02,
+                arc_name="arc1",
+                sample_time_s=0.5 * 450.0,
+                name="arc1_range",
+            ),
+        ]
+
+        evaluation = problem.evaluate_measurements(x, measurements)
+        assert np.linalg.norm(evaluation.residual) < 1.0e-11
+        assert evaluation.jacobian.shape == (4, problem.decision_size)
+        assert evaluation.residual_names[-1] == "arc1_range.range_km"
+
+        idx = problem.decision_index("arc1.thrust.t_newtons")
+        step = 1.0e-5
+        x_p = x.copy()
+        x_m = x.copy()
+        x_p[idx] += step
+        x_m[idx] -= step
+        res_p, _ = problem.measurement_residuals(x_p, measurements)
+        res_m, _ = problem.measurement_residuals(x_m, measurements)
+        fd_value = (res_p[-1] - res_m[-1]) / (2.0 * step)
+        np.testing.assert_allclose(
+            evaluation.jacobian.toarray()[-1, idx],
+            fd_value,
+            rtol=5.0e-4,
+            atol=2.0e-8,
+        )
+
     def test_continuity_jacobian_matches_finite_difference(self):
         problem = _build_two_arc_problem()
         x = problem.initial_guess()
@@ -294,6 +387,94 @@ class TestMultiArcShooting:
                 rtol=5.0e-4,
                 atol=2.0e-8,
             )
+
+    def test_measurement_objective_matches_residual_norm_and_gradient(self):
+        problem = _build_two_arc_problem()
+        x = problem.initial_guess()
+        measurements, _ = _build_position_measurements(
+            problem,
+            [
+                ("arc0", 0.5 * 600.0, "arc0_mid"),
+                ("arc1", 0.5 * 450.0, "arc1_mid"),
+            ],
+        )
+        measurement_eval = problem.evaluate_measurements(x, measurements)
+        value, gradient, hessian = problem.measurement_objective(
+            x,
+            measurements,
+            evaluation=measurement_eval,
+            weight=1.5,
+        )
+
+        residual = measurement_eval.residual
+        jacobian = measurement_eval.jacobian
+        assert value == pytest.approx(0.75 * float(residual @ residual))
+        np.testing.assert_allclose(
+            gradient,
+            np.asarray(1.5 * (jacobian.T @ residual), dtype=float).ravel(),
+            atol=1.0e-12,
+        )
+        np.testing.assert_allclose(
+            hessian.toarray(),
+            (1.5 * (jacobian.T @ jacobian)).toarray(),
+            atol=1.0e-12,
+        )
+
+    def test_measurement_objective_spec_rejects_unknown_hessian_mode(self):
+        measurement = SampledMeasurement(
+            model=InertialPositionMeasurementModel(),
+            value=np.zeros(3, dtype=float),
+            arc_name="arc0",
+            sample_time_s=0.0,
+            name="arc0_initial",
+        )
+        with pytest.raises(ValueError, match="hessian_mode"):
+            MeasurementObjectiveSpec(
+                [measurement],
+                hessian_mode="not-a-real-mode",  # type: ignore[arg-type]
+            )
+
+    def test_decision_tracking_objective_matches_finite_difference(self):
+        problem = _build_two_arc_problem()
+        x = problem.initial_guess()
+        penalty = DecisionTrackingPenaltySpec(
+            [
+                DecisionTrackingTerm("thrust.t_newtons", target=0.15, sigma=0.25),
+                DecisionTrackingTerm("arc0.m", target=490.0, sigma=2.0),
+            ]
+        )
+
+        value, gradient, hessian = problem.decision_tracking_objective(x, penalty)
+        assert value > 0.0
+
+        for name, step in (
+            ("arc0.thrust.t_newtons", 1.0e-6),
+            ("arc1.thrust.t_newtons", 1.0e-6),
+            ("arc0.m", 1.0e-5),
+        ):
+            idx = problem.decision_index(name)
+            x_p = x.copy()
+            x_m = x.copy()
+            x_p[idx] += step
+            x_m[idx] -= step
+            value_p, _, _ = problem.decision_tracking_objective(x_p, penalty)
+            value_m, _, _ = problem.decision_tracking_objective(x_m, penalty)
+            fd_grad = (value_p - value_m) / (2.0 * step)
+            np.testing.assert_allclose(
+                gradient[idx],
+                fd_grad,
+                rtol=1.0e-7,
+                atol=1.0e-9,
+            )
+
+        thrust_weight = 1.0 / (0.25**2)
+        mass_weight = 1.0 / (2.0**2)
+        idx_t0 = problem.decision_index("arc0.thrust.t_newtons")
+        idx_t1 = problem.decision_index("arc1.thrust.t_newtons")
+        idx_m0 = problem.decision_index("arc0.m")
+        assert hessian[idx_t0, idx_t0] == pytest.approx(thrust_weight)
+        assert hessian[idx_t1, idx_t1] == pytest.approx(thrust_weight)
+        assert hessian[idx_m0, idx_m0] == pytest.approx(mass_weight)
 
     def test_terminal_constraints_and_minimum_propellant_gradient(self):
         problem = _build_two_arc_problem()
@@ -385,6 +566,45 @@ class TestMultiArcShooting:
             atol=1.0e-12,
         )
         assert value > 0.0
+
+    @pytest.mark.filterwarnings("ignore:delta_grad == 0.0")
+    def test_solve_spec_supports_measurement_objective(self):
+        problem = _build_one_arc_problem()
+        x_nom = problem.initial_guess()
+        measurements, _ = _build_position_measurements(
+            problem,
+            [
+                ("arc0", 0.5 * 600.0, "arc0_mid"),
+                ("arc0", 600.0, "arc0_end"),
+            ],
+        )
+
+        fixed_state_bounds = {
+            state_name: x_nom[problem.decision_index(f"arc0.{state_name}")]
+            for state_name in problem.state_names
+        }
+        bounds = problem.build_named_bounds(
+            lower={**fixed_state_bounds, "thrust.t_newtons": 0.05},
+            upper={**fixed_state_bounds, "thrust.t_newtons": 0.35},
+        )
+        spec = ShootingSolveSpec(
+            bounds=bounds,
+            measurement_objective=MeasurementObjectiveSpec(measurements),
+            decision_tracking_penalty=DecisionTrackingPenaltySpec(
+                [DecisionTrackingTerm("thrust.t_newtons", target=0.0, sigma=10.0)]
+            ),
+            options={"maxiter": 100},
+        )
+
+        x_init = x_nom.copy()
+        param_idx = problem.decision_index("arc0.thrust.t_newtons")
+        x_init[param_idx] = 0.30
+        solve = problem.solve(spec, decision_vector0=x_init)
+        fit_eval = problem.evaluate_measurements(solve.x, measurements)
+
+        assert solve.scipy_result.success
+        assert abs(solve.x[param_idx] - x_nom[param_idx]) < 1.0e-4
+        assert np.linalg.norm(fit_eval.residual) < 5.0e-4
 
     @pytest.mark.filterwarnings("ignore:delta_grad == 0.0")
     def test_trust_constr_adapter_solves_one_arc_terminal_target(self):

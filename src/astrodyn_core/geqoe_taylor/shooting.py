@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import ClassVar, Protocol
+from typing import ClassVar, Literal, Protocol
 
 import heyoka as hy
 import numpy as np
@@ -278,6 +278,69 @@ class InertialPositionMeasurementModel:
         return jacobian.reshape(self.output_dimension, STATE_DIM)
 
 
+class InertialRangeMeasurementModel:
+    """One-way inertial range to a fixed inertial reference point."""
+
+    output_dimension = 1
+    output_names = ("range_km",)
+
+    def __init__(self, reference_position_km: np.ndarray | list[float]):
+        reference_position = np.asarray(reference_position_km, dtype=float)
+        if reference_position.shape != (3,):
+            raise ValueError(
+                "InertialRangeMeasurementModel reference_position_km must have shape (3,)."
+            )
+        self._reference_position_km = reference_position
+        self._position_model = InertialPositionMeasurementModel()
+
+    @property
+    def reference_position_km(self) -> np.ndarray:
+        return self._reference_position_km.copy()
+
+    def evaluate(
+        self,
+        state: np.ndarray,
+        *,
+        time_s: float,
+        perturbation: PerturbationModel,
+    ) -> np.ndarray:
+        position = self._position_model.evaluate(
+            state,
+            time_s=time_s,
+            perturbation=perturbation,
+        )
+        return np.array(
+            [np.linalg.norm(position - self._reference_position_km)],
+            dtype=float,
+        )
+
+    def state_jacobian(
+        self,
+        state: np.ndarray,
+        *,
+        time_s: float,
+        perturbation: PerturbationModel,
+    ) -> np.ndarray:
+        position = self._position_model.evaluate(
+            state,
+            time_s=time_s,
+            perturbation=perturbation,
+        )
+        diff = position - self._reference_position_km
+        rho = np.linalg.norm(diff)
+        if rho <= 0.0:
+            raise ValueError(
+                "InertialRangeMeasurementModel is singular at zero observer-target separation."
+            )
+        position_jacobian = self._position_model.state_jacobian(
+            state,
+            time_s=time_s,
+            perturbation=perturbation,
+        )
+        line_of_sight = diff / rho
+        return np.array(line_of_sight[None, :] @ position_jacobian, dtype=float)
+
+
 @dataclass(frozen=True)
 class ShootingArc:
     """Single propagation arc in a multiple-shooting transcription.
@@ -486,10 +549,66 @@ class SmoothnessPenaltySpec:
 
 
 @dataclass(frozen=True)
+class MeasurementObjectiveSpec:
+    """Weighted least-squares objective built from sampled measurements."""
+
+    measurements: tuple[SampledMeasurement, ...] | list[SampledMeasurement]
+    weight: float = 1.0
+    hessian_mode: Literal["quasi-newton", "gauss-newton"] = "quasi-newton"
+
+    def __post_init__(self) -> None:
+        if self.weight < 0.0:
+            raise ValueError("MeasurementObjectiveSpec.weight must be non-negative.")
+        if self.hessian_mode not in {"quasi-newton", "gauss-newton"}:
+            raise ValueError(
+                "MeasurementObjectiveSpec.hessian_mode must be "
+                "'quasi-newton' or 'gauss-newton'."
+            )
+        normalized_measurements = tuple(self.measurements)
+        if len(normalized_measurements) == 0:
+            raise ValueError("MeasurementObjectiveSpec requires at least one measurement.")
+        object.__setattr__(self, "measurements", normalized_measurements)
+
+
+@dataclass(frozen=True)
+class DecisionTrackingTerm:
+    """Quadratic tracking term on selector-matched decision variables."""
+
+    selector: str
+    target: float = 0.0
+    sigma: float = 1.0
+
+    def __post_init__(self) -> None:
+        if self.sigma <= 0.0:
+            raise ValueError("DecisionTrackingTerm.sigma must be strictly positive.")
+
+    @property
+    def weight(self) -> float:
+        return 1.0 / (self.sigma * self.sigma)
+
+
+@dataclass(frozen=True)
+class DecisionTrackingPenaltySpec:
+    """Collection of quadratic tracking terms for estimation objectives."""
+
+    terms: tuple[DecisionTrackingTerm, ...] | list[DecisionTrackingTerm]
+
+    def __post_init__(self) -> None:
+        normalized_terms = tuple(self.terms)
+        if len(normalized_terms) == 0:
+            raise ValueError(
+                "DecisionTrackingPenaltySpec requires at least one tracking term."
+            )
+        object.__setattr__(self, "terms", normalized_terms)
+
+
+@dataclass(frozen=True)
 class ShootingSolveSpec:
     """Configuration for the SciPy-based multiple-shooting prototype solve."""
 
     bounds: Bounds | None = None
+    measurement_objective: MeasurementObjectiveSpec | None = None
+    decision_tracking_penalty: DecisionTrackingPenaltySpec | None = None
     terminal_constraint: TerminalConstraintSpec | None = None
     smoothness_penalty: SmoothnessPenaltySpec | None = None
     options: dict | None = None
@@ -781,16 +900,21 @@ class MultiArcShootingProblem:
         for arc_index, (layout, (ta, par_map), template) in enumerate(
             zip(self._layouts, self._integrators, self._templates, strict=True)
         ):
-            ta.time = layout.start_time_s
-            ta.state[:] = template
-            ta.pars[:] = layout.parameter_defaults
-
             arc_state = x[layout.state_slice]
-            ta.state[:STATE_DIM] = arc_state
-
             if layout.parameter_names:
                 arc_parameters = x[layout.parameter_slice]
-                ta.pars[list(layout.parameter_indices)] = arc_parameters
+            else:
+                arc_parameters = np.zeros(0, dtype=float)
+
+            def _reset_integrator() -> None:
+                ta.time = layout.start_time_s
+                ta.state[:] = template
+                ta.pars[:] = layout.parameter_defaults
+                ta.state[:STATE_DIM] = arc_state
+                if layout.parameter_names:
+                    ta.pars[list(layout.parameter_indices)] = arc_parameters
+
+            _reset_integrator()
 
             requested_times = ()
             if sample_times_by_arc is not None:
@@ -800,10 +924,68 @@ class MultiArcShootingProblem:
             )
             grid_abs = layout.start_time_s + np.asarray(grid_rel, dtype=float)
             states_grid = propagate_grid(ta, grid_abs)
-            sample_cache = {
-                rel_time: np.array(state_aug, dtype=float, copy=True)
-                for rel_time, state_aug in zip(grid_rel, states_grid, strict=True)
-            }
+            if len(states_grid) == len(grid_rel):
+                sample_cache = {
+                    rel_time: np.array(state_aug, dtype=float, copy=True)
+                    for rel_time, state_aug in zip(grid_rel, states_grid, strict=True)
+                }
+            elif len(states_grid) == len(grid_rel) - 1 and grid_rel[0] == 0.0:
+                sample_cache = {
+                    0.0: np.array(ta.state, dtype=float, copy=True),
+                    **{
+                        rel_time: np.array(state_aug, dtype=float, copy=True)
+                        for rel_time, state_aug in zip(
+                            grid_rel[1:],
+                            states_grid,
+                            strict=True,
+                        )
+                    },
+                }
+            else:
+                ta, par_map = build_thrust_sensitivity_integrator(
+                    self._arcs[arc_index].perturbation,
+                    arc_state,
+                    t0=layout.start_time_s,
+                    tol=self._tol,
+                    compact_mode=self._compact_mode,
+                )
+                self._integrators[arc_index] = (ta, par_map)
+                template = np.array(ta.state, dtype=float, copy=True)
+                self._templates[arc_index] = template
+                _reset_integrator()
+                states_grid = propagate_grid(ta, grid_abs)
+                if len(states_grid) == len(grid_rel):
+                    sample_cache = {
+                        rel_time: np.array(state_aug, dtype=float, copy=True)
+                        for rel_time, state_aug in zip(
+                            grid_rel,
+                            states_grid,
+                            strict=True,
+                        )
+                    }
+                elif len(states_grid) == len(grid_rel) - 1 and grid_rel[0] == 0.0:
+                    sample_cache = {
+                        0.0: np.array(ta.state, dtype=float, copy=True),
+                        **{
+                            rel_time: np.array(state_aug, dtype=float, copy=True)
+                            for rel_time, state_aug in zip(
+                                grid_rel[1:],
+                                states_grid,
+                                strict=True,
+                            )
+                        },
+                    }
+                else:
+                    sample_cache = {
+                        0.0: np.array(ta.state, dtype=float, copy=True),
+                    }
+                    for rel_time in grid_rel[1:]:
+                        ta.propagate_until(layout.start_time_s + rel_time)
+                        sample_cache[rel_time] = np.array(
+                            ta.state,
+                            dtype=float,
+                            copy=True,
+                        )
 
             final_state, phi_x, phi_p_all, all_param_names = extract_variational_matrices(
                 sample_cache[layout.duration_s],
@@ -1064,6 +1246,51 @@ class MultiArcShootingProblem:
         evaluation = self.evaluate_measurements(decision_vector, measurements)
         return evaluation.residual, evaluation.jacobian
 
+    def measurement_objective(
+        self,
+        decision_vector,
+        measurements: list[SampledMeasurement] | tuple[SampledMeasurement, ...],
+        evaluation: MeasurementResidualEvaluation | None = None,
+        weight: float = 1.0,
+    ) -> tuple[float, np.ndarray, csr_matrix]:
+        """Return a weighted least-squares objective and Gauss-Newton Hessian."""
+        _ = self._validate_decision_vector(decision_vector)
+        if weight < 0.0:
+            raise ValueError("measurement objective weight must be non-negative.")
+        result = (
+            evaluation
+            if evaluation is not None
+            else self.evaluate_measurements(decision_vector, measurements)
+        )
+        residual = result.residual
+        jacobian = result.jacobian
+        value = 0.5 * weight * float(residual @ residual)
+        gradient = np.asarray(weight * (jacobian.T @ residual), dtype=float).ravel()
+        hessian = (weight * (jacobian.T @ jacobian)).tocsr()
+        return value, gradient, hessian
+
+    def decision_tracking_objective(
+        self,
+        decision_vector,
+        tracking_penalty: DecisionTrackingPenaltySpec,
+    ) -> tuple[float, np.ndarray, csr_matrix]:
+        """Quadratic tracking penalties on selector-matched decision variables."""
+        x = self._validate_decision_vector(decision_vector)
+
+        value = 0.0
+        gradient = np.zeros(self.decision_size, dtype=float)
+        hessian = lil_matrix((self.decision_size, self.decision_size), dtype=float)
+
+        for term in tracking_penalty.terms:
+            indices = self._decision_indices_for_selector(term.selector)
+            for idx in indices:
+                diff = x[idx] - term.target
+                value += 0.5 * term.weight * diff * diff
+                gradient[idx] += term.weight * diff
+                hessian[idx, idx] += term.weight
+
+        return float(value), gradient, hessian.tocsr()
+
     def minimum_propellant_objective(
         self,
         decision_vector,
@@ -1137,10 +1364,26 @@ class MultiArcShootingProblem:
             x0 = self._validate_decision_vector(decision_vector0)
 
         bounds = spec.bounds if spec.bounds is not None else self.build_named_bounds()
+        measurement_hessian_mode = (
+            None
+            if spec.measurement_objective is None
+            else spec.measurement_objective.hessian_mode
+        )
+        use_explicit_objective_hessian = (
+            spec.measurement_objective is None
+            or measurement_hessian_mode == "gauss-newton"
+        )
+        if (
+            measurement_hessian_mode == "quasi-newton"
+            and self.continuity_size == 0
+            and spec.terminal_constraint is None
+        ):
+            use_explicit_objective_hessian = True
 
         cache: dict[str, object] = {
             "x": None,
             "evaluation": None,
+            "measurement_evaluation": None,
             "objective": None,
             "gradient": None,
             "hessian": None,
@@ -1153,11 +1396,49 @@ class MultiArcShootingProblem:
             if cached_x is not None and np.array_equal(cached_x, x_vec):
                 return
 
-            evaluation = self.evaluate(x_vec)
-            objective, gradient = self.minimum_propellant_objective(
-                x_vec, evaluation=evaluation
-            )
-            hessian = self.minimum_propellant_hessian()
+            measurement_evaluation = None
+            if spec.measurement_objective is not None:
+                measurement_evaluation = self.evaluate_measurements(
+                    x_vec,
+                    spec.measurement_objective.measurements,
+                )
+                evaluation = measurement_evaluation.shooting_evaluation
+                if use_explicit_objective_hessian:
+                    objective, gradient, hessian = self.measurement_objective(
+                        x_vec,
+                        spec.measurement_objective.measurements,
+                        evaluation=measurement_evaluation,
+                        weight=spec.measurement_objective.weight,
+                    )
+                else:
+                    residual = measurement_evaluation.residual
+                    jacobian = measurement_evaluation.jacobian
+                    weight = spec.measurement_objective.weight
+                    objective = 0.5 * weight * float(residual @ residual)
+                    gradient = np.asarray(
+                        weight * (jacobian.T @ residual),
+                        dtype=float,
+                    ).ravel()
+                    hessian = None
+            else:
+                evaluation = self.evaluate(x_vec)
+                objective, gradient = self.minimum_propellant_objective(
+                    x_vec, evaluation=evaluation
+                )
+                hessian = self.minimum_propellant_hessian()
+
+            if spec.decision_tracking_penalty is not None:
+                tracking_value, tracking_gradient, tracking_hessian = (
+                    self.decision_tracking_objective(
+                        x_vec,
+                        spec.decision_tracking_penalty,
+                    )
+                )
+                objective += tracking_value
+                gradient += tracking_gradient
+                if use_explicit_objective_hessian:
+                    assert hessian is not None
+                    hessian = hessian + tracking_hessian
 
             if spec.smoothness_penalty is not None:
                 smooth_value, smooth_gradient, smooth_hessian = (
@@ -1167,7 +1448,9 @@ class MultiArcShootingProblem:
                 )
                 objective += smooth_value
                 gradient += smooth_gradient
-                hessian = hessian + smooth_hessian
+                if use_explicit_objective_hessian:
+                    assert hessian is not None
+                    hessian = hessian + smooth_hessian
 
             terminal_outputs = None
             if spec.terminal_constraint is not None:
@@ -1179,6 +1462,7 @@ class MultiArcShootingProblem:
 
             cache["x"] = np.array(x_vec, dtype=float, copy=True)
             cache["evaluation"] = evaluation
+            cache["measurement_evaluation"] = measurement_evaluation
             cache["objective"] = float(objective)
             cache["gradient"] = np.array(gradient, dtype=float, copy=True)
             cache["hessian"] = hessian
@@ -1258,22 +1542,38 @@ class MultiArcShootingProblem:
         if spec.options is not None:
             solve_options.update(spec.options)
 
-        scipy_result = minimize(
-            _objective,
-            x0,
-            jac=_objective_jac,
-            hess=_objective_hess,
-            method="trust-constr",
-            bounds=bounds,
-            constraints=constraints,
-            options=solve_options,
-        )
+        minimize_kwargs = {
+            "fun": _objective,
+            "x0": x0,
+            "jac": _objective_jac,
+            "method": "trust-constr",
+            "bounds": bounds,
+            "constraints": constraints,
+            "options": solve_options,
+        }
+        if use_explicit_objective_hessian:
+            minimize_kwargs["hess"] = _objective_hess
 
-        final_evaluation = self.evaluate(scipy_result.x)
-        final_objective, _ = self.minimum_propellant_objective(
-            scipy_result.x,
-            evaluation=final_evaluation,
-        )
+        scipy_result = minimize(**minimize_kwargs)
+
+        if spec.measurement_objective is not None:
+            final_measurement_evaluation = self.evaluate_measurements(
+                scipy_result.x,
+                spec.measurement_objective.measurements,
+            )
+            final_evaluation = final_measurement_evaluation.shooting_evaluation
+            final_objective, _, _ = self.measurement_objective(
+                scipy_result.x,
+                spec.measurement_objective.measurements,
+                evaluation=final_measurement_evaluation,
+                weight=spec.measurement_objective.weight,
+            )
+        else:
+            final_evaluation = self.evaluate(scipy_result.x)
+            final_objective, _ = self.minimum_propellant_objective(
+                scipy_result.x,
+                evaluation=final_evaluation,
+            )
         terminal_outputs = None
         terminal_violation = None
         terminal_residual = None
@@ -1299,6 +1599,13 @@ class MultiArcShootingProblem:
             if spec.terminal_constraint.is_equality:
                 assert spec.terminal_constraint.lower is not None
                 terminal_residual = terminal_outputs - spec.terminal_constraint.lower
+
+        if spec.decision_tracking_penalty is not None:
+            tracking_value, _, _ = self.decision_tracking_objective(
+                scipy_result.x,
+                spec.decision_tracking_penalty,
+            )
+            final_objective += tracking_value
 
         if spec.smoothness_penalty is not None:
             smooth_value, _, _ = self.control_smoothness_objective(
@@ -1362,6 +1669,45 @@ class MultiArcShootingProblem:
 
         spec = ShootingSolveSpec(
             bounds=bounds,
+            terminal_constraint=terminal_constraint,
+            smoothness_penalty=smoothness_penalty,
+            options=options,
+        )
+        return self.solve(spec, decision_vector0=decision_vector0)
+
+    def solve_measurement_fit(
+        self,
+        measurements: list[SampledMeasurement] | tuple[SampledMeasurement, ...],
+        decision_vector0=None,
+        bounds: Bounds | None = None,
+        options: dict | None = None,
+        measurement_weight: float = 1.0,
+        measurement_hessian_mode: Literal["quasi-newton", "gauss-newton"] = "quasi-newton",
+        terminal_constraint: TerminalConstraintSpec | None = None,
+        smoothness_penalty: SmoothnessPenaltySpec | dict[str, float] | None = None,
+        decision_tracking_penalty: DecisionTrackingPenaltySpec | list[DecisionTrackingTerm] | None = None,
+    ) -> ShootingOptimizationResult:
+        """Convenience wrapper for measurement-driven shooting estimation."""
+        if smoothness_penalty is not None and not isinstance(
+            smoothness_penalty, SmoothnessPenaltySpec
+        ):
+            smoothness_penalty = SmoothnessPenaltySpec(dict(smoothness_penalty))
+
+        if decision_tracking_penalty is not None and not isinstance(
+            decision_tracking_penalty, DecisionTrackingPenaltySpec
+        ):
+            decision_tracking_penalty = DecisionTrackingPenaltySpec(
+                list(decision_tracking_penalty)
+            )
+
+        spec = ShootingSolveSpec(
+            bounds=bounds,
+            measurement_objective=MeasurementObjectiveSpec(
+                measurements=measurements,
+                weight=measurement_weight,
+                hessian_mode=measurement_hessian_mode,
+            ),
+            decision_tracking_penalty=decision_tracking_penalty,
             terminal_constraint=terminal_constraint,
             smoothness_penalty=smoothness_penalty,
             options=options,

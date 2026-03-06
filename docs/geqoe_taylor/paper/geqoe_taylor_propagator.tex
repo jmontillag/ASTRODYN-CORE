@@ -394,14 +394,17 @@ implemented maneuvering stack now supports:
     transcription, and
     \item a first toy observation type: inertial Cartesian position samples
     with exact Jacobians obtained by chaining a local measurement map through
-    the propagated GEqOE sensitivities, and
-    \item a working minimum-propellant prototype solve path.
+    the propagated GEqOE sensitivities,
+    \item a second toy observation type: inertial one-way range to a fixed
+    inertial reference point, built on the same local Cartesian map, and
+    \item measurement-driven prototype solve specifications for weighted
+    residuals and quadratic maneuver-effort regularization.
 \end{itemize}
 This is already sufficient to study simple maneuver design and endpoint
 targeting problems in a derivative-consistent setting. What remains
 \emph{outside} the current implementation is equally important: richer sampled
-observation types (velocity, angles, line-of-sight, range, range-rate, mixed
-batches), sampled path-constraint handling along the arcs, richer weighted
+observation types (velocity, angles, line-of-sight, range-rate), sampled
+path-constraint handling along the arcs, richer weighted
 objectives (for example time-optimal or power-aware formulations), and
 alternative sparse NLP backends beyond the present SciPy prototype. These
 remaining items are architectural extensions, not blockers for the current
@@ -420,6 +423,24 @@ position samples, with a position-only toy observation model and exact
 measurement Jacobians. This is not yet a full orbit-determination system, but
 it is already a genuine maneuver-aware estimation prototype built directly on
 the new propagation machinery.
+
+The measurement interface is now slightly broader than that first toy problem.
+Both inertial Cartesian position and inertial one-way range can be represented
+as sampled observations, weighted in whitened measurement space, and
+transcribed through the same multiple-shooting residual assembly. In the
+current implementation, constrained multi-arc measurement solves use exact
+first-order residual/Jacobian information together with a prototype
+quasi-Newton solve path in SciPy, while an explicit Gauss--Newton objective
+Hessian remains available as an option. That distinction matters: the present
+code already provides derivative-consistent residual linearization, but it is
+not yet a full second-order sparse least-squares backend.
+
+The example suite reflects that staged scope. One reconstruction script fits
+piecewise-constant thrust directly from noisy inertial position samples, while
+another uses the same transcription with a mixed batch of inertial position and
+inertial range observations. These are still toy problems, but they already
+exercise the intended architectural bridge from GEqOE propagation to
+maneuver-aware measurement fitting.
 
 \section{Time Handling for Time-Dependent Perturbations}
 

@@ -1002,7 +1002,12 @@ The surrounding example set is now broader than that single solve entry point:
 smooth cubic-Hermite, and shooting-based maneuver profiles, while
 `examples/geqoe_compare/native_vs_heyoka_j2.py` checks coefficient-level
 parity against the earlier GEqOE J2 implementation on the shared state
-components.
+components. On the estimation side,
+`examples/geqoe_reconstruction_lab/position_fit_demo.py` remains the simplest
+position-only fit, while
+`examples/geqoe_reconstruction_lab/mixed_position_range_fit_demo.py` shows that
+the same transcription can already mix inertial position and inertial range
+samples without a separate solver path.
 
 That measurement bridge is now part of the same layer rather than living in an
 ad hoc example script. The current implementation adds:
@@ -1017,6 +1022,13 @@ ad hoc example script. The current implementation adds:
 - `MultiArcShootingProblem.evaluate_measurements(...)`: residual assembly using
   the same compiled 7-state sensitivity integrators already used for
   continuity/terminal derivatives
+- `MeasurementObjectiveSpec`: weighted least-squares measurement objective
+  configuration, including solve-time Hessian strategy
+- `DecisionTrackingPenaltySpec`: quadratic selector-based tracking/effort
+  regularization for decision variables
+- `solve_measurement_fit(...)`: convenience wrapper that routes measurement
+  residuals, continuity constraints, and regularization through the same solve
+  entry point
 
 The implemented chain is intentionally simple and future-proof:
 
@@ -1039,21 +1051,38 @@ with respect to the 7-state sample. This is the intended toy problem for early
 maneuver estimation because it is easy to validate against `geqoe2cart()` and
 directly relevant to position-only reconstruction experiments.
 
+The second implemented observation type is
+`InertialRangeMeasurementModel`, which reduces the same inertial Cartesian
+position to a one-way range against a fixed inertial reference point. Its local
+Jacobian is just the line-of-sight row multiplied by the exact inertial-position
+Jacobian, so it remains on the same derivative-consistent path as the position
+model. Because sampled measurements are stored as a heterogeneous list of
+`MeasurementModel` instances, position and range samples can already be mixed in
+the same batch without changing the transcription logic.
+
 The weighting API is already compatible with future uncertainty-aware work.
 `SampledMeasurement` accepts an arbitrary left-weighting matrix and provides
 convenience constructors from diagonal standard deviations or a full
 covariance. In other words, the current residual stack already uses whitened
 measurement space rather than hard-coding scalar weights.
 
-The current limitations should also be stated explicitly. Only inertial
-position is implemented today; velocity, line-of-sight, angles, range,
-range-rate, and mixed batches are still future work. Likewise, the core API
-does not yet provide first-class solver specs for priors, maneuver
-regularization, or mixed measurement/objective terms. The reconstruction demo
-now uses the shared measurement layer, but it still wires its specific
-least-squares-style objective in example code rather than through a general
-estimation solver abstraction. That is deliberate: the architectural boundary
-is now in place, while the broader estimation stack remains prototype-level.
+The current solve path is still intentionally modest. Measurement objectives now
+use exact first-order residuals/Jacobians and selector-based quadratic tracking
+penalties inside `ShootingSolveSpec`. For constrained multi-arc estimation
+problems, the default solve route is exact first-order data plus SciPy's
+quasi-Newton curvature updates; an explicit Gauss-Newton objective Hessian is
+still available, but the full second-order measurement terms are not yet
+propagated. That makes the present interface appropriate for prototype
+maneuver-estimation studies, not yet a finished sparse least-squares backend.
+
+The remaining limitations should also be stated explicitly. Only inertial
+position and inertial range are implemented today; velocity, line-of-sight,
+angles, and range-rate are still future work. The current decision-tracking
+terms are deterministic quadratic penalties rather than a full prior/covariance
+model, and there is still no first-class abstraction for mixed observation
+families plus priors plus maneuver regularization inside a single uncertainty
+model. The architecture boundary is now in place, while the broader estimation
+stack remains prototype-level.
 
 By default, arc evaluations use local time `t = 0` unless an explicit
 `start_time_s` is provided. This keeps the current arc-local cubic Hermite
