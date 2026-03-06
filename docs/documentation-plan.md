@@ -135,7 +135,7 @@ Priority tutorial mappings:
 - `examples/quickstart.py` -> "Propagation tutorial"
 - `examples/scenario_missions.py` -> "Scenario + mission workflows"
 - `examples/uncertainty.py` -> "Covariance and STM workflows"
-- `examples/geqoe_propagator.py` -> "GEqOE propagator usage"
+- `examples/geqoe_native/geqoe_propagator.py` -> "GEqOE propagator usage"
 
 Each tutorial page should include:
 

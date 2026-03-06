@@ -76,7 +76,7 @@ To see the examples in action:
 python examples/quickstart.py --mode all
 
 # GEqOE propagator
-python examples/geqoe_propagator.py --mode all
+python examples/geqoe_native/geqoe_propagator.py --mode all
 
 # Covariance/uncertainty
 python examples/uncertainty.py

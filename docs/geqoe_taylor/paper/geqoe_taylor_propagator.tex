@@ -400,6 +400,17 @@ example time-optimal or power-aware formulations), and alternative sparse NLP
 backends beyond the present SciPy prototype. These remaining items are
 architectural extensions, not blockers for the current maneuvering workflow.
 
+The present example suite makes these capabilities concrete in three different
+ways. First, a coefficient-level comparison against the earlier GEqOE J2 map
+shows that the shared Taylor derivatives up to fourth order agree on
+$(\nu, q_1, q_2, p_1, p_2)$ once the legacy normalized-time coefficients are
+scaled back to physical time. Second, a maneuver-profile gallery visualizes
+constant-thrust and smooth cubic-Hermite RTN laws together with their mass and
+orbital-energy response. Third, a synthetic position-fit experiment solves for
+an initial state and piecewise-constant low-thrust coefficients that best
+explain noisy inertial position samples, providing a first maneuver-aware
+estimation prototype built directly on the new propagation machinery.
+
 \section{Time Handling for Time-Dependent Perturbations}
 
 One implementation detail is important enough to record explicitly for future

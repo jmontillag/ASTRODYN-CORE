@@ -993,9 +993,24 @@ usable directly inside a constrained optimizer before adding richer sparse-NLP
 plumbing.
 
 An executable reference is included in
-`examples/geqoe_taylor_shooting_demo.py`, which sets up a two-arc thrust
+`examples/geqoe_heyoka/geqoe_taylor_shooting_demo.py`, which sets up a two-arc thrust
 problem, applies terminal constraints and a smoothness penalty, and solves it
 with the current SciPy adapter.
+
+The surrounding example set is now broader than that single solve entry point:
+`examples/geqoe_heyoka/maneuver_profile_gallery.py` visualizes constant-thrust,
+smooth cubic-Hermite, and shooting-based maneuver profiles, while
+`examples/geqoe_compare/native_vs_heyoka_j2.py` checks coefficient-level
+parity against the earlier GEqOE J2 implementation on the shared state
+components.
+
+The next architectural bridge should be made explicit as well: the current
+shooting layer needs a measurement-model interface sitting above propagation
+and below solver assembly. The recommended first implementation is a toy
+inertial-position observation model at sampled arc times. That should define
+the interface boundary for future general observation types and make residual /
+Jacobian assembly a first-class part of the GEqOE maneuver-estimation stack,
+rather than leaving measurements embedded in ad hoc example scripts.
 
 By default, arc evaluations use local time `t = 0` unless an explicit
 `start_time_s` is provided. This keeps the current arc-local cubic Hermite

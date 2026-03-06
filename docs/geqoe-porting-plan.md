@@ -54,7 +54,7 @@ This section captures the exact current state so the next session can resume dir
 
 4. **Parity validation assets added**
   - Focused test: `tests/test_geqoe_cpp_staged_order1.py` (Python staged vs C++ staged, Order 1).
-  - Example script: `examples/geqoe_cpp_order1_parity.py`.
+  - Example script: `examples/geqoe_native/geqoe_cpp_order1_parity.py`.
 
 ### Current constraints
 
@@ -80,7 +80,7 @@ This section captures the exact current state so the next session can resume dir
 4. **Run validation sequence**
   - `conda run -n astrodyn-core-env pytest -q tests/test_geqoe_cpp_staged_order1.py`
   - `conda run -n astrodyn-core-env pytest -q tests/test_geqoe_cpp.py tests/test_geqoe_refactor.py`
-  - Optional smoke: `conda run -n astrodyn-core-env python examples/geqoe_cpp_order1_parity.py`
+  - Optional smoke: `conda run -n astrodyn-core-env python examples/geqoe_native/geqoe_cpp_order1_parity.py`
 
 ---
 

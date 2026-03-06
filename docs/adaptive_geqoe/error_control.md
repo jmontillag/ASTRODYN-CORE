@@ -316,7 +316,7 @@ y, stm = prop.propagate_array(dt_grid)
 ## 6. Convergence Behaviour
 
 The following measurements are from the reference LEO orbit used by the
-plot script (`examples/geqoe_adaptive_error_plot.py`): 6878 km semi-major
+plot script (`examples/geqoe_native/geqoe_adaptive_error_plot.py`): 6878 km semi-major
 axis, e = 0.0012, i = 51.6 deg, period ~5677 s.  The reference solution
 is a numerical GEqOE integration at 1e-13 tolerance.
 

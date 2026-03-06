@@ -133,9 +133,11 @@ Run from the project root:
 conda run -n astrodyn-core-env python examples/quickstart.py --mode all
 conda run -n astrodyn-core-env python examples/scenario_missions.py --mode all
 conda run -n astrodyn-core-env python examples/uncertainty.py
-conda run -n astrodyn-core-env python examples/geqoe_propagator.py --mode all
-conda run -n astrodyn-core-env python examples/geqoe_taylor_demo.py
-conda run -n astrodyn-core-env python examples/geqoe_taylor_shooting_demo.py
+conda run -n astrodyn-core-env python examples/geqoe_native/geqoe_propagator.py --mode all
+conda run -n astrodyn-core-env python examples/geqoe_heyoka/geqoe_taylor_demo.py
+conda run -n astrodyn-core-env python examples/geqoe_heyoka/geqoe_taylor_shooting_demo.py
+conda run -n astrodyn-core-env python examples/geqoe_compare/native_vs_heyoka_j2.py
+conda run -n astrodyn-core-env python examples/geqoe_reconstruction_lab/position_fit_demo.py
 conda run -n astrodyn-core-env python examples/tle_batch_high_fidelity_ephemeris.py
 ```
 
@@ -157,9 +159,11 @@ Self-contained topical examples in `examples/cookbook/`:
 
 Parity/comparison tools:
 
-- `geqoe_cpp_order1_parity.py` — Validate C++ staged GEqOE against Python reference
-- `geqoe_legacy_vs_staged.py` — Compare legacy vs optimized GEqOE implementations
+- `examples/geqoe_native/geqoe_cpp_order1_parity.py` — Validate C++ staged GEqOE against Python reference
+- `examples/geqoe_native/geqoe_legacy_vs_staged.py` — Compare legacy vs optimized GEqOE implementations
 - `math_cpp_comparison.py` — Verify C++ math utils against Python equivalents
+- `examples/geqoe_compare/native_vs_heyoka_j2.py` — Compare native GEqOE J2 map coefficients against the heyoka GEqOE backend
+- `examples/geqoe_reconstruction_lab/position_fit_demo.py` — Fit a synthetic low-thrust maneuver profile to noisy inertial positions
 
 ### State-file examples
 

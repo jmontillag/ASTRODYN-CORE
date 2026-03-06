@@ -27,7 +27,7 @@ Build a high-performance orbit propagator using **Generalized Equinoctial Orbita
 | 6 | General perturbations (third-body, non-conservative, higher geopotential) | DONE (core) |
 | 7a | Zonal harmonics (J2–Jn via auto-gradient) | DONE |
 | 7b | Post-review hardening + formal implementation note | DONE |
-| 8 | Continuous thrust and maneuver characterization framework | IN PROGRESS (8a done, 8b sensitivities, 8c optimization prototype) |
+| 8 | Continuous thrust and maneuver characterization framework | IN PROGRESS (8a-8c core implemented; comparison/example tranche added) |
 
 ### Achieved Performance (J2-only, tol=1e-15)
 
@@ -115,7 +115,17 @@ Build a high-performance orbit propagator using **Generalized Equinoctial Orbita
   `SmoothnessPenaltySpec`, and `ShootingSolveSpec`
 - **SciPy `trust-constr` adapter added** for minimum-propellant solves with
   continuity, bounded terminal outputs, and optional smoothness regularization
-- **Executable prototype demo added** via `examples/geqoe_taylor_shooting_demo.py`
+- **Executable prototype demo added** via
+  `examples/geqoe_heyoka/geqoe_taylor_shooting_demo.py`
+- **Example tree reorganized** into `examples/geqoe_native/`,
+  `examples/geqoe_heyoka/`, `examples/geqoe_compare/`, and
+  `examples/geqoe_reconstruction_lab/`
+- **Native-vs-heyoka coefficient comparison added** via
+  `examples/geqoe_compare/native_vs_heyoka_j2.py`
+- **Maneuver profile gallery added** via
+  `examples/geqoe_heyoka/maneuver_profile_gallery.py`
+- **Synthetic position-fit experiment added** via
+  `examples/geqoe_reconstruction_lab/position_fit_demo.py`
 - **Finite-difference regression added** for continuity Jacobians and the
   minimum-propellant objective gradient, plus terminal-bounds and
   smoothness-regularized solve checks
@@ -169,8 +179,21 @@ tests/
     test_geqoe_taylor.py           # 14 tests: conversions, propagation, STM, Cowell
     test_geqoe_taylor_thrust.py    # 6 tests: thrust core, mass flow, Cowell match
 examples/
-    geqoe_taylor_demo.py           # Interactive demo (7 sections)
-    geqoe_taylor_shooting_demo.py  # Multiple-shooting optimization prototype demo
+    geqoe_native/
+        geqoe_propagator.py        # Legacy/native GEqOE umbrella demo
+        geqoe_adaptive_benchmark.py
+        geqoe_adaptive_error_plot.py
+        geqoe_cpp_benchmark.py
+        geqoe_cpp_order1_parity.py
+        geqoe_legacy_vs_staged.py
+    geqoe_heyoka/
+        geqoe_taylor_demo.py           # Interactive demo (7 sections)
+        geqoe_taylor_shooting_demo.py  # Multiple-shooting optimization prototype demo
+        maneuver_profile_gallery.py    # Visual thrust / mass / orbit-response gallery
+    geqoe_compare/
+        native_vs_heyoka_j2.py         # Shared-component Taylor coefficient + speed comparison
+    geqoe_reconstruction_lab/
+        position_fit_demo.py           # Direct-shooting low-thrust fit to inertial positions
 ```
 
 ---
@@ -321,11 +344,26 @@ Paper Dromo (App. C)        2.1e-07           0.0002
 Scipy DOP853                9.6e-07           0.0010
 ```
 
-### 5.3 Interactive Demo (`examples/geqoe_taylor_demo.py`)
+### 5.3 Interactive Demo (`examples/geqoe_heyoka/geqoe_taylor_demo.py`)
 
 Seven sections: conversions, 12-day propagation, step history, dense output grid, STM computation, ground truth comparison, 1-year performance summary.
 
-Run: `conda run -n astrodyn-core-env python examples/geqoe_taylor_demo.py`
+Run: `conda run -n astrodyn-core-env python examples/geqoe_heyoka/geqoe_taylor_demo.py`
+
+### 5.4 Example Gallery And Comparisons
+
+The current example layout is intentionally split by backend and use case:
+
+- `examples/geqoe_native/` keeps the legacy/native GEqOE demonstrations and
+  staged/adaptive/C++ parity tools together.
+- `examples/geqoe_heyoka/` holds the new GEqOE Taylor demos, the
+  multiple-shooting prototype, and the maneuver-profile gallery.
+- `examples/geqoe_compare/native_vs_heyoka_j2.py` compares order-1..4 shared
+  Taylor derivatives and short-window series reconstructions between the old
+  J2 map and the heyoka backend.
+- `examples/geqoe_reconstruction_lab/position_fit_demo.py` shows a
+  continuous-thrust position-fit workflow intended as a first bridge toward
+  maneuver characterization from intermediate states.
 
 ---
 
@@ -898,6 +936,25 @@ Still pending inside Phase 8c:
 - higher-level time-optimal and multi-term weighted objectives
 - path-constraint helpers beyond node-level variable bounds
 - richer sparse NLP solver interfaces
+- measurement residual assembly for intermediate sampled observations
+
+Recommended next implementation slice before broader solver work:
+- a **toy measurement model** based on sampled inertial positions
+- an explicit **measurement-model interface** so future observation types
+  (position, velocity, line-of-sight, angles, range/range-rate, mixed batches)
+  can plug into the same transcription
+- residual/Jacobian assembly that maps these measurement models through the
+  existing GEqOE arc sensitivities
+
+Rationale:
+- the current 8c layer proves that control/state variables, continuity, and
+  endpoint constraints can be transcribed efficiently
+- the next bridge to maneuver detection / characterization is not a more
+  exotic solver first, but a clean way to express observations inside the same
+  architecture
+- a simple inertial-position measurement model is the right toy problem
+  because it is easy to validate, easy to visualize, and directly useful for
+  early maneuver-fitting experiments
 
 Recommended first objectives:
 - minimum propellant
@@ -918,6 +975,8 @@ continuous-thrust backend is already working.
 
 Deliverables:
 - parameter-estimation view of continuous thrust
+- measurement-model-aware maneuver estimation with observation residuals,
+  priors, and maneuver regularization
 - uncertainty propagation wrt thrust coefficients
 - initial exploration of control-distance-like metrics in GEqOE space
 
@@ -939,7 +998,9 @@ Recommended test campaign:
    - endpoint sensitivities wrt control coefficients
 5. **Multiple-shooting continuity tests**
    - segment matching and event-aligned arc transitions
-6. **Initial uncertainty tests**
+6. **Measurement residual / Jacobian tests**
+   - toy inertial-position observations at arc-interior and arc-end samples
+7. **Initial uncertainty tests**
    - covariance transport with uncertain thrust coefficients
 
 ### 8.9 Final Recommendation
