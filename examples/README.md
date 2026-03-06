@@ -68,7 +68,20 @@ Examples:
 - `ephemeris_from_oem.py` — OEM file parse and ephemeris round-trip
 - `sma_maintenance_analysis.py` — Full SMA maintenance mission workflow (scenario -> detector execution -> analysis)
 
-## 5) Batch TLE -> High-Fidelity Ephemeris
+## 5) GEqOE Taylor Advanced Demos
+
+Run the GEqOE Taylor reference demos:
+
+```bash
+conda run -n astrodyn-core-env python examples/geqoe_taylor_demo.py
+conda run -n astrodyn-core-env python examples/geqoe_taylor_shooting_demo.py
+```
+
+Examples:
+- `geqoe_taylor_demo.py` — Propagation, STM, dense output, and Cowell comparison
+- `geqoe_taylor_shooting_demo.py` — Continuous-thrust multiple-shooting prototype with the SciPy optimization adapter
+
+## 6) Batch TLE -> High-Fidelity Ephemeris
 
 Resolve a YAML list of NORAD IDs to TLE, seed high-fidelity numerical propagation
 from EME2000 states, generate bounded ephemerides (+3 days), and export HDF5

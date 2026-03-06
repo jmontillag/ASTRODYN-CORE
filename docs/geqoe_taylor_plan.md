@@ -82,9 +82,9 @@ Build a high-performance orbit propagator using **Generalized Equinoctial Orbita
   $\dot{m} = -T / (g_0 I_{sp})$ using thrust magnitude in newtons and mass in kg
 - **GEqOE vs Cowell validation added** through a generic heyoka Cowell path for
   arbitrary perturbation models, including propagated mass
-- **62 GEqOE tests passing** (`test_geqoe_taylor.py`,
+- **70 GEqOE Taylor tests passing** (`test_geqoe_taylor.py`,
   `test_geqoe_taylor_general.py`, `test_geqoe_taylor_zonal.py`,
-  `test_geqoe_taylor_thrust.py`)
+  `test_geqoe_taylor_thrust.py`, `test_geqoe_taylor_shooting.py`)
 
 ### Phase 8b Results (Sensitivity Core)
 
@@ -98,6 +98,27 @@ Build a high-performance orbit propagator using **Generalized Equinoctial Orbita
 - **Single-arc smooth spline law added** via `CubicHermiteRTNThrustLaw`
 - **Finite-difference regression added** for thrust-parameter endpoint
   sensitivities
+
+### Phase 8c Results (Multiple-Shooting Prototype)
+
+- **Multi-arc transcription helper added** via `ShootingArc` and
+  `MultiArcShootingProblem`
+- **Per-arc decision-vector layout added** as `[x_i, p_i]` blocks with stable
+  variable names for downstream NLP assembly
+- **Sparse continuity residual/Jacobian assembly implemented** using the
+  existing 7-state thrust sensitivities
+- **Terminal-constraint helper added** for selected endpoint outputs
+- **Minimum-propellant objective helper added** with an exact gradient
+- **Named bounds helper added** for exact or suffix-based decision-variable
+  selectors
+- **Spec-driven solver layer added** via `TerminalConstraintSpec`,
+  `SmoothnessPenaltySpec`, and `ShootingSolveSpec`
+- **SciPy `trust-constr` adapter added** for minimum-propellant solves with
+  continuity, bounded terminal outputs, and optional smoothness regularization
+- **Executable prototype demo added** via `examples/geqoe_taylor_shooting_demo.py`
+- **Finite-difference regression added** for continuity Jacobians and the
+  minimum-propellant objective gradient, plus terminal-bounds and
+  smoothness-regularized solve checks
 
 ### Commits
 
@@ -149,6 +170,7 @@ tests/
     test_geqoe_taylor_thrust.py    # 6 tests: thrust core, mass flow, Cowell match
 examples/
     geqoe_taylor_demo.py           # Interactive demo (7 sections)
+    geqoe_taylor_shooting_demo.py  # Multiple-shooting optimization prototype demo
 ```
 
 ---
@@ -676,11 +698,18 @@ The current implementation delivers:
 - `build_thrust_sensitivity_integrator()` and
   `extract_endpoint_jacobian()` for direct endpoint Jacobian access
 - `geqoe2cart()` support for 7-state inputs by ignoring the trailing mass entry
+- `ShootingArc` / `MultiArcShootingProblem` for the first multiple-shooting
+  transcription layer, including continuity constraints and a minimum-propellant
+  objective helper
+- named bounds plus a spec-driven SciPy `trust-constr` solve helper on top of
+  the same transcription layer
+- quadratic cross-arc smoothness regularization for selected control variables
 
-Not yet implemented inside Phase 8:
+Not yet fully implemented inside Phase 8:
 
 - multi-segment spline / B-spline control laws
-- optimization / multiple-shooting transcription utilities
+- richer solver backends / sparse NLP wiring beyond the current SciPy adapter
+- higher-level optimization helpers
 
 #### C. Treat control coefficients as differentiable parameters
 
@@ -850,15 +879,25 @@ Validation completed:
 
 Deferred within Phase 8b:
 
-- higher-level endpoint Jacobian assembly helpers for shooting / NLP layers
 - optional custom variational argument lists beyond `vars | params`
 
 #### Phase 8c: Multiple-shooting optimization prototype
 
-Deliverables:
+Delivered in the current 8c start:
 - multi-arc transcription helper
-- objective / constraint assembly
-- interface to a sparse NLP solver
+- continuity-constraint assembly
+- terminal-constraint assembly
+- minimum-propellant objective assembly
+- named variable bounds
+- initial SciPy `trust-constr` solve helper
+- bounded terminal-output constraints
+- smoothness-regularized objective support
+- explicit solve-spec dataclasses for future backend reuse
+
+Still pending inside Phase 8c:
+- higher-level time-optimal and multi-term weighted objectives
+- path-constraint helpers beyond node-level variable bounds
+- richer sparse NLP solver interfaces
 
 Recommended first objectives:
 - minimum propellant

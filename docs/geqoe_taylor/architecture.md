@@ -936,6 +936,72 @@ The existing 6-state integrators intentionally reject perturbations that set
 `requires_mass = True`, so the API fails fast instead of silently dropping mass
 depletion.
 
+**Multiple-shooting layer**:
+
+- `ShootingArc`: one 7-state thrust arc with a nominal initial state, duration,
+  optional selected runtime parameters, and optional absolute start time
+- `MultiArcShootingProblem`: reusable multi-arc transcription helper built on
+  top of `build_thrust_sensitivity_integrator()`
+- `ArcPropagationResult` / `ShootingEvaluation`: arc-endpoint data plus sparse
+  continuity residuals and Jacobians
+
+The flat decision vector is grouped per arc as:
+
+```text
+[x_0, p_0, x_1, p_1, ..., x_{N-1}, p_{N-1}]
+```
+
+where each `x_i` is the 7-state GEqOE + mass node and each `p_i` is the chosen
+subset of arc-local runtime parameters. The first prototype assembles:
+
+- continuity constraints `y_i(tf) - x_{i+1}`
+- terminal residuals for selected endpoint outputs
+- a minimum-propellant objective `m_0 - m_f`
+
+with exact sparse Jacobians extracted from the same variational propagation
+already used for the 7-state endpoint sensitivities. For performance, the
+problem object reuses compiled heyoka integrators by resetting state, time, and
+runtime parameters between evaluations rather than rebuilding the symbolic
+graph.
+
+The first solver-facing helpers are also part of this layer:
+
+- `build_named_bounds(...)`: convert exact decision names or shared suffixes
+  such as `m` / `thrust.t_newtons` into SciPy `Bounds`
+- `TerminalConstraintSpec`: bounded or equality-constrained terminal outputs on
+  the final arc
+- `SmoothnessPenaltySpec`: quadratic cross-arc regularization for selected
+  control variables
+- `ShootingSolveSpec`: explicit solve configuration for the prototype backend
+- `solve(...)`: spec-driven SciPy `trust-constr` solve entry point
+- `solve_minimum_propellant(...)`: convenience wrapper around `solve(...)`
+  for the current minimum-propellant prototype
+
+The objective model is intentionally simple and exact:
+
+- base objective: `m_0 - m_f`
+- optional regularization:
+  `0.5 * \sum w_j (u_{i+1,j} - u_{i,j})^2`
+
+where the selector-matched control variables are penalized across consecutive
+arcs. This gives a useful smoothness-regularized prototype now, while keeping a
+clear path to richer multi-term objectives later.
+
+This is intentionally a thin adapter rather than a committed long-term solver
+backend. It validates that the GEqOE transcription and exact Jacobians are
+usable directly inside a constrained optimizer before adding richer sparse-NLP
+plumbing.
+
+An executable reference is included in
+`examples/geqoe_taylor_shooting_demo.py`, which sets up a two-arc thrust
+problem, applies terminal constraints and a smoothness penalty, and solves it
+with the current SciPy adapter.
+
+By default, arc evaluations use local time `t = 0` unless an explicit
+`start_time_s` is provided. This keeps the current arc-local cubic Hermite
+thrust law consistent across multiple arcs while still allowing absolute-time
+transcription when needed.
+
 ---
 
 ## 14. Numerical Stability Techniques
@@ -1031,6 +1097,7 @@ The GEqOE propagator should match the heyoka Cowell propagator to within the ele
 | `test_geqoe_taylor_general.py` | 11 | General equations, third-body, composite, Cowell full |
 | `test_geqoe_taylor_zonal.py` | 22 | Legendre, zonal construction, J2 match, gradient FD, higher-order, Cowell zonal |
 | `test_geqoe_taylor_thrust.py` | 11 | Mass-augmented GEqOE, smooth spline law, endpoint Jacobians, STM, Cowell thrust, parameter sensitivities |
+| `test_geqoe_taylor_shooting.py` | 8 | Multi-arc continuity closure, sparse Jacobians, smoothness objective, named bounds, terminal/objective assembly, and SciPy solve adapters |
 
 ---
 

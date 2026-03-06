@@ -366,7 +366,15 @@ The next extension is already enabled in the implementation: by constructing
 the variational system with
 \texttt{hy.var\_args.vars | hy.var\_args.params}, the same backend provides
 first-order sensitivities with respect to both the initial augmented state and
-the thrust-law runtime parameters.
+the thrust-law runtime parameters. On top of these exact arc-end
+sensitivities, the current code base now includes an initial multiple-shooting
+layer that assembles continuity constraints, terminal residuals, and a
+minimum-propellant objective without introducing a separate dynamics backend,
+as well as a first constrained-optimization adapter based on SciPy's
+\texttt{trust-constr}. The optimization layer is already structured around
+explicit terminal-constraint and smoothness-penalty specifications so that the
+same transcription can later be reused with richer sparse NLP backends or
+alternative weighted objectives.
 
 \section{Time Handling for Time-Dependent Perturbations}
 
