@@ -11,8 +11,12 @@ from astrodyn_core.geqoe_taylor.integrator import build_thrust_state_integrator
 from astrodyn_core.geqoe_taylor.perturbations.composite import CompositePerturbation
 from astrodyn_core.geqoe_taylor.perturbations.j2 import J2Perturbation
 from astrodyn_core.geqoe_taylor.perturbations.thrust import ContinuousThrustPerturbation
+from astrodyn_core.geqoe_taylor import geqoe2cart
 from astrodyn_core.geqoe_taylor.shooting import (
+    InertialPositionMeasurementModel,
+    MeasurementResidualEvaluation,
     MultiArcShootingProblem,
+    SampledMeasurement,
     ShootingArc,
     ShootingSolveSpec,
     SmoothnessPenaltySpec,
@@ -92,7 +96,70 @@ def _build_one_arc_problem() -> MultiArcShootingProblem:
     )
 
 
+def _build_position_measurements(
+    problem: MultiArcShootingProblem,
+    samples: list[tuple[str, float, str]],
+    sigma_km: float | np.ndarray = 0.05,
+) -> tuple[list[SampledMeasurement], MeasurementResidualEvaluation]:
+    model = InertialPositionMeasurementModel()
+    placeholders = [
+        SampledMeasurement(
+            model=model,
+            value=np.zeros(3, dtype=float),
+            arc_name=arc_name,
+            sample_time_s=sample_time_s,
+            name=name,
+        )
+        for arc_name, sample_time_s, name in samples
+    ]
+    prediction_eval = problem.evaluate_measurements(problem.initial_guess(), placeholders)
+    measurements = [
+        SampledMeasurement.from_standard_deviation(
+            model=model,
+            value=sample.predicted,
+            sigma=sigma_km,
+            arc_name=sample.arc_name,
+            sample_time_s=sample.sample_time_s,
+            name=sample.name,
+        )
+        for sample in prediction_eval.sample_results
+    ]
+    return measurements, prediction_eval
+
+
 class TestMultiArcShooting:
+    def test_inertial_position_measurement_model_matches_cartesian_and_fd(self):
+        perturbation = _make_perturbation(0.18)
+        state = _build_mass_state(perturbation, 500.0)
+        model = InertialPositionMeasurementModel()
+
+        predicted = model.evaluate(state, time_s=0.0, perturbation=perturbation)
+        cart_position, _ = geqoe2cart(state, MU, perturbation)
+        np.testing.assert_allclose(predicted, cart_position, atol=1.0e-12)
+
+        jacobian = model.state_jacobian(state, time_s=0.0, perturbation=perturbation)
+        cases = [
+            (0, 1.0e-9),
+            (1, 1.0e-8),
+            (3, 1.0e-7),
+            (4, 1.0e-8),
+            (6, 1.0e-4),
+        ]
+        for index, step in cases:
+            state_p = state.copy()
+            state_m = state.copy()
+            state_p[index] += step
+            state_m[index] -= step
+            pred_p = model.evaluate(state_p, time_s=0.0, perturbation=perturbation)
+            pred_m = model.evaluate(state_m, time_s=0.0, perturbation=perturbation)
+            fd_column = (pred_p - pred_m) / (2.0 * step)
+            np.testing.assert_allclose(
+                jacobian[:, index],
+                fd_column,
+                rtol=1.0e-5,
+                atol=1.0e-8,
+            )
+
     def test_continuity_residual_closes_on_split_nominal_trajectory(self):
         problem = _build_two_arc_problem()
         x = problem.initial_guess()
@@ -104,6 +171,63 @@ class TestMultiArcShooting:
         assert problem.continuity_constraint_names[0] == "arc0->arc1.nu"
         assert np.linalg.norm(result.continuity_residual) < 1.0e-11
         assert result.continuity_jacobian.shape == (7, problem.decision_size)
+
+    def test_sampled_measurement_residual_closes_on_nominal_trajectory(self):
+        problem = _build_two_arc_problem()
+        measurements, _ = _build_position_measurements(
+            problem,
+            [
+                ("arc0", 0.5 * 600.0, "arc0_mid"),
+                ("arc1", 0.5 * 450.0, "arc1_mid"),
+                ("arc1", 450.0, "arc1_end"),
+            ],
+        )
+
+        evaluation = problem.evaluate_measurements(problem.initial_guess(), measurements)
+
+        assert np.linalg.norm(evaluation.residual) < 1.0e-11
+        assert np.linalg.norm(evaluation.shooting_evaluation.continuity_residual) < 1.0e-11
+        assert evaluation.jacobian.shape == (9, problem.decision_size)
+
+    def test_measurement_weights_scale_residual_and_jacobian(self):
+        problem = _build_one_arc_problem()
+        samples = [("arc0", 0.5 * 600.0, "arc0_mid")]
+        base_measurements, _ = _build_position_measurements(
+            problem,
+            samples,
+            sigma_km=1.0,
+        )
+
+        base_eval = problem.evaluate_measurements(problem.initial_guess(), base_measurements)
+        predicted = base_eval.sample_results[0].predicted
+        sigma_vec = np.array([0.05, 0.10, 0.20], dtype=float)
+        offset = np.array([0.03, -0.04, 0.02], dtype=float)
+        weighted_measurement = SampledMeasurement.from_standard_deviation(
+            model=InertialPositionMeasurementModel(),
+            value=predicted - offset,
+            sigma=sigma_vec,
+            arc_name="arc0",
+            sample_time_s=0.5 * 600.0,
+            name="arc0_mid",
+        )
+
+        weighted_eval = problem.evaluate_measurements(
+            problem.initial_guess(),
+            [weighted_measurement],
+        )
+
+        np.testing.assert_allclose(
+            weighted_eval.residual,
+            offset / sigma_vec,
+            atol=1.0e-12,
+        )
+        expected_jacobian = np.diag(1.0 / sigma_vec) @ base_eval.jacobian.toarray()
+        np.testing.assert_allclose(
+            weighted_eval.jacobian.toarray(),
+            expected_jacobian,
+            rtol=1.0e-12,
+            atol=1.0e-12,
+        )
 
     def test_continuity_jacobian_matches_finite_difference(self):
         problem = _build_two_arc_problem()
@@ -132,6 +256,42 @@ class TestMultiArcShooting:
                 jac[:, idx],
                 fd_col,
                 rtol=4.0e-4,
+                atol=2.0e-8,
+            )
+
+    def test_measurement_jacobian_matches_finite_difference(self):
+        problem = _build_two_arc_problem()
+        x = problem.initial_guess()
+        measurements, _ = _build_position_measurements(
+            problem,
+            [
+                ("arc0", 0.5 * 600.0, "arc0_mid"),
+                ("arc1", 0.5 * 450.0, "arc1_mid"),
+            ],
+            sigma_km=0.05,
+        )
+        evaluation = problem.evaluate_measurements(x, measurements)
+        jacobian = evaluation.jacobian.toarray()
+
+        cases = [
+            ("arc0.K", 1.0e-7),
+            ("arc0.thrust.t_newtons", 1.0e-5),
+            ("arc1.q1", 1.0e-7),
+            ("arc1.thrust.t_newtons", 1.0e-5),
+        ]
+        for name, step in cases:
+            idx = problem.decision_index(name)
+            x_p = x.copy()
+            x_m = x.copy()
+            x_p[idx] += step
+            x_m[idx] -= step
+            res_p, _ = problem.measurement_residuals(x_p, measurements)
+            res_m, _ = problem.measurement_residuals(x_m, measurements)
+            fd_column = (res_p - res_m) / (2.0 * step)
+            np.testing.assert_allclose(
+                jacobian[:, idx],
+                fd_column,
+                rtol=5.0e-4,
                 atol=2.0e-8,
             )
 

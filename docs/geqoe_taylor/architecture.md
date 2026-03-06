@@ -1004,13 +1004,56 @@ smooth cubic-Hermite, and shooting-based maneuver profiles, while
 parity against the earlier GEqOE J2 implementation on the shared state
 components.
 
-The next architectural bridge should be made explicit as well: the current
-shooting layer needs a measurement-model interface sitting above propagation
-and below solver assembly. The recommended first implementation is a toy
-inertial-position observation model at sampled arc times. That should define
-the interface boundary for future general observation types and make residual /
-Jacobian assembly a first-class part of the GEqOE maneuver-estimation stack,
-rather than leaving measurements embedded in ad hoc example scripts.
+That measurement bridge is now part of the same layer rather than living in an
+ad hoc example script. The current implementation adds:
+
+- `MeasurementModel`: interface for per-sample measurement evaluation and local
+  Jacobians with respect to the propagated 7-state GEqOE + mass sample
+- `SampledMeasurement`: observation definition carrying arc selector
+  (`arc_index` or `arc_name`), sample time relative to the arc start, observed
+  value, and a left-weighting/whitening matrix
+- `MeasurementResidualEvaluation`: residual/Jacobian bundle attached to the
+  corresponding `ShootingEvaluation`
+- `MultiArcShootingProblem.evaluate_measurements(...)`: residual assembly using
+  the same compiled 7-state sensitivity integrators already used for
+  continuity/terminal derivatives
+
+The implemented chain is intentionally simple and future-proof:
+
+1. propagate each arc's augmented state and first-order variational equations
+   to the requested sample epochs using dense output,
+2. evaluate the measurement model on each propagated 7-state sample,
+3. evaluate the model's local Jacobian with respect to that 7-state sample,
+4. apply the chain rule through the exact GEqOE sensitivity blocks, and
+5. left-multiply by the supplied whitening matrix.
+
+This means the observation stack is still derivative-consistent with the
+underlying GEqOE dynamics: the sample-state sensitivities come from the same
+`hy.var_args.vars | hy.var_args.params` propagation used elsewhere, and the
+measurement layer only adds a small local map on top of that flow.
+
+The first implemented observation type is
+`InertialPositionMeasurementModel`, which evaluates Cartesian inertial position
+directly from the propagated GEqOE state and uses a compiled symbolic Jacobian
+with respect to the 7-state sample. This is the intended toy problem for early
+maneuver estimation because it is easy to validate against `geqoe2cart()` and
+directly relevant to position-only reconstruction experiments.
+
+The weighting API is already compatible with future uncertainty-aware work.
+`SampledMeasurement` accepts an arbitrary left-weighting matrix and provides
+convenience constructors from diagonal standard deviations or a full
+covariance. In other words, the current residual stack already uses whitened
+measurement space rather than hard-coding scalar weights.
+
+The current limitations should also be stated explicitly. Only inertial
+position is implemented today; velocity, line-of-sight, angles, range,
+range-rate, and mixed batches are still future work. Likewise, the core API
+does not yet provide first-class solver specs for priors, maneuver
+regularization, or mixed measurement/objective terms. The reconstruction demo
+now uses the shared measurement layer, but it still wires its specific
+least-squares-style objective in example code rather than through a general
+estimation solver abstraction. That is deliberate: the architectural boundary
+is now in place, while the broader estimation stack remains prototype-level.
 
 By default, arc evaluations use local time `t = 0` unless an explicit
 `start_time_s` is provided. This keeps the current arc-local cubic Hermite

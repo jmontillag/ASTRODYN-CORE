@@ -27,7 +27,7 @@ Build a high-performance orbit propagator using **Generalized Equinoctial Orbita
 | 6 | General perturbations (third-body, non-conservative, higher geopotential) | DONE (core) |
 | 7a | Zonal harmonics (J2–Jn via auto-gradient) | DONE |
 | 7b | Post-review hardening + formal implementation note | DONE |
-| 8 | Continuous thrust and maneuver characterization framework | IN PROGRESS (8a-8c core implemented; comparison/example tranche added) |
+| 8 | Continuous thrust and maneuver characterization framework | IN PROGRESS (8a-8c core implemented; measurement-model bridge added; broader estimation/uncertainty work still pending) |
 
 ### Achieved Performance (J2-only, tol=1e-15)
 
@@ -129,6 +129,20 @@ Build a high-performance orbit propagator using **Generalized Equinoctial Orbita
 - **Finite-difference regression added** for continuity Jacobians and the
   minimum-propellant objective gradient, plus terminal-bounds and
   smoothness-regularized solve checks
+- **General sampled-measurement interface added** via `MeasurementModel`,
+  `SampledMeasurement`, and `MeasurementResidualEvaluation`
+- **Weighted measurement residual/Jacobian assembly added** through
+  `MultiArcShootingProblem.evaluate_measurements()` and
+  `measurement_residuals()`
+- **Toy inertial-position observation model added** via
+  `InertialPositionMeasurementModel`, using exact state Jacobians chained
+  through the existing GEqOE + mass sensitivities
+- **Measurement weights made uncertainty-ready** with direct whitening-matrix
+  support and convenience constructors from standard deviations/covariance
+- **Reconstruction demo refactored** so intermediate inertial-position
+  residuals now come from the shared GEqOE measurement/transcription layer
+- **Finite-difference regression added** for sampled measurement Jacobians and
+  measurement-weight scaling
 
 ### Commits
 
@@ -362,8 +376,9 @@ The current example layout is intentionally split by backend and use case:
   Taylor derivatives and short-window series reconstructions between the old
   J2 map and the heyoka backend.
 - `examples/geqoe_reconstruction_lab/position_fit_demo.py` shows a
-  continuous-thrust position-fit workflow intended as a first bridge toward
-  maneuver characterization from intermediate states.
+  continuous-thrust position-fit workflow built on the shared sampled-
+  measurement interface, using inertial position samples as the first bridge
+  toward maneuver characterization from intermediate states.
 
 ---
 
@@ -932,29 +947,37 @@ Delivered in the current 8c start:
 - smoothness-regularized objective support
 - explicit solve-spec dataclasses for future backend reuse
 
-Still pending inside Phase 8c:
+Measurement bridge now implemented inside Phase 8c:
+- a general sampled-observation definition (`SampledMeasurement`) sitting on
+  top of the existing multi-arc transcription
+- a measurement-model interface (`MeasurementModel`) with per-sample
+  evaluation and local state Jacobians
+- weighted residual/Jacobian assembly that chains these local measurement
+  Jacobians through the exact GEqOE + mass variational equations
+- a first toy observation type: sampled inertial Cartesian position
+- covariance-ready weighting via whitening matrices or diagonal standard
+  deviations
+
+Still pending after this measurement slice:
 - higher-level time-optimal and multi-term weighted objectives
 - path-constraint helpers beyond node-level variable bounds
 - richer sparse NLP solver interfaces
-- measurement residual assembly for intermediate sampled observations
+- more observation types (velocity, line-of-sight, angles, range/range-rate,
+  mixed batches)
+- solver-level handling of priors, maneuver regularization, and mixed
+  estimation objectives as first-class transcription specs
 
-Recommended next implementation slice before broader solver work:
-- a **toy measurement model** based on sampled inertial positions
-- an explicit **measurement-model interface** so future observation types
-  (position, velocity, line-of-sight, angles, range/range-rate, mixed batches)
-  can plug into the same transcription
-- residual/Jacobian assembly that maps these measurement models through the
-  existing GEqOE arc sensitivities
-
-Rationale:
-- the current 8c layer proves that control/state variables, continuity, and
-  endpoint constraints can be transcribed efficiently
-- the next bridge to maneuver detection / characterization is not a more
-  exotic solver first, but a clean way to express observations inside the same
-  architecture
-- a simple inertial-position measurement model is the right toy problem
-  because it is easy to validate, easy to visualize, and directly useful for
-  early maneuver-fitting experiments
+Why this was the right next slice:
+- the 8c core had already proven that control/state variables, continuity, and
+  endpoint constraints could be transcribed efficiently
+- the next bridge to maneuver detection / characterization was not a broader
+  solver backend first, but a clean way to express observations inside the
+  same architecture
+- inertial position is the right toy model because it is easy to validate, easy
+  to visualize, and directly useful for early maneuver-fitting experiments
+- the interface boundary now makes the path to future observation types
+  explicit: each new model only needs a measurement map and a Jacobian with
+  respect to the propagated 7-state sample
 
 Recommended first objectives:
 - minimum propellant

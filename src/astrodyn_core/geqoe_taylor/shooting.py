@@ -3,20 +3,279 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import ClassVar, Protocol
 
+import heyoka as hy
 import numpy as np
 from scipy.optimize import Bounds, NonlinearConstraint, OptimizeResult, minimize
 from scipy.sparse import csr_matrix, lil_matrix
 
+from astrodyn_core.geqoe_taylor.constants import MU
 from astrodyn_core.geqoe_taylor.integrator import (
     build_thrust_sensitivity_integrator,
     extract_variational_matrices,
     parameter_names_from_map,
+    propagate_grid,
 )
 from astrodyn_core.geqoe_taylor.perturbations.base import PerturbationModel
 
 STATE_NAMES = ("nu", "p1", "p2", "K", "q1", "q2", "m")
 STATE_DIM = len(STATE_NAMES)
+
+
+class MeasurementModel(Protocol):
+    """Protocol for arc-sampled observation models used by shooting residuals."""
+
+    output_dimension: int
+    output_names: tuple[str, ...]
+
+    def evaluate(
+        self,
+        state: np.ndarray,
+        *,
+        time_s: float,
+        perturbation: PerturbationModel,
+    ) -> np.ndarray:
+        """Return the predicted measurement from a propagated 7-state sample."""
+
+    def state_jacobian(
+        self,
+        state: np.ndarray,
+        *,
+        time_s: float,
+        perturbation: PerturbationModel,
+    ) -> np.ndarray:
+        """Return d(measurement)/d(state) for the propagated 7-state sample."""
+
+
+def _normalize_weight_matrix(
+    weight_matrix: np.ndarray | list[float] | float | None,
+    output_dimension: int,
+) -> np.ndarray:
+    """Normalize a scalar/vector/matrix weighting input to a 2-D left factor."""
+    if weight_matrix is None:
+        return np.eye(output_dimension, dtype=float)
+
+    weights = np.asarray(weight_matrix, dtype=float)
+    if weights.ndim == 0:
+        return np.eye(output_dimension, dtype=float) * float(weights)
+    if weights.ndim == 1:
+        if weights.shape != (output_dimension,):
+            raise ValueError(
+                "1-D weight inputs must match the measurement output dimension."
+            )
+        return np.diag(weights)
+    if weights.shape != (output_dimension, output_dimension):
+        raise ValueError(
+            "2-D weight inputs must be square with size output_dimension."
+        )
+    return np.array(weights, dtype=float, copy=True)
+
+
+def _normalize_output_names(model: MeasurementModel, output_dimension: int) -> tuple[str, ...]:
+    names = tuple(str(name) for name in model.output_names)
+    if len(names) != output_dimension:
+        raise ValueError(
+            "MeasurementModel.output_names must match output_dimension."
+        )
+    return names
+
+
+@dataclass(frozen=True)
+class SampledMeasurement:
+    """Definition of one weighted sampled observation inside a shooting arc.
+
+    ``sample_time_s`` is measured relative to the selected arc start. Use either
+    ``arc_index`` or ``arc_name`` to bind the sample to a specific arc.
+    """
+
+    model: MeasurementModel
+    value: np.ndarray | list[float]
+    sample_time_s: float
+    arc_index: int | None = None
+    arc_name: str | None = None
+    weight_matrix: np.ndarray | list[float] | float | None = None
+    name: str | None = None
+
+    def __post_init__(self) -> None:
+        output_dimension = int(self.model.output_dimension)
+        _normalize_output_names(self.model, output_dimension)
+
+        if self.arc_index is None and self.arc_name is None:
+            raise ValueError(
+                "SampledMeasurement requires either arc_index or arc_name."
+            )
+        if self.arc_index is not None and int(self.arc_index) < 0:
+            raise ValueError("SampledMeasurement.arc_index must be non-negative.")
+        if self.sample_time_s < 0.0:
+            raise ValueError("SampledMeasurement.sample_time_s must be non-negative.")
+
+        value = np.atleast_1d(np.asarray(self.value, dtype=float))
+        if value.shape != (output_dimension,):
+            raise ValueError(
+                "SampledMeasurement.value must match the model output dimension."
+            )
+
+        object.__setattr__(self, "value", value)
+        object.__setattr__(
+            self,
+            "weight_matrix",
+            _normalize_weight_matrix(self.weight_matrix, output_dimension),
+        )
+
+    @classmethod
+    def from_standard_deviation(
+        cls,
+        *,
+        model: MeasurementModel,
+        value: np.ndarray | list[float],
+        sigma: np.ndarray | list[float] | float,
+        sample_time_s: float,
+        arc_index: int | None = None,
+        arc_name: str | None = None,
+        name: str | None = None,
+    ) -> SampledMeasurement:
+        """Build a sample using diagonal whitening from standard deviations."""
+        output_dimension = int(model.output_dimension)
+        sigma_arr = np.asarray(sigma, dtype=float)
+        if np.any(sigma_arr <= 0.0):
+            raise ValueError("Measurement standard deviations must be strictly positive.")
+        if sigma_arr.ndim == 0:
+            weight_matrix = np.eye(output_dimension, dtype=float) / float(sigma_arr)
+        elif sigma_arr.shape == (output_dimension,):
+            weight_matrix = np.diag(1.0 / sigma_arr)
+        else:
+            raise ValueError(
+                "sigma must be a scalar or a vector matching the output dimension."
+            )
+        return cls(
+            model=model,
+            value=value,
+            sample_time_s=sample_time_s,
+            arc_index=arc_index,
+            arc_name=arc_name,
+            weight_matrix=weight_matrix,
+            name=name,
+        )
+
+    @classmethod
+    def from_covariance(
+        cls,
+        *,
+        model: MeasurementModel,
+        value: np.ndarray | list[float],
+        covariance: np.ndarray | list[list[float]],
+        sample_time_s: float,
+        arc_index: int | None = None,
+        arc_name: str | None = None,
+        name: str | None = None,
+    ) -> SampledMeasurement:
+        """Build a sample using the inverse Cholesky factor of a covariance."""
+        output_dimension = int(model.output_dimension)
+        covariance_arr = np.asarray(covariance, dtype=float)
+        if covariance_arr.shape != (output_dimension, output_dimension):
+            raise ValueError(
+                "covariance must be square with size equal to output_dimension."
+            )
+        chol = np.linalg.cholesky(covariance_arr)
+        weight_matrix = np.linalg.solve(chol, np.eye(output_dimension, dtype=float))
+        return cls(
+            model=model,
+            value=value,
+            sample_time_s=sample_time_s,
+            arc_index=arc_index,
+            arc_name=arc_name,
+            weight_matrix=weight_matrix,
+            name=name,
+        )
+
+
+class InertialPositionMeasurementModel:
+    """Exact inertial-position observation model for the 7-state GEqOE system."""
+
+    output_dimension = 3
+    output_names = ("x_km", "y_km", "z_km")
+    _position_cfunc: ClassVar[object | None] = None
+    _jacobian_cfunc: ClassVar[object | None] = None
+
+    @classmethod
+    def _compiled_functions(cls):
+        if cls._position_cfunc is not None and cls._jacobian_cfunc is not None:
+            return cls._position_cfunc, cls._jacobian_cfunc
+
+        nu, p1, p2, K, q1, q2, m, mu = hy.make_vars(
+            "nu", "p1", "p2", "K", "q1", "q2", "m", "mu"
+        )
+
+        sinK = hy.sin(K)
+        cosK = hy.cos(K)
+        a = (mu / (nu * nu)) ** (1.0 / 3.0)
+        g2 = p1 * p1 + p2 * p2
+        beta = hy.sqrt(1.0 - g2)
+        alpha = 1.0 / (1.0 + beta)
+
+        X = a * (alpha * p1 * p2 * sinK + (1.0 - alpha * p1 * p1) * cosK - p2)
+        Y = a * (alpha * p1 * p2 * cosK + (1.0 - alpha * p2 * p2) * sinK - p1)
+
+        q1s = q1 * q1
+        q2s = q2 * q2
+        q1q2 = q1 * q2
+        gamma_inv = 1.0 / (1.0 + q1s + q2s)
+        eX = [
+            gamma_inv * (1.0 - q1s + q2s),
+            gamma_inv * (2.0 * q1q2),
+            gamma_inv * (-2.0 * q1),
+        ]
+        eY = [
+            gamma_inv * (2.0 * q1q2),
+            gamma_inv * (1.0 + q1s - q2s),
+            gamma_inv * (2.0 * q2),
+        ]
+
+        position_exprs = [
+            X * eX[0] + Y * eY[0],
+            X * eX[1] + Y * eY[1],
+            X * eX[2] + Y * eY[2],
+        ]
+        state_vars = (nu, p1, p2, K, q1, q2, m)
+        jacobian_exprs = [
+            hy.diff(expr, var) for expr in position_exprs for var in state_vars
+        ]
+        vars_list = [*state_vars, mu]
+        cls._position_cfunc = hy.cfunc(position_exprs, vars_list)
+        cls._jacobian_cfunc = hy.cfunc(jacobian_exprs, vars_list)
+        return cls._position_cfunc, cls._jacobian_cfunc
+
+    @staticmethod
+    def _mu_from_perturbation(perturbation: PerturbationModel) -> float:
+        return float(getattr(perturbation, "mu", MU))
+
+    def evaluate(
+        self,
+        state: np.ndarray,
+        *,
+        time_s: float,
+        perturbation: PerturbationModel,
+    ) -> np.ndarray:
+        del time_s
+        position_func, _ = self._compiled_functions()
+        state_arr = np.asarray(state, dtype=float)[:STATE_DIM]
+        inputs = np.concatenate([state_arr, [self._mu_from_perturbation(perturbation)]])
+        return np.asarray(position_func(inputs), dtype=float)
+
+    def state_jacobian(
+        self,
+        state: np.ndarray,
+        *,
+        time_s: float,
+        perturbation: PerturbationModel,
+    ) -> np.ndarray:
+        del time_s
+        _, jacobian_func = self._compiled_functions()
+        state_arr = np.asarray(state, dtype=float)[:STATE_DIM]
+        inputs = np.concatenate([state_arr, [self._mu_from_perturbation(perturbation)]])
+        jacobian = np.asarray(jacobian_func(inputs), dtype=float)
+        return jacobian.reshape(self.output_dimension, STATE_DIM)
 
 
 @dataclass(frozen=True)
@@ -77,6 +336,33 @@ class ShootingEvaluation:
     arc_results: tuple[ArcPropagationResult, ...]
     continuity_residual: np.ndarray
     continuity_jacobian: csr_matrix
+
+
+@dataclass(frozen=True)
+class SampledMeasurementResult:
+    """Predicted/observed data for one sampled measurement."""
+
+    name: str
+    arc_name: str
+    arc_index: int
+    sample_time_s: float
+    absolute_time_s: float
+    component_names: tuple[str, ...]
+    observed: np.ndarray
+    predicted: np.ndarray
+    raw_residual: np.ndarray
+    weighted_residual: np.ndarray
+
+
+@dataclass(frozen=True)
+class MeasurementResidualEvaluation:
+    """Weighted sampled-measurement residuals attached to a shooting evaluation."""
+
+    shooting_evaluation: ShootingEvaluation
+    sample_results: tuple[SampledMeasurementResult, ...]
+    residual: np.ndarray
+    jacobian: csr_matrix
+    residual_names: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -221,6 +507,14 @@ class _ArcLayout:
     parameter_defaults: np.ndarray
 
 
+@dataclass(frozen=True)
+class _ResolvedMeasurement:
+    measurement: SampledMeasurement
+    arc_index: int
+    arc_name: str
+    name: str
+
+
 class MultiArcShootingProblem:
     """Assemble multiple-shooting constraints on top of GEqOE thrust sensitivities.
 
@@ -258,6 +552,7 @@ class MultiArcShootingProblem:
         self._decision_names: list[str] = []
         self._continuity_constraint_names: list[str] = []
         self._decision_index_map: dict[str, int] = {}
+        self._arc_name_to_index: dict[str, int] = {}
 
         start_time_cursor = 0.0
         decision_offset = 0
@@ -319,6 +614,12 @@ class MultiArcShootingProblem:
             self._decision_names.extend(
                 [f"{name}.{param_name}" for param_name in parameter_names]
             )
+
+        self._arc_name_to_index = {}
+        for i, layout in enumerate(self._layouts):
+            if layout.name in self._arc_name_to_index:
+                raise ValueError(f"Duplicate shooting arc name: {layout.name!r}")
+            self._arc_name_to_index[layout.name] = i
 
         for i in range(len(self._layouts) - 1):
             left = self._layouts[i].name
@@ -425,13 +726,60 @@ class MultiArcShootingProblem:
             )
         return vector
 
-    def evaluate(self, decision_vector) -> ShootingEvaluation:
-        """Propagate every arc and assemble the continuity residual/Jacobian."""
+    def _resolve_measurements(
+        self,
+        measurements: list[SampledMeasurement] | tuple[SampledMeasurement, ...],
+    ) -> tuple[_ResolvedMeasurement, ...]:
+        resolved: list[_ResolvedMeasurement] = []
+        for i, measurement in enumerate(measurements):
+            if measurement.arc_name is not None:
+                try:
+                    arc_index = self._arc_name_to_index[measurement.arc_name]
+                except KeyError as exc:
+                    raise KeyError(
+                        f"Unknown measurement arc_name: {measurement.arc_name!r}"
+                    ) from exc
+                if measurement.arc_index is not None and arc_index != int(measurement.arc_index):
+                    raise ValueError(
+                        "SampledMeasurement arc_index/arc_name selectors disagree."
+                    )
+            else:
+                assert measurement.arc_index is not None
+                arc_index = int(measurement.arc_index)
+                if arc_index >= self.num_arcs:
+                    raise IndexError(
+                        f"Measurement arc_index {arc_index} is out of range for "
+                        f"{self.num_arcs} arcs."
+                    )
+
+            layout = self._layouts[arc_index]
+            sample_time_s = float(measurement.sample_time_s)
+            if sample_time_s > layout.duration_s + 1.0e-12:
+                raise ValueError(
+                    "SampledMeasurement.sample_time_s must lie within the "
+                    "selected arc duration."
+                )
+            resolved.append(
+                _ResolvedMeasurement(
+                    measurement=measurement,
+                    arc_index=arc_index,
+                    arc_name=layout.name,
+                    name=measurement.name or f"measurement{i}",
+                )
+            )
+        return tuple(resolved)
+
+    def _propagate_arcs(
+        self,
+        decision_vector,
+        sample_times_by_arc: dict[int, tuple[float, ...]] | None = None,
+    ) -> tuple[ShootingEvaluation, tuple[dict[float, np.ndarray], ...]]:
         x = self._validate_decision_vector(decision_vector)
         arc_results: list[ArcPropagationResult] = []
+        sample_cache_by_arc: list[dict[float, np.ndarray]] = []
 
-        for layout, (ta, par_map), template in zip(
-            self._layouts, self._integrators, self._templates, strict=True
+        for arc_index, (layout, (ta, par_map), template) in enumerate(
+            zip(self._layouts, self._integrators, self._templates, strict=True)
         ):
             ta.time = layout.start_time_s
             ta.state[:] = template
@@ -444,10 +792,21 @@ class MultiArcShootingProblem:
                 arc_parameters = x[layout.parameter_slice]
                 ta.pars[list(layout.parameter_indices)] = arc_parameters
 
-            ta.propagate_until(layout.start_time_s + layout.duration_s)
+            requested_times = ()
+            if sample_times_by_arc is not None:
+                requested_times = sample_times_by_arc.get(arc_index, ())
+            grid_rel = sorted(
+                {0.0} | {float(t) for t in requested_times} | {layout.duration_s}
+            )
+            grid_abs = layout.start_time_s + np.asarray(grid_rel, dtype=float)
+            states_grid = propagate_grid(ta, grid_abs)
+            sample_cache = {
+                rel_time: np.array(state_aug, dtype=float, copy=True)
+                for rel_time, state_aug in zip(grid_rel, states_grid, strict=True)
+            }
 
             final_state, phi_x, phi_p_all, all_param_names = extract_variational_matrices(
-                ta.state,
+                sample_cache[layout.duration_s],
                 state_dim=STATE_DIM,
                 par_map=par_map,
             )
@@ -470,6 +829,7 @@ class MultiArcShootingProblem:
                     parameter_names=layout.parameter_names,
                 )
             )
+            sample_cache_by_arc.append(sample_cache)
 
         continuity_residual = np.zeros(self.continuity_size, dtype=float)
         continuity_jacobian = lil_matrix(
@@ -492,11 +852,17 @@ class MultiArcShootingProblem:
                 )
             continuity_jacobian[rows, next_layout.state_slice] = -np.eye(STATE_DIM)
 
-        return ShootingEvaluation(
+        evaluation = ShootingEvaluation(
             arc_results=tuple(arc_results),
             continuity_residual=continuity_residual,
             continuity_jacobian=continuity_jacobian.tocsr(),
         )
+        return evaluation, tuple(sample_cache_by_arc)
+
+    def evaluate(self, decision_vector) -> ShootingEvaluation:
+        """Propagate every arc and assemble the continuity residual/Jacobian."""
+        evaluation, _ = self._propagate_arcs(decision_vector)
+        return evaluation
 
     def continuity_constraints(
         self,
@@ -550,8 +916,153 @@ class MultiArcShootingProblem:
             raise ValueError(
                 "target_state must match the full 7-state vector or the selected "
                 "terminal output dimension."
-            )
+        )
         return outputs - target_selected, jac
+
+    def evaluate_measurements(
+        self,
+        decision_vector,
+        measurements: list[SampledMeasurement] | tuple[SampledMeasurement, ...],
+    ) -> MeasurementResidualEvaluation:
+        """Evaluate weighted sampled-measurement residuals and exact Jacobians."""
+        x = self._validate_decision_vector(decision_vector)
+        resolved_measurements = self._resolve_measurements(measurements)
+
+        sample_times_by_arc: dict[int, tuple[float, ...]] = {}
+        if resolved_measurements:
+            grouped_times: dict[int, list[float]] = {}
+            for resolved in resolved_measurements:
+                grouped_times.setdefault(resolved.arc_index, []).append(
+                    float(resolved.measurement.sample_time_s)
+                )
+            sample_times_by_arc = {
+                arc_index: tuple(times) for arc_index, times in grouped_times.items()
+            }
+
+        shooting_evaluation, sample_cache_by_arc = self._propagate_arcs(
+            x,
+            sample_times_by_arc=sample_times_by_arc,
+        )
+        if not resolved_measurements:
+            return MeasurementResidualEvaluation(
+                shooting_evaluation=shooting_evaluation,
+                sample_results=(),
+                residual=np.zeros(0, dtype=float),
+                jacobian=csr_matrix((0, self.decision_size), dtype=float),
+                residual_names=(),
+            )
+
+        total_rows = sum(
+            int(resolved.measurement.model.output_dimension)
+            for resolved in resolved_measurements
+        )
+        residual = np.zeros(total_rows, dtype=float)
+        jacobian = lil_matrix((total_rows, self.decision_size), dtype=float)
+        sample_results: list[SampledMeasurementResult] = []
+        residual_names: list[str] = []
+
+        row_start = 0
+        for resolved in resolved_measurements:
+            measurement = resolved.measurement
+            arc_index = resolved.arc_index
+            layout = self._layouts[arc_index]
+            arc = self._arcs[arc_index]
+            _, par_map = self._integrators[arc_index]
+            sample_time_s = float(measurement.sample_time_s)
+            absolute_time_s = layout.start_time_s + sample_time_s
+
+            sampled_state_aug = sample_cache_by_arc[arc_index][sample_time_s]
+            state, phi_x, phi_p_all, all_param_names = extract_variational_matrices(
+                sampled_state_aug,
+                state_dim=STATE_DIM,
+                par_map=par_map,
+            )
+            if layout.parameter_names:
+                name_to_col = {name: i for i, name in enumerate(all_param_names)}
+                col_idx = [name_to_col[name] for name in layout.parameter_names]
+                phi_p = phi_p_all[:, col_idx]
+            else:
+                phi_p = np.zeros((STATE_DIM, 0))
+
+            output_dimension = int(measurement.model.output_dimension)
+            output_names = _normalize_output_names(measurement.model, output_dimension)
+            rows = slice(row_start, row_start + output_dimension)
+            row_start += output_dimension
+
+            predicted = np.atleast_1d(
+                np.asarray(
+                    measurement.model.evaluate(
+                        state,
+                        time_s=absolute_time_s,
+                        perturbation=arc.perturbation,
+                    ),
+                    dtype=float,
+                )
+            )
+            if predicted.shape != (output_dimension,):
+                raise ValueError(
+                    "MeasurementModel.evaluate() returned an unexpected shape."
+                )
+
+            state_jacobian = np.asarray(
+                measurement.model.state_jacobian(
+                    state,
+                    time_s=absolute_time_s,
+                    perturbation=arc.perturbation,
+                ),
+                dtype=float,
+            )
+            if state_jacobian.shape != (output_dimension, STATE_DIM):
+                raise ValueError(
+                    "MeasurementModel.state_jacobian() returned an unexpected shape."
+                )
+
+            raw_residual = predicted - measurement.value
+            weighted_residual = measurement.weight_matrix @ raw_residual
+            weighted_state_jacobian = measurement.weight_matrix @ state_jacobian
+
+            residual[rows] = weighted_residual
+            jacobian[rows, layout.state_slice] = weighted_state_jacobian @ phi_x
+            if layout.parameter_names:
+                jacobian[rows, layout.parameter_slice] = (
+                    weighted_state_jacobian @ phi_p
+                )
+
+            component_names = tuple(
+                f"{resolved.name}.{component}" for component in output_names
+            )
+            residual_names.extend(component_names)
+            sample_results.append(
+                SampledMeasurementResult(
+                    name=resolved.name,
+                    arc_name=resolved.arc_name,
+                    arc_index=arc_index,
+                    sample_time_s=sample_time_s,
+                    absolute_time_s=absolute_time_s,
+                    component_names=component_names,
+                    observed=measurement.value.copy(),
+                    predicted=predicted.copy(),
+                    raw_residual=raw_residual,
+                    weighted_residual=weighted_residual,
+                )
+            )
+
+        return MeasurementResidualEvaluation(
+            shooting_evaluation=shooting_evaluation,
+            sample_results=tuple(sample_results),
+            residual=residual,
+            jacobian=jacobian.tocsr(),
+            residual_names=tuple(residual_names),
+        )
+
+    def measurement_residuals(
+        self,
+        decision_vector,
+        measurements: list[SampledMeasurement] | tuple[SampledMeasurement, ...],
+    ) -> tuple[np.ndarray, csr_matrix]:
+        """Return weighted sampled-measurement residuals and sparse Jacobian."""
+        evaluation = self.evaluate_measurements(decision_vector, measurements)
+        return evaluation.residual, evaluation.jacobian
 
     def minimum_propellant_objective(
         self,

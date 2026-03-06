@@ -27,7 +27,12 @@ from astrodyn_core.geqoe_taylor.perturbations.thrust import ContinuousThrustPert
 from astrodyn_core.geqoe_taylor.perturbations.zonal import ZonalPerturbation
 from astrodyn_core.geqoe_taylor.shooting import (
     ArcPropagationResult,
+    InertialPositionMeasurementModel,
+    MeasurementModel,
+    MeasurementResidualEvaluation,
     MultiArcShootingProblem,
+    SampledMeasurement,
+    SampledMeasurementResult,
     ShootingArc,
     ShootingEvaluation,
     ShootingOptimizationResult,
@@ -53,6 +58,9 @@ __all__ = [
     "propagate", "extract_stm", "extract_endpoint_jacobian",
     "extract_variational_matrices",
     "parameter_names_from_map",
+    "MeasurementModel", "SampledMeasurement",
+    "SampledMeasurementResult", "MeasurementResidualEvaluation",
+    "InertialPositionMeasurementModel",
     "ShootingArc", "ArcPropagationResult",
     "ShootingEvaluation", "ShootingOptimizationResult",
     "TerminalConstraintSpec", "SmoothnessPenaltySpec", "ShootingSolveSpec",
