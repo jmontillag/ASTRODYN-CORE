@@ -151,10 +151,18 @@ Build a high-performance orbit propagator using **Generalized Equinoctial Orbita
 - **Measurement solves default to exact first-order residual/Jacobian data plus
   SciPy quasi-Newton curvature updates** for constrained multi-arc fits, while
   the local Gauss-Newton Hessian remains available as an explicit option
+- **Local constrained covariance estimation added** via
+  `LinearizedCovarianceResult` and `MultiArcShootingProblem.estimate_covariance()`
 - **Reconstruction demo refactored** so intermediate inertial-position
   residuals now come from the shared GEqOE measurement/transcription layer
 - **Finite-difference regression added** for sampled measurement Jacobians and
   measurement-weight scaling, plus mixed-batch and solve-spec coverage
+- **Constrained maneuver-detection demo added** via
+  `examples/geqoe_reconstruction_lab/maneuver_detection_demo.py`, reporting
+  per-arc thrust significance from the local covariance model
+- **Prototype caveat documented**: exact-zero constant-thrust candidate arcs
+  still use a tiny positive floor in the detection demo because the current
+  sensitivity stack is numerically happier away from an exact zero-thrust value
 
 ### Commits
 

@@ -442,6 +442,22 @@ inertial range observations. These are still toy problems, but they already
 exercise the intended architectural bridge from GEqOE propagation to
 maneuver-aware measurement fitting.
 
+The implementation now also includes a first constrained local covariance
+estimate built from the same linearized solve model. In practical terms, the
+current code can report arc-local thrust estimates together with local standard
+deviations after a constrained measurement fit. A new maneuver-detection demo
+uses that capability to classify candidate thrust arcs by their significance
+under mixed position/range data, continuity constraints, fixed initial-state
+conditions, and terminal equalities. This is still a local linearized
+uncertainty treatment rather than a full Bayesian estimator, but it already
+turns the new measurement bridge into a concrete maneuver-detection workflow.
+
+One current prototype caveat should also be stated explicitly. The exact-zero
+constant-thrust case is still a numerical edge for the present sensitivity
+integrator, so the maneuver-detection example keeps nominally inactive arcs at
+a tiny positive thrust floor while still treating them as zero-thrust in the
+reported detection logic.
+
 \section{Time Handling for Time-Dependent Perturbations}
 
 One implementation detail is important enough to record explicitly for future

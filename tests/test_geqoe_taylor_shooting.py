@@ -434,6 +434,84 @@ class TestMultiArcShooting:
                 hessian_mode="not-a-real-mode",  # type: ignore[arg-type]
             )
 
+    def test_estimate_covariance_matches_scalar_inverse_with_fixed_bounds(self):
+        problem = _build_one_arc_problem()
+        x_nom = problem.initial_guess()
+        measurements, _ = _build_position_measurements(
+            problem,
+            [
+                ("arc0", 0.5 * 600.0, "arc0_mid"),
+                ("arc0", 600.0, "arc0_end"),
+            ],
+        )
+        fixed_state_bounds = {
+            state_name: x_nom[problem.decision_index(f"arc0.{state_name}")]
+            for state_name in problem.state_names
+        }
+        bounds = problem.build_named_bounds(
+            lower={**fixed_state_bounds, "thrust.t_newtons": 0.05},
+            upper={**fixed_state_bounds, "thrust.t_newtons": 0.35},
+        )
+        tracking_penalty = DecisionTrackingPenaltySpec(
+            [DecisionTrackingTerm("thrust.t_newtons", target=0.0, sigma=10.0)]
+        )
+        spec = ShootingSolveSpec(
+            bounds=bounds,
+            measurement_objective=MeasurementObjectiveSpec(measurements),
+            decision_tracking_penalty=tracking_penalty,
+        )
+
+        covariance = problem.estimate_covariance(x_nom, spec)
+        thrust_idx = problem.decision_index("arc0.thrust.t_newtons")
+        _, _, measurement_hessian = problem.measurement_objective(x_nom, measurements)
+        _, _, tracking_hessian = problem.decision_tracking_objective(
+            x_nom,
+            tracking_penalty,
+        )
+        expected_precision = (
+            measurement_hessian[thrust_idx, thrust_idx]
+            + tracking_hessian[thrust_idx, thrust_idx]
+        )
+
+        assert covariance.effective_dimension == 1
+        assert covariance.constraint_rank == len(problem.state_names)
+        assert covariance.standard_deviations[thrust_idx] == pytest.approx(
+            1.0 / np.sqrt(expected_precision),
+            rel=1.0e-10,
+        )
+        for state_name in problem.state_names:
+            idx = problem.decision_index(f"arc0.{state_name}")
+            assert covariance.standard_deviations[idx] == pytest.approx(0.0, abs=1.0e-14)
+
+    def test_estimate_covariance_handles_continuity_and_terminal_equalities(self):
+        problem = _build_two_arc_problem()
+        x = problem.initial_guess()
+        measurements, _ = _build_position_measurements(
+            problem,
+            [
+                ("arc0", 0.5 * 600.0, "arc0_mid"),
+                ("arc1", 0.5 * 450.0, "arc1_mid"),
+            ],
+        )
+        target_state = problem.evaluate(x).arc_results[-1].final_state
+        spec = ShootingSolveSpec(
+            measurement_objective=MeasurementObjectiveSpec(measurements),
+            terminal_constraint=TerminalConstraintSpec.equality(
+                target_state,
+                output_indices=(3, 6),
+            ),
+        )
+
+        covariance = problem.estimate_covariance(x, spec)
+
+        assert len(covariance.equality_constraint_names) == problem.continuity_size + 2
+        assert covariance.constraint_rank >= problem.continuity_size
+        assert covariance.effective_dimension == (
+            problem.decision_size - covariance.constraint_rank
+        )
+        assert np.all(np.isfinite(covariance.standard_deviations))
+        assert np.all(covariance.standard_deviations >= 0.0)
+
     def test_decision_tracking_objective_matches_finite_difference(self):
         problem = _build_two_arc_problem()
         x = problem.initial_guess()

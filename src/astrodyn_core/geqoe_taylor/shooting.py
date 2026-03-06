@@ -8,7 +8,7 @@ from typing import ClassVar, Literal, Protocol
 import heyoka as hy
 import numpy as np
 from scipy.optimize import Bounds, NonlinearConstraint, OptimizeResult, minimize
-from scipy.sparse import csr_matrix, lil_matrix
+from scipy.sparse import csr_matrix, lil_matrix, vstack
 
 from astrodyn_core.geqoe_taylor.constants import MU
 from astrodyn_core.geqoe_taylor.integrator import (
@@ -443,6 +443,19 @@ class ShootingOptimizationResult:
 
 
 @dataclass(frozen=True)
+class LinearizedCovarianceResult:
+    """Local covariance estimate from the linearized constrained solve model."""
+
+    decision_names: tuple[str, ...]
+    covariance: np.ndarray
+    standard_deviations: np.ndarray
+    equality_constraint_names: tuple[str, ...]
+    constraint_rank: int
+    effective_dimension: int
+    reduced_condition_number: float
+
+
+@dataclass(frozen=True)
 class TerminalConstraintSpec:
     """Bounds on selected terminal outputs of the final shooting arc."""
 
@@ -632,6 +645,15 @@ class _ResolvedMeasurement:
     arc_index: int
     arc_name: str
     name: str
+
+
+@dataclass(frozen=True)
+class _ObjectiveModel:
+    value: float
+    gradient: np.ndarray
+    hessian: csr_matrix | None
+    evaluation: ShootingEvaluation
+    measurement_evaluation: MeasurementResidualEvaluation | None
 
 
 class MultiArcShootingProblem:
@@ -949,43 +971,19 @@ class MultiArcShootingProblem:
                     tol=self._tol,
                     compact_mode=self._compact_mode,
                 )
-                self._integrators[arc_index] = (ta, par_map)
+                ta.pars[:] = layout.parameter_defaults
+                if layout.parameter_names:
+                    ta.pars[list(layout.parameter_indices)] = arc_parameters
                 template = np.array(ta.state, dtype=float, copy=True)
+                self._integrators[arc_index] = (ta, par_map)
                 self._templates[arc_index] = template
-                _reset_integrator()
-                states_grid = propagate_grid(ta, grid_abs)
-                if len(states_grid) == len(grid_rel):
-                    sample_cache = {
-                        rel_time: np.array(state_aug, dtype=float, copy=True)
-                        for rel_time, state_aug in zip(
-                            grid_rel,
-                            states_grid,
-                            strict=True,
-                        )
-                    }
-                elif len(states_grid) == len(grid_rel) - 1 and grid_rel[0] == 0.0:
-                    sample_cache = {
-                        0.0: np.array(ta.state, dtype=float, copy=True),
-                        **{
-                            rel_time: np.array(state_aug, dtype=float, copy=True)
-                            for rel_time, state_aug in zip(
-                                grid_rel[1:],
-                                states_grid,
-                                strict=True,
-                            )
-                        },
-                    }
-                else:
-                    sample_cache = {
-                        0.0: np.array(ta.state, dtype=float, copy=True),
-                    }
-                    for rel_time in grid_rel[1:]:
-                        ta.propagate_until(layout.start_time_s + rel_time)
-                        sample_cache[rel_time] = np.array(
-                            ta.state,
-                            dtype=float,
-                            copy=True,
-                        )
+
+                sample_cache = {
+                    0.0: np.array(ta.state, dtype=float, copy=True),
+                }
+                for rel_time in grid_rel[1:]:
+                    ta.propagate_until(layout.start_time_s + rel_time)
+                    sample_cache[rel_time] = np.array(ta.state, dtype=float, copy=True)
 
             final_state, phi_x, phi_p_all, all_param_names = extract_variational_matrices(
                 sample_cache[layout.duration_s],
@@ -1352,6 +1350,228 @@ class MultiArcShootingProblem:
 
         return float(value), gradient, hessian.tocsr()
 
+    def _build_objective_model(
+        self,
+        decision_vector,
+        spec: ShootingSolveSpec,
+        *,
+        include_hessian: bool,
+    ) -> _ObjectiveModel:
+        """Assemble the current objective, gradient, and optional Hessian."""
+        x = self._validate_decision_vector(decision_vector)
+
+        if spec.measurement_objective is not None:
+            measurement_evaluation = self.evaluate_measurements(
+                x,
+                spec.measurement_objective.measurements,
+            )
+            evaluation = measurement_evaluation.shooting_evaluation
+            if include_hessian:
+                value, gradient, hessian = self.measurement_objective(
+                    x,
+                    spec.measurement_objective.measurements,
+                    evaluation=measurement_evaluation,
+                    weight=spec.measurement_objective.weight,
+                )
+            else:
+                residual = measurement_evaluation.residual
+                jacobian = measurement_evaluation.jacobian
+                weight = spec.measurement_objective.weight
+                value = 0.5 * weight * float(residual @ residual)
+                gradient = np.asarray(weight * (jacobian.T @ residual), dtype=float).ravel()
+                hessian = None
+        else:
+            measurement_evaluation = None
+            evaluation = self.evaluate(x)
+            value, gradient = self.minimum_propellant_objective(x, evaluation=evaluation)
+            hessian = self.minimum_propellant_hessian() if include_hessian else None
+
+        if spec.decision_tracking_penalty is not None:
+            tracking_value, tracking_gradient, tracking_hessian = (
+                self.decision_tracking_objective(
+                    x,
+                    spec.decision_tracking_penalty,
+                )
+            )
+            value += tracking_value
+            gradient += tracking_gradient
+            if include_hessian:
+                assert hessian is not None
+                hessian = hessian + tracking_hessian
+
+        if spec.smoothness_penalty is not None:
+            smooth_value, smooth_gradient, smooth_hessian = (
+                self.control_smoothness_objective(
+                    x,
+                    spec.smoothness_penalty,
+                )
+            )
+            value += smooth_value
+            gradient += smooth_gradient
+            if include_hessian:
+                assert hessian is not None
+                hessian = hessian + smooth_hessian
+
+        return _ObjectiveModel(
+            value=float(value),
+            gradient=np.array(gradient, dtype=float, copy=True),
+            hessian=None if hessian is None else hessian.tocsr(),
+            evaluation=evaluation,
+            measurement_evaluation=measurement_evaluation,
+        )
+
+    def _terminal_output_names(
+        self,
+        output_indices: tuple[int, ...] | list[int] | np.ndarray | None,
+    ) -> tuple[str, ...]:
+        if output_indices is None:
+            return STATE_NAMES
+        return tuple(STATE_NAMES[int(idx)] for idx in output_indices)
+
+    def equality_constraint_linearization(
+        self,
+        decision_vector,
+        spec: ShootingSolveSpec,
+        *,
+        evaluation: ShootingEvaluation | None = None,
+        bounds: Bounds | None = None,
+        equality_tolerance: float = 1.0e-12,
+    ) -> tuple[csr_matrix, tuple[str, ...]]:
+        """Return linearized equality constraints used by the solve model.
+
+        The current covariance path includes:
+        - all multiple-shooting continuity constraints,
+        - terminal constraints only when they are exact equalities, and
+        - fixed bounds where ``lb == ub`` within ``equality_tolerance``.
+
+        General active inequalities are intentionally excluded from the current
+        prototype covariance model.
+        """
+        x = self._validate_decision_vector(decision_vector)
+        result = evaluation if evaluation is not None else self.evaluate(x)
+
+        jacobian_blocks: list[csr_matrix] = []
+        constraint_names: list[str] = []
+
+        if self.continuity_size > 0:
+            jacobian_blocks.append(result.continuity_jacobian)
+            constraint_names.extend(self._continuity_constraint_names)
+
+        if spec.terminal_constraint is not None and spec.terminal_constraint.is_equality:
+            _, terminal_jacobian = self.terminal_outputs(
+                x,
+                output_indices=spec.terminal_constraint.output_indices,
+                evaluation=result,
+            )
+            jacobian_blocks.append(terminal_jacobian)
+            constraint_names.extend(
+                [
+                    f"terminal.{name}"
+                    for name in self._terminal_output_names(
+                        spec.terminal_constraint.output_indices
+                    )
+                ]
+            )
+
+        active_bounds = bounds if bounds is not None else spec.bounds
+        if active_bounds is not None:
+            lower = np.asarray(active_bounds.lb, dtype=float)
+            upper = np.asarray(active_bounds.ub, dtype=float)
+            fixed_mask = (
+                np.isfinite(lower)
+                & np.isfinite(upper)
+                & np.isclose(lower, upper, atol=equality_tolerance, rtol=0.0)
+            )
+            fixed_indices = np.flatnonzero(fixed_mask)
+            if len(fixed_indices) > 0:
+                bound_rows = lil_matrix((len(fixed_indices), self.decision_size), dtype=float)
+                for row, idx in enumerate(fixed_indices):
+                    bound_rows[row, idx] = 1.0
+                    constraint_names.append(f"bound.{self._decision_names[int(idx)]}")
+                jacobian_blocks.append(bound_rows.tocsr())
+
+        if not jacobian_blocks:
+            return (
+                csr_matrix((0, self.decision_size), dtype=float),
+                tuple(),
+            )
+        return vstack(jacobian_blocks, format="csr"), tuple(constraint_names)
+
+    def estimate_covariance(
+        self,
+        decision_vector,
+        spec: ShootingSolveSpec,
+        *,
+        bounds: Bounds | None = None,
+        rcond: float = 1.0e-12,
+    ) -> LinearizedCovarianceResult:
+        """Estimate a constrained local covariance from the solve transcription.
+
+        The covariance is computed from the Gauss-Newton / quadratic objective
+        model together with the linearized equality constraints returned by
+        :meth:`equality_constraint_linearization`.
+        """
+        objective_model = self._build_objective_model(
+            decision_vector,
+            spec,
+            include_hessian=True,
+        )
+        assert objective_model.hessian is not None
+
+        hessian = objective_model.hessian.toarray()
+        hessian = 0.5 * (hessian + hessian.T)
+
+        equality_jacobian, equality_constraint_names = (
+            self.equality_constraint_linearization(
+                decision_vector,
+                spec,
+                evaluation=objective_model.evaluation,
+                bounds=bounds,
+            )
+        )
+        equality_dense = equality_jacobian.toarray()
+
+        if equality_dense.shape[0] == 0:
+            nullspace_basis = np.eye(self.decision_size, dtype=float)
+            constraint_rank = 0
+        else:
+            _, singular_values, vh = np.linalg.svd(
+                equality_dense,
+                full_matrices=True,
+            )
+            tol = (
+                max(equality_dense.shape)
+                * (np.max(singular_values) if singular_values.size > 0 else 0.0)
+                * np.finfo(float).eps
+            )
+            constraint_rank = int(np.sum(singular_values > tol))
+            nullspace_basis = vh[constraint_rank:].T
+
+        if nullspace_basis.shape[1] == 0:
+            covariance = np.zeros((self.decision_size, self.decision_size), dtype=float)
+            reduced_condition_number = 0.0
+        else:
+            reduced_precision = nullspace_basis.T @ hessian @ nullspace_basis
+            reduced_precision = 0.5 * (reduced_precision + reduced_precision.T)
+            covariance_reduced = np.linalg.pinv(reduced_precision, rcond=rcond)
+            covariance = nullspace_basis @ covariance_reduced @ nullspace_basis.T
+            covariance = 0.5 * (covariance + covariance.T)
+            if reduced_precision.shape[0] == 1:
+                reduced_condition_number = 1.0
+            else:
+                reduced_condition_number = float(np.linalg.cond(reduced_precision))
+
+        standard_deviations = np.sqrt(np.clip(np.diag(covariance), 0.0, None))
+        return LinearizedCovarianceResult(
+            decision_names=tuple(self._decision_names),
+            covariance=covariance,
+            standard_deviations=standard_deviations,
+            equality_constraint_names=equality_constraint_names,
+            constraint_rank=constraint_rank,
+            effective_dimension=int(nullspace_basis.shape[1]),
+            reduced_condition_number=reduced_condition_number,
+        )
+
     def solve(
         self,
         spec: ShootingSolveSpec,
@@ -1396,76 +1616,25 @@ class MultiArcShootingProblem:
             if cached_x is not None and np.array_equal(cached_x, x_vec):
                 return
 
-            measurement_evaluation = None
-            if spec.measurement_objective is not None:
-                measurement_evaluation = self.evaluate_measurements(
-                    x_vec,
-                    spec.measurement_objective.measurements,
-                )
-                evaluation = measurement_evaluation.shooting_evaluation
-                if use_explicit_objective_hessian:
-                    objective, gradient, hessian = self.measurement_objective(
-                        x_vec,
-                        spec.measurement_objective.measurements,
-                        evaluation=measurement_evaluation,
-                        weight=spec.measurement_objective.weight,
-                    )
-                else:
-                    residual = measurement_evaluation.residual
-                    jacobian = measurement_evaluation.jacobian
-                    weight = spec.measurement_objective.weight
-                    objective = 0.5 * weight * float(residual @ residual)
-                    gradient = np.asarray(
-                        weight * (jacobian.T @ residual),
-                        dtype=float,
-                    ).ravel()
-                    hessian = None
-            else:
-                evaluation = self.evaluate(x_vec)
-                objective, gradient = self.minimum_propellant_objective(
-                    x_vec, evaluation=evaluation
-                )
-                hessian = self.minimum_propellant_hessian()
-
-            if spec.decision_tracking_penalty is not None:
-                tracking_value, tracking_gradient, tracking_hessian = (
-                    self.decision_tracking_objective(
-                        x_vec,
-                        spec.decision_tracking_penalty,
-                    )
-                )
-                objective += tracking_value
-                gradient += tracking_gradient
-                if use_explicit_objective_hessian:
-                    assert hessian is not None
-                    hessian = hessian + tracking_hessian
-
-            if spec.smoothness_penalty is not None:
-                smooth_value, smooth_gradient, smooth_hessian = (
-                    self.control_smoothness_objective(
-                        x_vec, spec.smoothness_penalty
-                    )
-                )
-                objective += smooth_value
-                gradient += smooth_gradient
-                if use_explicit_objective_hessian:
-                    assert hessian is not None
-                    hessian = hessian + smooth_hessian
-
+            objective_model = self._build_objective_model(
+                x_vec,
+                spec,
+                include_hessian=use_explicit_objective_hessian,
+            )
             terminal_outputs = None
             if spec.terminal_constraint is not None:
                 terminal_outputs = self.terminal_outputs(
                     x_vec,
                     output_indices=spec.terminal_constraint.output_indices,
-                    evaluation=evaluation,
+                    evaluation=objective_model.evaluation,
                 )
 
             cache["x"] = np.array(x_vec, dtype=float, copy=True)
-            cache["evaluation"] = evaluation
-            cache["measurement_evaluation"] = measurement_evaluation
-            cache["objective"] = float(objective)
-            cache["gradient"] = np.array(gradient, dtype=float, copy=True)
-            cache["hessian"] = hessian
+            cache["evaluation"] = objective_model.evaluation
+            cache["measurement_evaluation"] = objective_model.measurement_evaluation
+            cache["objective"] = objective_model.value
+            cache["gradient"] = objective_model.gradient
+            cache["hessian"] = objective_model.hessian
             cache["terminal_outputs"] = terminal_outputs
 
         def _objective(x) -> float:

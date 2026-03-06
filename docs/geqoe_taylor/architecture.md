@@ -1029,6 +1029,8 @@ ad hoc example script. The current implementation adds:
 - `solve_measurement_fit(...)`: convenience wrapper that routes measurement
   residuals, continuity constraints, and regularization through the same solve
   entry point
+- `estimate_covariance(...)`: constrained local covariance estimate built from
+  the same linearized objective and equality constraints
 
 The implemented chain is intentionally simple and future-proof:
 
@@ -1075,6 +1077,21 @@ still available, but the full second-order measurement terms are not yet
 propagated. That makes the present interface appropriate for prototype
 maneuver-estimation studies, not yet a finished sparse least-squares backend.
 
+That same solve assembly now underpins a first local uncertainty estimate.
+`estimate_covariance(...)` builds a constrained covariance from the
+Gauss-Newton / quadratic objective Hessian together with the linearized
+equalities currently present in the solve model:
+
+- continuity equations,
+- terminal constraints only when they are exact equalities, and
+- fixed bounds where `lb == ub`.
+
+General active inequalities are still excluded from the covariance model. The
+result is already useful for maneuver detection because recovered thrust
+coefficients can now be reported with local standard deviations and
+significance scores, but it remains a local linearized approximation rather
+than a full posterior treatment.
+
 The remaining limitations should also be stated explicitly. Only inertial
 position and inertial range are implemented today; velocity, line-of-sight,
 angles, and range-rate are still future work. The current decision-tracking
@@ -1083,6 +1100,14 @@ model, and there is still no first-class abstraction for mixed observation
 families plus priors plus maneuver regularization inside a single uncertainty
 model. The architecture boundary is now in place, while the broader estimation
 stack remains prototype-level.
+
+The new maneuver-detection demo exercises that stack directly. It fits four
+candidate thrust arcs against mixed inertial position and range data, applies
+continuity plus fixed-initial-state plus terminal equality constraints, and
+classifies each arc by `|T| / sigma_T`. One prototype caveat is worth stating
+explicitly: the exact-zero constant-thrust case is still a numerical edge for
+the present sensitivity integrator, so the demo keeps "quiet" arcs at a tiny
+positive thrust floor while still treating them as zero-thrust for reporting.
 
 By default, arc evaluations use local time `t = 0` unless an explicit
 `start_time_s` is provided. This keeps the current arc-local cubic Hermite
