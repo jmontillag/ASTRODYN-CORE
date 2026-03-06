@@ -64,6 +64,14 @@ docs/presentation/*.fls
 docs/presentation/*.fdb_latexmk
 docs/presentation/*.synctex.gz
 docs/presentation/_minted-*/
+docs/geqoe_taylor/paper/*.aux
+docs/geqoe_taylor/paper/*.log
+docs/geqoe_taylor/paper/*.out
+docs/geqoe_taylor/paper/*.fls
+docs/geqoe_taylor/paper/*.fdb_latexmk
+docs/geqoe_taylor/paper/*.synctex.gz
+docs/geqoe_taylor/paper/*.pdf
+missfont.log
 
 #
 .claude/

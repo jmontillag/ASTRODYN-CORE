@@ -11,7 +11,24 @@ import heyoka as hy
 
 from astrodyn_core.geqoe_taylor.rhs import build_geqoe_system
 from astrodyn_core.geqoe_taylor.perturbations.base import PerturbationModel
-from astrodyn_core.geqoe_taylor.constants import MU, A_J2
+from astrodyn_core.geqoe_taylor.constants import MU
+
+
+def _build_par_values(perturbation, par_map):
+    """Build parameter values array from par_map."""
+    if not par_map:
+        return []
+    n_pars = max(par_map.values()) + 1
+    par_values = [0.0] * n_pars
+    if "mu" in par_map:
+        par_values[par_map["mu"]] = getattr(perturbation, "mu", MU)
+    if "A_J2" in par_map:
+        if not hasattr(perturbation, "A"):
+            raise AttributeError(
+                "J2 fast-path perturbations must define an 'A' coefficient."
+            )
+        par_values[par_map["A_J2"]] = perturbation.A
+    return par_values
 
 
 def build_state_integrator(
@@ -26,22 +43,24 @@ def build_state_integrator(
     Args:
         perturbation: PerturbationModel instance.
         ic: initial conditions [nu, p1, p2, K, q1, q2].
-        t0: initial time in seconds.
+        t0: initial time in seconds. Time-dependent perturbations interpret
+            this as the absolute integrator time corresponding to the epoch
+            of the initial state.
         tol: integrator tolerance.
         compact_mode: use compact mode for expression compilation.
 
     Returns:
         (ta, par_map): integrator and parameter index mapping.
     """
-    sys, _, par_map = build_geqoe_system(perturbation, use_par=True)
-
-    par_values = [perturbation.mu, perturbation.A]
+    sys, _, par_map = build_geqoe_system(
+        perturbation, use_par=True, time_origin=t0
+    )
 
     ta = hy.taylor_adaptive(
         sys,
         state=list(ic),
         time=t0,
-        pars=par_values,
+        pars=_build_par_values(perturbation, par_map),
         tol=tol,
         compact_mode=compact_mode,
     )
@@ -62,14 +81,18 @@ def build_stm_integrator(
     Args:
         perturbation: PerturbationModel instance.
         ic: initial conditions [nu, p1, p2, K, q1, q2] (6 elements only).
-        t0: initial time in seconds.
+        t0: initial time in seconds. Time-dependent perturbations interpret
+            this as the absolute integrator time corresponding to the epoch
+            of the initial state.
         tol: integrator tolerance.
         compact_mode: use compact mode (recommended for 42-DOF).
 
     Returns:
         (ta, par_map): integrator and parameter index mapping.
     """
-    sys, _, par_map = build_geqoe_system(perturbation, use_par=True)
+    sys, _, par_map = build_geqoe_system(
+        perturbation, use_par=True, time_origin=t0
+    )
 
     vsys = hy.var_ode_sys(sys, hy.var_args.vars, order=1)
 
@@ -78,13 +101,11 @@ def build_stm_integrator(
     identity_flat = [1.0 if i == j else 0.0 for i in range(6) for j in range(6)]
     ic_aug = ic_list + identity_flat
 
-    par_values = [perturbation.mu, perturbation.A]
-
     ta = hy.taylor_adaptive(
         vsys,
         state=ic_aug,
         time=t0,
-        pars=par_values,
+        pars=_build_par_values(perturbation, par_map),
         tol=tol,
         compact_mode=compact_mode,
     )

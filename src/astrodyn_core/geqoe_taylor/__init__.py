@@ -6,9 +6,14 @@ K = generalized eccentric longitude (no Kepler solve needed in the RHS).
 Reference: Baù, Hernando-Ayuso & Bombardelli (2021), Celest. Mech. Dyn. Astr. 133:50.
 """
 
-from astrodyn_core.geqoe_taylor.constants import MU, J2, RE, A_J2
+from astrodyn_core.geqoe_taylor.constants import (
+    MU, J2, J3, J4, J5, J6, RE, A_J2, GM_SUN, GM_MOON,
+)
 from astrodyn_core.geqoe_taylor.conversions import cart2geqoe, geqoe2cart
 from astrodyn_core.geqoe_taylor.perturbations.j2 import J2Perturbation
+from astrodyn_core.geqoe_taylor.perturbations.third_body import ThirdBodyPerturbation
+from astrodyn_core.geqoe_taylor.perturbations.composite import CompositePerturbation
+from astrodyn_core.geqoe_taylor.perturbations.zonal import ZonalPerturbation
 from astrodyn_core.geqoe_taylor.integrator import (
     build_state_integrator,
     build_stm_integrator,
@@ -17,9 +22,10 @@ from astrodyn_core.geqoe_taylor.integrator import (
 )
 
 __all__ = [
-    "MU", "J2", "RE", "A_J2",
+    "MU", "J2", "J3", "J4", "J5", "J6", "RE", "A_J2", "GM_SUN", "GM_MOON",
     "cart2geqoe", "geqoe2cart",
-    "J2Perturbation",
+    "J2Perturbation", "ThirdBodyPerturbation", "CompositePerturbation",
+    "ZonalPerturbation",
     "build_state_integrator", "build_stm_integrator",
     "propagate", "extract_stm",
 ]

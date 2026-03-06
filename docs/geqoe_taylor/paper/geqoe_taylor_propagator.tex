@@ -1,0 +1,503 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+\title{A GEqOE Taylor--AD Orbit Propagator in ASTRODYN-CORE\\
+\large Implementation Note, Backend Design, and Uncertainty-Propagation Perspective}
+\author{ASTRODYN-CORE Internal Technical Note}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document summarizes the design and capabilities of the
+\texttt{astrodyn\_core.geqoe\_taylor} propagator implemented in ASTRODYN-CORE.
+The method combines generalized equinoctial orbital elements (GEqOE) with the
+automatic-differentiation-based Taylor integrator provided by \texttt{heyoka.py}.
+The resulting backend supports high-accuracy state propagation, dense output,
+automatic first-order variational equations for state transition matrix (STM)
+generation, and a clean path toward higher-order derivative propagation.
+The note records the mathematical formulation adopted in the code, the
+specialized right-hand-side (RHS) construction used for efficient force-model
+evaluation, the role of symbolic differentiation and just-in-time compilation in
+\texttt{heyoka.py}, and the practical implications for linear and nonlinear
+uncertainty propagation.
+\end{abstract}
+
+\section{Purpose and Scope}
+
+The GEqOE Taylor propagator was introduced to provide a modern, extensible
+alternative to the existing hand-derived GEqOE Taylor expansions in
+ASTRODYN-CORE. The implementation has four main goals:
+\begin{enumerate}
+    \item propagate the six-dimensional GEqOE state with an adaptive Taylor
+    integrator;
+    \item obtain variational dynamics automatically rather than through manual
+    Jacobian derivation;
+    \item support multiple perturbation models without re-deriving
+    orbit-element equations for every new force model; and
+    \item preserve the advantages of non-singular element propagation for
+    long-arc orbital dynamics and uncertainty transport.
+\end{enumerate}
+
+This note is not meant to replace the theoretical derivation of GEqOE by
+Ba\`u, Hernando-Ayuso, and Bombardelli. Instead, it documents the specific
+engineering choices made in the ASTRODYN-CORE implementation and explains why
+the combination of GEqOE and automatic-differentiation-driven Taylor
+integration is especially attractive for precise propagation and uncertainty
+analysis.
+
+\section{Current Capabilities}
+
+At the time of writing, the Python implementation in
+\texttt{src/astrodyn\_core/geqoe\_taylor/} provides the capabilities listed in
+\autoref{tab:capabilities}.
+
+\begin{table}[h]
+\centering
+\caption{Current capabilities of the GEqOE Taylor propagator.}
+\label{tab:capabilities}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.32\textwidth} >{\raggedright\arraybackslash}p{0.58\textwidth}}
+\toprule
+Capability & Status \\
+\midrule
+GEqOE state propagation & Implemented for the state
+$\bm{y}=(\nu,p_1,p_2,K,q_1,q_2)$ in physical units (km, s). \\
+Adaptive Taylor integration & Implemented via \texttt{heyoka.taylor\_adaptive}. \\
+Dense output & Implemented through \texttt{heyoka}'s grid propagation and local
+Taylor polynomial evaluation. \\
+Automatic STM generation & Implemented through
+\texttt{heyoka.var\_ode\_sys(..., order=1)}. \\
+J2-only fast path & Implemented, with hard-coded Section~7.1 simplifications
+from the GEqOE paper. \\
+General conservative / non-conservative path & Implemented for arbitrary
+perturbation models exposing the required symbolic interfaces. \\
+General zonal harmonics & Implemented through a dedicated fast path for
+$J_2$--$J_n$. \\
+Sun / Moon third-body forcing & Implemented using \texttt{heyoka}'s built-in
+ephemeris models, treated as non-conservative forcing. \\
+Higher-order variational equations & Not wrapped by a public convenience API
+yet, but structurally enabled by the \texttt{heyoka} backend. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Why GEqOE and Why Taylor Integration}
+
+The appeal of GEqOE is the same as in the original formulation: the elements are
+non-singular for circular and equatorial limits relevant to Earth-orbit
+propagation, while the equations remain compact enough to retain much of the
+geometric structure of perturbed two-body motion. The appeal of Taylor
+integration is complementary: once the RHS is represented symbolically, a Taylor
+method can exploit exact symbolic or algorithmic differentiation of the vector
+field rather than finite-difference approximations or repeated hand derivation.
+
+The specific value of combining both ideas is that GEqOE reduces the stiffness
+and coordinate-pathology issues often seen in Cartesian propagation for long
+arcs, while \texttt{heyoka} automates the otherwise tedious derivative
+machinery required by high-order Taylor stepping and variational propagation.
+The resulting architecture retains domain-specific orbital insight at the state
+representation level and generic differentiation / code-generation power at the
+integration level.
+
+\section{State Definition and the Choice of \texorpdfstring{$K$}{K}}
+
+The propagated state is
+\begin{equation}
+\bm{y} = (\nu, p_1, p_2, K, q_1, q_2).
+\end{equation}
+The original GEqOE formulation is commonly written with the generalized mean
+longitude $L$ as the fast angular variable. In the ASTRODYN-CORE
+implementation, however, the propagated angle is the generalized eccentric
+longitude $K$.
+
+This is not merely a convenience. The generalized Kepler equation,
+\begin{equation}
+L = K + p_1 \cos K - p_2 \sin K,
+\end{equation}
+is implicit in $K$ when $L$ is given. A symbolic expression system such as the
+one used by \texttt{heyoka.py} can represent algebraic compositions of
+elementary operations, but it cannot represent an internal Newton solve as part
+of a static symbolic RHS graph. Integrating $K$ instead of $L$ removes that
+obstacle. Once $K$ is part of the state, all required orbital quantities are
+available through explicit formulas.
+
+The principal intermediate quantities used throughout the implementation are
+\begin{align}
+a &= \left( \frac{\mu}{\nu^2} \right)^{1/3}, \\
+\beta &= \sqrt{1-p_1^2-p_2^2}, \qquad
+\alpha = \frac{1}{1+\beta}, \\
+r &= a(1-p_1\sin K-p_2\cos K), \\
+\dot{r} &= \frac{\sqrt{\mu a}}{r}(p_2\sin K-p_1\cos K).
+\end{align}
+The in-plane coordinates $(X,Y)$ and the physical angular momentum
+\begin{equation}
+h = \sqrt{c^2 - 2 r^2 U},
+\end{equation}
+are then built directly from the state and the disturbing potential.
+
+\section{RHS Construction in the Code}
+
+The file \texttt{rhs.py} builds a symbolic system of ODEs for the selected
+force model. The implementation uses three code paths:
+\begin{enumerate}
+    \item a \emph{J2-only fast path};
+    \item a \emph{zonal fast path} for conservative, time-independent zonal
+    harmonics; and
+    \item a \emph{general path} for arbitrary conservative and
+    non-conservative perturbations.
+\end{enumerate}
+
+\subsection{J2-only path}
+
+The pure-$J_2$ path uses the special structure identified in Section~7.1 of the
+GEqOE paper. In this regime the generalized energy is a first integral, so
+\begin{equation}
+\dot{\nu} = 0,
+\end{equation}
+and the combination $2U-rF_r$ simplifies to $-U$. The implementation therefore
+hard-codes the degree-2 zonal potential
+\begin{equation}
+U = -\frac{A}{r^3}(1-3\hat{z}^2), \qquad
+A = \frac{\mu J_2 R_e^2}{2},
+\end{equation}
+and avoids general gradient construction.
+
+This path is explicitly opt-in in the software design. A perturbation model must
+advertise \texttt{\_j2\_fast\_path=True}; static conservative behavior alone is
+not enough. This restriction is important because the path bakes in the exact
+Eq.~(56) potential and its associated simplifications.
+
+\subsection{Zonal fast path}
+
+For a general zonal expansion
+\begin{equation}
+U(\bm{r}) = \sum_{n \ge 2} \frac{\mu J_n R_e^n}{r^{n+1}} P_n(\hat{z}),
+\end{equation}
+the code exploits two structure-preserving identities:
+\begin{enumerate}
+    \item Euler homogeneity gives
+    \begin{equation}
+    2U-rF_r = \sum_n (1-n) U_n,
+    \end{equation}
+    removing the need for a full Cartesian gradient in that term;
+    \item because the position lies in the instantaneous orbital plane,
+    $F_h$ can be obtained from $\partial U / \partial \hat{z}$ without a full
+    three-dimensional detour.
+\end{enumerate}
+
+This path significantly reduces symbolic expression size for zonal models while
+keeping the equations exact for the represented potential.
+
+\subsection{General path}
+
+The general path reconstructs the Cartesian position and velocity symbolically,
+queries the perturbation model for
+\begin{equation}
+U, \qquad \nabla U, \qquad \bm{P}, \qquad U_t,
+\end{equation}
+and then assembles the full GEqOE equations. The total perturbing force is
+\begin{equation}
+\bm{F} = \bm{P} - \nabla U.
+\end{equation}
+
+The implementation computes $\dot{L}$ using the paper's compact formula and
+then derives $\dot{K}$ from the differentiated generalized Kepler equation:
+\begin{equation}
+\dot{K} = \frac{a}{r}\left( \dot{L} - \dot{p}_1 \cos K + \dot{p}_2 \sin K \right).
+\end{equation}
+This avoids a redundant alternative formula and ties the code directly to the
+element transformation used in the state definition.
+
+\section{How \texttt{heyoka.py} Enters the Picture}
+
+\subsection{Symbolic expression graph}
+
+\texttt{heyoka.py} is a Python interface to a high-performance Taylor
+integration backend based on symbolic expressions, automatic differentiation,
+and LLVM just-in-time compilation. In the Python API used here, the ODE system
+is specified as a list of state-derivative pairs built from symbolic variables
+created by \texttt{hy.make\_vars}. The entire GEqOE RHS is therefore assembled as
+a directed acyclic graph of elementary expressions.
+
+This matters in practice because once the RHS is available in symbolic form:
+\begin{enumerate}
+    \item the integrator can repeatedly differentiate it to obtain Taylor
+    coefficients automatically;
+    \item common subexpressions can be reused during code generation; and
+    \item sensitivity systems can be generated mechanically from the original
+    RHS rather than from hand-written Jacobians.
+\end{enumerate}
+
+\subsection{Adaptive Taylor stepping}
+
+State propagation is performed with \texttt{heyoka.taylor\_adaptive}. In the
+local \texttt{heyoka.py} documentation used during implementation review
+(version 7.9.2), \texttt{taylor\_adaptive} is the adaptive Taylor integrator
+constructor. In practical terms for this project, it provides:
+\begin{enumerate}
+    \item adaptive step-size control;
+    \item internal Taylor coefficient generation from the symbolic RHS;
+    \item dense output through evaluation of the local Taylor polynomial; and
+    \item JIT-compiled execution of the resulting recurrence.
+\end{enumerate}
+
+The ASTRODYN-CORE wrapper uses runtime parameters for the central body
+gravitational parameter and, in the J2 fast path, for the scalar coefficient
+$A$. This allows parameter changes without rebuilding the symbolic graph.
+
+\subsection{Compact mode and compilation trade-offs}
+
+As expression graphs grow, compile time can become the main cost rather than
+numerical stepping. The implementation therefore exposes \texttt{compact\_mode}
+in the integrator wrappers, and enables it by default for the STM integrator.
+This reflects the documented \texttt{heyoka} trade-off: compact code generation
+reduces compilation cost and memory pressure for large symbolic systems, at the
+price of some runtime performance.
+
+This trade-off is especially relevant for:
+\begin{itemize}
+    \item the 42-dimensional state-plus-STM system;
+    \item full third-body ephemeris models with large symbolic trees; and
+    \item future higher-order variational systems.
+\end{itemize}
+
+\subsection{Automatic variational equations}
+
+The most important enabler for uncertainty work is
+\texttt{heyoka.var\_ode\_sys}. In the documentation used for this project,
+\texttt{var\_ode\_sys} is the class representing variational ODE systems and
+supports a selectable differentiation order. The current wrapper builds
+\begin{equation}
+\texttt{var\_ode\_sys(sys, hy.var\_args.vars, order=1)},
+\end{equation}
+which augments the six-state GEqOE dynamics with the $6 \times 6$ first-order
+variational system.
+
+The immediate output is the STM
+\begin{equation}
+\Phi(t,t_0) = \frac{\partial \bm{y}(t)}{\partial \bm{y}(t_0)}.
+\end{equation}
+The deeper implication is that the same backend is designed to support higher
+variational orders. This is the key reason the present implementation should be
+viewed as more than a high-accuracy state propagator: it is a derivative-aware
+propagation framework.
+
+\subsection{Symbolic differentiation of force models}
+
+\texttt{heyoka.diff\_tensors} computes derivative tensors of symbolic vector
+functions with respect to variables or parameters. In this implementation it is
+used to avoid manual gradient derivation for general zonal models. A potential
+is built once with placeholder Cartesian variables, differentiated
+symbolically, and then specialized to the actual GEqOE-derived Cartesian
+expressions with substitution.
+
+This pattern has two consequences:
+\begin{enumerate}
+    \item adding a new conservative potential does not require hand-coding a
+    new analytic gradient if the potential can be expressed symbolically; and
+    \item the same mechanism can be extended to higher derivative tensors when
+    second-order or higher sensitivity information is needed.
+\end{enumerate}
+
+\section{Perturbation Modeling Strategy}
+
+The perturbation interface separates conservative potential terms from
+non-conservative forcing:
+\begin{equation}
+U(\bm{r},t) \quad \text{versus} \quad \bm{P}(\bm{r},\dot{\bm{r}},t).
+\end{equation}
+This separation is not cosmetic. In the GEqOE equations, the conservative
+potential alters the reference ellipse through $h$ and $c$, whereas
+non-conservative forcing enters the energy and force projections directly.
+
+The current implementation uses the following modeling choices:
+\begin{itemize}
+    \item Earth oblateness terms in $U$;
+    \item Sun and Moon third-body gravity in $\bm{P}$;
+    \item composite models that sum conservative and non-conservative pieces
+    while preserving this separation.
+\end{itemize}
+
+The third-body choice follows the numerical guidance reported in the GEqOE
+paper: although third-body gravity derives from a potential, treating it as
+forcing is often numerically more robust for Earth-bound orbit propagation.
+
+\section{Time Handling for Time-Dependent Perturbations}
+
+One implementation detail is important enough to record explicitly for future
+users. The integrator wrappers pass a \emph{relative} symbolic time to
+time-dependent perturbation models:
+\begin{equation}
+t_{\mathrm{rel}} = \texttt{hy.time} - t_0.
+\end{equation}
+This means that an ephemeris model parameterized by an absolute epoch
+\texttt{epoch\_jd} interprets that epoch as the physical time corresponding to
+the initial state, independent of the external time origin used by the
+integrator.
+
+Without this convention, restarting a propagation segment at a nonzero
+integrator time would shift the Sun or Moon ephemeris phase. The present
+implementation avoids that failure mode and preserves consistency across
+segmented runs and offset time origins.
+
+\section{Dense Output and Map-Oriented Use}
+
+Because \texttt{heyoka} constructs a local Taylor expansion at each accepted
+step, dense output is available naturally. The ASTRODYN-CORE wrapper exposes
+this through propagation on a user-specified grid. In practice, this means that
+the solver can deliver:
+\begin{itemize}
+    \item state samples at arbitrary intermediate epochs;
+    \item STM samples on the same time grid when the augmented system is used;
+    \item a natural bridge to map-based workflows in estimation, targeting, and
+    uncertainty transport.
+\end{itemize}
+
+This dense-output capability is often underappreciated. For uncertainty work,
+the value is not merely convenience. If covariance transport, measurement
+linearization, or event-time sensitivity analysis requires synchronized outputs,
+the polynomial representation already built by the integrator makes those
+queries cheap relative to restarting propagation.
+
+\section{Uncertainty Propagation Perspective}
+
+\subsection{Linear covariance transport}
+
+The most immediate uncertainty application is covariance propagation. If the
+initial uncertainty in GEqOE space is represented by $P_0$, then the propagated
+linear covariance is
+\begin{equation}
+P(t) = \Phi(t,t_0)\, P_0\, \Phi(t,t_0)^\top.
+\end{equation}
+Because the STM is obtained from the exact symbolic RHS through automatic
+variational equations, this route avoids the mismatch that often appears when a
+high-fidelity state propagator is paired with an approximate or independently
+coded Jacobian.
+
+\subsection{Why Taylor plus AD is stronger than ``state only''}
+
+The combination of Taylor integration and AD is particularly attractive for
+uncertainty propagation for three reasons:
+\begin{enumerate}
+    \item \textbf{Derivative consistency.} The state and its variational
+    dynamics are derived from the same symbolic graph.
+    \item \textbf{High-order readiness.} Taylor methods already require repeated
+    derivative information of the vector field; extending the exposed
+    variational order is conceptually aligned with the underlying backend.
+    \item \textbf{Map construction.} Once first- and higher-order derivatives of
+    the flow are available, one can build local polynomial transport maps rather
+    than relying only on linearized covariance updates.
+\end{enumerate}
+
+\subsection{Path toward nonlinear uncertainty transport}
+
+The present public API exposes first-order variational equations only. However,
+the backend is already pointing toward more powerful workflows:
+\begin{itemize}
+    \item second-order state sensitivities for quadratic uncertainty transport;
+    \item higher-order polynomial state maps for strongly nonlinear regimes;
+    \item compiled evaluation of derivative-based surrogate maps for repeated
+    Monte Carlo or collocation use.
+\end{itemize}
+
+For highly nonlinear long-arc propagation, this is strategically important.
+Linear covariance transport remains useful, but it is often insufficient when
+orbital-element dispersion evolves through strongly nonlinear perturbation
+coupling. A derivative-rich Taylor backend creates a realistic route toward
+high-order uncertainty propagation without abandoning the force model fidelity
+or the element-based representation.
+
+\section{Why This Architecture Is Publication-Worthy}
+
+From a publication perspective, the novelty is not that GEqOE exists or that
+Taylor integration exists. The important point is the \emph{software-level
+fusion} of:
+\begin{enumerate}
+    \item a perturbation-aware, non-singular orbital element set;
+    \item symbolic RHS construction that respects the structure of those
+    elements;
+    \item automatic differentiation and JIT compilation through
+    \texttt{heyoka.py}; and
+    \item a derivative-oriented propagation workflow suitable for estimation and
+    uncertainty analysis.
+\end{enumerate}
+
+This combination yields a propagator that is not limited to ``integrate the
+state quickly.'' It is better viewed as a platform for high-order flow
+representation in a geometry-aware element space. That is the real strength of
+the implementation and the most promising angle for future methodological work.
+
+\section{Present Limitations and Immediate Extensions}
+
+The current implementation should still be described honestly:
+\begin{itemize}
+    \item the public convenience wrapper exposes only first-order variational
+    equations;
+    \item some force models, especially large ephemeris trees, can incur
+    substantial JIT compilation cost;
+    \item for extremely large symbolic models, a compiled Cowell acceleration
+    model may remain preferable;
+    \item a dedicated uncertainty API has not yet been built on top of the STM
+    integrator.
+\end{itemize}
+
+The most natural next extensions are:
+\begin{enumerate}
+    \item a public higher-order variational wrapper;
+    \item direct covariance / sigma-point / polynomial-map propagation helpers;
+    \item benchmark studies comparing GEqOE Taylor--AD propagation against
+    Cartesian Taylor and classical element formulations for both state and
+    uncertainty transport.
+\end{enumerate}
+
+\section{Conclusion}
+
+The ASTRODYN-CORE GEqOE Taylor propagator already demonstrates more than an
+implementation of the GEqOE equations in another integrator. It establishes a
+derivative-consistent propagation architecture in which orbit dynamics,
+variational dynamics, and force-model differentiation are all generated from a
+single symbolic description. The use of \texttt{heyoka.py} is central to this
+result: adaptive Taylor integration, symbolic differentiation, variational
+system generation, and JIT compilation are what make the approach practical.
+
+For future publications, the strongest message is that GEqOE plus Taylor plus
+automatic differentiation is a compelling framework for high-fidelity
+propagation \emph{and} for uncertainty transport. The existing implementation
+already supports accurate state propagation and STM generation; with modest API
+extensions, it can become a full high-order uncertainty-propagation engine.
+
+\begin{thebibliography}{9}
+
+\bibitem{bau2021geqoe}
+G.~Ba\`u, J.~Hernando-Ayuso, and C.~Bombardelli.
+\newblock A generalization of the equinoctial orbital elements.
+\newblock \emph{Celestial Mechanics and Dynamical Astronomy}, 133:50, 2021.
+
+\bibitem{heyoka_docs}
+\texttt{heyoka.py} documentation, local documentation index used during
+implementation review, version 7.9.2.
+\newblock Topics consulted include \texttt{taylor\_adaptive},
+\texttt{var\_ode\_sys}, \texttt{var\_args}, \texttt{diff\_tensors}, and
+compiled symbolic functions.
+
+\bibitem{astrodyn_arch}
+ASTRODYN-CORE internal documentation.
+\newblock \emph{GEqOE Taylor Propagator --- Architecture \& Design Decisions},
+\texttt{docs/geqoe\_taylor/architecture.md}.
+
+\end{thebibliography}
+
+\end{document}
