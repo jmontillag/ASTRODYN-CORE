@@ -15,7 +15,11 @@ from astrodyn_core.geqoe_taylor.perturbations.thrust import ContinuousThrustPert
 from astrodyn_core.geqoe_taylor.perturbations.third_body import ThirdBodyPerturbation
 from astrodyn_core.geqoe_taylor.perturbations.composite import CompositePerturbation
 from astrodyn_core.geqoe_taylor.perturbations.zonal import ZonalPerturbation
-from astrodyn_core.geqoe_taylor.thrust import ContinuousThrustLaw, ConstantRTNThrustLaw
+from astrodyn_core.geqoe_taylor.thrust import (
+    ContinuousThrustLaw,
+    ConstantRTNThrustLaw,
+    CubicHermiteRTNThrustLaw,
+)
 from astrodyn_core.geqoe_taylor.integrator import (
     build_state_integrator,
     build_stm_integrator,
@@ -24,6 +28,7 @@ from astrodyn_core.geqoe_taylor.integrator import (
     build_thrust_stm_integrator,
     propagate,
     extract_stm,
+    extract_endpoint_jacobian,
     extract_variational_matrices,
     parameter_names_from_map,
 )
@@ -33,10 +38,11 @@ __all__ = [
     "cart2geqoe", "geqoe2cart",
     "J2Perturbation", "ThirdBodyPerturbation", "CompositePerturbation",
     "ZonalPerturbation", "ContinuousThrustPerturbation",
-    "ContinuousThrustLaw", "ConstantRTNThrustLaw",
+    "ContinuousThrustLaw", "ConstantRTNThrustLaw", "CubicHermiteRTNThrustLaw",
     "build_state_integrator", "build_stm_integrator",
     "build_thrust_state_integrator", "build_thrust_stm_integrator",
     "build_thrust_sensitivity_integrator",
-    "propagate", "extract_stm", "extract_variational_matrices",
+    "propagate", "extract_stm", "extract_endpoint_jacobian",
+    "extract_variational_matrices",
     "parameter_names_from_map",
 ]

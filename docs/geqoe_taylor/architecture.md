@@ -755,6 +755,8 @@ original state. The columns are ordered as:
 - `extract_variational_matrices(state_aug, state_dim, par_map)`: Extract the
   propagated state, state STM, parameter sensitivity matrix, and ordered
   parameter names from a `vars | params` augmented system.
+- `extract_endpoint_jacobian(...)`: Select output rows and parameter columns
+  from the full variational matrices for endpoint-constraint assembly.
 - `parameter_names_from_map(par_map)`: Recover runtime parameter names ordered
   by the underlying heyoka parameter indices.
 
@@ -877,13 +879,23 @@ class ContinuousThrustLaw(Protocol):
     def thrust_rtn_expr(self, state, t, pars, prefix) -> tuple: ...
 ```
 
-The current shipped law is `ConstantRTNThrustLaw`, which exposes four runtime
-parameters:
+The current shipped laws are:
 
-- `thrust.r_newtons`
-- `thrust.t_newtons`
-- `thrust.n_newtons`
-- `thrust.isp_s`
+- `ConstantRTNThrustLaw`, which exposes four runtime parameters:
+  - `thrust.r_newtons`
+  - `thrust.t_newtons`
+  - `thrust.n_newtons`
+  - `thrust.isp_s`
+- `CubicHermiteRTNThrustLaw`, a smooth single-arc spline law defined over
+  normalized time `tau = t / duration_s`, with endpoint values and endpoint
+  slopes for each RTN thrust component:
+  - `thrust.r0_newtons`, `thrust.r1_newtons`
+  - `thrust.t0_newtons`, `thrust.t1_newtons`
+  - `thrust.n0_newtons`, `thrust.n1_newtons`
+  - `thrust.r0_slope_newtons`, `thrust.r1_slope_newtons`
+  - `thrust.t0_slope_newtons`, `thrust.t1_slope_newtons`
+  - `thrust.n0_slope_newtons`, `thrust.n1_slope_newtons`
+  - `thrust.isp_s`
 
 These parameters are mapped into `hy.par[i]`, so the symbolic graph can be
 reused while thrust coefficients are varied or differentiated later.
@@ -913,6 +925,8 @@ Responsibilities:
   - `Phi_p`: sensitivities wrt all runtime parameters
   - `param_names`: parameter names ordered consistently with the columns of
     `Phi_p`
+- `extract_endpoint_jacobian()` slices these matrices into the exact blocks
+  needed for chosen endpoint outputs and chosen runtime-parameter subsets
 
 This is the main Phase 8b bridge to multiple shooting and optimization: the
 endpoint Jacobian with respect to control coefficients comes straight from the
@@ -1016,7 +1030,7 @@ The GEqOE propagator should match the heyoka Cowell propagator to within the ele
 | `test_geqoe_taylor.py` | 14 | Conversions, Kepler eq, propagation, STM, Cowell J2 |
 | `test_geqoe_taylor_general.py` | 11 | General equations, third-body, composite, Cowell full |
 | `test_geqoe_taylor_zonal.py` | 22 | Legendre, zonal construction, J2 match, gradient FD, higher-order, Cowell zonal |
-| `test_geqoe_taylor_thrust.py` | 8 | Mass-augmented GEqOE, thrust runtime params, energy growth, STM, Cowell thrust, parameter sensitivities |
+| `test_geqoe_taylor_thrust.py` | 11 | Mass-augmented GEqOE, smooth spline law, endpoint Jacobians, STM, Cowell thrust, parameter sensitivities |
 
 ---
 

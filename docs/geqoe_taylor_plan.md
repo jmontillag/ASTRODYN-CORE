@@ -27,7 +27,7 @@ Build a high-performance orbit propagator using **Generalized Equinoctial Orbita
 | 6 | General perturbations (third-body, non-conservative, higher geopotential) | DONE (core) |
 | 7a | Zonal harmonics (J2–Jn via auto-gradient) | DONE |
 | 7b | Post-review hardening + formal implementation note | DONE |
-| 8 | Continuous thrust and maneuver characterization framework | IN PROGRESS (8a done, 8b core) |
+| 8 | Continuous thrust and maneuver characterization framework | IN PROGRESS (8a done, 8b core + smooth law) |
 
 ### Achieved Performance (J2-only, tol=1e-15)
 
@@ -82,7 +82,7 @@ Build a high-performance orbit propagator using **Generalized Equinoctial Orbita
   $\dot{m} = -T / (g_0 I_{sp})$ using thrust magnitude in newtons and mass in kg
 - **GEqOE vs Cowell validation added** through a generic heyoka Cowell path for
   arbitrary perturbation models, including propagated mass
-- **59 GEqOE tests passing** (`test_geqoe_taylor.py`,
+- **62 GEqOE tests passing** (`test_geqoe_taylor.py`,
   `test_geqoe_taylor_general.py`, `test_geqoe_taylor_zonal.py`,
   `test_geqoe_taylor_thrust.py`)
 
@@ -94,6 +94,8 @@ Build a high-performance orbit propagator using **Generalized Equinoctial Orbita
 - **Variational extraction helper added**:
   `extract_variational_matrices()` returning `(y, Phi_x, Phi_p, param_names)`
 - **Runtime parameter ordering exposed** via `parameter_names_from_map()`
+- **Endpoint Jacobian selector added** via `extract_endpoint_jacobian()`
+- **Single-arc smooth spline law added** via `CubicHermiteRTNThrustLaw`
 - **Finite-difference regression added** for thrust-parameter endpoint
   sensitivities
 
@@ -666,17 +668,18 @@ The current implementation delivers:
 
 - `ContinuousThrustLaw` in `src/astrodyn_core/geqoe_taylor/thrust.py`
 - `ConstantRTNThrustLaw` as the first validation law
+- `CubicHermiteRTNThrustLaw` as the first smooth single-arc spline law
 - `ContinuousThrustPerturbation` in
   `src/astrodyn_core/geqoe_taylor/perturbations/thrust.py`
 - `build_thrust_state_integrator()` / `build_thrust_stm_integrator()` as the
   explicit 7-state public API
+- `build_thrust_sensitivity_integrator()` and
+  `extract_endpoint_jacobian()` for direct endpoint Jacobian access
 - `geqoe2cart()` support for 7-state inputs by ignoring the trailing mass entry
 
 Not yet implemented inside Phase 8:
 
-- spline / B-spline control laws
-- convenience helpers for variational equations with respect to thrust
-  parameters (`hy.var_args.params`)
+- multi-segment spline / B-spline control laws
 - optimization / multiple-shooting transcription utilities
 
 #### C. Treat control coefficients as differentiable parameters
@@ -710,10 +713,23 @@ The first shipped control law is intentionally simple:
 This is a validation-oriented control law, not the final optimization-facing
 parameterization.
 
-#### Next step after 8a core: cubic splines / B-splines in normalized arc time
+#### Implemented next step: cubic Hermite spline in normalized arc time
 
-This should be the next parameterization added on top of the existing thrust
-core for thrust direction and throttle.
+The current smooth parameterization is:
+
+- `CubicHermiteRTNThrustLaw(duration_s, ...)`
+- RTN thrust components represented as cubic Hermite polynomials in
+  $\tau = t / \text{duration}_s$
+- endpoint values and endpoint slopes exposed as differentiable runtime
+  parameters
+
+This gives a smooth, single-arc control law that is compatible with Taylor
+integration and the current parameter-sensitivity machinery.
+
+#### Still pending after the Hermite law: multi-segment cubic splines / B-splines
+
+This remains the next parameterization to add on top of the current Hermite
+law for richer arc modeling.
 
 Why:
 - smooth enough for Taylor integration
@@ -817,14 +833,15 @@ Validation completed:
 
 Deferred within the broader Phase 8 roadmap:
 
-- spline / B-spline control laws
+- multi-segment spline / B-spline control laws
 - direct optimization transcription
 
 #### Phase 8b: Variational sensitivities wrt control coefficients
 
-Delivered in the initial 8b core:
+Delivered in the current 8b core:
 - STM wrt initial state and thrust parameters
 - endpoint Jacobian extraction utility
+- endpoint Jacobian selector for chosen outputs / parameters
 - regression tests against finite differences
 
 Validation completed:
@@ -833,7 +850,6 @@ Validation completed:
 
 Deferred within Phase 8b:
 
-- convenience wrappers for selected-parameter submatrices
 - higher-level endpoint Jacobian assembly helpers for shooting / NLP layers
 - optional custom variational argument lists beyond `vars | params`
 

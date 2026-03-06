@@ -358,6 +358,10 @@ symbolic graph can be reused while the control values change. Second, the
 mass-augmented GEqOE builder reuses the existing general equations and simply
 appends the scalar mass ODE, preserving derivative consistency between the
 force model, the state propagation, and future variational equations.
+The current smooth control parameterization is a single-arc cubic Hermite
+spline in the RTN thrust components, expressed in normalized arc time. This is
+not yet a full multi-segment B-spline layer, but it already provides a smooth
+parameterized law suitable for Taylor propagation and sensitivity analysis.
 The next extension is already enabled in the implementation: by constructing
 the variational system with
 \texttt{hy.var\_args.vars | hy.var\_args.params}, the same backend provides

@@ -13,13 +13,17 @@ from astrodyn_core.geqoe_taylor.integrator import (
     build_thrust_sensitivity_integrator,
     build_thrust_state_integrator,
     build_thrust_stm_integrator,
+    extract_endpoint_jacobian,
     extract_stm,
     extract_variational_matrices,
 )
 from astrodyn_core.geqoe_taylor.perturbations.composite import CompositePerturbation
 from astrodyn_core.geqoe_taylor.perturbations.j2 import J2Perturbation
 from astrodyn_core.geqoe_taylor.perturbations.thrust import ContinuousThrustPerturbation
-from astrodyn_core.geqoe_taylor.thrust import ConstantRTNThrustLaw
+from astrodyn_core.geqoe_taylor.thrust import (
+    ConstantRTNThrustLaw,
+    CubicHermiteRTNThrustLaw,
+)
 
 # Paper case (a): LEO circular i=45deg
 R0_A = np.array([7178.1366, 0.0, 0.0])
@@ -271,3 +275,128 @@ class TestContinuousThrustCore:
         assert np.linalg.norm(r_geqoe - r_cow) < 5.0e-4
         assert np.linalg.norm(v_geqoe - v_cow) < 1.0e-6
         assert m_geqoe == pytest.approx(m_cow, rel=0.0, abs=1e-11)
+
+
+class TestSplineThrustLaw:
+    def test_cubic_hermite_constant_limit_matches_constant_law(self):
+        t_final = 2400.0
+        mass_kg = 500.0
+
+        const_law = ConstantRTNThrustLaw(thrust_t_newtons=0.18, isp_s=2100.0)
+        spline_law = CubicHermiteRTNThrustLaw(
+            duration_s=t_final,
+            thrust_t_newtons=(0.18, 0.18),
+            slope_t_newtons=(0.0, 0.0),
+            isp_s=2100.0,
+        )
+
+        pert_const = CompositePerturbation(
+            conservative=[J2Perturbation()],
+            non_conservative=[ContinuousThrustPerturbation(const_law)],
+        )
+        pert_spline = CompositePerturbation(
+            conservative=[J2Perturbation()],
+            non_conservative=[ContinuousThrustPerturbation(spline_law)],
+        )
+
+        ic_const = _build_mass_state(pert_const, mass_kg)
+        ic_spline = _build_mass_state(pert_spline, mass_kg)
+
+        ta_const, _ = build_thrust_state_integrator(
+            pert_const, ic_const, tol=1e-15, compact_mode=True
+        )
+        ta_spline, par_map = build_thrust_state_integrator(
+            pert_spline, ic_spline, tol=1e-15, compact_mode=True
+        )
+
+        assert "thrust.t0_newtons" in par_map
+        assert "thrust.t1_newtons" in par_map
+        assert "thrust.t0_slope_newtons" in par_map
+        assert "thrust.t1_slope_newtons" in par_map
+
+        ta_const.propagate_until(t_final)
+        ta_spline.propagate_until(t_final)
+        np.testing.assert_allclose(ta_spline.state, ta_const.state, atol=1e-12, rtol=0.0)
+
+    def test_cubic_hermite_param_sensitivity_vs_finite_difference(self):
+        duration_s = 1800.0
+        mass_kg = 500.0
+
+        def build_pert(t0_value: float):
+            law = CubicHermiteRTNThrustLaw(
+                duration_s=duration_s,
+                thrust_t_newtons=(t0_value, 0.32),
+                slope_t_newtons=(0.05, -0.02),
+                thrust_r_newtons=(0.01, 0.03),
+                slope_r_newtons=(0.0, 0.0),
+                isp_s=2150.0,
+            )
+            return CompositePerturbation(
+                conservative=[J2Perturbation()],
+                non_conservative=[ContinuousThrustPerturbation(law)],
+            )
+
+        pert = build_pert(0.12)
+        ic = _build_mass_state(pert, mass_kg)
+
+        ta, par_map = build_thrust_sensitivity_integrator(
+            pert, ic, tol=1e-15, compact_mode=True
+        )
+        ta.propagate_until(duration_s)
+        _, _, phi_p, param_names = extract_variational_matrices(
+            ta.state, state_dim=7, par_map=par_map
+        )
+        col = param_names.index("thrust.t0_newtons")
+
+        delta = 1.0e-4
+        ta_p, _ = build_thrust_state_integrator(
+            build_pert(0.12 + delta), ic, tol=1e-15, compact_mode=True
+        )
+        ta_m, _ = build_thrust_state_integrator(
+            build_pert(0.12 - delta), ic, tol=1e-15, compact_mode=True
+        )
+        ta_p.propagate_until(duration_s)
+        ta_m.propagate_until(duration_s)
+        fd = (ta_p.state - ta_m.state) / (2.0 * delta)
+
+        np.testing.assert_allclose(phi_p[:, col], fd, rtol=3e-4, atol=2e-8)
+
+    def test_endpoint_jacobian_helper_selects_requested_params(self):
+        duration_s = 1200.0
+        law = CubicHermiteRTNThrustLaw(
+            duration_s=duration_s,
+            thrust_t_newtons=(0.1, 0.2),
+            slope_t_newtons=(0.0, 0.0),
+            thrust_n_newtons=(0.02, -0.01),
+            slope_n_newtons=(0.01, 0.0),
+            isp_s=2200.0,
+        )
+        pert = CompositePerturbation(
+            non_conservative=[ContinuousThrustPerturbation(law)]
+        )
+        ic = _build_mass_state(pert, 500.0)
+
+        ta, par_map = build_thrust_sensitivity_integrator(
+            pert, ic, tol=1e-15, compact_mode=True
+        )
+        ta.propagate_until(duration_s)
+
+        _, _, phi_p, param_names = extract_variational_matrices(
+            ta.state, state_dim=7, par_map=par_map
+        )
+        jac_x, jac_p, selected_names = extract_endpoint_jacobian(
+            ta.state,
+            state_dim=7,
+            par_map=par_map,
+            output_indices=[0, 6],
+            parameter_names=["thrust.t0_newtons", "thrust.n0_newtons"],
+        )
+
+        assert jac_x.shape == (2, 7)
+        assert jac_p.shape == (2, 2)
+        assert selected_names == ["thrust.t0_newtons", "thrust.n0_newtons"]
+
+        idx_t = param_names.index("thrust.t0_newtons")
+        idx_n = param_names.index("thrust.n0_newtons")
+        np.testing.assert_allclose(jac_p[:, 0], phi_p[[0, 6], idx_t], atol=1e-14)
+        np.testing.assert_allclose(jac_p[:, 1], phi_p[[0, 6], idx_n], atol=1e-14)

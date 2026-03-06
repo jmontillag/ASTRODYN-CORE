@@ -347,3 +347,40 @@ def extract_variational_matrices(
     phi_x = jac[:, :state_dim]
     phi_p = jac[:, state_dim:]
     return y, phi_x, phi_p, param_names
+
+
+def extract_endpoint_jacobian(
+    state_aug: np.ndarray,
+    state_dim: int,
+    par_map: dict[str, int] | None = None,
+    output_indices: list[int] | np.ndarray | None = None,
+    parameter_names: list[str] | None = None,
+) -> tuple[np.ndarray, np.ndarray, list[str]]:
+    """Extract endpoint Jacobian blocks for selected outputs and parameters.
+
+    Returns the Jacobian of the selected propagated outputs with respect to the
+    initial augmented state and the requested runtime parameters.
+    """
+    _, phi_x, phi_p, all_param_names = extract_variational_matrices(
+        state_aug, state_dim=state_dim, par_map=par_map
+    )
+
+    if output_indices is None:
+        row_idx = np.arange(state_dim)
+    else:
+        row_idx = np.asarray(output_indices, dtype=int)
+
+    if parameter_names is None:
+        col_idx = np.arange(len(all_param_names))
+        selected_names = list(all_param_names)
+    else:
+        index_map = {name: i for i, name in enumerate(all_param_names)}
+        try:
+            col_idx = np.asarray([index_map[name] for name in parameter_names], dtype=int)
+        except KeyError as exc:
+            raise KeyError(f"Unknown runtime parameter name: {exc.args[0]!r}") from exc
+        selected_names = list(parameter_names)
+
+    jac_x = phi_x[row_idx, :]
+    jac_p = phi_p[np.ix_(row_idx, col_idx)]
+    return jac_x, jac_p, selected_names
