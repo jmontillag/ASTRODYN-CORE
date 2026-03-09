@@ -19,6 +19,7 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
+import numpy as np
 import sympy as sp
 
 
@@ -209,6 +210,111 @@ def harmonic_coefficients(n: int) -> dict[str, dict[int, sp.Expr] | sp.Expr]:
                 out["Omega"][m] = omega_cos
 
     return out
+
+
+def q_from_g(g_val: float) -> float:
+    beta_val = np.sqrt(max(1.0 - g_val * g_val, 0.0))
+    return g_val / (1.0 + beta_val)
+
+
+@lru_cache(maxsize=None)
+def _lambdified_harmonic_coefficients(n: int) -> dict[str, dict[int, object]]:
+    coeffs = harmonic_coefficients(n)
+    out: dict[str, dict[int, object]] = {"g": {}, "Q": {}, "Psi": {}, "Omega": {}}
+    for name in out:
+        for m, expr in coeffs[name].items():
+            out[name][m] = sp.lambdify((q, Q), expr, "numpy")
+    return out
+
+
+def evaluate_isolated_degree_mean_rates(
+    n: int,
+    nu_val: float,
+    g_val: float,
+    Q_val: float,
+    omega_val: float,
+    jn_val: float,
+    re_val: float,
+    mu_val: float,
+) -> dict[str, float]:
+    """Evaluate the exact isolated-degree averaged slow drift numerically."""
+    q_val = q_from_g(g_val)
+    a_val = (mu_val / (nu_val * nu_val)) ** (1.0 / 3.0)
+    eps = nu_val * jn_val * (re_val / a_val) ** n
+    coeffs = _lambdified_harmonic_coefficients(n)
+
+    if n % 2:
+        g_dot = sum(f(q_val, Q_val) * np.cos(m * omega_val) for m, f in coeffs["g"].items())
+        Q_dot = sum(f(q_val, Q_val) * np.cos(m * omega_val) for m, f in coeffs["Q"].items())
+        Psi_dot = sum(f(q_val, Q_val) * np.sin(m * omega_val) for m, f in coeffs["Psi"].items())
+        Omega_dot = sum(f(q_val, Q_val) * np.sin(m * omega_val) for m, f in coeffs["Omega"].items())
+    else:
+        g_dot = sum(f(q_val, Q_val) * np.sin(m * omega_val) for m, f in coeffs["g"].items())
+        Q_dot = sum(f(q_val, Q_val) * np.sin(m * omega_val) for m, f in coeffs["Q"].items())
+        Psi_dot = 0.0
+        for m, f in coeffs["Psi"].items():
+            if m == 0:
+                Psi_dot += f(q_val, Q_val)
+            else:
+                Psi_dot += f(q_val, Q_val) * np.cos(m * omega_val)
+        Omega_dot = 0.0
+        for m, f in coeffs["Omega"].items():
+            if m == 0:
+                Omega_dot += f(q_val, Q_val)
+            else:
+                Omega_dot += f(q_val, Q_val) * np.cos(m * omega_val)
+
+    return {
+        "g_dot": float(eps * g_dot),
+        "Q_dot": float(eps * Q_dot),
+        "Psi_dot": float(eps * Psi_dot),
+        "Omega_dot": float(eps * Omega_dot),
+    }
+
+
+def evaluate_truncated_mean_rates(
+    nu_val: float,
+    g_val: float,
+    Q_val: float,
+    omega_val: float,
+    j_coeffs: dict[int, float],
+    re_val: float,
+    mu_val: float,
+) -> dict[str, float]:
+    """Evaluate the exact truncated averaged slow drift for a zonal model."""
+    totals = {"g_dot": 0.0, "Q_dot": 0.0, "Psi_dot": 0.0, "Omega_dot": 0.0}
+    for n, jn_val in sorted(j_coeffs.items()):
+        contrib = evaluate_isolated_degree_mean_rates(
+            n, nu_val, g_val, Q_val, omega_val, jn_val, re_val, mu_val
+        )
+        for key in totals:
+            totals[key] += contrib[key]
+    return totals
+
+
+def evaluate_truncated_mean_rhs_pq(
+    state_pq: np.ndarray,
+    j_coeffs: dict[int, float],
+    re_val: float,
+    mu_val: float,
+) -> np.ndarray:
+    """Return the exact truncated averaged RHS in (nu, p1, p2, q1, q2)."""
+    nu_val, p1_val, p2_val, q1_val, q2_val = map(float, state_pq)
+    g_val = float(np.hypot(p1_val, p2_val))
+    Q_val = float(np.hypot(q1_val, q2_val))
+    psi_val = float(np.arctan2(p1_val, p2_val))
+    omega_node_val = float(np.arctan2(q1_val, q2_val))
+    omega_val = psi_val - omega_node_val
+
+    rates = evaluate_truncated_mean_rates(
+        nu_val, g_val, Q_val, omega_val, j_coeffs, re_val=re_val, mu_val=mu_val
+    )
+
+    p1_dot = rates["g_dot"] * np.sin(psi_val) + g_val * np.cos(psi_val) * rates["Psi_dot"]
+    p2_dot = rates["g_dot"] * np.cos(psi_val) - g_val * np.sin(psi_val) * rates["Psi_dot"]
+    q1_dot = rates["Q_dot"] * np.sin(omega_node_val) + Q_val * np.cos(omega_node_val) * rates["Omega_dot"]
+    q2_dot = rates["Q_dot"] * np.cos(omega_node_val) - Q_val * np.sin(omega_node_val) * rates["Omega_dot"]
+    return np.array([0.0, p1_dot, p2_dot, q1_dot, q2_dot], dtype=float)
 
 
 def eps_n(n: int, nu_sym: sp.Symbol, a_sym: sp.Symbol, re_sym: sp.Symbol, jn_sym: sp.Symbol) -> sp.Expr:

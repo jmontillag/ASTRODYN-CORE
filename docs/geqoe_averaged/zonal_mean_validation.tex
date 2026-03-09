@@ -1,0 +1,85 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage{amsmath,amssymb,graphicx,booktabs}
+\begin{document}
+\section*{Validation of the Exact Truncated Zonal Averaged GEqOE Model}
+
+This note validates the exact symbolic truncated zonal averaged GEqOE model for
+the mixed zonal set $\{J_2, J_3, J_4, J_5\}$ against numerical computation from the full
+GEqOE zonal dynamics.
+
+The reference osculating orbit is
+\[
+a=16000\ \mathrm{km},\qquad
+e=0.35,\qquad
+i=50.0^\circ,\qquad
+\Omega_0=25.0^\circ,\qquad
+\omega_0=40.0^\circ,\qquad
+M_0=30.0^\circ.
+\]
+
+Two checks were performed:
+\begin{enumerate}
+\item pointwise parity between the exact symbolic averaged RHS and the
+numerical one-revolution average of the full zonal RHS;
+\item long-arc comparison between the propagated exact averaged slow model and
+per-orbit means extracted from the full zonal GEqOE integration.
+\end{enumerate}
+
+\subsection*{Pointwise averaged RHS parity}
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Component & Earth coefficients & $0.1\times$ coefficients \\
+\midrule
+$\dot{\bar g}$ & 6.815e-14 & 5.212e-14 \\
+$\dot{\bar Q}$ & 2.092e-03 & 2.151e-04 \\
+$\dot{\bar\Psi}$ & 1.499e-04 & 1.499e-05 \\
+$\dot{\bar\Omega}$ & 3.802e-05 & 3.802e-06 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The nonzero residual for $\dot{\bar Q}, \dot{\bar\Psi}, \dot{\bar\Omega}$
+shrinks essentially linearly with the zonal scale factor. This is the expected
+signature of a first-order averaged model compared against the full nonlinear
+numerical average: the remaining mismatch is higher-order in the zonal
+strength, not evidence of a wrong first-order closure.
+
+\subsection*{Long-arc slow-flow validation}
+The exact averaged slow model was initialized from the numerical mean state of
+the first orbit and then propagated for 30 orbital periods. The
+resulting mismatch against the subsequent numerical orbit means is:
+\begin{center}
+\begin{tabular}{lc}
+\toprule
+Quantity & metric \\
+\midrule
+$p_1$ relative RMS & 2.109e-06 \\
+$p_2$ relative RMS & 6.308e-06 \\
+$q_1$ relative RMS & 6.379e-06 \\
+$q_2$ relative RMS & 1.640e-06 \\
+$\Psi$ RMS phase error [rad] & 1.628e-06 \\
+$\Omega$ RMS phase error [rad] & 3.072e-06 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+This validates the \emph{slow} exact truncated zonal averaged model. No
+general zonal short-period reconstruction is used here, so the comparison is
+deliberately made against orbit means rather than against the full osculating
+state.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.92\textwidth]{docs/geqoe_averaged/zonal_mean_validation_components.png}
+\caption{Per-orbit numerical means versus the exact truncated averaged model.}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.92\textwidth]{docs/geqoe_averaged/zonal_mean_validation_diagnostics.png}
+\caption{Component-wise slow-state errors of the exact truncated averaged model.}
+\end{figure}
+
+\end{document}

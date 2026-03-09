@@ -1429,6 +1429,51 @@ form, and
 \texttt{docs/geqoe\_averaged/zonal\_symbolic\_coeffs.tex}
 now includes the explicit $J_5$ formulas generated from that machinery.
 
+\subsection{Validation against numerical zonal propagation}
+
+The symbolic program is now far enough along to validate the truncated zonal
+mean model against numerical propagation rather than only against degreewise
+or one-revolution checks. A companion note,
+\texttt{docs/geqoe\_averaged/zonal\_mean\_validation.tex},
+compares the exact truncated averaged model for $J_2+J_3+J_4+J_5$ against the
+full GEqOE zonal Taylor integration.
+
+The validation is intentionally performed at the \emph{slow-flow} level:
+\begin{enumerate}
+    \item pointwise parity between the exact symbolic averaged RHS and the
+    numerical one-revolution average of the full zonal RHS;
+    \item long-arc comparison between the propagated exact averaged model and
+    per-orbit means extracted from the full osculating zonal solution.
+\end{enumerate}
+
+For the current reference case
+\[
+a=16000\ \mathrm{km},\qquad
+e=0.35,\qquad
+i=50^\circ,\qquad
+\Omega_0=25^\circ,\qquad
+\omega_0=40^\circ,\qquad
+M_0=30^\circ,
+\]
+the long-arc slow-flow agreement over $30$ orbital periods is already very
+strong:
+\begin{equation}
+\mathrm{RMS}_{\mathrm{rel}}(p_1,p_2,q_1,q_2)
+\approx
+(2.1,\,6.3,\,6.4,\,1.6)\times 10^{-6},
+\qquad
+\mathrm{RMS}(\Psi,\Omega)
+\approx
+(1.6,\,3.1)\times 10^{-6}\ \mathrm{rad}.
+\end{equation}
+
+The remaining pointwise parity gap against the \emph{full} numerical
+one-revolution average is small but nonzero for
+$\dot{\bar Q},\dot{\bar\Psi},\dot{\bar\Omega}$; importantly, it decreases
+approximately linearly when all zonals are scaled down, which is the expected
+signature of an $O(J^2)$ remainder in a first-order averaged theory rather than
+an incorrect first-order closure.
+
 \section{Path to a Fourier-in-\texorpdfstring{$K$}{K} Thrust Extension}
 
 Consider adding a small non-conservative acceleration expressed in the orbital
