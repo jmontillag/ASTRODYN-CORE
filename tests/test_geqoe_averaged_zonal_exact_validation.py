@@ -17,7 +17,7 @@ def _load_module(rel_path: str, module_name: str):
 
 
 def test_exact_truncated_zonal_rhs_matches_numeric_average() -> None:
-    mod = _load_module("docs/geqoe_averaged/zonal_mean_validation.py", "zonal_mean_validation")
+    mod = _load_module("docs/geqoe_averaged/scripts/zonal_mean_validation.py", "zonal_mean_validation")
     case = mod.ValidationCase(n_orbits=6, samples_per_orbit=48, rk4_substeps_per_orbit=8)
     j_coeffs = {2: mod.J2, 3: mod.J3, 4: mod.J4, 5: mod.J5}
     pointwise = mod.pointwise_rhs_validation(case, j_coeffs, omega_samples=12)
@@ -34,7 +34,7 @@ def test_exact_truncated_zonal_rhs_matches_numeric_average() -> None:
 
 
 def test_exact_truncated_zonal_mean_flow_tracks_orbit_means() -> None:
-    mod = _load_module("docs/geqoe_averaged/zonal_mean_validation.py", "zonal_mean_validation_flow")
+    mod = _load_module("docs/geqoe_averaged/scripts/zonal_mean_validation.py", "zonal_mean_validation_flow")
     case = mod.ValidationCase(n_orbits=10, samples_per_orbit=48, rk4_substeps_per_orbit=8)
     j_coeffs = {2: mod.J2, 3: mod.J3, 4: mod.J4, 5: mod.J5}
     result = mod.propagate_full_and_mean(case, j_coeffs)

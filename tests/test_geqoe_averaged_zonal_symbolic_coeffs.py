@@ -22,8 +22,8 @@ def _load_module(rel_path: str, module_name: str):
 
 
 def test_symbolic_j3_j4_coefficients_match_exact_averaged_drift() -> None:
-    fourier_mod = _load_module("docs/geqoe_averaged/zonal_fourier_model.py", "zonal_fourier_model")
-    coeff_mod = _load_module("docs/geqoe_averaged/zonal_symbolic_coeffs.py", "zonal_symbolic_coeffs")
+    fourier_mod = _load_module("docs/geqoe_averaged/scripts/zonal_fourier_model.py", "zonal_fourier_model")
+    coeff_mod = _load_module("docs/geqoe_averaged/scripts/zonal_symbolic_coeffs.py", "zonal_symbolic_coeffs")
 
     f_G31 = sympy.lambdify((coeff_mod.q, coeff_mod.Q), coeff_mod.G31, "numpy")
     f_Q31 = sympy.lambdify((coeff_mod.q, coeff_mod.Q), coeff_mod.Q31, "numpy")

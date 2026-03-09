@@ -11,7 +11,7 @@ This yields exact finite-harmonic averaged drift formulas for any isolated
 zonal degree n >= 2.
 
 Run:
-  conda run -n astrodyn-core-env python docs/geqoe_averaged/zonal_symbolic_general.py
+  conda run -n astrodyn-core-env python docs/geqoe_averaged/scripts/zonal_symbolic_general.py
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ import numpy as np
 import sympy as sp
 
 
-OUT_TEX = Path(__file__).with_name("zonal_symbolic_general.tex")
+OUT_TEX = Path(__file__).resolve().parents[1] / "zonal_symbolic_general.tex"
 
 q, Q, z = sp.symbols("q Q z", positive=True, real=True)
 I = sp.I

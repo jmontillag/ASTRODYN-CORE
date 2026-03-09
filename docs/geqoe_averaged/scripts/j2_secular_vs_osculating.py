@@ -2,7 +2,7 @@
 """Compare the closed secular J2 GEqOE model against the full J2 integration.
 
 Run:
-  conda run -n astrodyn-core-env python docs/geqoe_averaged/j2_secular_vs_osculating.py
+  conda run -n astrodyn-core-env python docs/geqoe_averaged/scripts/j2_secular_vs_osculating.py
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ import numpy as np
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
@@ -30,7 +30,8 @@ from astrodyn_core.geqoe_taylor import (  # noqa: E402
 )
 from astrodyn_core.geqoe_taylor.integrator import propagate_grid  # noqa: E402
 
-OUTPUT_DIR = Path(__file__).resolve().parent
+DOC_DIR = Path(__file__).resolve().parents[1]
+FIG_DIR = DOC_DIR / "figures"
 
 
 def _rot3(theta: float) -> np.ndarray:
@@ -386,7 +387,7 @@ def main() -> None:
     component_axes[1, 1].set_xlabel("Time [days]")
     component_fig.suptitle("J2 GEqOE: osculating components vs secular closure")
     component_fig.tight_layout()
-    component_path = OUTPUT_DIR / "j2_secular_vs_osculating_components.png"
+    component_path = FIG_DIR / "j2_secular_vs_osculating_components.png"
     component_fig.savefig(component_path, dpi=180)
     plt.close(component_fig)
 
@@ -477,7 +478,7 @@ def main() -> None:
 
     diag_fig.suptitle("J2 GEqOE: phase and magnitude diagnostics")
     diag_fig.tight_layout()
-    diag_path = OUTPUT_DIR / "j2_secular_vs_osculating_diagnostics.png"
+    diag_path = FIG_DIR / "j2_secular_vs_osculating_diagnostics.png"
     diag_fig.savefig(diag_path, dpi=180)
     plt.close(diag_fig)
 

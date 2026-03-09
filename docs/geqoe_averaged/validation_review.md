@@ -2,7 +2,7 @@
 
 **Date:** 2026-03-09  
 **Reviewed file:** `docs/geqoe_averaged/geqoe_averaged_j2_zonal_note.tex` (current post-`edc4c05` state)  
-**Validation script:** `docs/geqoe_averaged/validation_check.py`
+**Validation script:** `docs/geqoe_averaged/scripts/validation_check.py`
 
 ## Summary
 
@@ -172,7 +172,7 @@ The `J2` fast path and the zonal path give identical `w_h` values for the same
 ## Commands Run
 
 ```bash
-conda run -n astrodyn-core-env python docs/geqoe_averaged/validation_check.py
+conda run -n astrodyn-core-env python docs/geqoe_averaged/scripts/validation_check.py
 ```
 
 ## Residual Risks / Open Checks

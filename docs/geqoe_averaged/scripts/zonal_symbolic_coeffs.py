@@ -2,11 +2,11 @@
 """Write explicit symbolic averaged GEqOE zonal coefficients to LaTeX.
 
 This note is generated from the exact degree-n symbolic machinery in
-``zonal_symbolic_general.py``. It records explicit closed formulas for J3, J4,
-and J5.
+``scripts/zonal_symbolic_general.py``. It records explicit closed formulas for
+J3, J4, and J5.
 
 Run:
-  conda run -n astrodyn-core-env python docs/geqoe_averaged/zonal_symbolic_coeffs.py
+  conda run -n astrodyn-core-env python docs/geqoe_averaged/scripts/zonal_symbolic_coeffs.py
 """
 
 from __future__ import annotations
@@ -16,14 +16,15 @@ import sys
 
 import sympy as sp
 
-THIS_DIR = Path(__file__).resolve().parent
-if str(THIS_DIR) not in sys.path:
-    sys.path.insert(0, str(THIS_DIR))
+SCRIPT_DIR = Path(__file__).resolve().parent
+DOC_DIR = SCRIPT_DIR.parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
 
 from zonal_symbolic_general import Q, harmonic_coefficients, q
 
 
-OUT_TEX = Path(__file__).with_name("zonal_symbolic_coeffs.tex")
+OUT_TEX = DOC_DIR / "zonal_symbolic_coeffs.tex"
 
 omega = sp.symbols("omega", real=True)
 nu, a, Re = sp.symbols("nu a R_e", positive=True, real=True)

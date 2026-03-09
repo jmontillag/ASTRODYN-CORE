@@ -2,7 +2,7 @@
 """Construct and validate the finite Fourier averaged zonal GEqOE model.
 
 Run:
-  conda run -n astrodyn-core-env python docs/geqoe_averaged/zonal_fourier_model.py
+  conda run -n astrodyn-core-env python docs/geqoe_averaged/scripts/zonal_fourier_model.py
 """
 
 from __future__ import annotations
@@ -12,7 +12,7 @@ from pathlib import Path
 
 import numpy as np
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 

@@ -63,8 +63,8 @@ def _evaluate_harmonic_model(
 
 
 def test_general_symbolic_generator_matches_exact_averaged_drift() -> None:
-    fourier_mod = _load_module("docs/geqoe_averaged/zonal_fourier_model.py", "zonal_fourier_model")
-    general_mod = _load_module("docs/geqoe_averaged/zonal_symbolic_general.py", "zonal_symbolic_general")
+    fourier_mod = _load_module("docs/geqoe_averaged/scripts/zonal_fourier_model.py", "zonal_fourier_model")
+    general_mod = _load_module("docs/geqoe_averaged/scripts/zonal_symbolic_general.py", "zonal_symbolic_general")
 
     a_km = 16000.0
     e = 0.35
@@ -96,7 +96,7 @@ def test_general_symbolic_generator_matches_exact_averaged_drift() -> None:
 
 
 def test_isolated_degree_max_harmonic_is_n_minus_2() -> None:
-    general_mod = _load_module("docs/geqoe_averaged/zonal_symbolic_general.py", "zonal_symbolic_general_harmonics")
+    general_mod = _load_module("docs/geqoe_averaged/scripts/zonal_symbolic_general.py", "zonal_symbolic_general_harmonics")
 
     for degree in (3, 4):
         coeffs = general_mod.harmonic_coefficients(degree)

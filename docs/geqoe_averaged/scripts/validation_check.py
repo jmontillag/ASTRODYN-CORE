@@ -2,7 +2,7 @@
 """Comprehensive validation of the averaged J2 GEqOE formulation.
 
 Run:
-  conda run -n astrodyn-core-env python docs/geqoe_averaged/validation_check.py
+  conda run -n astrodyn-core-env python docs/geqoe_averaged/scripts/validation_check.py
 """
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 import numpy as np
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 

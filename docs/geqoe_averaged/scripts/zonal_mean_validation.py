@@ -7,7 +7,7 @@ This script performs two checks for a mixed zonal model:
    integration.
 
 Run:
-  conda run -n astrodyn-core-env python docs/geqoe_averaged/zonal_mean_validation.py
+  conda run -n astrodyn-core-env python docs/geqoe_averaged/scripts/zonal_mean_validation.py
 """
 
 from __future__ import annotations
@@ -18,13 +18,15 @@ from pathlib import Path
 
 import numpy as np
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-THIS_DIR = Path(__file__).resolve().parent
-if str(THIS_DIR) not in sys.path:
-    sys.path.insert(0, str(THIS_DIR))
+SCRIPT_DIR = Path(__file__).resolve().parent
+DOC_DIR = SCRIPT_DIR.parent
+FIG_DIR = DOC_DIR / "figures"
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
 
 from astrodyn_core.geqoe_taylor import (
     J2,
@@ -43,9 +45,10 @@ from zonal_fourier_model import avg_slow_drift, frozen_state
 from zonal_symbolic_general import evaluate_truncated_mean_rates, evaluate_truncated_mean_rhs_pq
 
 
-OUT_COMPONENTS = THIS_DIR / "zonal_mean_validation_components.png"
-OUT_DIAGNOSTICS = THIS_DIR / "zonal_mean_validation_diagnostics.png"
-OUT_TEX = THIS_DIR / "zonal_mean_validation.tex"
+OUT_COMPONENTS = FIG_DIR / "zonal_mean_validation_components.png"
+OUT_DIAGNOSTICS = FIG_DIR / "zonal_mean_validation_diagnostics.png"
+OUT_ANGLES = FIG_DIR / "zonal_mean_validation_angles.png"
+OUT_TEX = DOC_DIR / "zonal_mean_validation.tex"
 
 
 @dataclass(frozen=True)
@@ -298,7 +301,7 @@ def create_plots(result: dict[str, np.ndarray | float]) -> None:
     axes[1].set_xlabel("orbit index")
     axes[1].grid(True, alpha=0.3)
     fig.tight_layout()
-    fig.savefig(THIS_DIR / "zonal_mean_validation_angles.png", dpi=180)
+    fig.savefig(OUT_ANGLES, dpi=180)
     plt.close(fig)
 
 
@@ -382,13 +385,13 @@ state.
 
 \begin{{figure}}[h!]
 \centering
-\includegraphics[width=0.92\textwidth]{{docs/geqoe_averaged/{OUT_COMPONENTS.name}}}
+\includegraphics[width=0.92\textwidth]{{docs/geqoe_averaged/figures/{OUT_COMPONENTS.name}}}
 \caption{{Per-orbit numerical means versus the exact truncated averaged model.}}
 \end{{figure}}
 
 \begin{{figure}}[h!]
 \centering
-\includegraphics[width=0.92\textwidth]{{docs/geqoe_averaged/{OUT_DIAGNOSTICS.name}}}
+\includegraphics[width=0.92\textwidth]{{docs/geqoe_averaged/figures/{OUT_DIAGNOSTICS.name}}}
 \caption{{Component-wise slow-state errors of the exact truncated averaged model.}}
 \end{{figure}}
 
