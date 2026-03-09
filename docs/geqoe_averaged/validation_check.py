@@ -251,6 +251,15 @@ def _mean_longitude_map(state0, j2=J2_VAL):
     return K_grid, ell_corr, L_dot_avg
 
 
+def _v1_from_ell(state_bar, K_bar, corr, ell_eval):
+    """Direct first-order K short-period correction from ell_1 and slow maps."""
+    g_bar = np.hypot(state_bar[1], state_bar[2])
+    psi_bar = np.arctan2(state_bar[1], state_bar[2])
+    G_bar = K_bar - psi_bar
+    r_over_a = 1 - state_bar[1] * np.sin(K_bar) - state_bar[2] * np.cos(K_bar)
+    return (ell_eval + corr["g_eval"] * np.sin(G_bar) - g_bar * corr["Psi_eval"] * np.cos(G_bar)) / r_over_a
+
+
 # ── CHECK 1: Verify angle meanings ──────────────────────────────────
 def check1_angle_meanings():
     print("=" * 72)
@@ -681,6 +690,8 @@ def check7_fast_phase_reconstruction():
     lbar_pos_err = []
     lexact_pos_err = []
     lexact_k_err = []
+    v1_pos_err = []
+    v1_k_err = []
     for ti, sosc in zip(t_grid[::40], states[::40]):
         sec = _secular_solution(mean0, np.array([ti]))
         ms = mean0.copy()
@@ -752,6 +763,13 @@ def check7_fast_phase_reconstruction():
         lexact_pos_err.append(np.linalg.norm(r_rec_exact - r_osc))
         lexact_k_err.append(abs(np.arctan2(np.sin(Kosc - sosc[3]), np.cos(Kosc - sosc[3]))))
 
+        v1_eval = _v1_from_ell(ms, Kbar_exact, corr_exact, ell_eval)
+        Kosc_v1 = Kbar_exact + v1_eval
+        rec_v1 = np.array([ms[0], p1o, p2o, Kosc_v1, q1o, q2o])
+        r_rec_v1, _ = geqoe2cart(rec_v1, MU, J2Perturbation())
+        v1_pos_err.append(np.linalg.norm(r_rec_v1 - r_osc))
+        v1_k_err.append(abs(np.arctan2(np.sin(Kosc_v1 - sosc[3]), np.cos(Kosc_v1 - sosc[3]))))
+
     print(f"  With true osculating K injected:")
     print(f"    slow-state GEqOE component error mean = {np.mean(true_k_err):.3e}")
     print(f"    Cartesian position error mean/max     = {np.mean(true_k_pos_err):.3e} / {np.max(true_k_pos_err):.3e} km")
@@ -760,10 +778,14 @@ def check7_fast_phase_reconstruction():
     print(f"  With exact frozen-state GEqOE mean-L route:")
     print(f"    K error mean/max                      = {np.mean(lexact_k_err):.3e} / {np.max(lexact_k_err):.3e} rad")
     print(f"    Cartesian position error mean/max     = {np.mean(lexact_pos_err):.3e} / {np.max(lexact_pos_err):.3e} km")
+    print(f"  With direct v1(ell_1, G_1, P_1) fast-phase correction:")
+    print(f"    K error mean/max                      = {np.mean(v1_k_err):.3e} / {np.max(v1_k_err):.3e} rad")
+    print(f"    Cartesian position error mean/max     = {np.mean(v1_pos_err):.3e} / {np.max(v1_pos_err):.3e} km")
     print("  Interpretation: the remaining gap was a phase-coordinate mismatch in the")
     print("  L short-period map. Once ell_1 is evaluated as a function of K rather than")
-    print("  G, the frozen-state GEqOE mean-L route reconstructs the fast phase to")
-    print("  essentially the same accuracy as the validated slow map.\n")
+    print("  G, the frozen-state GEqOE mean-L route and the direct first-order v1 map")
+    print("  reconstruct the fast phase to essentially the same accuracy as the")
+    print("  validated slow map.\n")
 
 
 # ── MAIN ─────────────────────────────────────────────────────────────

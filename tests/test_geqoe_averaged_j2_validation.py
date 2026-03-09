@@ -251,6 +251,14 @@ def _mean_longitude_map(state0: np.ndarray, j2: float = J2) -> tuple[np.ndarray,
     return K_grid, ell_corr, float(L_dot_avg)
 
 
+def _v1_from_ell(state_bar: np.ndarray, K_bar: float, corr: dict[str, float], ell_eval: float) -> float:
+    g_bar = np.hypot(state_bar[1], state_bar[2])
+    psi_bar = np.arctan2(state_bar[1], state_bar[2])
+    G_bar = K_bar - psi_bar
+    r_over_a = 1.0 - state_bar[1] * np.sin(K_bar) - state_bar[2] * np.cos(K_bar)
+    return float((ell_eval + corr["g_eval"] * np.sin(G_bar) - g_bar * corr["Psi_eval"] * np.cos(G_bar)) / r_over_a)
+
+
 def _component_rms(reference: dict[str, np.ndarray], model: dict[str, np.ndarray]) -> float:
     vals = []
     for key in ("p1", "p2", "q1", "q2"):
@@ -496,3 +504,64 @@ def test_exact_frozen_state_mean_longitude_map_recovers_fast_phase() -> None:
     assert float(np.mean(pos_err_exact)) < 0.1
     assert float(np.max(pos_err_exact)) < 0.2
     assert float(np.mean(pos_err_exact)) < float(np.mean(pos_err_classical)) * 2.0e-3
+
+
+def test_direct_v1_map_matches_mean_longitude_reconstruction() -> None:
+    state0 = _make_molniya_state(45.0)
+    psi0 = np.arctan2(state0[1], state0[2])
+    G0 = state0[3] - psi0
+    mean0 = _build_mean_state(state0, _short_period_map(state0, G0))
+
+    K_grid0, ell_corr0, _ = _mean_longitude_map(mean0)
+    L0_bar_exact = K_to_L(state0[3], state0[1], state0[2]) - _interp_periodic(K_grid0, ell_corr0, state0[3])
+
+    orbit_period_s = 2.0 * np.pi / state0[0]
+    t_grid = np.linspace(0.0, 10.0 * orbit_period_s, 401, dtype=float)
+    ta, _ = build_state_integrator(J2Perturbation(), state0, tol=1.0e-15, compact_mode=True)
+    states = propagate_grid(ta, t_grid)
+
+    k_diff = []
+    pos_err_v1 = []
+    for ti, sosc in zip(t_grid[::20], states[::20]):
+        sec = _secular_solution(mean0, np.array([ti]))
+        ms = mean0.copy()
+        ms[1] = sec["p1"][0]
+        ms[2] = sec["p2"][0]
+        ms[4] = sec["q1"][0]
+        ms[5] = sec["q2"][0]
+
+        K_grid, ell_corr, L_dot_avg = _mean_longitude_map(ms)
+        Lbar_exact = L0_bar_exact + L_dot_avg * ti
+        Kbar_exact = solve_kepler_gen(Lbar_exact, ms[1], ms[2])
+        Gbar_exact = Kbar_exact - np.arctan2(ms[1], ms[2])
+        corr_exact = _short_period_map(ms, Gbar_exact)
+        g_exact = np.hypot(ms[1], ms[2]) + corr_exact["g_eval"]
+        psi_exact = np.arctan2(ms[1], ms[2]) + corr_exact["Psi_eval"]
+        Q_exact = np.hypot(ms[4], ms[5]) + corr_exact["Q_eval"]
+        Omega_exact = np.arctan2(ms[4], ms[5]) + corr_exact["Omega_eval"]
+
+        ell_eval = _interp_periodic(K_grid, ell_corr, Kbar_exact)
+        Losc_exact = Lbar_exact + ell_eval
+        Kosc_from_l = solve_kepler_gen(Losc_exact, g_exact * np.sin(psi_exact), g_exact * np.cos(psi_exact))
+        Kosc_from_v1 = Kbar_exact + _v1_from_ell(ms, Kbar_exact, corr_exact, ell_eval)
+
+        k_diff.append(abs(np.arctan2(np.sin(Kosc_from_v1 - Kosc_from_l), np.cos(Kosc_from_v1 - Kosc_from_l))))
+        rec_v1 = np.array(
+            [
+                ms[0],
+                g_exact * np.sin(psi_exact),
+                g_exact * np.cos(psi_exact),
+                Kosc_from_v1,
+                Q_exact * np.sin(Omega_exact),
+                Q_exact * np.cos(Omega_exact),
+            ],
+            dtype=float,
+        )
+        r_v1, _ = geqoe2cart(rec_v1, MU, J2Perturbation())
+        r_osc, _ = geqoe2cart(sosc, MU, J2Perturbation())
+        pos_err_v1.append(np.linalg.norm(r_v1 - r_osc))
+
+    assert float(np.mean(k_diff)) < 1.0e-6
+    assert float(np.max(k_diff)) < 2.0e-6
+    assert float(np.mean(pos_err_v1)) < 0.1
+    assert float(np.max(pos_err_v1)) < 0.2

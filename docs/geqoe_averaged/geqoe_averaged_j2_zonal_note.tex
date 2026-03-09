@@ -912,6 +912,120 @@ q_{2,\mathrm{osc}} &= Q_{\mathrm{osc}}\cos\Omega_{\mathrm{osc}}.
 \label{eq:pq_from_map}
 \end{align}
 
+\subsection{Clean first-order fast-phase map in \texorpdfstring{$L$}{L} and \texorpdfstring{$K$}{K}}
+
+The missing fast-phase piece can be written just as explicitly. Introduce the
+generalized longitude
+\begin{equation}
+L = K + p_1 \cos K - p_2 \sin K,
+\label{eq:L_def}
+\end{equation}
+so that, for the unperturbed geometry,
+\begin{equation}
+\frac{\partial L}{\partial K}
+= 1 - p_1 \sin K - p_2 \cos K
+= \frac{r}{a}.
+\label{eq:dLdK}
+\end{equation}
+
+At first order in $J_2$ the forward longitude map is
+\begin{equation}
+L_{\mathrm{osc}}
+= \bar L + \ell_1(\bar{\bm z},\bar K) + O(J_2^2),
+\label{eq:forward_map_L}
+\end{equation}
+with $\ell_1$ normalized by
+\begin{equation}
+\frac{1}{2\pi}\int_0^{2\pi}\ell_1(\bar{\bm z},\bar K)\,d\bar K = 0.
+\label{eq:ell_zero_mean}
+\end{equation}
+For the conservative $J_2$ problem, the exact GEqOE $L$ equation reduces at
+first order to
+\begin{equation}
+\dot L
+= \nu + d - w_h
+- \frac{U}{c}\left[
+\frac{1}{\alpha} + \alpha\left(1-\frac{r}{a}\right)
+\right]
++ O(J_2^2),
+\label{eq:Ldot_j2_first}
+\end{equation}
+and therefore
+\begin{equation}
+\ell_1'(\bar K)
+= \frac{\bar r}{\bar w}
+\left[
+\dot L(\bar{\bm z},\bar K)
+- \langle \dot L \rangle_K(\bar{\bm z})
+\right],
+\qquad
+\langle \ell_1 \rangle_K = 0.
+\label{eq:ell_prime}
+\end{equation}
+
+The important structural point is that $\ell_1$ is naturally parameterized by
+the \emph{absolute} fast angle $\bar K$, not by
+$\bar G = \bar K - \bar\Psi$. This is where the earlier numerical false alarm
+came from.
+
+Now expand \eqref{eq:L_def} with the first-order GEqOE map
+\eqref{eq:forward_map_z}-\eqref{eq:forward_map_K}. Writing
+\begin{equation}
+p_{1,\mathrm{osc}} = \bar p_1 + u_{p_1},
+\qquad
+p_{2,\mathrm{osc}} = \bar p_2 + u_{p_2},
+\end{equation}
+one gets
+\begin{equation}
+\ell_1
+= \frac{\bar r}{a}\,v_1
++ u_{p_1}\cos\bar K
+- u_{p_2}\sin\bar K
++ O(J_2^2).
+\label{eq:ell_v_relation}
+\end{equation}
+
+Using the $(g,\Psi)$ short-period map
+\eqref{eq:explicit_map_gQPsiOmega}, the component corrections are
+\begin{align}
+u_{p_1}
+&= \mathcal G_1(\bar G)\sin\bar\Psi
++ \bar g\,\mathcal P_1(\bar G)\cos\bar\Psi,
+\label{eq:up1_map}\\
+u_{p_2}
+&= \mathcal G_1(\bar G)\cos\bar\Psi
+- \bar g\,\mathcal P_1(\bar G)\sin\bar\Psi.
+\label{eq:up2_map}
+\end{align}
+Substituting \eqref{eq:up1_map}-\eqref{eq:up2_map} into
+\eqref{eq:ell_v_relation} gives the direct fast-phase correction
+\begin{equation}
+v_1(\bar{\bm z},\bar K)
+= \frac{a}{\bar r}
+\left[
+\ell_1(\bar{\bm z},\bar K)
++ \mathcal G_1(\bar G)\sin\bar G
+- \bar g\,\mathcal P_1(\bar G)\cos\bar G
+\right].
+\label{eq:v1_from_ell}
+\end{equation}
+
+Equations \eqref{eq:forward_map_L}, \eqref{eq:ell_prime}, and
+\eqref{eq:v1_from_ell} are the clean first-order GEqOE closure for the fast
+phase. They show two equivalent practical reconstructions:
+\begin{enumerate}
+    \item reconstruct $L_{\mathrm{osc}} = \bar L + \ell_1$ and recover
+    $K_{\mathrm{osc}}$ from the generalized Kepler relation;
+    \item reconstruct $K_{\mathrm{osc}} = \bar K + v_1$ directly from
+    \eqref{eq:v1_from_ell}.
+\end{enumerate}
+
+Numerically, both routes agree to first-order accuracy. In the present
+Molniya-like test case, the direct $v_1$ route gives mean/max fast-angle errors
+of about $6\times 10^{-7}$ and $1.5\times 10^{-6}\ \mathrm{rad}$, with mean/max
+Cartesian position reconstruction errors of about
+$4\times 10^{-2}$ and $1.2\times 10^{-1}\ \mathrm{km}$.
+
 This provides a complete \emph{formal} first-order formulation:
 \begin{enumerate}
     \item the secular evolution is explicit;
