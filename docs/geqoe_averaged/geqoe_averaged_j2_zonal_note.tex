@@ -1080,18 +1080,203 @@ depend on:
     $(p_1,p_2)$ with respect to the symmetry axis encoded by $(q_1,q_2)$.
 \end{enumerate}
 
-\subsection{Recommended next derivation target}
+\subsection{General order-\texorpdfstring{$N$}{N} harmonic structure}
 
-The next mathematically useful target is not ``all zonals at once'' but:
+The main point is that ``general zonals'' do not mean an arbitrary functional
+dependence on the slow angles. For any finite truncation
+\begin{equation}
+U_Z = \sum_{n=2}^{N} U_n,
+\end{equation}
+the singly averaged problem remains a \emph{finite-harmonic} system in the
+single relative angle
+\begin{equation}
+\bar\omega = \bar\Psi - \bar\Omega.
+\end{equation}
+
+The reason is structural. For a fixed degree $n$,
+\begin{equation}
+U_n(\bar G,\bar\omega)
+=
+\frac{C_n}{\bar r^{n+1}} P_n\!\left(s_i \sin u\right),
+\qquad
+u = \bar\omega + f(\bar G),
+\end{equation}
+with $P_n$ a polynomial of degree $n$ in its argument. Therefore
+$P_n(s_i\sin u)$ is a finite trigonometric polynomial in $u$ with harmonics no
+higher than $n$. After substitution of the rational-trigonometric relations
+between $f$ and $\bar G$, and after one-revolution averaging in $\bar G$, the
+degree-$n$ contribution can only retain harmonics of $\bar\omega$ up to order
+$n$.
+
+Parity further constrains the result. Because
+\begin{equation}
+P_n(-x) = (-1)^n P_n(x),
+\end{equation}
+the averaged degree-$n$ disturbing function has the form
+\begin{equation}
+\bar U^{(n)}(\bar\nu,\bar g,\bar Q,\bar\omega)
+=
+\sum_{m\in\mathcal M_n}
+\mathcal A_{n,m}(\bar\nu,\bar g,\bar Q)\,\Phi_{n,m}(\bar\omega),
+\label{eq:Un_fourier}
+\end{equation}
+where
+\begin{equation}
+\mathcal M_n = \{m \in \mathbb N_0: m \le n,\ m \equiv n \pmod 2\},
+\end{equation}
+and
+\begin{equation}
+\Phi_{n,m}(\bar\omega)
+=
+\begin{cases}
+\cos(m\bar\omega), & n \ \text{even}, \\
+\sin(m\bar\omega), & n \ \text{odd}.
+\end{cases}
+\label{eq:Phi_parity}
+\end{equation}
+For even $n$, the set $\mathcal M_n$ includes $m=0$; for odd $n$, it does not.
+
+Consequently the averaged GEqOE vector field itself can be written, for any
+finite zonal truncation $N$, as
+\begin{align}
+\dot{\bar g}
+&=
+\sum_{\substack{2\le n\le N\\ n\ \mathrm{even}}}
+\sum_{\substack{2\le m\le n\\ m\ \mathrm{even}}}
+\mathcal G_{n,m}(\bar\nu,\bar g,\bar Q)\sin(m\bar\omega)
+\notag\\
+&\quad+
+\sum_{\substack{2\le n\le N\\ n\ \mathrm{odd}}}
+\sum_{\substack{1\le m\le n\\ m\ \mathrm{odd}}}
+\widetilde{\mathcal G}_{n,m}(\bar\nu,\bar g,\bar Q)\cos(m\bar\omega),
+\label{eq:gdot_general_fourier}\\
+\dot{\bar Q}
+&=
+\sum_{\substack{2\le n\le N\\ n\ \mathrm{even}}}
+\sum_{\substack{2\le m\le n\\ m\ \mathrm{even}}}
+\mathcal Q_{n,m}(\bar\nu,\bar g,\bar Q)\sin(m\bar\omega)
+\notag\\
+&\quad+
+\sum_{\substack{2\le n\le N\\ n\ \mathrm{odd}}}
+\sum_{\substack{1\le m\le n\\ m\ \mathrm{odd}}}
+\widetilde{\mathcal Q}_{n,m}(\bar\nu,\bar g,\bar Q)\cos(m\bar\omega),
+\label{eq:Qdot_general_fourier}\\
+\dot{\bar\Psi}
+&=
+\sum_{\substack{2\le n\le N\\ n\ \mathrm{even}}}
+\left[
+\mathcal P_{n,0}(\bar\nu,\bar g,\bar Q)
++
+\sum_{\substack{2\le m\le n\\ m\ \mathrm{even}}}
+\mathcal P_{n,m}(\bar\nu,\bar g,\bar Q)\cos(m\bar\omega)
+\right]
+\notag\\
+&\quad+
+\sum_{\substack{2\le n\le N\\ n\ \mathrm{odd}}}
+\sum_{\substack{1\le m\le n\\ m\ \mathrm{odd}}}
+\widetilde{\mathcal P}_{n,m}(\bar\nu,\bar g,\bar Q)\sin(m\bar\omega),
+\label{eq:Psidot_general_fourier}\\
+\dot{\bar\Omega}
+&=
+\sum_{\substack{2\le n\le N\\ n\ \mathrm{even}}}
+\left[
+\mathcal N_{n,0}(\bar\nu,\bar g,\bar Q)
++
+\sum_{\substack{2\le m\le n\\ m\ \mathrm{even}}}
+\mathcal N_{n,m}(\bar\nu,\bar g,\bar Q)\cos(m\bar\omega)
+\right]
+\notag\\
+&\quad+
+\sum_{\substack{2\le n\le N\\ n\ \mathrm{odd}}}
+\sum_{\substack{1\le m\le n\\ m\ \mathrm{odd}}}
+\widetilde{\mathcal N}_{n,m}(\bar\nu,\bar g,\bar Q)\sin(m\bar\omega).
+\label{eq:Omegadot_general_fourier}
+\end{align}
+
+This is already the general analytical formulation ``up to order $N$'' in the
+sense most relevant for the present project: the dependence on the slow angles
+is finite, explicit, and known a priori. What remains is the evaluation of the
+coefficient functions
+$\mathcal A_{n,m}$,
+$\mathcal G_{n,m}$,
+$\mathcal Q_{n,m}$,
+$\mathcal P_{n,m}$,
+and $\mathcal N_{n,m}$ as functions of $(\bar\nu,\bar g,\bar Q)$.
+
+\subsection{Why these coefficient functions are still analytically reachable}
+
+The coefficient functions above are not arbitrary integrals. Under the
+tangent-half-angle substitution
+\begin{equation}
+t = \tan\frac{\bar G}{2},
+\qquad
+\cos\bar G = \frac{1-t^2}{1+t^2},
+\qquad
+\sin\bar G = \frac{2t}{1+t^2},
+\end{equation}
+the ellipse geometry becomes rational:
+\begin{equation}
+\bar r
+= \bar a\frac{(1-\bar g)+(1+\bar g)t^2}{1+t^2},
+\end{equation}
+while $\sin f$, $\cos f$, and therefore $\sin u$, $\cos u$, become rational
+functions of $t$ with coefficients depending only on
+$(\bar g,\bar Q,\bar\omega)$. Hence every degree-$n$ averaged kernel reduces to
+a finite rational integral in $t$.
+
+So the real choice is not between ``closed form'' and ``quadrature'' in the
+abstract. It is between:
 \begin{enumerate}
-    \item derive the closed first-order $J_2$ system rigorously in GEqOE
-    notation, validating \eqref{eq:j2_mean_nu}-\eqref{eq:j2_mean_q2};
-    \item then evaluate the quadratures
-    \eqref{eq:avg_p1_general}-\eqref{eq:avg_q2_general} term by term for
-    $J_2+J_3+J_4$;
-    \item then decide whether a compact analytical closure exists or whether a
-    semi-analytical quadrature is the more pragmatic model.
+    \item evaluating the coefficient functions numerically from the exact
+    one-revolution quadratures
+    \eqref{eq:avg_p1_general}-\eqref{eq:avg_q2_general}; or
+    \item evaluating the same finite rational integrals symbolically once and
+    storing the resulting coefficient formulas degree by degree.
 \end{enumerate}
+
+\subsection{Numerical harmonic probe}
+
+A direct probe of the averaged GEqOE drift using the exact zonal fast path
+already supports \eqref{eq:gdot_general_fourier}-\eqref{eq:Omegadot_general_fourier}.
+Using the script
+\texttt{docs/geqoe\_averaged/zonal\_harmonic\_probe.py} on a generic
+eccentric/inclined test orbit gives the dominant slow-angle content summarized in
+Table~\ref{tab:zonal_harmonic_probe}.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ccc@{}}
+\toprule
+Degree $n$ & Dominant content in $(\dot{\bar g},\dot{\bar Q})$ & Dominant content in $(\dot{\bar\Psi},\dot{\bar\Omega})$ \\
+\midrule
+$2$ & $0$ & constant \\
+$3$ & $\cos\bar\omega$ & $\sin\bar\omega$ \\
+$4$ & $\sin 2\bar\omega$ & constant, $\cos 2\bar\omega$ \\
+$5$ & $\cos\bar\omega$, $\cos 3\bar\omega$ & $\sin\bar\omega$, $\sin 3\bar\omega$ \\
+\bottomrule
+\end{tabular}
+\caption{Observed dominant Fourier content of the averaged GEqOE zonal drift for isolated degrees $n=2,3,4,5$. The numerical least-squares residuals for Fourier bases up to harmonic $n$ are at machine precision for the reported test case, supporting the finite-harmonic structure.}
+\label{tab:zonal_harmonic_probe}
+\end{table}
+
+\subsection{What this means for the research direction}
+
+This is the main change in perspective. A practical order-$N$ averaged zonal
+theory does not require inventing a completely new closed form for every
+individual harmonic. Instead, it requires:
+\begin{enumerate}
+    \item a generic degree-$n$ recipe for the coefficient functions in
+    \eqref{eq:Un_fourier};
+    \item either symbolic or numerical evaluation of those coefficient
+    functions as functions of $(\bar\nu,\bar g,\bar Q)$;
+    \item assembly of the finite Fourier system
+    \eqref{eq:gdot_general_fourier}-\eqref{eq:Omegadot_general_fourier} up to
+    the desired truncation order $N$.
+\end{enumerate}
+
+So the ambitious goal you suggested is not out of scope. The realistic version
+of it is: a \emph{general finite-degree zonal analytical framework}, rather
+than one universal closed elementary expression written once for all $n$.
 
 \section{Path to a Fourier-in-\texorpdfstring{$K$}{K} Thrust Extension}
 
@@ -1143,19 +1328,23 @@ For the autonomous zonal problem, the averaged GEqOE program is viable.
     the right fast angle for averaging: the generalized eccentric longitude $K$.
     \item For a general static zonal potential, the first-order mean GEqOE
     equations exist immediately as the autonomous quadratures
-    \eqref{eq:avg_p1_general}-\eqref{eq:avg_q2_general}.
+    \eqref{eq:avg_p1_general}-\eqref{eq:avg_q2_general}, and for any finite
+    truncation order $N$ their slow-angle dependence reduces to a finite
+    Fourier series in $\omega=\Psi-\Omega$.
     \item For pure $J_2$, a compact autonomous secular closure is available:
     $\nu$, $g$, and $Q$ are constant, while $(p_1,p_2)$ and $(q_1,q_2)$ rotate
     with the explicit rates \eqref{eq:OmegaJ2}-\eqref{eq:PsiJ2}.
     \item This $J_2$ closure is a credible baseline for fast maneuver metrics.
-    \item The natural next extension is a Fourier-in-$K$ thrust perturbation on
-    top of the autonomous $J_2$ mean flow, not a jump directly to fully general
-    non-autonomous perturbations.
+    \item The natural next extension is no longer ``derive $J_3$, then derive
+    $J_4$'' by hand, but to construct the coefficient-function machinery behind
+    \eqref{eq:Un_fourier}-\eqref{eq:Omegadot_general_fourier}, and only then
+    add Fourier-in-$K$ thrust on top of that autonomous zonal baseline.
 \end{enumerate}
 
-In short: the autonomous $J_2$ problem is the correct place to start, the
-general zonal problem is still structurally tractable, and the thrust-Fourier
-extension should be built on top of this averaged baseline rather than beside
-it.
+In short: the autonomous $J_2$ problem was the correct place to start, but the
+general finite-degree zonal problem now also looks structurally tractable in a
+more ambitious sense. The open problem is not whether an order-$N$ theory
+exists, but how aggressively its coefficient functions can be reduced from
+quadratures to reusable analytical formulas.
 
 \end{document}
