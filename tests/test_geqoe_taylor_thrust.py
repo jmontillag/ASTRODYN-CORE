@@ -23,6 +23,7 @@ from astrodyn_core.geqoe_taylor.perturbations.thrust import ContinuousThrustPert
 from astrodyn_core.geqoe_taylor.thrust import (
     ConstantRTNThrustLaw,
     CubicHermiteRTNThrustLaw,
+    FourierKRTNThrustLaw,
 )
 
 # Paper case (a): LEO circular i=45deg
@@ -400,3 +401,111 @@ class TestSplineThrustLaw:
         idx_n = param_names.index("thrust.n0_newtons")
         np.testing.assert_allclose(jac_p[:, 0], phi_p[[0, 6], idx_t], atol=1e-14)
         np.testing.assert_allclose(jac_p[:, 1], phi_p[[0, 6], idx_n], atol=1e-14)
+
+
+class TestFourierKThrustLaw:
+    def test_fourier_runtime_parameters_exposed(self):
+        law = FourierKRTNThrustLaw(
+            order=2,
+            bias_t_newtons=0.18,
+            cosine_t_newtons=(0.03, -0.01),
+            sine_t_newtons=(0.02, 0.01),
+            bias_n_newtons=0.01,
+            isp_s=2050.0,
+        )
+        pert = CompositePerturbation(
+            conservative=[J2Perturbation()],
+            non_conservative=[ContinuousThrustPerturbation(law)],
+        )
+        ic = _build_mass_state(pert, 500.0)
+
+        ta, par_map = build_thrust_state_integrator(pert, ic, tol=1e-15)
+
+        assert ta.state[6] == pytest.approx(500.0)
+        assert "thrust.t_bias_newtons" in par_map
+        assert "thrust.t_cos1_newtons" in par_map
+        assert "thrust.t_cos2_newtons" in par_map
+        assert "thrust.t_sin1_newtons" in par_map
+        assert "thrust.t_sin2_newtons" in par_map
+        assert "thrust.n_bias_newtons" in par_map
+        assert "thrust.isp_s" in par_map
+
+    def test_fourier_zero_order_matches_constant_law(self):
+        t_final = 2400.0
+        mass_kg = 500.0
+
+        const_law = ConstantRTNThrustLaw(thrust_t_newtons=0.18, isp_s=2100.0)
+        fourier_law = FourierKRTNThrustLaw(
+            order=0,
+            bias_t_newtons=0.18,
+            isp_s=2100.0,
+        )
+
+        pert_const = CompositePerturbation(
+            conservative=[J2Perturbation()],
+            non_conservative=[ContinuousThrustPerturbation(const_law)],
+        )
+        pert_fourier = CompositePerturbation(
+            conservative=[J2Perturbation()],
+            non_conservative=[ContinuousThrustPerturbation(fourier_law)],
+        )
+
+        ic_const = _build_mass_state(pert_const, mass_kg)
+        ic_fourier = _build_mass_state(pert_fourier, mass_kg)
+
+        ta_const, _ = build_thrust_state_integrator(
+            pert_const, ic_const, tol=1e-15, compact_mode=True
+        )
+        ta_fourier, par_map = build_thrust_state_integrator(
+            pert_fourier, ic_fourier, tol=1e-15, compact_mode=True
+        )
+
+        assert "thrust.t_bias_newtons" in par_map
+        assert "thrust.isp_s" in par_map
+
+        ta_const.propagate_until(t_final)
+        ta_fourier.propagate_until(t_final)
+        np.testing.assert_allclose(ta_fourier.state, ta_const.state, atol=1e-12, rtol=0.0)
+
+    def test_fourier_param_sensitivity_vs_finite_difference(self):
+        duration_s = 1800.0
+        mass_kg = 500.0
+
+        def build_pert(cos1_value: float):
+            law = FourierKRTNThrustLaw(
+                order=1,
+                bias_t_newtons=0.16,
+                cosine_t_newtons=(cos1_value,),
+                sine_t_newtons=(-0.01,),
+                bias_r_newtons=0.01,
+                isp_s=2150.0,
+            )
+            return CompositePerturbation(
+                conservative=[J2Perturbation()],
+                non_conservative=[ContinuousThrustPerturbation(law)],
+            )
+
+        pert = build_pert(0.04)
+        ic = _build_mass_state(pert, mass_kg)
+
+        ta, par_map = build_thrust_sensitivity_integrator(
+            pert, ic, tol=1e-15, compact_mode=True
+        )
+        ta.propagate_until(duration_s)
+        _, _, phi_p, param_names = extract_variational_matrices(
+            ta.state, state_dim=7, par_map=par_map
+        )
+        col = param_names.index("thrust.t_cos1_newtons")
+
+        delta = 1.0e-4
+        ta_p, _ = build_thrust_state_integrator(
+            build_pert(0.04 + delta), ic, tol=1e-15, compact_mode=True
+        )
+        ta_m, _ = build_thrust_state_integrator(
+            build_pert(0.04 - delta), ic, tol=1e-15, compact_mode=True
+        )
+        ta_p.propagate_until(duration_s)
+        ta_m.propagate_until(duration_s)
+        fd = (ta_p.state - ta_m.state) / (2.0 * delta)
+
+        np.testing.assert_allclose(phi_p[:, col], fd, rtol=4e-4, atol=2e-8)

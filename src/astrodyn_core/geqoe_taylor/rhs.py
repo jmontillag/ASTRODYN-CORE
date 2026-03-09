@@ -334,6 +334,7 @@ def _build_general_system(
 
     if with_mass:
         pars["mass"] = m
+    pars["K"] = K
 
     im = _build_intermediates(mu, nu, p1, p2, K, q1, q2)
     sinK, cosK = im["sinK"], im["cosK"]

@@ -349,32 +349,329 @@ control law provides thrust force components in the RTN frame together with
 their magnitude and specific impulse, and a wrapper converts those quantities
 into Cartesian acceleration and mass depletion:
 \begin{equation}
+    \bm{T}_{\mathrm{RTN}} =
+    \begin{bmatrix}
+        T_r \\ T_t \\ T_n
+    \end{bmatrix},
+    \qquad
+    T = \|\bm{T}_{\mathrm{RTN}}\|_2
+    =
+    \sqrt{T_r^2 + T_t^2 + T_n^2},
+\end{equation}
+\begin{equation}
+    \bm{P}
+    =
+    \frac{1}{10^3\,m}
+    \left(
+        T_r \,\hat{\bm{e}}_r
+        +
+        T_t \,\hat{\bm{e}}_t
+        +
+        T_n \,\hat{\bm{e}}_n
+    \right),
+\end{equation}
+\begin{equation}
     \dot{m} = -\frac{T}{g_0 I_{sp}}.
 \end{equation}
+Here $m$ is the propagated spacecraft mass in kilograms, the factor $10^3$
+converts newtons per kilogram into km/s$^2$, and
+$\{\hat{\bm{e}}_r,\hat{\bm{e}}_t,\hat{\bm{e}}_n\}$ is the instantaneous RTN
+frame reconstructed from the Cartesian state implied by the GEqOE variables.
+This is the exact implemented mapping in the current code base.
 
-Two implementation details matter for future optimization and estimation use.
-First, the thrust coefficients are mapped to \texttt{hy.par[i]} so the same
-symbolic graph can be reused while the control values change. Second, the
-mass-augmented GEqOE builder reuses the existing general equations and simply
-appends the scalar mass ODE, preserving derivative consistency between the
-force model, the state propagation, and future variational equations.
-The current smooth control parameterization is a single-arc cubic Hermite
-spline in the RTN thrust components, expressed in normalized arc time. This is
-not yet a full multi-segment B-spline layer, but it already provides a smooth
-parameterized law suitable for Taylor propagation and sensitivity analysis.
-The next extension is already enabled in the implementation: by constructing
-the variational system with
-\texttt{hy.var\_args.vars | hy.var\_args.params}, the same backend provides
-first-order sensitivities with respect to both the initial augmented state and
-the thrust-law runtime parameters. On top of these exact arc-end
-sensitivities, the current code base now includes an initial multiple-shooting
-layer that assembles continuity constraints, terminal residuals, and a
-minimum-propellant objective without introducing a separate dynamics backend,
-as well as a first constrained-optimization adapter based on SciPy's
-\texttt{trust-constr}. The optimization layer is already structured around
-explicit terminal-constraint and smoothness-penalty specifications so that the
-same transcription can later be reused with richer sparse NLP backends or
-alternative weighted objectives.
+\subsection{Implemented thrust-law families}
+
+The thrust-law interface is deliberately coefficientized: the law returns
+$T_r$, $T_t$, $T_n$, $T$, and $I_{sp}$ as symbolic expressions, while all
+control coefficients are exposed as \texttt{heyoka} runtime parameters
+\texttt{hy.par[i]}. Consequently, the same symbolic graph is used for state
+propagation, first-order variational equations, measurement Jacobians, and the
+current optimization layer.
+
+At the time of writing, three RTN thrust-law families are implemented.
+
+\paragraph{Constant RTN thrust.}
+For each component $c\in\{r,t,n\}$,
+\begin{equation}
+    T_c(t) = \bar{T}_c,
+\end{equation}
+with constant coefficients $(\bar{T}_r,\bar{T}_t,\bar{T}_n)$ and constant
+$I_{sp}$. This is the simplest continuous-thrust law and is used extensively in
+the current maneuver reconstruction and maneuver detection prototypes.
+
+\paragraph{Single-arc cubic Hermite thrust.}
+For each component $c\in\{r,t,n\}$, the implemented single-arc law is
+\begin{equation}
+    T_c(\tau)
+    =
+    h_{00}(\tau)\,T_{c,0}
+    +
+    h_{10}(\tau)\,S_{c,0}
+    +
+    h_{01}(\tau)\,T_{c,1}
+    +
+    h_{11}(\tau)\,S_{c,1},
+    \qquad
+    \tau = \frac{t}{\Delta t_{\mathrm{arc}}},
+\end{equation}
+with basis functions
+\begin{equation}
+    h_{00}(\tau)=2\tau^3-3\tau^2+1,
+    \qquad
+    h_{10}(\tau)=\tau^3-2\tau^2+\tau,
+\end{equation}
+\begin{equation}
+    h_{01}(\tau)=-2\tau^3+3\tau^2,
+    \qquad
+    h_{11}(\tau)=\tau^3-\tau^2.
+\end{equation}
+The coefficients $(T_{c,0},T_{c,1},S_{c,0},S_{c,1})$ are the implemented
+runtime parameters. This law is smooth on a single arc and is therefore well
+matched to Taylor integration and first-order variational analysis.
+
+\paragraph{Direct Fourier-in-$K$ thrust.}
+The newest implemented control family is a direct Fourier expansion in the
+propagated generalized eccentric longitude $K$. For each component
+$c\in\{r,t,n\}$ and chosen truncation order $N$,
+\begin{equation}
+    T_c(K)
+    =
+    a_{c,0}
+    +
+    \sum_{k=1}^{N}
+    \left[
+        a_{c,k}\cos\!\big(k(K-K_0)\big)
+        +
+        b_{c,k}\sin\!\big(k(K-K_0)\big)
+    \right],
+\end{equation}
+where $K_0$ is an optional phase origin. The implemented runtime parameters are
+the bias terms $a_{c,0}$ together with the cosine and sine coefficients
+$a_{c,k}$ and $b_{c,k}$ for each requested harmonic. Importantly, this law is
+\emph{not} an averaged generalized-TFC model. The series is evaluated
+pointwise during propagation inside the full GEqOE dynamics. No GEqOE
+mean-element reduction, no averaged coefficient elimination, and no closed-form
+control-distance metric are currently claimed by the implementation.
+
+\subsection{Exact first-order sensitivity path}
+
+The mass-augmented GEqOE builder reuses the existing general equations and
+appends only the scalar mass ODE, preserving derivative consistency between the
+force model, the state propagation, and the exposed variational equations. By
+constructing the augmented system with
+\texttt{hy.var\_args.vars | hy.var\_args.params}, the implemented backend
+propagates first-order sensitivities with respect to both the initial
+mass-augmented state and the selected thrust-law coefficients. If
+$\bm{x}_i\in\mathbb{R}^7$ denotes the initial state of arc $i$,
+$\bm{p}_i\in\mathbb{R}^{n_{p,i}}$ its selected runtime parameters, and
+\begin{equation}
+    \bm{\phi}_i(t;\bm{x}_i,\bm{p}_i)
+    \in \mathbb{R}^{7}
+\end{equation}
+the exact propagated arc state at time $t$, then the implementation exposes the
+matrices
+\begin{equation}
+    \Phi_{x,i}(t) = \frac{\partial \bm{\phi}_i}{\partial \bm{x}_i},
+    \qquad
+    \Phi_{p,i}(t) = \frac{\partial \bm{\phi}_i}{\partial \bm{p}_i},
+\end{equation}
+directly from the same symbolic graph used for the dynamics.
+
+\subsection{Implemented multiple-shooting transcription}
+
+For $N_{\mathrm{arc}}$ propagation arcs, the current transcription uses the
+flat decision vector
+\begin{equation}
+    \bm{z}
+    =
+    \left[
+        \bm{x}_0,\bm{p}_0,\bm{x}_1,\bm{p}_1,\ldots,
+        \bm{x}_{N_{\mathrm{arc}}-1},\bm{p}_{N_{\mathrm{arc}}-1}
+    \right]^\top.
+\end{equation}
+The exact continuity constraints are
+\begin{equation}
+    \bm{c}_i(\bm{z})
+    =
+    \bm{\phi}_i(\Delta t_i;\bm{x}_i,\bm{p}_i) - \bm{x}_{i+1}
+    =
+    \bm{0},
+    \qquad
+    i=0,\ldots,N_{\mathrm{arc}}-2.
+\end{equation}
+Optionally, selected outputs of the terminal arc can be bounded or fixed:
+\begin{equation}
+    \bm{\ell}_{f}
+    \le
+    \bm{S}_f\,
+    \bm{\phi}_{N_{\mathrm{arc}}-1}(\Delta t_{N_{\mathrm{arc}}-1};
+    \bm{x}_{N_{\mathrm{arc}}-1},\bm{p}_{N_{\mathrm{arc}}-1})
+    \le
+    \bm{u}_{f},
+\end{equation}
+where $\bm{S}_f$ is a row-selector matrix choosing the implemented subset of
+terminal outputs.
+
+\subsection{Implemented measurement transcription}
+
+The current sampled-measurement layer attaches observations directly to the
+same shooting problem. For a sample $j$ belonging to arc $i$ at local sample
+time $\tau_{ij}$, the predicted observation is
+\begin{equation}
+    \hat{\bm{y}}_{ij}
+    =
+    \bm{h}_{ij}
+    \!\left(
+        \bm{\phi}_i(\tau_{ij};\bm{x}_i,\bm{p}_i)
+    \right),
+\end{equation}
+where $\bm{h}_{ij}$ is the chosen local measurement model. The currently
+implemented observation families are
+\begin{equation}
+    \bm{h}_{\mathrm{pos}}(\bm{x}) =
+    \bm{r}_{\mathrm{I}}(\bm{x}),
+    \qquad
+    h_{\mathrm{range}}(\bm{x}) =
+    \left\|
+        \bm{r}_{\mathrm{I}}(\bm{x}) - \bm{r}_{\mathrm{ref}}
+    \right\|_2,
+\end{equation}
+that is, inertial Cartesian position and inertial one-way range to a fixed
+inertial reference point.
+
+The whitened residual for sample $j$ is
+\begin{equation}
+    \bm{r}_{ij}
+    =
+    \bm{W}_{ij}
+    \left(
+        \hat{\bm{y}}_{ij} - \bm{y}_{ij}
+    \right),
+\end{equation}
+with $\bm{W}_{ij}$ equal to the identity, a diagonal inverse-standard-deviation
+matrix, or the inverse Cholesky factor of a supplied covariance matrix. The
+implemented exact Jacobian block is obtained by chain rule:
+\begin{equation}
+    \frac{\partial \bm{r}_{ij}}{\partial \bm{x}_i}
+    =
+    \bm{W}_{ij}
+    \frac{\partial \bm{h}_{ij}}{\partial \bm{\phi}_i}
+    \Phi_{x,i}(\tau_{ij}),
+    \qquad
+    \frac{\partial \bm{r}_{ij}}{\partial \bm{p}_i}
+    =
+    \bm{W}_{ij}
+    \frac{\partial \bm{h}_{ij}}{\partial \bm{\phi}_i}
+    \Phi_{p,i}(\tau_{ij}).
+\end{equation}
+This is an exact first-order residual linearization with respect to the
+implemented decision variables; there is no separately coded estimator Jacobian.
+
+\subsection{Solver modes currently available}
+
+At present, all constrained solves use SciPy's \texttt{trust-constr} backend,
+but the objective models available on top of that backend are already distinct
+and should be stated explicitly.
+
+\paragraph{Minimum-propellant mode.}
+The prototype direct-design mode minimizes
+\begin{equation}
+    J_{\mathrm{prop}}(\bm{z})
+    =
+    m_0 - m_f,
+\end{equation}
+possibly augmented by optional quadratic smoothness penalties and terminal
+constraints. Since $J_{\mathrm{prop}}$ is linear in the decision variables once
+the propagated endpoint sensitivities are extracted, its exact objective
+Hessian is identically zero; only the constraint Jacobians are nontrivial.
+
+\paragraph{Measurement-fit mode.}
+The current maneuver-estimation mode minimizes
+\begin{equation}
+    J(\bm{z})
+    =
+    J_{\mathrm{meas}}(\bm{z})
+    +
+    J_{\mathrm{track}}(\bm{z})
+    +
+    J_{\mathrm{smooth}}(\bm{z}),
+\end{equation}
+with
+\begin{equation}
+    J_{\mathrm{meas}}(\bm{z})
+    =
+    \frac{\alpha}{2}
+    \sum_{i,j}
+    \|\bm{r}_{ij}\|_2^2,
+\end{equation}
+\begin{equation}
+    J_{\mathrm{track}}(\bm{z})
+    =
+    \frac{1}{2}
+    \sum_{\ell}
+    \frac{(z_\ell-z_\ell^\star)^2}{\sigma_\ell^2},
+\end{equation}
+\begin{equation}
+    J_{\mathrm{smooth}}(\bm{z})
+    =
+    \frac{1}{2}
+    \sum_{s}
+    \lambda_s
+    \sum_{i=0}^{N_{\mathrm{arc}}-2}
+    \left(
+        z_{i+1,s}-z_{i,s}
+    \right)^2.
+\end{equation}
+Here $\alpha$ is a global measurement weight,
+$z_\ell^\star$ and $\sigma_\ell$ are the implemented decision-tracking targets
+and standard deviations, and $\lambda_s$ are the implemented selector-specific
+smoothness weights.
+
+\paragraph{Hessian handling modes.}
+Two Hessian strategies are currently available for measurement fits:
+\begin{enumerate}
+    \item \emph{quasi-Newton mode}: the objective and all first-order
+    derivatives are exact, but the second-order update is delegated to the
+    optimizer's quasi-Newton machinery;
+    \item \emph{Gauss--Newton mode}: the code assembles the explicit quadratic
+    approximation
+    \begin{equation}
+        \bm{H}_{\mathrm{GN}}
+        =
+        \alpha\,\bm{J}_r^\top \bm{J}_r
+        +
+        \bm{H}_{\mathrm{track}}
+        +
+        \bm{H}_{\mathrm{smooth}},
+    \end{equation}
+    where $\bm{J}_r$ is the stacked exact residual Jacobian and
+    $\bm{H}_{\mathrm{track}}$, $\bm{H}_{\mathrm{smooth}}$ are the exact
+    quadratic Hessians of the regularization terms.
+\end{enumerate}
+In the present implementation, constrained multi-arc measurement fits default
+to the more robust quasi-Newton path, while explicit Gauss--Newton Hessians are
+available and used when appropriate. This distinction should be read as an
+implementation fact, not as a theoretical claim of full sparse second-order NLP
+support.
+
+\paragraph{Linearized local covariance mode.}
+After a constrained solve, the code can also report a first local covariance
+estimate from the same linearized transcription. If
+$\bm{A}_{\mathrm{eq}}$ denotes the stacked Jacobian of the equality constraints
+(continuity constraints, terminal equalities, and fixed bounds) and
+$\bm{N}$ spans its nullspace, then the reported covariance is
+\begin{equation}
+    \bm{P}_z
+    =
+    \bm{N}
+    \left(
+        \bm{N}^\top \bm{H} \bm{N}
+    \right)^{+}
+    \bm{N}^\top,
+\end{equation}
+where $(\cdot)^{+}$ denotes the Moore--Penrose pseudoinverse and $\bm{H}$ is
+the quadratic objective Hessian used by the solve model. This is a constrained
+local linearized covariance, not a full Bayesian posterior.
 
 It is useful to state the present maneuvering capability explicitly. The
 implemented maneuvering stack now supports:
@@ -383,6 +680,8 @@ implemented maneuvering stack now supports:
     dynamics with propagated mass,
     \item RTN-frame constant thrust and smooth single-arc cubic Hermite thrust
     laws,
+    \item direct Fourier-in-$K$ RTN thrust laws evaluated in the same full
+    dynamics and exposed through runtime coefficients,
     \item exact first-order sensitivities with respect to both the initial
     augmented state and the thrust-law coefficients,
     \item multi-arc multiple-shooting transcription with continuity
@@ -409,6 +708,10 @@ objectives (for example time-optimal or power-aware formulations), and
 alternative sparse NLP backends beyond the present SciPy prototype. These
 remaining items are architectural extensions, not blockers for the current
 maneuvering workflow.
+Also outside the current implementation is any GEqOE orbit-averaged or
+mean-element generalized-TFC law. Deriving such a reduction is a separate
+research problem and should not be conflated with the working full-dynamics
+Fourier machinery now present in the code.
 
 The present example suite makes these capabilities concrete in three different
 ways. First, a coefficient-level comparison against the earlier GEqOE J2 map

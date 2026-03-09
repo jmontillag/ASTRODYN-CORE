@@ -879,6 +879,12 @@ class ContinuousThrustLaw(Protocol):
     def thrust_rtn_expr(self, state, t, pars, prefix) -> tuple: ...
 ```
 
+The symbolic `state` dictionary passed to the thrust law includes the
+propagated Cartesian quantities used by the perturbation wrapper plus the
+propagated GEqOE longitude `K` when available, so laws can be parameterized in
+either normalized time or the current orbital phase without introducing a
+second dynamics path.
+
 The current shipped laws are:
 
 - `ConstantRTNThrustLaw`, which exposes four runtime parameters:
@@ -896,9 +902,22 @@ The current shipped laws are:
   - `thrust.t0_slope_newtons`, `thrust.t1_slope_newtons`
   - `thrust.n0_slope_newtons`, `thrust.n1_slope_newtons`
   - `thrust.isp_s`
+- `FourierKRTNThrustLaw`, a direct full-dynamics Fourier law in the propagated
+  generalized eccentric longitude `K`, with RTN bias/cosine/sine coefficients
+  exposed as runtime parameters:
+  - `thrust.r_bias_newtons`, `thrust.t_bias_newtons`, `thrust.n_bias_newtons`
+  - `thrust.r_cos{k}_newtons`, `thrust.t_cos{k}_newtons`,
+    `thrust.n_cos{k}_newtons`
+  - `thrust.r_sin{k}_newtons`, `thrust.t_sin{k}_newtons`,
+    `thrust.n_sin{k}_newtons`
+  - `thrust.isp_s`
 
 These parameters are mapped into `hy.par[i]`, so the symbolic graph can be
 reused while thrust coefficients are varied or differentiated later.
+
+The Fourier law is intentionally evaluated pointwise in the full GEqOE
+dynamics. There is currently no separate orbit-averaged or mean-element
+generalized-TFC reduction in the implementation.
 
 **Perturbation wrapper**: `ContinuousThrustPerturbation(law, name="thrust")`
 

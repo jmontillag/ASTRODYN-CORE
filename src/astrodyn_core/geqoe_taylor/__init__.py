@@ -49,6 +49,7 @@ from astrodyn_core.geqoe_taylor.thrust import (
     ConstantRTNThrustLaw,
     ContinuousThrustLaw,
     CubicHermiteRTNThrustLaw,
+    FourierKRTNThrustLaw,
 )
 
 __all__ = [
@@ -57,6 +58,7 @@ __all__ = [
     "J2Perturbation", "ThirdBodyPerturbation", "CompositePerturbation",
     "ZonalPerturbation", "ContinuousThrustPerturbation",
     "ContinuousThrustLaw", "ConstantRTNThrustLaw", "CubicHermiteRTNThrustLaw",
+    "FourierKRTNThrustLaw",
     "build_state_integrator", "build_stm_integrator",
     "build_thrust_state_integrator", "build_thrust_stm_integrator",
     "build_thrust_sensitivity_integrator",

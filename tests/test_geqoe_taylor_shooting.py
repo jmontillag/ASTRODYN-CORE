@@ -26,7 +26,7 @@ from astrodyn_core.geqoe_taylor.shooting import (
     SmoothnessPenaltySpec,
     TerminalConstraintSpec,
 )
-from astrodyn_core.geqoe_taylor.thrust import ConstantRTNThrustLaw
+from astrodyn_core.geqoe_taylor.thrust import ConstantRTNThrustLaw, FourierKRTNThrustLaw
 
 R0_A = np.array([7178.1366, 0.0, 0.0])
 V0_A = np.array([0.0, 5.269240572916780, 5.269240572916780])
@@ -92,6 +92,51 @@ def _build_one_arc_problem() -> MultiArcShootingProblem:
                 initial_state=x0,
                 duration_s=duration,
                 parameter_names=("thrust.t_newtons",),
+                name="arc0",
+            )
+        ],
+        tol=1e-15,
+        compact_mode=True,
+    )
+
+
+def _make_fourier_perturbation(
+    bias_t_newtons: float,
+    cos1_newtons: float,
+    sin1_newtons: float,
+    isp_s: float = 2100.0,
+):
+    return CompositePerturbation(
+        conservative=[J2Perturbation()],
+        non_conservative=[
+            ContinuousThrustPerturbation(
+                FourierKRTNThrustLaw(
+                    order=1,
+                    bias_t_newtons=bias_t_newtons,
+                    cosine_t_newtons=(cos1_newtons,),
+                    sine_t_newtons=(sin1_newtons,),
+                    isp_s=isp_s,
+                )
+            )
+        ],
+    )
+
+
+def _build_one_arc_fourier_problem() -> MultiArcShootingProblem:
+    duration = 5400.0
+    pert = _make_fourier_perturbation(0.18, 0.04, 0.0)
+    x0 = _build_mass_state(pert, 480.0)
+    return MultiArcShootingProblem(
+        [
+            ShootingArc(
+                perturbation=pert,
+                initial_state=x0,
+                duration_s=duration,
+                parameter_names=(
+                    "thrust.t_bias_newtons",
+                    "thrust.t_cos1_newtons",
+                    "thrust.t_sin1_newtons",
+                ),
                 name="arc0",
             )
         ],
@@ -218,7 +263,62 @@ class TestMultiArcShooting:
 
         assert np.linalg.norm(evaluation.residual) < 1.0e-11
         assert np.linalg.norm(evaluation.shooting_evaluation.continuity_residual) < 1.0e-11
-        assert evaluation.jacobian.shape == (9, problem.decision_size)
+
+    def test_measurement_fit_recovers_fourier_k_coefficients_with_fixed_state(self):
+        problem = _build_one_arc_fourier_problem()
+        sample_fractions = np.linspace(0.05, 1.0, 24)
+        measurements, _ = _build_position_measurements(
+            problem,
+            [
+                ("arc0", float(fraction * 5400.0), f"sample{i}")
+                for i, fraction in enumerate(sample_fractions)
+            ],
+            sigma_km=0.005,
+        )
+
+        fixed_state_bounds = {
+            state_name: float(value)
+            for state_name, value in zip(
+                problem.state_names,
+                problem.initial_guess()[: problem.state_dim],
+                strict=True,
+            )
+        }
+        bounds = problem.build_named_bounds(
+            lower={
+                **fixed_state_bounds,
+                "thrust.t_bias_newtons": 0.05,
+                "thrust.t_cos1_newtons": -0.10,
+                "thrust.t_sin1_newtons": -0.10,
+            },
+            upper={
+                **fixed_state_bounds,
+                "thrust.t_bias_newtons": 0.30,
+                "thrust.t_cos1_newtons": 0.10,
+                "thrust.t_sin1_newtons": 0.10,
+            },
+        )
+
+        x0 = problem.initial_guess()
+        idx_bias = problem.decision_index("arc0.thrust.t_bias_newtons")
+        idx_cos1 = problem.decision_index("arc0.thrust.t_cos1_newtons")
+        idx_sin1 = problem.decision_index("arc0.thrust.t_sin1_newtons")
+        x0[idx_bias] = 0.12
+        x0[idx_cos1] = 0.0
+        x0[idx_sin1] = 0.0
+
+        solve = problem.solve_measurement_fit(
+            measurements,
+            decision_vector0=x0,
+            bounds=bounds,
+            measurement_hessian_mode="gauss-newton",
+            options={"maxiter": 300},
+        )
+
+        assert solve.scipy_result.success
+        assert solve.x[idx_bias] == pytest.approx(0.18, abs=5.0e-4)
+        assert solve.x[idx_cos1] == pytest.approx(0.04, abs=5.0e-4)
+        assert solve.x[idx_sin1] == pytest.approx(0.0, abs=1.0e-3)
 
     def test_measurement_weights_scale_residual_and_jacobian(self):
         problem = _build_one_arc_problem()

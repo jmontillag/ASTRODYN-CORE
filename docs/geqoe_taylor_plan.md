@@ -677,10 +677,11 @@ Two independent research notes were reviewed:
 - `docs/geqoe_taylor/compass_continuous_markdown.md`
 - `docs/geqoe_taylor/deep-research-report-taylor-continuous-optim.md`
 
-**Conclusion**: the best path is **not** to begin with the full generalized
-Fourier/TFC-in-K theory. That is a strong research target, but it should come
-**after** a robust continuous-thrust propagation and sensitivity framework is in
-place.
+**Conclusion**: the best path is **not** to begin with an orbit-averaged
+generalized TFC / mean-element formulation in GEqOE. That is not a small
+implementation detail; it is a separate research problem and should be treated
+as publication-scale theory work. The implementation path here should stay with
+the full GEqOE dynamics first.
 
 The implementation priority should be:
 
@@ -689,8 +690,8 @@ The implementation priority should be:
 2. **Parameter sensitivities with respect to thrust-law coefficients** using
    heyoka's variational system
 3. **Direct optimization-friendly transcription** (multiple shooting first)
-4. **Research extension** to generalized Fourier coefficients in the GEqOE fast
-   angle $K$
+4. **Direct Fourier/TFC-style coefficientized thrust laws** in the propagated
+   GEqOE fast angle $K$
 5. **Uncertainty / maneuver characterization** using STMs, higher derivatives,
    and eventually control-distance-like metrics
 
@@ -710,8 +711,9 @@ From the research review, the strongest engineering conclusions are:
   $\mathbf{P}$, preserving the GEqOE separation $\mathbf{F}=\mathbf{P}-\nabla U$
 - **Sensitivities with respect to control coefficients** are essential from day
   one, because they unlock both optimization and future uncertainty workflows
-- **Generalized TFC/Fourier-in-K is a Phase-2 research extension**, not the
-  lowest-risk initial implementation
+- **Orbit-averaged generalized TFC theory in GEqOE remains separate research
+  work**; the implementation target is direct Fourier-in-$K$ control inside the
+  full dynamics, not a mean-element reduction
 
 ### 8.3 Implemented Phase 8a Architecture
 
@@ -850,9 +852,10 @@ or directly:
 
 with $\tau \in [0,1]$ per arc.
 
-#### Phase 8b: low-order Fourier per revolution or per arc
+#### Phase 8b: direct low-order Fourier in $K$ or per arc
 
-Add truncated Fourier expansions once the spline-based pipeline is stable.
+Add truncated Fourier expansions directly inside the full GEqOE dynamics once
+the spline-based pipeline is stable.
 
 Why:
 - useful for smooth multi-revolution thrust patterns
@@ -861,7 +864,13 @@ Why:
 
 But this should remain secondary to splines because:
 - Fourier is less natural with eclipses and local discontinuities
-- generalized Fourier in the GEqOE fast angle $K$ requires separate theory work
+- spline controls remain easier to localize and regularize in multi-arc solves
+
+This direct Fourier layer is intentionally **not** an averaged generalized-TFC
+law. The same coefficientized control is evaluated pointwise in the full GEqOE
+dynamics and differentiated through the existing variational equations. Any
+attempt to derive a reduced mean-element law in GEqOE should be treated as a
+separate research publication, not as a prerequisite for the working solver.
 
 #### Explicit non-recommendation for the first version
 
@@ -1004,15 +1013,22 @@ Recommended first objectives:
 - minimum time with bounded thrust
 - weighted smoothness-regularized objective
 
-#### Phase 8d: Generalized Fourier/TFC research extension
+#### Phase 8d: Direct Fourier/TFC-style full-dynamics extension
 
 Deliverables:
-- derive thrust expansions in generalized eccentric longitude $K$
-- identify surviving averaged coefficients and relation to classical TFCs
-- compare against spline-based direct transcription
+- implement thrust expansions in generalized eccentric longitude $K$ inside the
+  full GEqOE dynamics
+- fit and regularize those coefficients with the same multiple-shooting,
+  measurement, and covariance machinery used by the other thrust laws
+- compare direct Fourier-in-$K$ control against spline-based direct
+  transcription
 
-This is the main research novelty path and should be pursued once the direct
-continuous-thrust backend is already working.
+Explicitly out of scope for this implementation phase:
+- deriving a GEqOE mean-element law for those coefficients
+- identifying surviving averaged coefficients or a reduced generalized-TFC set
+- claiming a closed-form control-distance metric in GEqOE coefficient space
+
+Those items remain valid research targets, but they are separate theory work.
 
 #### Phase 8e: Maneuver characterization and uncertainty
 
@@ -1055,14 +1071,17 @@ The best path forward is:
 2. expose **exact state-and-parameter sensitivities** via heyoka variational
    equations
 3. build a **multiple-shooting optimization layer** on top of that
-4. only then pursue the **generalized Fourier/TFC-in-K research program**
+4. then add **direct Fourier/TFC-style coefficientized control in full GEqOE
+   dynamics**
+5. keep any orbit-averaged generalized-TFC / mean-element reduction as a
+   separate research program
 
 This path is the best compromise between:
 - **performance**: smooth controls preserve Taylor efficiency
 - **flexibility**: splines + multi-arc support many mission types
 - **uncertainty readiness**: parameter sensitivities are available from the same backend
-- **research value**: the generalized TFC formulation remains an open,
-  publishable extension rather than a prerequisite blocker
+- **research value**: the orbit-averaged generalized TFC formulation remains an
+  open, publishable extension rather than a prerequisite blocker
 
 ---
 

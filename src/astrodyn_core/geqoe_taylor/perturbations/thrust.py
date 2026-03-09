@@ -73,6 +73,7 @@ class ContinuousThrustPerturbation:
             "r_mag": r_mag,
             "t": t,
             "mass": pars["mass"],
+            "K": pars.get("K"),
         }
 
     def _rtn_basis_expr(self, x, y, z, vx, vy, vz, r_mag):
