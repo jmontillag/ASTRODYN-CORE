@@ -5,7 +5,7 @@
 \begin{document}
 \small
 \section*{Explicit Symbolic Averaged GEqOE Zonal Coefficients}
-This note records the first non-$J_2$ symbolic averaged GEqOE zonal coefficients obtained through the residue route.
+This note records explicit closed formulas generated from the exact degree-$n$ symbolic residue machinery.
 We use
 \begin{equation}
 q = \frac{1-\beta}{g} = \frac{g}{1+\beta}, \qquad
@@ -16,7 +16,7 @@ Q=\tan\frac{i}{2}, \qquad
 \end{equation}
 and the degree-scaled small parameters
 \begin{equation}
-\varepsilon_3 = \frac{J_{3} R_{e}^{3} \nu}{a^{3}}, \qquad \varepsilon_4 = \frac{J_{4} R_{e}^{4} \nu}{a^{4}}.
+\varepsilon_3 = \frac{J_{3} R_{e}^{3} \nu}{a^{3}}, \qquad \varepsilon_4 = \frac{J_{4} R_{e}^{4} \nu}{a^{4}}, \qquad \varepsilon_5 = \frac{J_{5} R_{e}^{5} \nu}{a^{5}}.
 \end{equation}
 
 \subsection*{$J_3$ contribution}
@@ -53,6 +53,26 @@ and the degree-scaled small parameters
 \end{align}
 \endgroup
 
-These formulas match the parity structure inferred earlier from the finite Fourier model:
-$J_3$ produces first-harmonic odd-angle coupling, while $J_4$ produces constant and second-harmonic even-angle coupling.
+\subsection*{$J_5$ contribution}
+\begin{align}
+\dot{\bar g}_{J_5} &= \varepsilon_5 \mathcal{G}_{5,1}(q,Q)\cos\omega + \varepsilon_5 \mathcal{G}_{5,3}(q,Q)\cos(3\omega),\\
+\dot{\bar Q}_{J_5} &= \varepsilon_5 \mathcal{Q}_{5,1}(q,Q)\cos\omega + \varepsilon_5 \mathcal{Q}_{5,3}(q,Q)\cos(3\omega),\\
+\dot{\bar\Psi}_{J_5} &= \varepsilon_5 \mathcal{P}_{5,1}(q,Q)\sin\omega + \varepsilon_5 \mathcal{P}_{5,3}(q,Q)\sin(3\omega),\\
+\dot{\bar\Omega}_{J_5} &= \varepsilon_5 \mathcal{O}_{5,1}(q,Q)\sin\omega + \varepsilon_5 \mathcal{O}_{5,3}(q,Q)\sin(3\omega).
+\end{align}
+\begingroup\footnotesize
+\begin{align}
+\mathcal{G}_{5,1}(q,Q) &= \frac{15 Q \left(q^{2} + 1\right)^{6} \left(q^{4} + 5 q^{2} + 1\right) \left(Q^{8} - 10 Q^{6} + 20 Q^{4} - 10 Q^{2} + 1\right)}{2 \left(Q^{2} + 1\right)^{5} \left(q - 1\right)^{8} \left(q + 1\right)^{8}},\\
+\mathcal{G}_{5,3}(q,Q) &= \frac{105 Q^{3} q^{2} \left(Q^{2} - 2\right) \left(2 Q^{2} - 1\right) \left(q^{2} + 1\right)^{6}}{2 \left(Q^{2} + 1\right)^{5} \left(q - 1\right)^{8} \left(q + 1\right)^{8}},\\
+\mathcal{Q}_{5,1}(q,Q) &= \frac{15 q \left(Q - 1\right) \left(Q + 1\right) \left(q^{2} + 1\right)^{7} \left(q^{4} + 5 q^{2} + 1\right) \left(Q^{8} - 10 Q^{6} + 20 Q^{4} - 10 Q^{2} + 1\right)}{4 \left(Q^{2} + 1\right)^{4} \left(q - 1\right)^{10} \left(q + 1\right)^{10}},\\
+\mathcal{Q}_{5,3}(q,Q) &= \frac{105 Q^{2} q^{3} \left(Q - 1\right) \left(Q + 1\right) \left(Q^{2} - 2\right) \left(2 Q^{2} - 1\right) \left(q^{2} + 1\right)^{7}}{4 \left(Q^{2} + 1\right)^{4} \left(q - 1\right)^{10} \left(q + 1\right)^{10}},\\
+\mathcal{P}_{5,1}(q,Q) &= - \frac{15 Q \left(q^{2} + 1\right)^{7} \left(- 2 Q^{10} q^{6} - 10 Q^{10} q^{4} - 2 Q^{10} q^{2} + Q^{8} q^{8} + 123 Q^{8} q^{6} + 550 Q^{8} q^{4} + 123 Q^{8} q^{2} + Q^{8} - 10 Q^{6} q^{8} - 790 Q^{6} q^{6} - 3300 Q^{6} q^{4} - 790 Q^{6} q^{2} - 10 Q^{6} + 20 Q^{4} q^{8} + 1240 Q^{4} q^{6} + 4900 Q^{4} q^{4} + 1240 Q^{4} q^{2} + 20 Q^{4} - 10 Q^{2} q^{8} - 528 Q^{2} q^{6} - 1990 Q^{2} q^{4} - 528 Q^{2} q^{2} - 10 Q^{2} + q^{8} + 47 q^{6} + 170 q^{4} + 47 q^{2} + 1\right)}{4 q \left(Q^{2} + 1\right)^{5} \left(q - 1\right)^{10} \left(q + 1\right)^{10}},\\
+\mathcal{P}_{5,3}(q,Q) &= - \frac{105 Q^{3} q \left(q^{2} + 1\right)^{7} \left(- 4 Q^{6} q^{2} + 2 Q^{4} q^{4} + 46 Q^{4} q^{2} + 2 Q^{4} - 5 Q^{2} q^{4} - 76 Q^{2} q^{2} - 5 Q^{2} + 2 q^{4} + 24 q^{2} + 2\right)}{4 \left(Q^{2} + 1\right)^{5} \left(q - 1\right)^{10} \left(q + 1\right)^{10}},\\
+\mathcal{O}_{5,1}(q,Q) &= \frac{15 q \left(Q - 1\right) \left(Q + 1\right) \left(q^{2} + 1\right)^{7} \left(q^{4} + 5 q^{2} + 1\right) \left(Q^{8} - 38 Q^{6} + 132 Q^{4} - 38 Q^{2} + 1\right)}{4 Q \left(Q^{2} + 1\right)^{4} \left(q - 1\right)^{10} \left(q + 1\right)^{10}},\\
+\mathcal{O}_{5,3}(q,Q) &= \frac{105 Q q^{3} \left(Q - 1\right) \left(Q + 1\right) \left(q^{2} + 1\right)^{7} \left(2 Q^{4} - 11 Q^{2} + 2\right)}{4 \left(Q^{2} + 1\right)^{4} \left(q - 1\right)^{10} \left(q + 1\right)^{10}}.
+\end{align}
+\endgroup
+
+The exact generator also explains a sharper structural fact than the earlier numerical probe:
+for an isolated degree-$n$ zonal term, the highest surviving averaged harmonic is $n-2$, not $n$.
 \end{document}

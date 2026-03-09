@@ -1,0 +1,56 @@
+\documentclass[10pt]{article}
+\usepackage[a4paper,landscape,margin=1.5cm]{geometry}
+\usepackage{amsmath,amssymb,bm}
+\allowdisplaybreaks
+\begin{document}
+\small
+\section*{Exact Symbolic Averaged GEqOE Zonal Generator}
+For the isolated degree-$n$ zonal contribution we define
+\begin{equation}
+F(z;q)=\frac{z-q}{1-qz}, \qquad
+D(z;q)=\frac{(z-q)(1-qz)}{(1+q^2)z}, \qquad
+C(Q)=\frac{Q}{i(1+Q^2)},
+\end{equation}
+with $z=e^{iG}$, $q=(1-\beta)/g=g/(1+\beta)$, and $\omega=\Psi-\Omega$.
+The exact Laurent expansion step is
+\begin{align}
+P_n\!\left(C(Q)\left[wF-w^{-1}F^{-1}\right]\right) &= \sum_{m\equiv n\!\!\!\!\pmod{2}} \Pi_{n,m}(Q)\,w^m F^m,\\
+P_n'\!\left(C(Q)\left[wF-w^{-1}F^{-1}\right]\right) &= \sum_{m\equiv n-1\!\!\!\!\pmod{2}} \Delta_{n,m}(Q)\,w^m F^m,
+\end{align}
+where $w=e^{i\omega}$ and the coefficients are the exact finite sums
+\begin{align}
+\Pi_{n,m}(Q) &= \sum_{\substack{r=0\\ r\equiv m\!\!\!\!\pmod{2}}}^{n}
+a_{n,r}\,C(Q)^r
+\binom{r}{\frac{r+m}{2}}(-1)^{\frac{r-m}{2}},\\
+\Delta_{n,m}(Q) &= \sum_{\substack{r=0\\ r\equiv m\!\!\!\!\pmod{2}}}^{n-1}
+b_{n,r}\,C(Q)^r
+\binom{r}{\frac{r+m}{2}}(-1)^{\frac{r-m}{2}},
+\end{align}
+with $P_n(x)=\sum_r a_{n,r}x^r$ and $P_n'(x)=\sum_r b_{n,r}x^r$.
+The anomaly average then collapses to the single interior pole $z=q$.
+For the recurring kernels one obtains the exact derivative formulas
+\begin{align}
+\mathcal{R}_{n,m}(q) &= \frac{(1+q^2)^n}{(n-m-1)!}
+\left.\frac{d^{\,n-m-1}}{dz^{\,n-m-1}}\left(\frac{z^{n-1}}{(1-qz)^{n+m}}\right)\right|_{z=q},\\
+\mathcal{G}_{n,m}(q) &= \frac{(n-1)(1+q^2)^n}{2i\,(n-m-1)!}
+\left.\frac{d^{\,n-m-1}}{dz^{\,n-m-1}}\left(\frac{z^{n-2}(z^2-1)}{(1-qz)^{n+m}}\right)\right|_{z=q},\\
+\mathcal{P}_{n,m}(q) &= -\frac{(1+q^2)^{n+1}}{4q(1-q^2)(n-m-1)!}
+\left.\frac{d^{\,n-m-1}}{dz^{\,n-m-1}}
+\left(\frac{z^{n-2}\left[4nqz+(n-1)(1+q^2)(z^2+1)\right]}{(1-qz)^{n+m}}\right)\right|_{z=q}.
+\end{align}
+These formulas immediately show that the isolated degree-$n$ averaged drift cannot reach harmonic $n$:
+the residue vanishes whenever $m\ge n$, so the highest surviving harmonic is $n-2$.
+
+\subsection*{$J_5$ explicit coefficients}
+\begin{equation}
+\varepsilon_5 = \frac{J_{5} R_{e}^{5} \nu}{a^{5}}.
+\end{equation}
+\begingroup\footnotesize
+\begin{align}
+\dot{\bar g}_{J_5} &= \varepsilon_5 \left(\left(\frac{15 Q \left(q^{2} + 1\right)^{6} \left(q^{4} + 5 q^{2} + 1\right) \left(Q^{8} - 10 Q^{6} + 20 Q^{4} - 10 Q^{2} + 1\right)}{2 \left(Q^{2} + 1\right)^{5} \left(q - 1\right)^{8} \left(q + 1\right)^{8}}\right)\cos(1\omega) + \left(\frac{105 Q^{3} q^{2} \left(Q^{2} - 2\right) \left(2 Q^{2} - 1\right) \left(q^{2} + 1\right)^{6}}{2 \left(Q^{2} + 1\right)^{5} \left(q - 1\right)^{8} \left(q + 1\right)^{8}}\right)\cos(3\omega)\right),\\
+\dot{\bar Q}_{J_5} &= \varepsilon_5 \left(\left(\frac{15 q \left(Q - 1\right) \left(Q + 1\right) \left(q^{2} + 1\right)^{7} \left(q^{4} + 5 q^{2} + 1\right) \left(Q^{8} - 10 Q^{6} + 20 Q^{4} - 10 Q^{2} + 1\right)}{4 \left(Q^{2} + 1\right)^{4} \left(q - 1\right)^{10} \left(q + 1\right)^{10}}\right)\cos(1\omega) + \left(\frac{105 Q^{2} q^{3} \left(Q - 1\right) \left(Q + 1\right) \left(Q^{2} - 2\right) \left(2 Q^{2} - 1\right) \left(q^{2} + 1\right)^{7}}{4 \left(Q^{2} + 1\right)^{4} \left(q - 1\right)^{10} \left(q + 1\right)^{10}}\right)\cos(3\omega)\right),\\
+\dot{\bar\Psi}_{J_5} &= \varepsilon_5 \left(\left(- \frac{15 Q \left(q^{2} + 1\right)^{7} \left(- 2 Q^{10} q^{6} - 10 Q^{10} q^{4} - 2 Q^{10} q^{2} + Q^{8} q^{8} + 123 Q^{8} q^{6} + 550 Q^{8} q^{4} + 123 Q^{8} q^{2} + Q^{8} - 10 Q^{6} q^{8} - 790 Q^{6} q^{6} - 3300 Q^{6} q^{4} - 790 Q^{6} q^{2} - 10 Q^{6} + 20 Q^{4} q^{8} + 1240 Q^{4} q^{6} + 4900 Q^{4} q^{4} + 1240 Q^{4} q^{2} + 20 Q^{4} - 10 Q^{2} q^{8} - 528 Q^{2} q^{6} - 1990 Q^{2} q^{4} - 528 Q^{2} q^{2} - 10 Q^{2} + q^{8} + 47 q^{6} + 170 q^{4} + 47 q^{2} + 1\right)}{4 q \left(Q^{2} + 1\right)^{5} \left(q - 1\right)^{10} \left(q + 1\right)^{10}}\right)\sin(1\omega) + \left(- \frac{105 Q^{3} q \left(q^{2} + 1\right)^{7} \left(- 4 Q^{6} q^{2} + 2 Q^{4} q^{4} + 46 Q^{4} q^{2} + 2 Q^{4} - 5 Q^{2} q^{4} - 76 Q^{2} q^{2} - 5 Q^{2} + 2 q^{4} + 24 q^{2} + 2\right)}{4 \left(Q^{2} + 1\right)^{5} \left(q - 1\right)^{10} \left(q + 1\right)^{10}}\right)\sin(3\omega)\right),\\
+\dot{\bar\Omega}_{J_5} &= \varepsilon_5 \left(\left(\frac{15 q \left(Q - 1\right) \left(Q + 1\right) \left(q^{2} + 1\right)^{7} \left(q^{4} + 5 q^{2} + 1\right) \left(Q^{8} - 38 Q^{6} + 132 Q^{4} - 38 Q^{2} + 1\right)}{4 Q \left(Q^{2} + 1\right)^{4} \left(q - 1\right)^{10} \left(q + 1\right)^{10}}\right)\sin(1\omega) + \left(\frac{105 Q q^{3} \left(Q - 1\right) \left(Q + 1\right) \left(q^{2} + 1\right)^{7} \left(2 Q^{4} - 11 Q^{2} + 2\right)}{4 \left(Q^{2} + 1\right)^{4} \left(q - 1\right)^{10} \left(q + 1\right)^{10}}\right)\sin(3\omega)\right).
+\end{align}
+\endgroup
+\end{document}
