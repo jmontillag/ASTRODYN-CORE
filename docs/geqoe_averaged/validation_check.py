@@ -205,6 +205,48 @@ def _mean_longitude_rate(state0, j2=J2_VAL):
     )
 
 
+def _mean_longitude_map(state0, j2=J2_VAL):
+    """Frozen-state GEqOE mean-longitude rate and short-period correction."""
+    nu0, p10, p20, _, q10, q20 = state0
+    g0 = np.hypot(p10, p20)
+    Q0 = np.hypot(q10, q20)
+    psi0 = np.arctan2(p10, p20)
+    omega0 = np.arctan2(q10, q20)
+    beta = np.sqrt(1 - g0 * g0)
+    alpha = 1 / (1 + beta)
+    a = (MU / nu0**2) ** (1 / 3)
+    w = np.sqrt(MU / a)
+    c = (MU**2 / nu0) ** (1 / 3) * beta
+    gamma = 1 + Q0**2
+    delta = 1 - Q0**2
+    s_i = 2 * Q0 / gamma
+    A = MU * j2 * RE**2 / 2
+
+    K_grid = np.linspace(0, 2 * np.pi, 4097)
+    sinK = np.sin(K_grid)
+    cosK = np.cos(K_grid)
+    X = a * (alpha * p10 * p20 * sinK + (1 - alpha * p10**2) * cosK - p20)
+    Y = a * (alpha * p10 * p20 * cosK + (1 - alpha * p20**2) * sinK - p10)
+    r = a * (1 - p10 * sinK - p20 * cosK)
+    zhat = 2 * (Y * q20 - X * q10) / (gamma * r)
+
+    U = -A / r**3 * (1 - 3 * zhat**2)
+    h = np.sqrt(c**2 - 2 * r**2 * U)
+    d = (h - c) / r**2
+    I_val = 3 * A * zhat * delta / (h * r**3)
+    w_h = I_val * zhat
+
+    p1_dot = p20 * (d - w_h) - (1 / c) * (X / a + 2 * p20) * U
+    p2_dot = p10 * (w_h - d) + (1 / c) * (Y / a + 2 * p10) * U
+    K_dot = (w / r + d - w_h - (1 / c) * (1 + alpha * (1 - r / a)) * U)
+    L_dot = (r / a) * K_dot + p1_dot * cosK - p2_dot * sinK
+
+    L_dot_avg = np.trapezoid(r * L_dot, K_grid) / (2 * np.pi * a)
+    ell_prime = (r / w) * (L_dot - L_dot_avg)
+    ell_corr = _periodic_zero_mean_integral(ell_prime, K_grid)
+    return K_grid, ell_corr, L_dot_avg
+
+
 # ── CHECK 1: Verify angle meanings ──────────────────────────────────
 def check1_angle_meanings():
     print("=" * 72)
@@ -623,14 +665,19 @@ def check7_fast_phase_reconstruction():
     ta, _ = build_state_integrator(J2Perturbation(), s0, tol=1e-15, compact_mode=True)
     states = propagate_grid(ta, t_grid)
 
-    psi0_bar = np.arctan2(mean0[1], mean0[2])
     K0_bar_naive = s0[3]
     L0_bar = K_to_L(K0_bar_naive, mean0[1], mean0[2])
     Ldot_bar = _mean_longitude_rate(mean0)
+    K_grid0, ell_corr0, Ldot_exact0 = _mean_longitude_map(mean0)
+    G0_true = s0[3] - np.arctan2(s0[1], s0[2])
+    ell0_eval = _interp_periodic(K_grid0, ell_corr0, G0_true)
+    L0_bar_exact = K_to_L(s0[3], s0[1], s0[2]) - ell0_eval
 
     true_k_err = []
     true_k_pos_err = []
     lbar_pos_err = []
+    lexact_pos_err = []
+    lexact_k_err = []
     for ti, sosc in zip(t_grid[::40], states[::40]):
         sec = _secular_solution(mean0, np.array([ti]))
         ms = mean0.copy()
@@ -676,13 +723,44 @@ def check7_fast_phase_reconstruction():
         r_rec_lbar, _ = geqoe2cart(rec_lbar, MU, J2Perturbation())
         lbar_pos_err.append(np.linalg.norm(r_rec_lbar - r_osc))
 
+        # Improved practical route: exact frozen-state GEqOE L_dot and L short-period map.
+        K_grid, ell_corr, Ldot_exact = _mean_longitude_map(ms)
+        Lbar_exact = L0_bar_exact + Ldot_exact * ti
+        Kbar_exact = solve_kepler_gen(Lbar_exact, ms[1], ms[2])
+        Gbar_exact = Kbar_exact - np.arctan2(ms[1], ms[2])
+        corr_exact = _short_period_map(ms, Gbar_exact)
+        p1o = (np.hypot(ms[1], ms[2]) + corr_exact["g_eval"]) * np.sin(
+            np.arctan2(ms[1], ms[2]) + corr_exact["Psi_eval"]
+        )
+        p2o = (np.hypot(ms[1], ms[2]) + corr_exact["g_eval"]) * np.cos(
+            np.arctan2(ms[1], ms[2]) + corr_exact["Psi_eval"]
+        )
+        q1o = (np.hypot(ms[4], ms[5]) + corr_exact["Q_eval"]) * np.sin(
+            np.arctan2(ms[4], ms[5]) + corr_exact["Omega_eval"]
+        )
+        q2o = (np.hypot(ms[4], ms[5]) + corr_exact["Q_eval"]) * np.cos(
+            np.arctan2(ms[4], ms[5]) + corr_exact["Omega_eval"]
+        )
+        ell_eval = _interp_periodic(K_grid, ell_corr, Gbar_exact)
+        Losc = Lbar_exact + ell_eval
+        Kosc = solve_kepler_gen(Losc, p1o, p2o)
+        rec_exact = np.array([ms[0], p1o, p2o, Kosc, q1o, q2o])
+        r_rec_exact, _ = geqoe2cart(rec_exact, MU, J2Perturbation())
+        lexact_pos_err.append(np.linalg.norm(r_rec_exact - r_osc))
+        lexact_k_err.append(abs(np.arctan2(np.sin(Kosc - sosc[3]), np.cos(Kosc - sosc[3]))))
+
     print(f"  With true osculating K injected:")
     print(f"    slow-state GEqOE component error mean = {np.mean(true_k_err):.3e}")
     print(f"    Cartesian position error mean/max     = {np.mean(true_k_pos_err):.3e} / {np.max(true_k_pos_err):.3e} km")
-    print(f"  With current mean-L -> mean-K route:")
+    print(f"  With classical mean-L -> mean-K route:")
     print(f"    Cartesian position error mean/max     = {np.mean(lbar_pos_err):.3e} / {np.max(lbar_pos_err):.3e} km")
+    print(f"  With exact frozen-state GEqOE mean-L route:")
+    print(f"    K error mean/max                      = {np.mean(lexact_k_err):.3e} / {np.max(lexact_k_err):.3e} rad")
+    print(f"    Cartesian position error mean/max     = {np.mean(lexact_pos_err):.3e} / {np.max(lexact_pos_err):.3e} km")
     print("  Interpretation: the remaining reconstruction gap is dominated by the fast")
-    print("  phase K model, not by the validated slow inverse map.\n")
+    print("  phase K model, not by the validated slow inverse map. The exact frozen-state")
+    print("  GEqOE mean-L route is much better than the classical surrogate, but it is")
+    print("  still not yet a fully validated first-order K reconstruction.\n")
 
 
 # ── MAIN ─────────────────────────────────────────────────────────────

@@ -539,10 +539,14 @@ check shows the distinction clearly:
     $(g,Q,\Psi,\Omega)$ and the exact osculating $K$ from the reference
     integration is injected, the reconstructed Cartesian position stays within
     sub-kilometer error over multi-orbit arcs;
-    \item if one instead uses the present mean-longitude model
+    \item if one instead uses the present classical mean-longitude surrogate
     \eqref{eq:Lbar_J2} to reconstruct the fast phase without a separately
     validated $v_1$ correction for $K$, the Cartesian reconstruction error
-    remains at the level of tens to hundreds of kilometers.
+    remains at the level of tens to hundreds of kilometers;
+    \item if the fast phase is rebuilt from the \emph{exact frozen-state GEqOE}
+    mean-longitude rate and a numerical short-period correction for $L$, then
+    the Cartesian reconstruction error drops substantially, but remains at the
+    level of a few to a few tens of kilometers rather than sub-kilometer.
 \end{enumerate}
 
 Thus the current bottleneck is no longer the slow secular GEqOE closure or the
@@ -560,6 +564,24 @@ zonals or adding thrust, the $J_2$ averaged formulation should be completed by
 deriving and validating that fast-phase reconstruction directly from the exact
 GEqOE $K$ equation, rather than borrowing the classical singly averaged mean
 anomaly rate as a surrogate.
+
+Numerically, this already suggests the right direction. The classical
+$\dot{\bar L}$ surrogate is too weak for accurate state reconstruction, whereas
+the exact frozen-state GEqOE average of $\dot L$ produces a major improvement.
+In the current Molniya-like test case:
+\begin{equation}
+\text{mean position error}
+\approx
+88\ \mathrm{km}
+\;\longrightarrow\;
+5.4\ \mathrm{km}
+\end{equation}
+when one replaces the classical $\dot{\bar L}$ model by the exact frozen-state
+GEqOE $\langle \dot L \rangle$ together with a numerical short-period
+correction for $L$. This is still not sufficient for calling the fast-phase
+model complete, but it shows that the correct closure should indeed be sought
+inside the GEqOE $L/K$ dynamics rather than imported from the classical
+Keplerian mean-anomaly theory.
 
 \section{How the Mean-to-Osculating Map Works}
 
