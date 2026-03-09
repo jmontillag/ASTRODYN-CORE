@@ -1367,6 +1367,40 @@ $J_2+J_3+J_4+J_5$ averaged drift is reproduced by
 \eqref{eq:gdot_total_N}-\eqref{eq:Omegadot_total_N} with relative least-squares
 residuals at the level of $10^{-12}$ to $10^{-14}$.
 
+\subsection{First explicit non-\texorpdfstring{$J_2$}{J2} symbolic results}
+
+The symbolic route is not merely formal. Using the residue parameter
+\begin{equation}
+q = \frac{1-\beta}{g} = \frac{g}{1+\beta},
+\end{equation}
+the one-revolution averages reduce to rational contour integrals in
+$z=e^{iG}$ with interior poles only at $z=0$ and $z=q$. This is sufficient to
+derive explicit coefficient functions for the first non-$J_2$ zonals.
+
+A companion note,
+\texttt{docs/geqoe\_averaged/zonal\_symbolic\_coeffs.tex},
+records closed formulas for the isolated $J_3$ and $J_4$ contributions. In
+particular:
+\begin{enumerate}
+    \item the $J_3$ averaged drift closes exactly as
+    \begin{equation}
+    \dot{\bar g}_{J_3},\dot{\bar Q}_{J_3}\propto \cos\omega,
+    \qquad
+    \dot{\bar\Psi}_{J_3},\dot{\bar\Omega}_{J_3}\propto \sin\omega;
+    \end{equation}
+    \item the $J_4$ averaged drift closes exactly as
+    \begin{equation}
+    \dot{\bar g}_{J_4},\dot{\bar Q}_{J_4}\propto \sin(2\omega),
+    \qquad
+    \dot{\bar\Psi}_{J_4},\dot{\bar\Omega}_{J_4}
+    = \text{constant} + \propto \cos(2\omega).
+    \end{equation}
+\end{enumerate}
+
+Those explicit formulas were checked against the exact averaged zonal fast path
+and match to numerical precision in the current validation suite. So the
+symbolic program has already moved beyond the pure $J_2$ case.
+
 \section{Path to a Fourier-in-\texorpdfstring{$K$}{K} Thrust Extension}
 
 Consider adding a small non-conservative acceleration expressed in the orbital

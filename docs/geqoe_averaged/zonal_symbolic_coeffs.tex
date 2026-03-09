@@ -1,0 +1,58 @@
+\documentclass[10pt]{article}
+\usepackage[a4paper,landscape,margin=1.5cm]{geometry}
+\usepackage{amsmath,amssymb,bm}
+\allowdisplaybreaks
+\begin{document}
+\small
+\section*{Explicit Symbolic Averaged GEqOE Zonal Coefficients}
+This note records the first non-$J_2$ symbolic averaged GEqOE zonal coefficients obtained through the residue route.
+We use
+\begin{equation}
+q = \frac{1-\beta}{g} = \frac{g}{1+\beta}, \qquad
+g = \frac{2q}{1+q^2}, \qquad
+\beta = \frac{1-q^2}{1+q^2}, \qquad
+Q=\tan\frac{i}{2}, \qquad
+\omega = \Psi - \Omega,
+\end{equation}
+and the degree-scaled small parameters
+\begin{equation}
+\varepsilon_3 = \frac{J_{3} R_{e}^{3} \nu}{a^{3}}, \qquad \varepsilon_4 = \frac{J_{4} R_{e}^{4} \nu}{a^{4}}.
+\end{equation}
+
+\subsection*{$J_3$ contribution}
+\begin{align}
+\dot{\bar g}_{J_3} &= \varepsilon_3 \mathcal{G}_{3,1}(q,Q)\cos\omega,\\
+\dot{\bar Q}_{J_3} &= \varepsilon_3 \mathcal{Q}_{3,1}(q,Q)\cos\omega,\\
+\dot{\bar\Psi}_{J_3} &= \varepsilon_3 \mathcal{P}_{3,1}(q,Q)\sin\omega,\\
+\dot{\bar\Omega}_{J_3} &= \varepsilon_3 \mathcal{O}_{3,1}(q,Q)\sin\omega.
+\end{align}
+\begingroup\footnotesize
+\begin{align}
+\mathcal{G}_{3,1}(q,Q) &= - \frac{3 Q \left(q^{2} + 1\right)^{4} \left(Q^{2} - Q - 1\right) \left(Q^{2} + Q - 1\right)}{\left(Q^{2} + 1\right)^{3} \left(q - 1\right)^{4} \left(q + 1\right)^{4}},\\
+\mathcal{Q}_{3,1}(q,Q) &= - \frac{3 q \left(Q - 1\right) \left(Q + 1\right) \left(q^{2} + 1\right)^{5} \left(Q^{2} - Q - 1\right) \left(Q^{2} + Q - 1\right)}{2 \left(Q^{2} + 1\right)^{2} \left(q - 1\right)^{6} \left(q + 1\right)^{6}},\\
+\mathcal{P}_{3,1}(q,Q) &= \frac{3 Q \left(q^{2} + 1\right)^{5} \left(- 2 Q^{6} q^{2} + Q^{4} q^{4} + 46 Q^{4} q^{2} + Q^{4} - 3 Q^{2} q^{4} - 82 Q^{2} q^{2} - 3 Q^{2} + q^{4} + 20 q^{2} + 1\right)}{2 q \left(Q^{2} + 1\right)^{3} \left(q - 1\right)^{6} \left(q + 1\right)^{6}},\\
+\mathcal{O}_{3,1}(q,Q) &= - \frac{3 q \left(Q - 1\right) \left(Q + 1\right) \left(q^{2} + 1\right)^{5} \left(Q^{4} - 13 Q^{2} + 1\right)}{2 Q \left(Q^{2} + 1\right)^{2} \left(q - 1\right)^{6} \left(q + 1\right)^{6}}.
+\end{align}
+\endgroup
+
+\subsection*{$J_4$ contribution}
+\begin{align}
+\dot{\bar g}_{J_4} &= \varepsilon_4 \mathcal{G}_{4,2}(q,Q)\sin(2\omega),\\
+\dot{\bar Q}_{J_4} &= \varepsilon_4 \mathcal{Q}_{4,2}(q,Q)\sin(2\omega),\\
+\dot{\bar\Psi}_{J_4} &= \varepsilon_4 \mathcal{P}_{4,0}(q,Q) + \varepsilon_4 \mathcal{P}_{4,2}(q,Q)\cos(2\omega),\\
+\dot{\bar\Omega}_{J_4} &= \varepsilon_4 \mathcal{O}_{4,0}(q,Q) + \varepsilon_4 \mathcal{O}_{4,2}(q,Q)\cos(2\omega).
+\end{align}
+\begingroup\footnotesize
+\begin{align}
+\mathcal{G}_{4,2}(q,Q) &= - \frac{15 Q^{2} q \left(q^{2} + 1\right)^{5} \left(3 Q^{4} - 8 Q^{2} + 3\right)}{2 \left(Q^{2} + 1\right)^{4} \left(q - 1\right)^{6} \left(q + 1\right)^{6}},\\
+\mathcal{Q}_{4,2}(q,Q) &= - \frac{15 Q q^{2} \left(Q - 1\right) \left(Q + 1\right) \left(q^{2} + 1\right)^{6} \left(3 Q^{4} - 8 Q^{2} + 3\right)}{4 \left(Q^{2} + 1\right)^{3} \left(q - 1\right)^{8} \left(q + 1\right)^{8}},\\
+\mathcal{P}_{4,0}(q,Q) &= - \frac{15 \left(q^{2} + 1\right)^{6} \left(3 Q^{8} q^{4} + 21 Q^{8} q^{2} + 3 Q^{8} - 28 Q^{6} q^{4} - 176 Q^{6} q^{2} - 28 Q^{6} + 48 Q^{4} q^{4} + 276 Q^{4} q^{2} + 48 Q^{4} - 18 Q^{2} q^{4} - 96 Q^{2} q^{2} - 18 Q^{2} + q^{4} + 5 q^{2} + 1\right)}{4 \left(Q^{2} + 1\right)^{4} \left(q - 1\right)^{8} \left(q + 1\right)^{8}},\\
+\mathcal{P}_{4,2}(q,Q) &= - \frac{15 Q^{2} \left(q^{2} + 1\right)^{6} \left(- 6 Q^{6} q^{2} + 3 Q^{4} q^{4} + 86 Q^{4} q^{2} + 3 Q^{4} - 8 Q^{2} q^{4} - 146 Q^{2} q^{2} - 8 Q^{2} + 3 q^{4} + 42 q^{2} + 3\right)}{4 \left(Q^{2} + 1\right)^{4} \left(q - 1\right)^{8} \left(q + 1\right)^{8}},\\
+\mathcal{O}_{4,0}(q,Q) &= - \frac{15 \left(Q - 1\right) \left(Q + 1\right) \left(q^{2} + 1\right)^{6} \left(Q^{4} - 5 Q^{2} + 1\right) \left(q^{4} + 8 q^{2} + 1\right)}{4 \left(Q^{2} + 1\right)^{3} \left(q - 1\right)^{8} \left(q + 1\right)^{8}},\\
+\mathcal{O}_{4,2}(q,Q) &= \frac{15 q^{2} \left(Q - 1\right) \left(Q + 1\right) \left(q^{2} + 1\right)^{6} \left(3 Q^{4} - 22 Q^{2} + 3\right)}{4 \left(Q^{2} + 1\right)^{3} \left(q - 1\right)^{8} \left(q + 1\right)^{8}}.
+\end{align}
+\endgroup
+
+These formulas match the parity structure inferred earlier from the finite Fourier model:
+$J_3$ produces first-harmonic odd-angle coupling, while $J_4$ produces constant and second-harmonic even-angle coupling.
+\end{document}
