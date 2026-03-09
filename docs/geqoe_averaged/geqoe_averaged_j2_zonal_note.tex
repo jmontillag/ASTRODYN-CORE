@@ -1278,6 +1278,95 @@ So the ambitious goal you suggested is not out of scope. The realistic version
 of it is: a \emph{general finite-degree zonal analytical framework}, rather
 than one universal closed elementary expression written once for all $n$.
 
+\subsection{Practical total-order \texorpdfstring{$N$}{N} averaged model}
+
+For actual propagation, the degree-by-degree decomposition need not be kept
+explicit. After summation over $n=2,\dots,N$, the total averaged slow system
+can be written directly in the reduced finite basis
+\begin{align}
+\dot{\bar g}
+&=
+\sum_{\substack{1\le m\le N\\ m\ \mathrm{odd}}}
+G^{(c)}_m(\bar\nu,\bar g,\bar Q)\cos(m\bar\omega)
++
+\sum_{\substack{2\le m\le N\\ m\ \mathrm{even}}}
+G^{(s)}_m(\bar\nu,\bar g,\bar Q)\sin(m\bar\omega),
+\label{eq:gdot_total_N}\\
+\dot{\bar Q}
+&=
+\sum_{\substack{1\le m\le N\\ m\ \mathrm{odd}}}
+Q^{(c)}_m(\bar\nu,\bar g,\bar Q)\cos(m\bar\omega)
++
+\sum_{\substack{2\le m\le N\\ m\ \mathrm{even}}}
+Q^{(s)}_m(\bar\nu,\bar g,\bar Q)\sin(m\bar\omega),
+\label{eq:Qdot_total_N}\\
+\dot{\bar\Psi}
+&=
+P_0(\bar\nu,\bar g,\bar Q)
++
+\sum_{\substack{1\le m\le N\\ m\ \mathrm{odd}}}
+P^{(s)}_m(\bar\nu,\bar g,\bar Q)\sin(m\bar\omega)
++
+\sum_{\substack{2\le m\le N\\ m\ \mathrm{even}}}
+P^{(c)}_m(\bar\nu,\bar g,\bar Q)\cos(m\bar\omega),
+\label{eq:Psidot_total_N}\\
+\dot{\bar\Omega}
+&=
+N_0(\bar\nu,\bar g,\bar Q)
++
+\sum_{\substack{1\le m\le N\\ m\ \mathrm{odd}}}
+N^{(s)}_m(\bar\nu,\bar g,\bar Q)\sin(m\bar\omega)
++
+\sum_{\substack{2\le m\le N\\ m\ \mathrm{even}}}
+N^{(c)}_m(\bar\nu,\bar g,\bar Q)\cos(m\bar\omega).
+\label{eq:Omegadot_total_N}
+\end{align}
+
+This is the most useful statement for a reusable GEqOE averaged theory: the
+entire order-$N$ zonal model is parameterized by a finite set of coefficient
+functions of $(\bar\nu,\bar g,\bar Q)$ only.
+
+These coefficient functions are obtained by standard Fourier projection in
+$\bar\omega$. For example,
+\begin{align}
+G^{(c)}_m
+&=
+\frac{1}{\pi}\int_0^{2\pi}
+\dot{\bar g}(\bar\nu,\bar g,\bar Q,\bar\omega)\cos(m\bar\omega)\,d\bar\omega,
+\qquad m\ \text{odd},
+\label{eq:Gc_proj}\\
+G^{(s)}_m
+&=
+\frac{1}{\pi}\int_0^{2\pi}
+\dot{\bar g}(\bar\nu,\bar g,\bar Q,\bar\omega)\sin(m\bar\omega)\,d\bar\omega,
+\qquad m\ \text{even},
+\label{eq:Gs_proj}\\
+P_0
+&=
+\frac{1}{2\pi}\int_0^{2\pi}
+\dot{\bar\Psi}(\bar\nu,\bar g,\bar Q,\bar\omega)\,d\bar\omega,
+\label{eq:P0_proj}\\
+P^{(s)}_m
+&=
+\frac{1}{\pi}\int_0^{2\pi}
+\dot{\bar\Psi}(\bar\nu,\bar g,\bar Q,\bar\omega)\sin(m\bar\omega)\,d\bar\omega,
+\qquad m\ \text{odd},
+\label{eq:Ps_proj}\\
+P^{(c)}_m
+&=
+\frac{1}{\pi}\int_0^{2\pi}
+\dot{\bar\Psi}(\bar\nu,\bar g,\bar Q,\bar\omega)\cos(m\bar\omega)\,d\bar\omega,
+\qquad m\ \text{even},
+\label{eq:Pc_proj}
+\end{align}
+and analogously for the $Q$ and $\Omega$ equations.
+
+Numerically, this reduced total-order basis works not only degree by degree,
+but also after summing the harmonics. In the current probe, the combined
+$J_2+J_3+J_4+J_5$ averaged drift is reproduced by
+\eqref{eq:gdot_total_N}-\eqref{eq:Omegadot_total_N} with relative least-squares
+residuals at the level of $10^{-12}$ to $10^{-14}$.
+
 \section{Path to a Fourier-in-\texorpdfstring{$K$}{K} Thrust Extension}
 
 Consider adding a small non-conservative acceleration expressed in the orbital
