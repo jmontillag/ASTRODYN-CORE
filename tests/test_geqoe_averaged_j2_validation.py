@@ -13,6 +13,7 @@ import pytest
 
 from astrodyn_core.geqoe_taylor import J2, MU, RE, J2Perturbation, build_state_integrator, cart2geqoe, geqoe2cart
 from astrodyn_core.geqoe_taylor.integrator import propagate_grid
+from astrodyn_core.geqoe_taylor.utils import K_to_L, solve_kepler_gen
 
 
 def _rot3(theta: float) -> np.ndarray:
@@ -197,6 +198,59 @@ def _short_period_map(state0: np.ndarray, g_eval: float, j2: float = J2) -> dict
     }
 
 
+def _mean_longitude_rate(state0: np.ndarray, j2: float = J2) -> float:
+    nu0 = state0[0]
+    g0 = np.hypot(state0[1], state0[2])
+    Q0 = np.hypot(state0[4], state0[5])
+    beta = np.sqrt(1.0 - g0 * g0)
+    a = (MU / (nu0 * nu0)) ** (1.0 / 3.0)
+    gamma = 1.0 + Q0 * Q0
+    delta = 1.0 - Q0 * Q0
+    c_i = delta / gamma
+    p = a * beta * beta
+    return nu0 + 0.75 * nu0 * j2 * (RE / p) ** 2 * (
+        beta * (3.0 * c_i * c_i - 1.0) + 5.0 * c_i * c_i - 2.0 * c_i - 1.0
+    )
+
+
+def _mean_longitude_map(state0: np.ndarray, j2: float = J2) -> tuple[np.ndarray, np.ndarray, float]:
+    nu0, p10, p20, _, q10, q20 = state0
+    g0 = np.hypot(p10, p20)
+    Q0 = np.hypot(q10, q20)
+    beta = np.sqrt(1.0 - g0 * g0)
+    alpha = 1.0 / (1.0 + beta)
+    a = (MU / (nu0 * nu0)) ** (1.0 / 3.0)
+    w = np.sqrt(MU / a)
+    c = (MU * MU / nu0) ** (1.0 / 3.0) * beta
+    gamma = 1.0 + Q0 * Q0
+    delta = 1.0 - Q0 * Q0
+    A = MU * j2 * RE * RE / 2.0
+
+    K_grid = np.linspace(0.0, 2.0 * np.pi, 4097, dtype=float)
+    sinK = np.sin(K_grid)
+    cosK = np.cos(K_grid)
+    X = a * (alpha * p10 * p20 * sinK + (1.0 - alpha * p10 * p10) * cosK - p20)
+    Y = a * (alpha * p10 * p20 * cosK + (1.0 - alpha * p20 * p20) * sinK - p10)
+    r = a * (1.0 - p10 * sinK - p20 * cosK)
+    zhat = 2.0 * (Y * q20 - X * q10) / (gamma * r)
+
+    U = -A / (r**3) * (1.0 - 3.0 * zhat * zhat)
+    h = np.sqrt(c * c - 2.0 * r * r * U)
+    d = (h - c) / (r * r)
+    I_val = 3.0 * A * zhat * delta / (h * r**3)
+    w_h = I_val * zhat
+
+    p1_dot = p20 * (d - w_h) - (1.0 / c) * (X / a + 2.0 * p20) * U
+    p2_dot = p10 * (w_h - d) + (1.0 / c) * (Y / a + 2.0 * p10) * U
+    K_dot = w / r + d - w_h - (1.0 / c) * (1.0 + alpha * (1.0 - r / a)) * U
+    L_dot = (r / a) * K_dot + p1_dot * cosK - p2_dot * sinK
+
+    L_dot_avg = np.trapezoid(r * L_dot, K_grid) / (2.0 * np.pi * a)
+    ell_prime = (r / w) * (L_dot - L_dot_avg)
+    ell_corr = _periodic_zero_mean_integral(ell_prime, K_grid)
+    return K_grid, ell_corr, float(L_dot_avg)
+
+
 def _component_rms(reference: dict[str, np.ndarray], model: dict[str, np.ndarray]) -> float:
     vals = []
     for key in ("p1", "p2", "q1", "q2"):
@@ -363,3 +417,82 @@ def test_slow_inverse_map_plus_true_k_recovers_cartesian_state() -> None:
 
     assert float(np.mean(pos_err)) < 0.2
     assert float(np.max(pos_err)) < 0.5
+
+
+def test_exact_frozen_state_mean_longitude_map_recovers_fast_phase() -> None:
+    state0 = _make_molniya_state(45.0)
+    psi0 = np.arctan2(state0[1], state0[2])
+    G0 = state0[3] - psi0
+    mean0 = _build_mean_state(state0, _short_period_map(state0, G0))
+
+    K_grid0, ell_corr0, _ = _mean_longitude_map(mean0)
+    L0_bar_exact = K_to_L(state0[3], state0[1], state0[2]) - _interp_periodic(K_grid0, ell_corr0, state0[3])
+    L0_bar_classical = K_to_L(state0[3], mean0[1], mean0[2])
+
+    orbit_period_s = 2.0 * np.pi / state0[0]
+    t_grid = np.linspace(0.0, 10.0 * orbit_period_s, 401, dtype=float)
+    ta, _ = build_state_integrator(J2Perturbation(), state0, tol=1.0e-15, compact_mode=True)
+    states = propagate_grid(ta, t_grid)
+
+    pos_err_classical = []
+    pos_err_exact = []
+    for ti, sosc in zip(t_grid[::20], states[::20]):
+        sec = _secular_solution(mean0, np.array([ti]))
+        ms = mean0.copy()
+        ms[1] = sec["p1"][0]
+        ms[2] = sec["p2"][0]
+        ms[4] = sec["q1"][0]
+        ms[5] = sec["q2"][0]
+
+        Lbar_classical = L0_bar_classical + _mean_longitude_rate(mean0) * ti
+        Kbar_classical = solve_kepler_gen(Lbar_classical, ms[1], ms[2])
+        Gbar_classical = Kbar_classical - np.arctan2(ms[1], ms[2])
+        corr_classical = _short_period_map(ms, Gbar_classical)
+        g_classical = np.hypot(ms[1], ms[2]) + corr_classical["g_eval"]
+        psi_classical = np.arctan2(ms[1], ms[2]) + corr_classical["Psi_eval"]
+        Q_classical = np.hypot(ms[4], ms[5]) + corr_classical["Q_eval"]
+        Omega_classical = np.arctan2(ms[4], ms[5]) + corr_classical["Omega_eval"]
+        rec_classical = np.array(
+            [
+                ms[0],
+                g_classical * np.sin(psi_classical),
+                g_classical * np.cos(psi_classical),
+                Kbar_classical,
+                Q_classical * np.sin(Omega_classical),
+                Q_classical * np.cos(Omega_classical),
+            ],
+            dtype=float,
+        )
+
+        K_grid, ell_corr, L_dot_avg = _mean_longitude_map(ms)
+        Lbar_exact = L0_bar_exact + L_dot_avg * ti
+        Kbar_exact = solve_kepler_gen(Lbar_exact, ms[1], ms[2])
+        Gbar_exact = Kbar_exact - np.arctan2(ms[1], ms[2])
+        corr_exact = _short_period_map(ms, Gbar_exact)
+        g_exact = np.hypot(ms[1], ms[2]) + corr_exact["g_eval"]
+        psi_exact = np.arctan2(ms[1], ms[2]) + corr_exact["Psi_eval"]
+        Q_exact = np.hypot(ms[4], ms[5]) + corr_exact["Q_eval"]
+        Omega_exact = np.arctan2(ms[4], ms[5]) + corr_exact["Omega_eval"]
+        Losc_exact = Lbar_exact + _interp_periodic(K_grid, ell_corr, Kbar_exact)
+        Kosc_exact = solve_kepler_gen(Losc_exact, g_exact * np.sin(psi_exact), g_exact * np.cos(psi_exact))
+        rec_exact = np.array(
+            [
+                ms[0],
+                g_exact * np.sin(psi_exact),
+                g_exact * np.cos(psi_exact),
+                Kosc_exact,
+                Q_exact * np.sin(Omega_exact),
+                Q_exact * np.cos(Omega_exact),
+            ],
+            dtype=float,
+        )
+
+        r_classical, _ = geqoe2cart(rec_classical, MU, J2Perturbation())
+        r_exact, _ = geqoe2cart(rec_exact, MU, J2Perturbation())
+        r_osc, _ = geqoe2cart(sosc, MU, J2Perturbation())
+        pos_err_classical.append(np.linalg.norm(r_classical - r_osc))
+        pos_err_exact.append(np.linalg.norm(r_exact - r_osc))
+
+    assert float(np.mean(pos_err_exact)) < 0.1
+    assert float(np.max(pos_err_exact)) < 0.2
+    assert float(np.mean(pos_err_exact)) < float(np.mean(pos_err_classical)) * 2.0e-3

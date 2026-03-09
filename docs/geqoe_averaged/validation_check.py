@@ -206,7 +206,11 @@ def _mean_longitude_rate(state0, j2=J2_VAL):
 
 
 def _mean_longitude_map(state0, j2=J2_VAL):
-    """Frozen-state GEqOE mean-longitude rate and short-period correction."""
+    """Frozen-state GEqOE mean-longitude rate and short-period correction.
+
+    The returned periodic correction is parameterized by the absolute fast angle
+    K, not by G = K - Psi.
+    """
     nu0, p10, p20, _, q10, q20 = state0
     g0 = np.hypot(p10, p20)
     Q0 = np.hypot(q10, q20)
@@ -669,8 +673,7 @@ def check7_fast_phase_reconstruction():
     L0_bar = K_to_L(K0_bar_naive, mean0[1], mean0[2])
     Ldot_bar = _mean_longitude_rate(mean0)
     K_grid0, ell_corr0, Ldot_exact0 = _mean_longitude_map(mean0)
-    G0_true = s0[3] - np.arctan2(s0[1], s0[2])
-    ell0_eval = _interp_periodic(K_grid0, ell_corr0, G0_true)
+    ell0_eval = _interp_periodic(K_grid0, ell_corr0, s0[3])
     L0_bar_exact = K_to_L(s0[3], s0[1], s0[2]) - ell0_eval
 
     true_k_err = []
@@ -741,7 +744,7 @@ def check7_fast_phase_reconstruction():
         q2o = (np.hypot(ms[4], ms[5]) + corr_exact["Q_eval"]) * np.cos(
             np.arctan2(ms[4], ms[5]) + corr_exact["Omega_eval"]
         )
-        ell_eval = _interp_periodic(K_grid, ell_corr, Gbar_exact)
+        ell_eval = _interp_periodic(K_grid, ell_corr, Kbar_exact)
         Losc = Lbar_exact + ell_eval
         Kosc = solve_kepler_gen(Losc, p1o, p2o)
         rec_exact = np.array([ms[0], p1o, p2o, Kosc, q1o, q2o])
@@ -757,10 +760,10 @@ def check7_fast_phase_reconstruction():
     print(f"  With exact frozen-state GEqOE mean-L route:")
     print(f"    K error mean/max                      = {np.mean(lexact_k_err):.3e} / {np.max(lexact_k_err):.3e} rad")
     print(f"    Cartesian position error mean/max     = {np.mean(lexact_pos_err):.3e} / {np.max(lexact_pos_err):.3e} km")
-    print("  Interpretation: the remaining reconstruction gap is dominated by the fast")
-    print("  phase K model, not by the validated slow inverse map. The exact frozen-state")
-    print("  GEqOE mean-L route is much better than the classical surrogate, but it is")
-    print("  still not yet a fully validated first-order K reconstruction.\n")
+    print("  Interpretation: the remaining gap was a phase-coordinate mismatch in the")
+    print("  L short-period map. Once ell_1 is evaluated as a function of K rather than")
+    print("  G, the frozen-state GEqOE mean-L route reconstructs the fast phase to")
+    print("  essentially the same accuracy as the validated slow map.\n")
 
 
 # ── MAIN ─────────────────────────────────────────────────────────────
