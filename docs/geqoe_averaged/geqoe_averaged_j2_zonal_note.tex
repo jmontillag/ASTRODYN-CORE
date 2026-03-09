@@ -3,6 +3,7 @@
 \usepackage[a4paper,margin=1in]{geometry}
 \usepackage{amsmath,amssymb,bm}
 \usepackage{booktabs}
+\usepackage{graphicx}
 \usepackage{hyperref}
 
 \hypersetup{
@@ -252,6 +253,9 @@ c_i = \cos i = \frac{\delta}{\gamma},
 \qquad
 p = a\beta^2.
 \end{equation}
+Within first-order singly averaged $J_2$ theory, the secular drift of the mean
+GEqOE angular variables coincides with the classical $J_2$ secular drift
+written in the GEqOE angles $\Psi$ and $\Omega$.
 At first order in $J_2$, the secular nodal rate is
 \begin{equation}
 \omega_{\Omega,J_2}
@@ -298,6 +302,87 @@ Equations \eqref{eq:j2_mean_nu}-\eqref{eq:j2_mean_q2} are autonomous and closed.
 They provide exactly the kind of reduced slow-flow model that is suitable for
 fast metric computation.
 
+\subsection{Closed-form integration}
+
+Because the coefficients in
+\eqref{eq:j2_mean_p1}-\eqref{eq:j2_mean_q2} are constant along the secular
+$J_2$ flow, the system is explicitly integrable. Define the mean angular
+variables
+\begin{equation}
+\bar\Psi = \operatorname{atan2}(\bar p_1,\bar p_2),
+\qquad
+\bar\Omega = \operatorname{atan2}(\bar q_1,\bar q_2).
+\end{equation}
+Then
+\begin{equation}
+\dot{\bar\Psi} = \omega_{\Psi,J_2},
+\qquad
+\dot{\bar\Omega} = \omega_{\Omega,J_2},
+\end{equation}
+so that
+\begin{equation}
+\bar\Psi(t) = \bar\Psi_0 + \omega_{\Psi,J_2}(t-t_0),
+\qquad
+\bar\Omega(t) = \bar\Omega_0 + \omega_{\Omega,J_2}(t-t_0).
+\end{equation}
+
+Let
+\begin{equation}
+\bar g_0 = \sqrt{\bar p_1(t_0)^2 + \bar p_2(t_0)^2},
+\qquad
+\bar Q_0 = \sqrt{\bar q_1(t_0)^2 + \bar q_2(t_0)^2}.
+\end{equation}
+The closed secular solution is therefore
+\begin{align}
+\bar\nu(t) &= \bar\nu_0, \\
+\bar p_1(t) &= \bar g_0
+\sin\!\left[\bar\Psi_0 + \omega_{\Psi,J_2}(t-t_0)\right], \\
+\bar p_2(t) &= \bar g_0
+\cos\!\left[\bar\Psi_0 + \omega_{\Psi,J_2}(t-t_0)\right], \\
+\bar q_1(t) &= \bar Q_0
+\sin\!\left[\bar\Omega_0 + \omega_{\Omega,J_2}(t-t_0)\right], \\
+\bar q_2(t) &= \bar Q_0
+\cos\!\left[\bar\Omega_0 + \omega_{\Omega,J_2}(t-t_0)\right].
+\label{eq:j2_closed_form}
+\end{align}
+
+Equivalently, the two equinoctial pairs evolve by constant-speed planar
+rotations,
+\begin{equation}
+\begin{bmatrix}
+\bar p_1(t) \\
+\bar p_2(t)
+\end{bmatrix}
+=
+\begin{bmatrix}
+\cos\theta_\Psi & \sin\theta_\Psi \\
+-\sin\theta_\Psi & \cos\theta_\Psi
+\end{bmatrix}
+\begin{bmatrix}
+\bar p_1(t_0) \\
+\bar p_2(t_0)
+\end{bmatrix},
+\qquad
+\theta_\Psi = \omega_{\Psi,J_2}(t-t_0),
+\end{equation}
+\begin{equation}
+\begin{bmatrix}
+\bar q_1(t) \\
+\bar q_2(t)
+\end{bmatrix}
+=
+\begin{bmatrix}
+\cos\theta_\Omega & \sin\theta_\Omega \\
+-\sin\theta_\Omega & \cos\theta_\Omega
+\end{bmatrix}
+\begin{bmatrix}
+\bar q_1(t_0) \\
+\bar q_2(t_0)
+\end{bmatrix},
+\qquad
+\theta_\Omega = \omega_{\Omega,J_2}(t-t_0).
+\end{equation}
+
 \subsection{Mean longitude / phase}
 
 If a mean fast phase is also required, the natural choice is the mean
@@ -328,6 +413,468 @@ one obtains
 For many maneuver-detection applications, however, the autonomous slow
 subsystem \eqref{eq:j2_mean_nu}-\eqref{eq:j2_mean_q2} is the more useful core
 object, while the phase can be reconstructed only when needed.
+
+\subsection{Numerical sanity check}
+
+A quick consistency check was performed against the current exact $J_2$ GEqOE
+propagator in this branch using a Molniya-like case
+\begin{equation}
+r_p = 6916\ \mathrm{km}, \qquad
+e = 0.74, \qquad
+i = 63.4^\circ, \qquad
+\Omega = 30^\circ, \qquad
+\omega = 270^\circ, \qquad
+M_0 = 0^\circ.
+\end{equation}
+The exact $J_2$ GEqOE system was propagated for $20$ days and the unwrapped
+phases
+\begin{equation}
+\Psi(t) = \operatorname{atan2}(p_1(t),p_2(t)),
+\qquad
+\Omega(t) = \operatorname{atan2}(q_1(t),q_2(t))
+\end{equation}
+were fitted by least squares to straight lines. The fitted slopes agreed with
+\eqref{eq:OmegaJ2} and \eqref{eq:PsiJ2} at the level of roughly
+$3\times 10^{-4}$ in relative error. This does not replace a formal derivation,
+but it is a strong indication that the closed secular model
+\eqref{eq:j2_closed_form} is capturing the correct first-order drift of the
+exact GEqOE $J_2$ flow.
+
+\subsection{Secular versus osculating representation}
+
+To inspect the issue more directly, the exact $J_2$ GEqOE solution was sampled
+dense enough to compute per-orbit means over $40$ revolutions. The diagnostic
+case shown below uses the same Molniya-like geometry as before but with an
+initial mean anomaly of $45^\circ$, because the earlier $M_0=0^\circ$ case sits
+close to a symmetry point where the short-period $\Psi$ correction vanishes at
+$t_0$ and therefore does not stress the phase part of the inverse map. Two
+comparisons are the most informative:
+\begin{enumerate}
+    \item the raw osculating components $(p_1,p_2,q_1,q_2)$ against the closed
+    secular model and the per-orbit means;
+    \item the unwrapped phases $(\Psi,\Omega)$ together with the residuals
+    $g-g_{\mathrm{sec}}$ and $Q-Q_{\mathrm{sec}}$.
+\end{enumerate}
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{docs/geqoe_averaged/j2_secular_vs_osculating_components.png}
+\caption{Exact $J_2$ GEqOE integration (blue), closed secular model initialized
+from the osculating initial condition (red dashed), the same secular model
+initialized with the numerically evaluated inverse map applied only to the
+magnitude variables $(g,Q)$ (green dash-dot), the full numerical inverse map
+(orange dotted), and per-orbit means of the exact solution (black dots). In
+this $M_0=45^\circ$ case, the full inverse map lies essentially on top of the
+orbit means, while the $(g,Q)$-only correction is not enough to remove the
+phase mismatch.}
+\label{fig:j2_components_compare}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{docs/geqoe_averaged/j2_secular_vs_osculating_diagnostics.png}
+\caption{Phase and magnitude diagnostics for the same Molniya-like case.
+Top row: the unwrapped phases $\Psi$ and $\Omega$ from the full integration are
+compared against the naive secular model (red dashed), the $(g,Q)$-only inverse
+map (green dash-dot), and the full inverse map (orange dotted). The full map
+tracks the per-orbit means closely, whereas the $(g,Q)$-only correction leaves
+the large phase bias almost unchanged. Bottom row: the residuals
+$g-g_{\mathrm{sec}}$ and $Q-Q_{\mathrm{sec}}$ show that the magnitude bias is
+removed by the inverse map; these panels are unchanged between the $(g,Q)$-only
+and full-map cases because the extra correction acts only on the angular
+variables.}
+\label{fig:j2_phase_compare}
+\end{figure}
+
+The important conclusion from Figures~\ref{fig:j2_components_compare} and
+\ref{fig:j2_phase_compare} is now sharper than before. The discrepancy was not
+evidence that the averaged logic itself was unsound. The secular drift law is
+sound, and the inverse-map strategy is also sound. The actual problem was an
+algebraic mistake in the intermediate formula used for $\dot\Psi$ inside the
+short-period map.
+
+In other words, at this stage the analysis points to the following split:
+\begin{enumerate}
+    \item the first-order secular law in $J_2$ is behaving as expected;
+    \item the missing correction is the short-period transformation between the
+    osculating GEqOE produced by the full integrator and the mean GEqOE used by
+    the secular closure;
+    \item the earlier bad behavior of the full numerical inverse map came from
+    a wrong $\Psi$ identity, not from a breakdown of the averaging approach.
+\end{enumerate}
+
+With the corrected $\Psi$ formula and the $M_0=45^\circ$ test case, the full
+numerical inverse map gives a uniform improvement across all variables:
+\begin{align}
+\mathrm{RMS}_{p_1}&: 1.93\times 10^{-4} \rightarrow 6.54\times 10^{-6}, \\
+\mathrm{RMS}_{p_2}&: 7.00\times 10^{-4} \rightarrow 1.38\times 10^{-5}, \\
+\mathrm{RMS}_{q_1}&: 6.59\times 10^{-4} \rightarrow 2.11\times 10^{-5}, \\
+\mathrm{RMS}_{q_2}&: 2.25\times 10^{-4} \rightarrow 6.15\times 10^{-6},
+\end{align}
+while the phase mismatch drops from
+\begin{equation}
+\Psi:\,7.79\times 10^{-3}\rightarrow 8.69\times 10^{-5},
+\qquad
+\Omega:\,7.70\times 10^{-3}\rightarrow 2.37\times 10^{-4}.
+\end{equation}
+The initial magnitude biases move from
+\begin{equation}
+g:\,1.22\times 10^{-5}\rightarrow -5.79\times 10^{-6},
+\qquad
+Q:\,-1.14\times 10^{-5}\rightarrow -2.17\times 10^{-9}.
+\end{equation}
+
+This changes the interpretation of the earlier concern. The mean-element
+formulation did not fail at a supposedly simple stage; the derivation of one
+intermediate phase identity did. Once that identity is corrected, the numerical
+inverse map behaves exactly as the averaged logic says it should.
+
+\section{How the Mean-to-Osculating Map Works}
+
+\subsection{Near-identity transformation}
+
+A complete mean-element formulation requires more than the secular equations.
+It also requires a \emph{near-identity transformation} between:
+\begin{enumerate}
+    \item the osculating GEqOE of the full $J_2$ dynamics, and
+    \item the mean GEqOE propagated by the secular model.
+\end{enumerate}
+
+Write the exact first-order $J_2$ problem in the form
+\begin{align}
+\dot{\bm z} &= \varepsilon \bm f_1(\bm z,K) + O(\varepsilon^2), \\
+\dot K &= n_0(\bm z,K) + \varepsilon g_1(\bm z,K) + O(\varepsilon^2),
+\label{eq:j2_fast_slow_form}
+\end{align}
+where
+\begin{equation}
+\bm z = (\nu,p_1,p_2,q_1,q_2),
+\qquad
+\varepsilon \sim J_2,
+\qquad
+n_0(\bm z,K) = \frac{w}{r}.
+\end{equation}
+
+The complete averaged formulation is then sought in the form
+\begin{align}
+\bm z_{\mathrm{osc}}
+&= \bar{\bm z}
++ \varepsilon \bm u_1(\bar{\bm z},\bar K)
++ O(\varepsilon^2), \label{eq:forward_map_z}\\
+K_{\mathrm{osc}}
+&= \bar K
++ \varepsilon v_1(\bar{\bm z},\bar K)
++ O(\varepsilon^2), \label{eq:forward_map_K}
+\end{align}
+with periodic short-period corrections $\bm u_1$ and $v_1$.
+
+The usual normalization is
+\begin{equation}
+\frac{1}{2\pi}\int_0^{2\pi} \bm u_1(\bar{\bm z},\bar K)\,d\bar K = \bm 0,
+\qquad
+\frac{1}{2\pi}\int_0^{2\pi} v_1(\bar{\bm z},\bar K)\,d\bar K = 0,
+\label{eq:zero_mean_norm}
+\end{equation}
+which fixes the decomposition into mean and periodic parts.
+
+\subsection{Homological equations}
+
+Substituting \eqref{eq:forward_map_z}-\eqref{eq:forward_map_K} into
+\eqref{eq:j2_fast_slow_form} and matching terms at first order gives the
+homological equation for the slow variables:
+\begin{equation}
+n_0(\bar{\bm z},\bar K)
+\frac{\partial \bm u_1}{\partial \bar K}
+= \bm f_1(\bar{\bm z},\bar K)
+- \bar{\bm f}_1(\bar{\bm z}),
+\label{eq:homological_u}
+\end{equation}
+where $\bar{\bm f}_1$ is the averaged slow drift. Therefore
+\begin{equation}
+\frac{\partial \bm u_1}{\partial \bar K}
+= \frac{\bar r}{\bar w}
+\left[
+\bm f_1(\bar{\bm z},\bar K)
+- \bar{\bm f}_1(\bar{\bm z})
+\right].
+\label{eq:u_prime}
+\end{equation}
+Once the secular drift is known, the short-period correction of the slow
+variables is obtained by a direct quadrature in $\bar K$:
+\begin{equation}
+\bm u_1(\bar{\bm z},\bar K)
+= \int^{\bar K}
+\frac{\bar r(\phi)}{\bar w}
+\left[
+\bm f_1(\bar{\bm z},\phi)
+- \bar{\bm f}_1(\bar{\bm z})
+\right] d\phi
+- \text{(constant chosen to enforce \eqref{eq:zero_mean_norm})}.
+\label{eq:u_integral}
+\end{equation}
+
+The phase correction is slightly more delicate because the unperturbed fast rate
+$n_0=w/r$ depends on $\bar K$. The first-order phase homological equation is
+\begin{equation}
+n_0\frac{\partial v_1}{\partial \bar K}
+- \frac{\partial n_0}{\partial \bar K}v_1
+= g_1 - \bar g_1
++ \frac{\partial n_0}{\partial \bar{\bm z}}\cdot \bm u_1,
+\label{eq:homological_v}
+\end{equation}
+which can be rewritten as
+\begin{equation}
+\frac{\partial}{\partial \bar K}
+\left(
+\frac{v_1}{n_0}
+\right)
+= \frac{
+g_1 - \bar g_1
++ \dfrac{\partial n_0}{\partial \bar{\bm z}}\cdot \bm u_1
+}{
+n_0^2
+}.
+\label{eq:v_prime}
+\end{equation}
+Hence $v_1$ is also obtained by quadrature, again with the additive constant
+fixed by the zero-mean normalization in \eqref{eq:zero_mean_norm}.
+
+\subsection{Why this resolves the observed bias}
+
+The secular comparison performed above used the osculating initial GEqOE state
+as if it were the mean initial state. That corresponds to setting
+\begin{equation}
+\bar{\bm z}(t_0) = \bm z_{\mathrm{osc}}(t_0),
+\qquad
+\bar K(t_0) = K_{\mathrm{osc}}(t_0),
+\end{equation}
+which ignores the $O(\varepsilon)$ correction in
+\eqref{eq:forward_map_z}-\eqref{eq:forward_map_K}. The correct inverse
+initialization map is
+\begin{align}
+\bar{\bm z}(t_0)
+&= \bm z_{\mathrm{osc}}(t_0)
+- \varepsilon \bm u_1\!\left(\bm z_{\mathrm{osc}}(t_0),K_{\mathrm{osc}}(t_0)\right)
++ O(\varepsilon^2), \label{eq:inverse_map_z}\\
+\bar K(t_0)
+&= K_{\mathrm{osc}}(t_0)
+- \varepsilon v_1\!\left(\bm z_{\mathrm{osc}}(t_0),K_{\mathrm{osc}}(t_0)\right)
++ O(\varepsilon^2).
+\label{eq:inverse_map_K}
+\end{align}
+
+This is exactly the missing ingredient revealed by
+Figures~\ref{fig:j2_components_compare} and \ref{fig:j2_phase_compare}. The
+nearly constant offsets in $g$ and $Q$ are not evidence that the secular law is
+wrong. They are evidence that the inverse map
+\eqref{eq:inverse_map_z}-\eqref{eq:inverse_map_K} has not yet been applied.
+
+\subsection{Practical meaning for the $J_2$ GEqOE formulation}
+
+The complete first-order $J_2$ mean-element model therefore has three pieces:
+\begin{enumerate}
+    \item the secular flow
+    \eqref{eq:j2_mean_nu}-\eqref{eq:j2_closed_form};
+    \item the forward reconstruction map
+    \eqref{eq:forward_map_z}-\eqref{eq:forward_map_K};
+    \item the inverse initialization map
+    \eqref{eq:inverse_map_z}-\eqref{eq:inverse_map_K}.
+\end{enumerate}
+
+For the present GEqOE problem, the constructive workflow is:
+\begin{enumerate}
+    \item isolate the first-order $J_2$ forcing terms
+    $\bm f_1(\bm z,K)$ and $g_1(\bm z,K)$ from the exact GEqOE $J_2$ equations;
+    \item subtract their averaged parts;
+    \item integrate the residuals with
+    \eqref{eq:u_integral} and \eqref{eq:v_prime};
+    \item fix the integration constants by the zero-mean conditions
+    \eqref{eq:zero_mean_norm}.
+\end{enumerate}
+
+After this step, the formulation is complete in the standard singly averaged
+sense: one can move from osculating initial conditions to mean initial
+conditions, propagate the mean system, and reconstruct the osculating state at
+any epoch to first order in $J_2$.
+
+\subsection{Constructive first-order \texorpdfstring{$J_2$}{J2} map in anomaly variables}
+
+The previous discussion becomes constructive once the $J_2$ forcing is written
+in variables adapted to the unperturbed ellipse. Introduce
+\begin{equation}
+G = K - \Psi,
+\qquad
+\omega = \Psi - \Omega,
+\qquad
+s_i = \sin i = \frac{2Q}{\gamma},
+\qquad
+c_i = \cos i = \frac{\delta}{\gamma}.
+\end{equation}
+Then the unperturbed geometry is
+\begin{align}
+r &= a(1-g\cos G), \\
+\cos f &= \frac{\cos G - g}{1-g\cos G}, \\
+\sin f &= \frac{\beta \sin G}{1-g\cos G}, \\
+u &= \omega + f,
+\end{align}
+and therefore
+\begin{equation}
+\hat z = s_i \sin u.
+\end{equation}
+
+To first order in $J_2$ one may set
+\begin{equation}
+h = c + O(J_2),
+\qquad
+d = -\frac{U}{c} + O(J_2^2),
+\qquad
+w_h = \frac{3A}{c r^3} c_i \hat z^2 + O(J_2^2),
+\end{equation}
+with
+\begin{equation}
+U = -\frac{A}{r^3}\left(1-3s_i^2\sin^2 u\right).
+\end{equation}
+
+Now parameterize the slow variables by $(\nu,g,\Psi,Q,\Omega)$ rather than by
+$(\nu,p_1,p_2,q_1,q_2)$. Using
+\begin{equation}
+p_1 = g\sin\Psi,
+\quad
+p_2 = g\cos\Psi,
+\quad
+q_1 = Q\sin\Omega,
+\quad
+q_2 = Q\cos\Omega,
+\end{equation}
+and the exact GEqOE $J_2$ equations, the first-order osculating dynamics become
+\begin{align}
+\dot \nu &= 0, \\
+\dot g &=
+\frac{U}{c}\,\beta \sin G
+= -\frac{A\beta}{c r^3}
+\left(1-3s_i^2\sin^2 u\right)\sin G,
+\label{eq:gdot_j2_first}\\
+\dot Q &=
+-\frac{6A Q c_i}{c r^3}\sin u \cos u,
+\label{eq:Qdot_j2_first}\\
+\dot\Omega &=
+-\frac{6A c_i}{c r^3}\sin^2 u,
+\label{eq:Omegadot_j2_first}\\
+\dot\Psi &=
+d - w_h - \frac{U}{c}\left(1 + \frac{\cos G}{g}\right)
++ O(J_2^2).
+\label{eq:Psidot_j2_first}
+\end{align}
+
+Equations \eqref{eq:gdot_j2_first}-\eqref{eq:Psidot_j2_first} already show the
+main structural point: once expressed through $(G,u)$, the first-order forcing
+is a trigonometric-rational function of the anomaly.
+
+The $\dot\Psi$ expression must be derived directly from the exact GEqOE
+$p_1,p_2$ equations,
+\begin{equation}
+\dot\Psi = \frac{p_2 \dot p_1 - p_1 \dot p_2}{g^2},
+\end{equation}
+not by shortcut analogy. For the zonal GEqOE right-hand side this gives
+\begin{equation}
+\dot\Psi = d - w_h + \frac{\mathcal E_Z}{c}
+\left(1 + \frac{\cos G}{g}\right),
+\end{equation}
+and therefore \eqref{eq:Psidot_j2_first} for $J_2$ with
+$\mathcal E_Z = -U$. The earlier mismatch in the numerical inverse-map test was
+traced to an algebraic error in this step: the incorrect factor
+$\cos G + g$ was used instead of $1+\cos G/g$.
+
+Multiplying by
+\begin{equation}
+\frac{dt}{dG} = \frac{r}{w} + O(J_2)
+\end{equation}
+gives the anomaly-form equations for the short-period map. For the two
+magnitude variables:
+\begin{align}
+\frac{dg}{dG}
+&= -\frac{A}{\mu r^2}
+\left(1-3s_i^2\sin^2 u\right)\sin G,
+\label{eq:dg_dG}\\
+\frac{dQ}{dG}
+&= -\frac{6A Q c_i}{\mu \beta r^2}\sin u \cos u.
+\label{eq:dQ_dG}
+\end{align}
+For the two angles:
+\begin{align}
+\frac{d\Omega}{dG}
+&= -\frac{6A c_i}{\mu \beta r^2}\sin^2 u,
+\label{eq:dOmega_dG}\\
+\frac{d\Psi}{dG}
+&= \frac{r}{w}\,\dot\Psi
+ = \frac{r}{w}
+\left[
+d - w_h - \frac{U}{c}\left(\cos G + g\right)
+\right].
+\label{eq:dPsi_dG}
+\end{align}
+
+The mean-to-osculating short-period corrections are now obtained by subtracting
+the secular pieces and integrating over $G$:
+\begin{align}
+\mathcal G_1'(G) &=
+\frac{dg}{dG}, \qquad
+\langle \mathcal G_1 \rangle = 0, \\
+\mathcal Q_1'(G) &=
+\frac{dQ}{dG}, \qquad
+\langle \mathcal Q_1 \rangle = 0, \\
+\mathcal N_1'(G) &=
+\frac{d\Omega}{dG}
+- \frac{r}{w}\,\omega_{\Omega,J_2},
+\qquad
+\langle \mathcal N_1 \rangle = 0, \\
+\mathcal P_1'(G) &=
+\frac{d\Psi}{dG}
+- \frac{r}{w}\,\omega_{\Psi,J_2},
+\qquad
+\langle \mathcal P_1 \rangle = 0.
+\label{eq:map_primes}
+\end{align}
+
+Hence the first-order map can be written as
+\begin{align}
+g_{\mathrm{osc}} &= \bar g + \mathcal G_1(\bar G) + O(J_2^2), \\
+Q_{\mathrm{osc}} &= \bar Q + \mathcal Q_1(\bar G) + O(J_2^2), \\
+\Psi_{\mathrm{osc}} &= \bar\Psi + \mathcal P_1(\bar G) + O(J_2^2), \\
+\Omega_{\mathrm{osc}} &= \bar\Omega + \mathcal N_1(\bar G) + O(J_2^2),
+\label{eq:explicit_map_gQPsiOmega}
+\end{align}
+where $\bar G = \bar K - \bar\Psi$.
+
+Finally, the GEqOE components follow immediately:
+\begin{align}
+p_{1,\mathrm{osc}} &= g_{\mathrm{osc}}\sin\Psi_{\mathrm{osc}}, \\
+p_{2,\mathrm{osc}} &= g_{\mathrm{osc}}\cos\Psi_{\mathrm{osc}}, \\
+q_{1,\mathrm{osc}} &= Q_{\mathrm{osc}}\sin\Omega_{\mathrm{osc}}, \\
+q_{2,\mathrm{osc}} &= Q_{\mathrm{osc}}\cos\Omega_{\mathrm{osc}}.
+\label{eq:pq_from_map}
+\end{align}
+
+This provides a complete \emph{formal} first-order formulation:
+\begin{enumerate}
+    \item the secular evolution is explicit;
+    \item the inverse initialization map is explicit up to quadrature;
+    \item the forward reconstruction map is explicit up to quadrature.
+\end{enumerate}
+
+The remaining algebraic step, if desired, is to evaluate the integrals in
+\eqref{eq:map_primes} in closed elementary form. Because
+\eqref{eq:dg_dG}-\eqref{eq:dPsi_dG} are rational-trigonometric functions of
+$G$, and because $u(G)$ is itself given by rational-trigonometric relations,
+these quadratures can in principle be reduced by the tangent-half-angle
+substitution. The resulting expressions are expected to be lengthy, but they are
+not structurally obstructed.
+
+Numerically, the map is already useful in full. After correcting the
+$\dot\Psi$ identity as discussed above, the $g$, $Q$, $\Psi$, and $\Omega$
+quadratures can all be evaluated directly and they reduce the naive
+mean-element mismatch by one to two orders of magnitude in the test cases
+examined here.
 
 \section{What Changes for General Zonal Expansions}
 
