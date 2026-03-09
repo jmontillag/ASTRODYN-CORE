@@ -529,6 +529,38 @@ formulation did not fail at a supposedly simple stage; the derivation of one
 intermediate phase identity did. Once that identity is corrected, the numerical
 inverse map behaves exactly as the averaged logic says it should.
 
+\subsection{What is validated and what is not}
+
+At this point, the \emph{slow} part of the first-order formulation is on much
+firmer ground than the \emph{fast} phase reconstruction. A targeted numerical
+check shows the distinction clearly:
+\begin{enumerate}
+    \item if the full inverse map is used for
+    $(g,Q,\Psi,\Omega)$ and the exact osculating $K$ from the reference
+    integration is injected, the reconstructed Cartesian position stays within
+    sub-kilometer error over multi-orbit arcs;
+    \item if one instead uses the present mean-longitude model
+    \eqref{eq:Lbar_J2} to reconstruct the fast phase without a separately
+    validated $v_1$ correction for $K$, the Cartesian reconstruction error
+    remains at the level of tens to hundreds of kilometers.
+\end{enumerate}
+
+Thus the current bottleneck is no longer the slow secular GEqOE closure or the
+short-period map for the shape and orientation variables. The unresolved piece
+is the \emph{fast-phase model}, namely:
+\begin{enumerate}
+    \item the correct first-order mean evolution for the generalized longitude
+    used by the GEqOE `K` variable, and
+    \item the associated short-period correction $v_1$ in
+    \eqref{eq:forward_map_K}-\eqref{eq:inverse_map_K}.
+\end{enumerate}
+
+This is the natural next derivation step. Before extending the theory to higher
+zonals or adding thrust, the $J_2$ averaged formulation should be completed by
+deriving and validating that fast-phase reconstruction directly from the exact
+GEqOE $K$ equation, rather than borrowing the classical singly averaged mean
+anomaly rate as a surrogate.
+
 \section{How the Mean-to-Osculating Map Works}
 
 \subsection{Near-identity transformation}
@@ -809,7 +841,7 @@ For the two angles:
 &= \frac{r}{w}\,\dot\Psi
  = \frac{r}{w}
 \left[
-d - w_h - \frac{U}{c}\left(\cos G + g\right)
+d - w_h - \frac{U}{c}\left(1 + \frac{\cos G}{g}\right)
 \right].
 \label{eq:dPsi_dG}
 \end{align}
