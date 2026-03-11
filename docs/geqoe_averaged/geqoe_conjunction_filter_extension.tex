@@ -1,0 +1,739 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+\newcommand{\eps}{\varepsilon}
+\newcommand{\mean}[1]{\langle #1 \rangle}
+\newcommand{\master}{geqoe\_averaged\_j2\_zonal\_note}
+
+\title{GEqOE-Enhanced Conjunction Filter\\
+\large Replacing the First-Order Radius Model in the SO-Filter\\
+with Exact-in-Eccentricity Analytical Reconstruction}
+\author{Jose Manuel Montilla Garc\'ia}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This companion note describes how the GEqOE averaged zonal theory (master
+note, \texttt{\master{}}) can be integrated into the Space Occupancy (SO)
+conjunction filter framework of Rivero, Bombardelli, and
+Vazquez~\cite{rivero2025}. The SO-filter represents a major advance over the
+classical apogee-perigee (AP) filter for first-stage conjunction screening,
+reducing false positives by two orders of magnitude while maintaining linear
+computational scaling. However, its current formulation is restricted to
+orbits with eccentricity $e < 0.1$ due to first-order eccentricity expansions
+in the radius model and Cook's circle theory. The GEqOE averaged theory
+removes this restriction by providing: (i)~an exact-in-eccentricity osculating
+radius reconstruction via the short-period map, (ii)~a replacement of the
+Kozai--Lyddane osculating-to-mean conversion with the GEqOE first-order
+inverse map, (iii)~inclusion of zonal harmonics $J_2$--$J_5$ instead of
+$J_2$-only, and (iv)~a consistent drag extension. The estimated improvement
+is a factor 2--5 reduction in the required correction buffers and extension of
+the SO-filter to the full catalogued population including high-eccentricity
+orbits such as GTO and Molniya.
+\end{abstract}
+
+\tableofcontents
+
+%% ====================================================================
+\section{Motivation and Context}
+\label{sec:motivation}
+
+\subsection{The conjunction screening problem}
+
+Conjunction analysis (CA) for the catalogued resident space object (RSO)
+population involves screening $\sim\!10^{11}$ pairs over typical 5-day
+windows. First-stage filtering reduces this set to a manageable number of
+candidates ($\sim\!10^4$--$10^5$) for detailed orbit determination and
+probability-of-collision computation. The classical apogee-perigee (AP) filter
+eliminates pairs whose radial extent bands do not overlap. As shown by
+Rivero et al.~\cite{rivero2025}, the AP-filter produces $\sim\!224{,}000$
+false positives from $\sim\!144$ million pairs (16,972 LEO orbits), requiring
+buffers of 3--6~km over 5-day windows to avoid false negatives.
+
+\subsection{The SO-filter advance}
+
+The SO-filter~\cite{rivero2025} replaces the simple apogee/perigee bounds
+with a refined radial occupancy model based on Cook's frozen orbit
+theory~\cite{cook1966} and short-term extensions via a quartic equation. This
+reduces false positives from $224{,}316$ (AP) to $2{,}242$ (SO)---a
+\textbf{100-fold improvement}---with only a 15\% increase in computation time
+(8.30~min vs.\ 7.20~min for 16,972 orbits). The required correction buffers
+drop from 3--6~km (AP) to 0.5--1.2~km (SO) for zero false negatives.
+
+\subsection{Current limitations}
+
+The SO-filter's accuracy rests on three analytical approximations, each of
+which the GEqOE theory can improve:
+\begin{enumerate}
+\item \textbf{First-order eccentricity expansion}: The radius polar equation
+(Eq.~19 in~\cite{rivero2025}) expands $r(\hat\theta, \beta)$ to first order
+in eccentricity, limiting applicability to $e < 0.1$. High-eccentricity
+orbits (GTO, Molniya, HEO) are excluded entirely.
+\item \textbf{$J_2$-only physics}: Cook's circle theory and the frozen
+eccentricity $e_f$ (Eq.~4 in~\cite{rivero2025}) include only $J_2$ and odd
+zonals at first order. The actual geopotential through $J_5$ causes additional
+frozen-eccentricity shifts and secular rate corrections.
+\item \textbf{Kozai--Lyddane mean elements}: The osculating-to-mean
+conversion (Appendix~B of~\cite{rivero2025}) uses Kozai--Lyddane theory, which
+is singular at the critical inclination ($i \approx 63.4\degree$) and
+introduces small but nonzero errors that contribute to the correction buffer.
+\end{enumerate}
+
+The GEqOE averaged theory addresses all three limitations simultaneously.
+
+%% ====================================================================
+\section{Component-by-Component Replacement}
+\label{sec:components}
+
+This section maps each analytical component of the SO-filter to its GEqOE
+replacement, identifying exactly where each piece enters the computation
+pipeline.
+
+\subsection{Osculating-to-mean conversion (replacing Kozai--Lyddane)}
+\label{sec:osc2mean}
+
+\subsubsection{Current approach}
+
+The SO-filter converts initial osculating orbital elements
+$\{a, e, i, \omega, \Omega, M\}$ to mean elements
+$\{\hat a, \hat e, \hat i, \hat\omega, \hat\Omega, \hat M\}$ using the
+Kozai~\cite{kozai1959}--Lyddane~\cite{lyddane1963} first-order $J_2$
+short-period removal (Appendix~B of~\cite{rivero2025}, Eqs.~69--87). This
+conversion:
+\begin{itemize}
+\item accounts for $J_2$ only;
+\item is first-order in $J_2$ (errors of order $J_2^2 \sim 10^{-6}$);
+\item contains a $1/\sin i$ singularity near equatorial orbits and a
+$1/(1-5\cos^2 i)$ singularity near the critical inclination;
+\item requires solving Kepler's equation (Eq.~69 of~\cite{rivero2025}).
+\end{itemize}
+
+\subsubsection{GEqOE replacement}
+
+The GEqOE first-order inverse map (master note, Section~8) converts
+osculating Cartesian state vectors $(\bm r, \bm v)$ to mean GEqOE
+$\bar{\bm y} = (\bar\nu, \bar p_1, \bar p_2, \bar K, \bar q_1, \bar q_2)$
+via:
+\begin{equation}
+\bar{\bm y} = \bm y_{\rm osc} - \eps\,\bm u_1(\bm y_{\rm osc}),
+\label{eq:inverse_map}
+\end{equation}
+where $\bm u_1$ is the same short-period correction evaluated at the
+osculating state. This map:
+\begin{itemize}
+\item includes $J_2$--$J_5$ (all zonals in the theory);
+\item is exact in eccentricity---no Taylor expansion in $e$;
+\item is free of the equatorial and critical-inclination singularities of the
+classical elements (though singular for retrograde equatorial and rectilinear
+orbits, which are not relevant for the RSO catalogue);
+\item requires no Kepler equation solve---the GEqOE state uses $K$ directly.
+\end{itemize}
+
+\subsubsection{Impact on the SO-filter pipeline}
+
+The osculating-to-mean conversion is the \emph{entry point} of the SO-filter:
+every RSO in the catalogue passes through it once at the reference epoch $t_0$.
+The GEqOE inverse map is algebraic (rational functions of $q$ and $Q$,
+trigonometric functions of $K$), with comparable computational cost to
+Kozai--Lyddane. The improvement is:
+\begin{itemize}
+\item elimination of the $\sin i$ and critical-inclination singularities,
+\item inclusion of $J_3$--$J_5$ short-period effects (up to $\sim\!100$~m for
+low-altitude orbits),
+\item exact-in-$e$ short-period removal, reducing the initialization error
+that propagates into the radial bounds.
+\end{itemize}
+
+The validated round-trip error of the GEqOE inverse map is 7.2~m
+(low-$e$) and 1.6~m (high-$e$) at first order (master note, Section~9),
+compared to typical Kozai--Lyddane errors of $\sim\!100$~m for $J_2$-only.
+
+\subsection{Mean eccentricity evolution (replacing Cook's circle)}
+\label{sec:cook_replacement}
+
+\subsubsection{Current approach}
+
+Cook's circle theory~\cite{cook1966} describes the evolution of the mean
+eccentricity vector $(\xi, \eta)$ as a circle of radius $e_p$ centered at
+$(0, e_f)$ in the nodal frame (Eqs.~1--9 of~\cite{rivero2025}):
+\begin{equation}
+\xi(\tau) = e_p \cos\beta(\tau), \qquad
+\eta(\tau) = e_p \sin\beta(\tau) + e_f,
+\label{eq:cook_circle}
+\end{equation}
+where $e_f$ is the frozen eccentricity (Eq.~4), $e_p$ the proper
+eccentricity (Eq.~5), and $\beta(\tau) = k\tau + \alpha$ with precession rate
+$k$ (Eq.~9). The theory is:
+\begin{itemize}
+\item first-order in eccentricity;
+\item $J_2$-only for the precession rate $k$, with higher odd zonals appearing
+only in $e_f$;
+\item valid for ``small'' eccentricity (the paper applies it to $e < 0.1$).
+\end{itemize}
+
+\subsubsection{GEqOE replacement}
+
+The GEqOE mean ODE system (master note, Section~5) provides the exact
+first-order mean rates for all six mean elements $\bar{\bm y}$. For the
+pure $J_2$ case, the mean system is especially simple (master note,
+Section~5.1):
+\begin{itemize}
+\item $\bar\nu$, $\bar g$, $\bar Q$ are \emph{exactly constant};
+\item $(\bar p_1, \bar p_2)$ rotate uniformly at rate $\dot\omega_{J_2}$;
+\item $(\bar q_1, \bar q_2)$ rotate uniformly at rate $\dot\Omega_{J_2}$.
+\end{itemize}
+For the general zonal case ($J_2$--$J_5$), the mean ODE is a smooth,
+slowly varying system that can be integrated cheaply (or via Taylor polynomial
+maps as described in the companion note \texttt{geqoe\_mean\_taylor\_prop}).
+
+The eccentricity magnitude $g = |\bm g|$ and the argument of pericenter
+embedded in $(p_1, p_2)$ are \emph{implicit} in the GEqOE formulation; the
+Cook-circle behavior is recovered as a \emph{consequence} of the mean ODE
+rather than an \emph{assumption}. Crucially, the GEqOE mean drift:
+\begin{itemize}
+\item is exact in eccentricity (no first-order-in-$e$ truncation);
+\item includes cross-zonal effects from $J_3$, $J_4$, $J_5$ on both the
+precession rate and the frozen point;
+\item does not require the ``small eccentricity'' assumption.
+\end{itemize}
+
+\subsubsection{Impact on the SO-filter}
+
+The mean eccentricity evolution feeds directly into the radius polar equation
+(Section~\ref{sec:radius_replacement}). More accurate mean elements at each
+evaluation point $\tau$ reduce the error in $r(\hat\theta, \beta)$ and thus
+the required correction buffer. The improvement is most significant for:
+\begin{itemize}
+\item orbits near the critical inclination, where $J_3$--$J_5$ contributions
+to the frozen eccentricity become comparable to the $J_2$ term;
+\item moderate-eccentricity orbits ($0.01 < e < 0.1$), where first-order-in-$e$
+errors in Cook's circle accumulate over the 5-day screening window;
+\item high-eccentricity orbits ($e > 0.1$), which are currently excluded
+entirely.
+\end{itemize}
+
+\subsection{Radius reconstruction (replacing the first-order polar equation)}
+\label{sec:radius_replacement}
+
+\subsubsection{Current approach}
+
+The SO-filter's radius polar equation (Eq.~19 of~\cite{rivero2025}) is:
+\begin{equation}
+r \approx \hat a\bigl(1 - \hat e\cos(\hat\theta - \hat\omega)\bigr)
++ \frac{J_2}{4\hat a}\bigl[(9 + \cos 2\hat\theta)\sin^2\hat\imath - 6\bigr],
+\label{eq:rivero_radius}
+\end{equation}
+which is first-order in eccentricity (the $1 - e\cos f$ term) and
+first-order in $J_2$ (the $J_2/(4\hat a)$ correction). This formula is the
+heart of both the long-term SO bounds (Eqs.~13--14) and the short-term SO
+quartic equation (Eq.~34).
+
+The formula's error has two sources:
+\begin{enumerate}
+\item \textbf{Eccentricity truncation}: The exact Keplerian radius is
+$r = a(1-e^2)/(1+e\cos f)$, which differs from $a(1-e\cos f)$ by
+$O(e^2)$. For $e = 0.1$ this is $\sim\!1\%$ of $a$ ($\sim\!70$~km for LEO),
+though the \emph{mean} error over the orbit is smaller.
+\item \textbf{$J_2$-only geopotential}: The $J_2/(4\hat a)[\cdots]$ term
+misses $J_3$--$J_5$ contributions which can shift the extremal radii by
+tens of meters.
+\end{enumerate}
+
+\subsubsection{GEqOE replacement: exact osculating reconstruction}
+
+The GEqOE short-period map (master note, Sections~6--7) provides:
+\begin{equation}
+\bm y_{\rm osc} = \bar{\bm y} + \eps\,\bm u_1(\bar{\bm y}, \bar K),
+\label{eq:forward_map}
+\end{equation}
+where $\bm u_1$ is known in closed form (polynomial-plus-residue expressions
+in $q$ and $Q$, rational in $F = e^{if}$). From the osculating GEqOE state,
+the osculating radius is recovered \emph{exactly} via the GEqOE-to-Cartesian
+transformation (master note, Section~3):
+\begin{equation}
+r = \frac{c^2}{\mu}\frac{1}{1 + g\cos f},
+\label{eq:exact_radius}
+\end{equation}
+where $c$, $g$, and $f$ are extracted from the osculating GEqOE state.
+This reconstruction:
+\begin{itemize}
+\item is \emph{exact in eccentricity}---no Taylor expansion in $e$;
+\item includes $J_2$--$J_5$ in the short-period correction;
+\item captures the correct osculating radius at every point on the orbit, not
+just an approximation valid for small $e$.
+\end{itemize}
+
+\subsubsection{Two implementation strategies}
+
+There are two ways to use the GEqOE reconstruction within the SO-filter
+framework:
+
+\paragraph{Strategy A: Direct replacement of the radius polar equation.}
+For a given mean state $\bar{\bm y}$ and a grid of $\bar K$ values spanning
+$[0, 2\pi]$, evaluate the forward map~\eqref{eq:forward_map} and compute
+$r(\bar K)$ via~\eqref{eq:exact_radius}. The maximum and minimum $r$ over
+the grid give the short-term SO bounds. This replaces the quartic equation
+(Eq.~34 of~\cite{rivero2025}) with a direct sweep.
+
+The computational cost is $N_{\rm grid}$ evaluations of the short-period map
+per RSO per evaluation epoch. With $N_{\rm grid} = 36$ (every $10\degree$) and
+algebraic evaluation of the short-period map, this is comparable to solving
+the quartic equation and evaluating the critical-point Hessian.
+
+\paragraph{Strategy B: Improved quartic equation.}
+Retain the quartic structure of the SO-filter but replace the first-order
+radius formula~\eqref{eq:rivero_radius} with a higher-fidelity expression
+derived from the GEqOE reconstruction. Specifically, expand
+$r(\bar{\bm y}, \bar K)$ as a truncated Fourier series in $\hat\theta$ and
+$\beta$:
+\begin{equation}
+r(\hat\theta, \beta) \approx r_0 + \sum_{k=1}^{N_h}
+\bigl[A_k \cos k\hat\theta + B_k \sin k\hat\theta\bigr]
++ \text{zonal corrections},
+\label{eq:improved_radius}
+\end{equation}
+where the coefficients $r_0$, $A_k$, $B_k$ are computed from the GEqOE
+short-period map at the current mean state. Setting $dr/d\hat\theta = 0$ and
+$dr/d\beta = 0$ yields a polynomial system whose degree depends on $N_h$.
+For $N_h = 2$ the polynomial is quartic (same as the current SO-filter); for
+$N_h = 3$ it is sextic, solvable via companion-matrix eigenvalues.
+
+Strategy~A is simpler to implement and more robust (no root-finding
+pathologies); Strategy~B preserves the quartic structure for backward
+compatibility but may gain less in accuracy. We recommend Strategy~A for new
+implementations and Strategy~B for incremental upgrades of existing code.
+
+\subsubsection{Estimated accuracy improvement}
+
+The SO-filter's current model error is $\sim\!0.5$~km mean, with 98.7\% of
+cases below 1~km (Fig.~6 of~\cite{rivero2025}). The GEqOE reconstruction
+error is:
+\begin{itemize}
+\item $\sim\!0.1$~km ($\sim\!100$~m) for low-$e$ orbits (master note,
+Section~9: sub-kilometer osculating reconstruction);
+\item $\sim\!1$--$3$~km for $e = 0.65$ (first-order theory), but this regime
+is entirely \emph{excluded} from the current SO-filter.
+\end{itemize}
+For the $e < 0.1$ population where both models apply, the GEqOE
+reconstruction should reduce the model error by a factor of $\sim\!3$--$5$
+(from $\sim\!0.5$~km to $\sim\!0.1$~km), because:
+\begin{enumerate}
+\item the eccentricity truncation error ($O(e^2 a) \sim 70$~m for $e = 0.1$)
+is eliminated;
+\item the $J_3$--$J_5$ short-period corrections ($\sim\!50$~m) are included;
+\item the improved inverse map reduces initialization error from
+$\sim\!100$~m to $\sim\!7$~m.
+\end{enumerate}
+
+\subsection{Buffer reduction}
+\label{sec:buffer}
+
+The correction buffer is the safety margin added to each RSO's radial bounds
+to eliminate false negatives. Rivero et al.\ report (Table~3
+of~\cite{rivero2025}):
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+& AP-filter [km] & SO-filter [km] \\
+\midrule
+Low-$e$, low altitude ($< 400$~km) & 11.5 & 0.98 \\
+Low-$e$, mid altitude (400--700~km) & 11.3 & 1.28 \\
+Low-$e$, high altitude ($> 1000$~km) & 8.6 & 2.03 \\
+Moderate-$e$, low altitude & 10.7 & 0.90 \\
+Moderate-$e$, high altitude & 8.5 & 2.51 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The buffer is driven by the worst-case model error over the apsidal
+precession period (Eq.~43 of~\cite{rivero2025}):
+\begin{equation}
+\varepsilon^* = \max\{r^{\rm short}_{\max} - r^{\rm num}_{\max},\;
+r^{\rm num}_{\min} - r^{\rm short}_{\min}\}.
+\end{equation}
+Since the GEqOE reconstruction reduces the model error by a factor of
+$\sim\!3$--$5$ for the $e < 0.1$ population, the required buffers should
+shrink proportionally:
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+& SO-filter [km] & GEqOE-SO [km] (est.) \\
+\midrule
+Low-$e$, low altitude & 0.98 & 0.2--0.3 \\
+Low-$e$, mid altitude & 1.28 & 0.3--0.4 \\
+Low-$e$, high altitude & 2.03 & 0.4--0.7 \\
+Moderate-$e$ & 0.90--2.51 & 0.2--0.5 \\
+High-$e$ ($e > 0.1$) & N/A & 1--3 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The last row is new: the GEqOE-enhanced SO-filter would for the first time
+provide analytical radial bounds for high-eccentricity orbits, which
+currently require numerical propagation or are excluded from the filter
+entirely. Even with larger buffers (1--3~km for $e > 0.1$), this is
+substantially better than the AP-filter's 8--12~km buffers.
+
+\subsubsection{Impact on false positive rates}
+
+Smaller buffers translate directly into fewer false positives. The SO-filter
+with category-specific buffers achieves $\rho_{\rm FP} = 1.68\%$ (Table~4
+of~\cite{rivero2025}). Since the number of false positives scales roughly as
+the square of the buffer size (two-dimensional radial band overlap), a factor
+$\sim\!3$ reduction in buffer size implies a factor $\sim\!9$ reduction in
+false positives:
+\begin{equation}
+\rho_{\rm FP}^{\rm GEqOE} \sim \frac{\rho_{\rm FP}^{\rm SO}}{9}
+\sim 0.2\%.
+\end{equation}
+This would bring the false positive count from $\sim\!537{,}000$ (SO-filter
+with buffer) to $\sim\!60{,}000$---a further $\sim\!9\times$ reduction on top
+of the SO-filter's already dramatic improvement over the AP-filter.
+
+%% ====================================================================
+\section{Eccentricity Range Extension}
+\label{sec:eccentricity}
+
+\subsection{The current restriction}
+
+Rivero et al.\ explicitly state: ``it is important to underline that orbits
+with eccentricities higher than 0.1 and apogee radii exceeding 40,000~km
+have been left out.'' This excludes:
+\begin{itemize}
+\item Geostationary transfer orbits (GTO): $e \approx 0.73$
+\item Molniya orbits: $e \approx 0.74$
+\item Highly eccentric orbits (HEO): $e \approx 0.4$--$0.8$
+\item GPS transfer orbits: $e \approx 0.02$--$0.1$
+\end{itemize}
+
+These orbit classes contain significant debris populations and active
+satellites. Including them in the first-stage filter (rather than requiring
+numerical propagation) would reduce the computational burden on the
+downstream conjunction assessment pipeline.
+
+\subsection{Why GEqOE removes the restriction}
+
+The GEqOE averaged theory uses the eccentricity parameter
+$q = g/(1 + \beta)$ where $\beta = \sqrt{1 - g^2}$ and $g$ is the
+GEqOE eccentricity magnitude. The entire theory---mean ODE, short-period
+map, and inverse map---is formulated as rational functions of $q$ and the
+complex true anomaly exponential $F = e^{if}$, with \emph{no Taylor
+expansion in eccentricity}. The only restriction is $g < 1$ (non-rectilinear
+orbits) and $q_1^2 + q_2^2 < 1$ (non-retrograde-equatorial).
+
+Validation in the master note (Section~9) demonstrates:
+\begin{itemize}
+\item Position reconstruction error $< 1$~km for $e = 0.01$ (10 orbits);
+\item Position reconstruction error $\sim\!3$~km for $e = 0.65$ (10 orbits);
+\item Scaling slope $\approx 1.0$ (first-order theory confirmed).
+\end{itemize}
+
+For the SO-filter application, the relevant quantity is the \emph{radial}
+component of the reconstruction error, which is typically smaller than the
+full 3D position error (the dominant error is usually in the along-track
+direction). We estimate:
+\begin{equation}
+\delta r_{\rm GEqOE} \sim
+\begin{cases}
+50\text{--}100~\text{m} & e < 0.1, \\
+200\text{--}500~\text{m} & 0.1 < e < 0.5, \\
+0.5\text{--}2~\text{km} & e > 0.5.
+\end{cases}
+\end{equation}
+
+\subsection{Population coverage}
+
+Including orbits up to $e = 0.8$ would extend the SO-filter from the current
+16,972 orbits (restricted catalogue) to the full catalogued LEO/MEO/GTO
+population of $\sim\!25{,}000$+ objects. The high-eccentricity orbits are
+precisely those for which the AP-filter performs worst (large radial range),
+so even moderate GEqOE-SO accuracy provides a significant advantage.
+
+%% ====================================================================
+\section{Drag Integration}
+\label{sec:drag}
+
+\subsection{Current drag treatment in the SO-filter}
+
+Rivero et al.\ incorporate atmospheric drag via the Billik--Karrenberg
+altitude decay formula (Eq.~45 of~\cite{rivero2025}):
+\begin{equation}
+h(t) = \frac{1}{\beta_a}\log\Bigl[e^{\beta_a h_0}
+- B\sqrt{\mu R_\oplus \beta_a \bar\rho}\; t\Bigr],
+\label{eq:billik}
+\end{equation}
+where $B = C_D A_c / m_c$ is the ballistic coefficient, $\beta_a$ and
+$\bar\rho$ are exponential density model parameters (Table~5
+of~\cite{rivero2025}), and $h_0$ is the initial altitude. This formula:
+\begin{itemize}
+\item is valid for near-circular orbits only;
+\item treats drag as a secular altitude decay (no eccentricity evolution);
+\item adds a correction of $\sim\!0.6$~km to the minimum radius bounds for
+altitudes below 500~km.
+\end{itemize}
+
+\subsection{GEqOE drag extension}
+
+The companion note \texttt{geqoe\_mean\_drag\_extension} develops a more
+complete drag model within the GEqOE framework. The key features are:
+\begin{itemize}
+\item Secular drag rates for both $\bar\nu$ (energy decay) and $\bar g$
+(eccentricity circularization) via King-Hele formulas;
+\item Bessel-function expansion of the exponential density model, valid for
+arbitrary eccentricity;
+\item Addition to the mean ODE without rederiving the zonal short-period map
+(justified because drag short-period effects are $O(\eps_{\rm drag}
+\cdot \eps_{\rm zonal})$).
+\end{itemize}
+
+This provides a natural upgrade path: the GEqOE-enhanced SO-filter inherits
+the drag extension automatically through the mean ODE, rather than requiring
+a separate altitude-decay formula. The improvement is especially relevant for:
+\begin{itemize}
+\item eccentric orbits below 500~km perigee, where drag circularization is
+significant over 5-day windows;
+\item very low orbits ($< 300$~km), where the Billik formula's circular-orbit
+assumption introduces errors.
+\end{itemize}
+
+%% ====================================================================
+\section{Computational Architecture}
+\label{sec:computational}
+
+\subsection{Scaling requirements}
+
+The ``all-on-all'' conjunction screening problem requires \emph{linear}
+scaling: each RSO must be processed once to compute its radial bounds, and
+then pairs are eliminated by simple comparison. Both the AP-filter and
+SO-filter achieve this. The GEqOE-enhanced SO-filter must preserve this
+property.
+
+\subsection{Per-RSO computation (one-time cost)}
+
+For each RSO at epoch $t_0$:
+\begin{enumerate}
+\item \textbf{Osculating $\to$ mean conversion}: Evaluate the GEqOE inverse
+map~\eqref{eq:inverse_map}. Cost: one evaluation of the short-period map
+($\sim\!100$ floating-point operations for the $J_2$-only path,
+$\sim\!500$ for $J_2$--$J_5$).
+\item \textbf{Mean propagation}: Integrate the mean ODE over the screening
+window (5 days). For pure $J_2$: analytic (uniform rotations). For
+$J_2$--$J_5$: one cheap ODE integration (the mean ODE is 5-dimensional and
+slowly varying; typical step sizes are $\sim\!0.1$~days).
+\item \textbf{Radial bounds}: At each evaluation epoch within the screening
+window, compute $r_{\max}$ and $r_{\min}$ via Strategy~A
+(Section~\ref{sec:radius_replacement}): sweep $\bar K \in [0, 2\pi]$ with
+$N_{\rm grid}$ evaluations of the forward map.
+\end{enumerate}
+
+Total per-RSO cost: comparable to the current SO-filter. The dominant cost
+is the $N_{\rm grid}$ forward-map evaluations, which replace the quartic solve
+plus Hessian evaluation.
+
+\subsection{Pair comparison (unchanged)}
+
+The pair comparison step is identical to the current SO-filter: compare
+$r_{\max,i} + b_i$ against $r_{\min,j} - b_j$ for all pairs $(i,j)$.
+The buffers $b_i$ are smaller (Section~\ref{sec:buffer}), so \emph{more pairs
+are eliminated}, reducing the downstream workload.
+
+\subsection{Implementation options}
+
+\paragraph{Pure Python/MATLAB prototype.}
+The algebraic short-period map can be implemented directly in Python or
+MATLAB. This is the fastest path to validation and comparison with the
+existing SO-filter implementation (which runs in MATLAB R2021b).
+
+\paragraph{Compiled evaluation via heyoka cfunc.}
+For production use, the GEqOE short-period map expressions can be compiled
+into optimized evaluation kernels using heyoka's \texttt{cfunc} facility (see
+the companion note \texttt{geqoe\_mean\_taylor\_prop}). This provides:
+\begin{itemize}
+\item SIMD vectorization for batch evaluation across the $K$-grid;
+\item automatic differentiation for gradient-based extremum finding
+(avoiding the grid sweep entirely);
+\item compilation once, evaluation for all RSOs with different mean states
+passed as parameters.
+\end{itemize}
+
+\paragraph{Taylor polynomial maps.}
+For ensemble screening (multiple epochs, parameter sensitivity), the mean ODE
+can be integrated using heyoka's Taylor polynomial machinery to produce
+cached polynomial maps $\bar{\bm y}(t; \bar{\bm y}_0)$ valid over the entire
+5-day window. See the companion note \texttt{geqoe\_mean\_taylor\_prop},
+Path~C.
+
+%% ====================================================================
+\section{Validation Plan}
+\label{sec:validation}
+
+A rigorous validation should follow the same methodology as
+Rivero et al.~\cite{rivero2025}:
+
+\subsection{Test case validation}
+
+Reproduce the three test orbits of Table~1 in~\cite{rivero2025} (NORAD
+47961, 41460, 43518) and compare:
+\begin{itemize}
+\item GEqOE-SO radial bounds vs.\ high-fidelity propagated bounds (analogous
+to Fig.~4 of~\cite{rivero2025});
+\item GEqOE-SO model error $\varepsilon$ vs.\ SO-filter model error
+(Fig.~6);
+\item radial bound evolution over one apsidal precession period.
+\end{itemize}
+
+\subsection{Population-level validation}
+
+Using the same 16,972-orbit dataset:
+\begin{enumerate}
+\item Compute GEqOE-SO radial bounds for all orbits over a 5-day window.
+\item Compare with high-fidelity numerically propagated bounds.
+\item Compute model error distribution (analogous to Fig.~6).
+\item Determine category-specific correction buffers (analogous to Table~3).
+\item Run the full pair comparison ($\sim\!144$~million pairs) and compute
+$\rho_{\rm FP}$, $\rho_{\rm FN}$, and $\eta$ (analogous to Tables~2 and~4).
+\end{enumerate}
+
+\subsection{Extended eccentricity validation}
+
+Extend the dataset to include orbits with $0.1 < e < 0.8$:
+\begin{enumerate}
+\item Select high-eccentricity orbits from the full TLE catalogue.
+\item Propagate with the high-fidelity model.
+\item Compute GEqOE-SO bounds and model errors.
+\item Determine buffers for the new eccentricity categories.
+\end{enumerate}
+
+This constitutes the primary novel contribution of the GEqOE enhancement:
+analytical first-stage filtering for the currently excluded population.
+
+%% ====================================================================
+\section{Summary of Improvements}
+\label{sec:summary}
+
+Table~\ref{tab:summary} provides an overview of the component-by-component
+improvements.
+
+\begin{table}[h]
+\centering
+\caption{Summary of GEqOE enhancements to the SO-filter.}
+\label{tab:summary}
+\small
+\begin{tabular}{p{3.2cm}p{4.5cm}p{4.5cm}}
+\toprule
+\textbf{Component} & \textbf{Current SO-filter} & \textbf{GEqOE-SO} \\
+\midrule
+Osc-to-mean &
+Kozai--Lyddane, $J_2$-only, singular at $i_c$ &
+GEqOE inverse map, $J_2$--$J_5$, singularity-free \\[4pt]
+Mean evolution &
+Cook's circle, 1st-order-in-$e$, $J_2$ rate &
+GEqOE mean ODE, exact-in-$e$, $J_2$--$J_5$ \\[4pt]
+Radius model &
+1st-order-in-$e$, $J_2$-only polar equation &
+Exact-in-$e$ osculating reconstruction \\[4pt]
+Eccentricity range &
+$e < 0.1$ &
+$e < 0.8+$ (full catalogue) \\[4pt]
+Correction buffer &
+0.5--2.5~km &
+0.2--0.7~km (est., low-$e$) \\[4pt]
+Drag model &
+Billik altitude decay, circular only &
+King-Hele secular rates, arbitrary $e$ \\[4pt]
+Computational cost &
+$\sim\!8$~min for 16,972 orbits &
+Comparable ($\sim\!10$~min est.) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%% ====================================================================
+\section{Collaboration Path}
+\label{sec:collaboration}
+
+The integration of the GEqOE theory into the SO-filter framework suggests a
+natural collaboration between the analytical orbit theory development (this
+work and the master note) and the conjunction analysis group (Rivero,
+Bombardelli, Vazquez). A concrete path forward:
+
+\begin{enumerate}
+\item \textbf{Phase~1: Prototype validation.} Implement the GEqOE inverse map
+and forward map in MATLAB (to interface with the existing SO-filter code).
+Validate on the three test orbits of~\cite{rivero2025}. Deliverable: error
+comparison plots analogous to Fig.~4.
+
+\item \textbf{Phase~2: Population benchmark.} Run the GEqOE-SO filter on the
+full 16,972-orbit dataset. Compute buffers and filter metrics. Deliverable:
+updated Tables~2--4 with GEqOE-SO column.
+
+\item \textbf{Phase~3: Eccentricity extension.} Extend the dataset to
+$e > 0.1$. Compute GEqOE-SO bounds and buffers for the high-$e$ population.
+Deliverable: first analytical filter results for GTO/Molniya-class orbits.
+
+\item \textbf{Phase~4: Drag integration.} Replace the Billik formula with
+the GEqOE drag extension for low-altitude orbits. Deliverable: updated
+Table~6 with GEqOE-SO column.
+
+\item \textbf{Phase~5: Production implementation.} Port to compiled heyoka
+cfunc kernels for production-speed evaluation. Deliverable: timing benchmarks
+and integration with space traffic management tools.
+\end{enumerate}
+
+Each phase produces a self-contained, publishable result:
+\begin{itemize}
+\item Phase~1--2: journal paper comparing GEqOE-SO vs.\ SO-filter on the
+standard benchmark;
+\item Phase~3: conference paper on high-eccentricity conjunction filtering;
+\item Phase~4--5: applications paper on integrated drag + zonal conjunction
+screening.
+\end{itemize}
+
+\begin{thebibliography}{99}
+\bibitem{rivero2025}
+Rivero, A.S., Bombardelli, C., Vazquez, R.,
+``Short-term space occupancy and conjunction filter,''
+\emph{Advances in Space Research}, 76, 2354--2372, 2025.
+
+\bibitem{cook1966}
+Cook, G.,
+``Perturbations of near-circular orbits by the Earth's gravitational
+potential,''
+\emph{Planetary and Space Science}, 14(5), 433--444, 1966.
+
+\bibitem{kozai1959}
+Kozai, Y.,
+``The motion of a close earth satellite,''
+\emph{The Astronomical Journal}, 64, 367--377, 1959.
+
+\bibitem{lyddane1963}
+Lyddane, R.H.,
+``Small eccentricities or inclinations in the Brouwer theory of the
+artificial satellite,''
+\emph{The Astronomical Journal}, 68, 555--558, 1963.
+
+\bibitem{bau2021}
+Ba\`u, G., Bombardelli, C., Peláez, J.,
+``A generalization of the equinoctial orbital elements,''
+\emph{Celestial Mechanics and Dynamical Astronomy}, 133, Article 50, 2021.
+
+\bibitem{bombardelli2021}
+Bombardelli, C., Falco, G., Amato, D., et al.,
+``Space occupancy in low-earth orbit,''
+\emph{Journal of Guidance, Control, and Dynamics}, 44(4), 684--700, 2021.
+\end{thebibliography}
+
+\end{document}
