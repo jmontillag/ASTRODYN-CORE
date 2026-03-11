@@ -1,0 +1,426 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+\newcommand{\master}{geqoe\_averaged\_j2\_zonal\_note}
+
+\title{Taylor Integration of the GEqOE Mean-Element ODE\\
+\large Heyoka-Based Propagation of the Averaged Zonal Model}
+\author{Jose Manuel Montilla Garc\'ia}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This companion note describes three strategies for accelerating the
+mean-element propagation step of the GEqOE averaged zonal theory (master
+note, \texttt{\master{}}). The mean dynamics for the general mixed-zonal
+model ($J_2$--$J_5$) constitute a smooth, slowly varying, low-dimensional
+autonomous ODE whose right-hand side is a known closed-form function. This
+ODE is an ideal candidate for high-order Taylor integration via the heyoka
+library, which provides automatic differentiation of the Taylor coefficients
+and adaptive step-size control. Three progressively more ambitious paths are
+described: (A)~direct Taylor integration of the 4D mean ODE,
+(B)~JIT-compiled evaluation of the mean drift right-hand side via heyoka
+\texttt{cfunc}, and (C)~parametric Taylor maps for reusable propagation
+across orbit families.
+\end{abstract}
+
+\tableofcontents
+
+\section{The Mean-Element ODE}
+
+\subsection{Structure}
+
+The master note (Section~10.5) establishes that the total-order-$N$ averaged
+slow system, after summation over all zonal degrees $n = 2, \ldots, N$, is
+\begin{align}
+\dot{\bar g}
+&=
+\sum_{\substack{1 \le m \le N \\ m\;\mathrm{odd}}}
+G^{(c)}_m(\bar\nu, \bar g, \bar Q)\cos(m\bar\omega)
++
+\sum_{\substack{2 \le m \le N \\ m\;\mathrm{even}}}
+G^{(s)}_m(\bar\nu, \bar g, \bar Q)\sin(m\bar\omega),
+\label{eq:gdot}\\
+\dot{\bar Q}
+&=
+\sum_{\substack{1 \le m \le N \\ m\;\mathrm{odd}}}
+Q^{(c)}_m(\bar\nu, \bar g, \bar Q)\cos(m\bar\omega)
++
+\sum_{\substack{2 \le m \le N \\ m\;\mathrm{even}}}
+Q^{(s)}_m(\bar\nu, \bar g, \bar Q)\sin(m\bar\omega),
+\label{eq:Qdot}\\
+\dot{\bar\Psi}
+&=
+P_0(\bar\nu, \bar g, \bar Q)
++
+\sum_{\substack{1 \le m \le N \\ m\;\mathrm{odd}}}
+P^{(s)}_m \sin(m\bar\omega)
++
+\sum_{\substack{2 \le m \le N \\ m\;\mathrm{even}}}
+P^{(c)}_m \cos(m\bar\omega),
+\label{eq:Psidot}\\
+\dot{\bar\Omega}
+&=
+N_0(\bar\nu, \bar g, \bar Q)
++
+\sum_{\substack{1 \le m \le N \\ m\;\mathrm{odd}}}
+N^{(s)}_m \sin(m\bar\omega)
++
+\sum_{\substack{2 \le m \le N \\ m\;\mathrm{even}}}
+N^{(c)}_m \cos(m\bar\omega),
+\label{eq:Omegadot}
+\end{align}
+where $\bar\omega = \bar\Psi - \bar\Omega$ is the mean argument of
+pericenter. The coefficient functions $G^{(c)}_m$, $P_0$, etc., are known
+closed-form algebraic expressions in $(\bar\nu, \bar g, \bar Q)$ involving:
+\begin{itemize}
+\item rational functions of $\bar g$ and $\bar Q$ (with denominators
+involving powers of $1 - \bar g^2$ and $1 + \bar Q^2$);
+\item the auxiliary $\bar\beta = \sqrt{1 - \bar g^2}$, which introduces a
+single square root;
+\item the semi-major axis $\bar a = (\mu/\bar\nu^2)^{1/3}$.
+\end{itemize}
+
+\subsection{Properties relevant to Taylor integration}
+
+\begin{enumerate}
+\item \textbf{Low dimension}: 4 state variables
+$(\bar g, \bar Q, \bar\Psi, \bar\Omega)$, with $\bar\nu$ constant.
+
+\item \textbf{Smooth}: the right-hand side is $C^\infty$ (in fact, real
+analytic) for $0 < \bar g < 1$ and $\bar Q > 0$. There are no
+discontinuities, switches, or stiff terms.
+
+\item \textbf{Slowly varying}: the characteristic timescale is the
+pericenter precession period, which for typical LEO/MEO orbits is hundreds
+to thousands of orbital periods.
+
+\item \textbf{Autonomous}: no explicit time dependence (a direct consequence
+of the zonal-only restriction).
+
+\item \textbf{Finite trigonometric}: the dependence on $\bar\omega$ is a
+finite Fourier series with at most $N - 2 = 3$ harmonics (for $N = 5$).
+\end{enumerate}
+
+These properties make the mean ODE an ideal target for high-order Taylor
+integration: the smoothness guarantees rapid convergence of the Taylor
+series, the low dimension keeps the cost per step negligible, and the slow
+variation allows enormous time steps.
+
+\subsection{The fast phase}
+
+In addition to the slow state, the mean fast phase
+$\bar M = \bar L - \bar\Psi$ must be advanced. Its rate is
+\begin{equation}
+\dot{\bar M}
+= \bar\nu
++ \dot{\bar L}_{\mathrm{sec}} - \dot{\bar\Psi},
+\end{equation}
+where $\dot{\bar L}_{\mathrm{sec}}$ includes the mean-motion correction
+from the zonal perturbation. Because $\bar\nu$ is constant and
+$\dot{\bar\Psi}$ is already part of the slow ODE, $\bar M$ can be integrated
+as a 5th state variable or computed by quadrature after the slow propagation.
+
+For the pure $J_2$ case, $\dot{\bar M}$ is constant and the integration is
+trivial: $\bar M(t) = \bar M_0 + \dot{\bar M} \cdot (t - t_0)$. For the
+general zonal case, $\dot{\bar M}$ depends on $\bar g$ and $\bar Q$ (which
+vary slowly), so it must be integrated alongside the slow state.
+
+
+\section{Path A: Direct Taylor Integration}
+
+\subsection{Concept}
+
+Build the mean ODE right-hand side \eqref{eq:gdot}--\eqref{eq:Omegadot} as
+a heyoka expression tree and integrate it with heyoka's adaptive
+\texttt{taylor\_adaptive} integrator.
+
+\subsection{Implementation}
+
+\begin{enumerate}
+\item \textbf{Express the coefficient functions as heyoka expressions.}
+The symbolic expressions for $G^{(c)}_m(\bar\nu, \bar g, \bar Q)$, etc.,
+are currently stored as SymPy expressions. These can be converted to heyoka
+expression trees either by:
+\begin{itemize}
+\item direct translation (mapping SymPy operators to heyoka operators);
+\item or by generating Python code that builds the heyoka expression tree
+from the SymPy output.
+\end{itemize}
+The key operations are: arithmetic $(+, -, \times, /)$, powers
+(integer and half-integer via $\sqrt{\cdot}$), and trigonometric functions
+$(\sin, \cos)$ of $\bar\omega = \bar\Psi - \bar\Omega$.
+
+\item \textbf{Define the state variables.} In heyoka:
+\begin{verbatim}
+g, Q, Psi, Omega, M = hy.make_vars("g", "Q", "Psi", "Omega", "M")
+omega = Psi - Omega
+\end{verbatim}
+The mean frequency $\bar\nu$ enters as a parameter
+(\texttt{hy.par[0]}).
+
+\item \textbf{Build the ODE system.}
+\begin{verbatim}
+sys = [
+    (g,     g_dot_expr),
+    (Q,     Q_dot_expr),
+    (Psi,   Psi_dot_expr),
+    (Omega, Omega_dot_expr),
+    (M,     M_dot_expr),
+]
+ta = hy.taylor_adaptive(sys, ic, pars=[nu_val])
+\end{verbatim}
+
+\item \textbf{Propagate.} Call \texttt{ta.propagate\_until(t\_final)} or
+\texttt{ta.propagate\_grid(t\_grid)}. The adaptive Taylor integrator will
+automatically select step sizes appropriate to the slow dynamics---likely
+spanning tens to hundreds of orbital periods per step.
+\end{enumerate}
+
+\subsection{Expected performance}
+
+For a Taylor order of 15--20 (heyoka's default adaptive range), the Taylor
+series converges to machine precision in a single evaluation when the step
+size is well within the convergence radius. For the mean ODE, the
+convergence radius is set by the slowest precession timescale, which is
+vastly longer than the orbital period.
+
+\textbf{Rough estimate}: For a LEO orbit with $J_2$ pericenter precession
+period $\sim$60 days, the Taylor integrator might take $\sim$10 steps to
+cover one precession cycle, compared to $\sim$1000 orbital periods. Each
+step involves evaluating $\sim$20 Taylor coefficients for 5 state variables,
+at a cost of $\sim$1000 floating-point operations. Total cost for one
+precession cycle: $\sim 10^4$ FLOPs---essentially instantaneous.
+
+\subsection{Variational equations}
+
+For covariance propagation or sensitivity analysis, heyoka's
+\texttt{var\_ode\_sys} can automatically generate the variational equations
+of the mean ODE:
+\begin{verbatim}
+vsys = hy.var_ode_sys(sys, hy.var_args.vars, order=1)
+\end{verbatim}
+This gives the $5 \times 5$ state transition matrix of the mean dynamics at
+no additional implementation cost. The mean STM would capture the
+sensitivity of the mean state to initial conditions, which is useful for
+orbit determination in mean elements.
+
+
+\section{Path B: Compiled Function Evaluation}
+
+\subsection{Concept}
+
+Even without Taylor integration, the mean drift right-hand side can be
+compiled into a fast, vectorized evaluation function via heyoka's
+\texttt{cfunc} (compiled function) facility. This would replace the current
+Python-level evaluation of the symbolic expressions with JIT-compiled machine
+code.
+
+\subsection{Implementation}
+
+\begin{enumerate}
+\item Build the heyoka expression tree for each component of the mean drift:
+$\dot{\bar g}$, $\dot{\bar Q}$, $\dot{\bar\Psi}$, $\dot{\bar\Omega}$,
+$\dot{\bar M}$.
+
+\item Create a compiled function:
+\begin{verbatim}
+cf = hy.cfunc(
+    [g_dot_expr, Q_dot_expr, Psi_dot_expr,
+     Omega_dot_expr, M_dot_expr],
+    vars=[g, Q, Psi, Omega, M],
+    pars=[hy.par[0]],  # nu
+)
+\end{verbatim}
+
+\item Evaluate at any state:
+\begin{verbatim}
+rhs = cf([g_val, Q_val, Psi_val, Omega_val, M_val],
+         pars=[nu_val])
+\end{verbatim}
+\end{enumerate}
+
+\subsection{Use cases}
+
+\begin{itemize}
+\item \textbf{Classical integrator backend}: Use the compiled RHS with
+\texttt{scipy.integrate.solve\_ivp} or a custom Runge--Kutta integrator.
+This avoids the overhead of Python-level symbolic evaluation while keeping
+the integrator choice flexible.
+
+\item \textbf{Batch evaluation}: \texttt{cfunc} supports SIMD-vectorized
+evaluation over arrays of states, enabling efficient Monte Carlo or ensemble
+propagation.
+
+\item \textbf{Gradient computation}: heyoka's compiled functions support
+automatic differentiation, which can provide Jacobians for
+Newton-type solvers (e.g., orbit determination, targeting).
+\end{itemize}
+
+\subsection{Expected speedup}
+
+The current mean drift evaluation is implemented in Python using cached
+SymPy \texttt{lambdify} functions. A heyoka \texttt{cfunc} would replace
+this with compiled C code, providing a speedup of $\sim$10--100$\times$ per
+evaluation. For batch propagation of thousands of orbits, the SIMD
+vectorization would add another $\sim$4--8$\times$ factor.
+
+\subsection{Short-period kernel compilation}
+
+The same approach can be applied to the short-period correction functions
+$\mathcal{G}_1(G)$, $\mathcal{Q}_1(G)$, $\mathcal{P}_1(G)$,
+$\mathcal{N}_1(G)$, $\ell_1(K)$. These are rational functions of
+$\sin G$, $\cos G$ (or $\sin K$, $\cos K$) with coefficients in $(q, Q)$.
+Compiling them via \texttt{cfunc} would make the mean-to-osculating
+reconstruction step equally fast.
+
+
+\section{Path C: Parametric Taylor Maps}
+
+\subsection{Concept}
+
+For applications requiring propagation of many orbits with similar
+characteristics (e.g., constellation design, catalog maintenance), it may be
+advantageous to precompute Taylor maps that are valid over a neighborhood of
+the initial-condition space, rather than integrating each orbit individually.
+
+\subsection{Background: Taylor maps}
+
+A Taylor map of order $p$ around a reference state $\bm x_0$ at time $t_0$
+is a polynomial approximation to the flow:
+\begin{equation}
+\bm x(t_0 + \Delta t)
+= \sum_{|\bm k| = 0}^{p}
+\bm c_{\bm k}(\Delta t)\,
+(\bm x_0 - \bm x_{\mathrm{ref}})^{\bm k},
+\end{equation}
+where $\bm k$ is a multi-index and $\bm c_{\bm k}(\Delta t)$ are the Taylor
+coefficients in the initial-condition deviation. These coefficients can be
+computed by propagating the variational equations to order $p$.
+
+\subsection{Application to the mean ODE}
+
+The mean ODE has only 4 slow state variables (with $\bar\nu$ as a parameter).
+A Taylor map of order $p = 4$ in the initial conditions would involve
+$\binom{4 + 4}{4} = 70$ coefficients per state variable, or 350 total. This
+is a modest number.
+
+For a given reference orbit class (e.g., sun-synchronous at 700~km altitude),
+the Taylor map would provide the mean-state evolution for any orbit in the
+neighborhood without re-integration. The validity domain depends on how much
+the dynamics vary across the orbit family; for orbits with similar $a$, $e$,
+$i$, the Taylor map should be valid over the range of initial $\omega$ values.
+
+\subsection{Heyoka implementation}
+
+Heyoka's \texttt{var\_ode\_sys} with \texttt{order=p} automatically generates
+the variational equations to order $p$. For $p = 4$ and 5 state variables,
+this produces $5 + 5 \times 5 + 5 \times 15 + 5 \times 35 + 5 \times 70
+= 630$ ODEs. While larger than the original 5-variable system, this is still
+a small ODE by heyoka standards (heyoka routinely handles thousands of
+variables).
+
+\begin{verbatim}
+vsys = hy.var_ode_sys(sys, hy.var_args.vars, order=4)
+ta = hy.taylor_adaptive(vsys, ic_extended)
+ta.propagate_until(t_final)
+# Extract Taylor map coefficients from ta.state
+\end{verbatim}
+
+\subsection{Caching and reuse}
+
+The Taylor map coefficients could be:
+\begin{itemize}
+\item \textbf{Precomputed and stored} for a grid of reference orbits
+(parameterized by $a$, $e$, $i$). Each grid point stores 350 floating-point
+numbers per time step.
+
+\item \textbf{Evaluated by polynomial Horner evaluation} for any orbit in
+the neighborhood. This is $O(p^d)$ FLOPs with $d = 4$ dimensions and
+$p = 4$, i.e., $\sim$256 FLOPs per evaluation---negligible.
+
+\item \textbf{Composed for multi-step propagation}: Taylor maps from
+consecutive time intervals can be composed (polynomial composition) to extend
+the propagation window without re-integration.
+\end{itemize}
+
+\subsection{Limitations}
+
+\begin{enumerate}
+\item The Taylor map is only accurate within its convergence domain. For
+orbits that differ significantly from the reference (e.g., large eccentricity
+difference), the map must be recomputed.
+
+\item The variational equations at high order grow rapidly. Order $p = 4$
+with 5 variables gives 630 ODEs, which is manageable; order $p = 6$ would
+give $\sim$2500 ODEs, which is still feasible but slower to compute.
+
+\item The mean ODE is only 4-dimensional, so the advantage of Taylor maps
+over direct integration is primarily in the amortization of the integration
+cost over many orbits, not in the per-orbit cost (which is already
+negligible with Path A).
+\end{enumerate}
+
+
+\section{Comparison of Paths}
+
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+& Path A & Path B & Path C \\
+& Taylor ODE & Compiled RHS & Taylor maps \\
+\midrule
+Implementation effort & Low & Low & Medium \\
+Per-orbit propagation cost & Negligible & Low & Negligible \\
+Batch/ensemble suitability & Good & Excellent & Excellent \\
+Covariance/STM & Automatic & Manual & Built-in \\
+Reusability across orbits & None & None & High \\
+Prerequisite & heyoka & heyoka & heyoka + grid \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Recommendation}: Implement Path A first (lowest effort, highest
+immediate payoff). Path B is a natural companion for the short-period kernel
+evaluation. Path C is a longer-term investment for catalog-scale
+applications.
+
+
+\section{Implementation Roadmap}
+
+\begin{enumerate}
+\item \textbf{SymPy-to-heyoka translator}: Write a utility that converts the
+stored SymPy coefficient functions ($G^{(c)}_m$, $P_0$, etc.) into heyoka
+expression trees. This is a one-time infrastructure investment that also
+benefits the short-period kernel compilation.
+
+\item \textbf{Path A prototype}: Build the 5-variable mean ODE in heyoka
+and validate against the current Python-based mean propagator. Verify that
+the Taylor step sizes are as large as expected ($\gg$ orbital period).
+
+\item \textbf{Path B prototype}: Compile the mean drift RHS and the
+short-period kernels as \texttt{cfunc}. Benchmark against the current
+\texttt{lambdify}-based evaluation.
+
+\item \textbf{Path A + variational}: Add \texttt{var\_ode\_sys} to the
+Path A integrator and validate the mean STM against finite differences.
+
+\item \textbf{Path C exploration}: For a representative orbit family (e.g.,
+sun-synchronous LEO), compute a 4th-order Taylor map and assess the validity
+domain and accuracy.
+\end{enumerate}
+
+\end{document}

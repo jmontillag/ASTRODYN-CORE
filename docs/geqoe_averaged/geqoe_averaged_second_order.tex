@@ -1,0 +1,534 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+\newcommand{\eps}{\varepsilon}
+\newcommand{\mean}[1]{\langle #1 \rangle}
+\newcommand{\master}{geqoe\_averaged\_j2\_zonal\_note}
+
+\title{Second-Order Near-Identity Averaging for GEqOE\\
+\large Extension of the First-Order Mixed-Zonal Theory}
+\author{Jose Manuel Montilla Garc\'ia}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This companion note sketches the extension of the first-order GEqOE
+mixed-zonal averaged theory (the master note, \texttt{\master{}}) to second
+order in the zonal perturbation parameter. The second-order extension would
+produce: (i) an $O(\eps^2)$ correction to the mean drift (including
+cross-zonal products $J_n J_m$), (ii) a second-order short-period correction
+$\bm u_2$ reducing the osculating reconstruction error from $O(\eps)$ to
+$O(\eps^2)$, and (iii) a second-order inverse map eliminating the
+anomaly-dependent initialization error. The central claim is that the
+algebraic structure underlying the first-order direct residue
+decomposition---Laurent polynomial forcing with fixed-pole-structure
+Jacobian---survives at second order, making the extension computationally
+demanding but not fundamentally obstructed.
+\end{abstract}
+
+\tableofcontents
+
+\section{Motivation}
+
+The first-order theory validated in the master note achieves sub-kilometer
+position reconstruction for low-eccentricity orbits and a few kilometers for
+high-eccentricity orbits ($e = 0.65$) over 10+ orbital periods. The dominant
+error source is the $O(\eps)$ magnitude of the short-period correction itself
+(zonal scaling slope $= 0.998$). A second-order theory would push the
+reconstruction error to $O(\eps^2)$, which for the dominant $J_2$ perturbation
+($\eps \sim 10^{-3}$) implies a reduction from hundreds of meters to
+sub-meter level.
+
+The inverse round-trip error (osculating $\to$ mean $\to$ osculating) is
+currently 7.2~m (low-$e$) and 1.6~m (high-$e$). A second-order inverse map
+would reduce this to centimeters, making the mean-to-osculating conversion
+essentially exact for practical purposes.
+
+\section{Second-Order Near-Identity Framework}
+
+\subsection{Setup}
+
+Following the notation of the master note, the exact first-order zonal
+problem is
+\begin{align}
+\dot{\bm z} &= \eps \bm f_1(\bm z, K)
+             + \eps^2 \bm f_2(\bm z, K)
+             + O(\eps^3), \\
+\dot K &= n_0(\bm z, K)
+        + \eps g_1(\bm z, K)
+        + \eps^2 g_2(\bm z, K)
+        + O(\eps^3),
+\end{align}
+where $\bm z = (\nu, p_1, p_2, q_1, q_2)$ are the slow variables,
+$\eps \sim J_n$ is the perturbation parameter, and $n_0 = w/r$ is the
+unperturbed fast rate.
+
+The first-order theory uses $\bm f_1$ and $g_1$ only. The second-order
+extension requires the additional terms $\bm f_2$ and $g_2$, which arise from
+expanding the exact GEqOE right-hand side to second order in the zonal
+coefficients. Specifically, the linearized auxiliaries of the master note
+(Section~5.3):
+\begin{equation}
+h = c + O(J_n),
+\qquad
+d = -\frac{U}{c} + O(J_n^2),
+\qquad
+w_h = \frac{3A}{cr^3}\,c_i\,\hat z^2 + O(J_n^2),
+\end{equation}
+must be carried to the next order:
+\begin{align}
+h &= c - \frac{r^2 U}{c} + O(J_n^2),
+\label{eq:h_second}\\
+d &= -\frac{U}{c} + \frac{r^2 U^2}{2c^3} + O(J_n^3),
+\label{eq:d_second}\\
+w_h &= w_h^{(1)} + w_h^{(2)} + O(J_n^3),
+\label{eq:wh_second}
+\end{align}
+where $w_h^{(1)}$ is the first-order expression already used, and $w_h^{(2)}$
+collects the terms quadratic in $U$ and its derivatives that arise from
+expanding $h$ in $F_h$, $w_X$, and $w_Y$.
+
+\subsection{Second-order forward map}
+
+The near-identity transformation is extended to
+\begin{align}
+\bm z_{\mathrm{osc}}
+&= \bar{\bm z}
++ \eps \bm u_1(\bar{\bm z}, \bar K)
++ \eps^2 \bm u_2(\bar{\bm z}, \bar K)
++ O(\eps^3),
+\label{eq:forward2_z}\\
+K_{\mathrm{osc}}
+&= \bar K
++ \eps v_1(\bar{\bm z}, \bar K)
++ \eps^2 v_2(\bar{\bm z}, \bar K)
++ O(\eps^3),
+\label{eq:forward2_K}
+\end{align}
+with the normalization
+\begin{equation}
+\mean{\bm u_2}_K = \bm 0,
+\qquad
+\mean{v_2}_K = 0.
+\label{eq:zero_mean_2}
+\end{equation}
+
+\subsection{Second-order mean drift}
+
+The mean drift becomes
+\begin{equation}
+\dot{\bar{\bm z}} = \eps \bar{\bm f}_1(\bar{\bm z})
++ \eps^2 \bar{\bm f}_2(\bar{\bm z})
++ O(\eps^3),
+\end{equation}
+where $\bar{\bm f}_1$ is the first-order secular drift already computed, and
+$\bar{\bm f}_2$ is the second-order correction. The second-order mean drift
+is determined by the solvability condition of the second-order homological
+equation (see Section~\ref{sec:homological2}).
+
+\subsection{Second-order inverse map}
+
+The second-order inverse map is
+\begin{align}
+\bar{\bm z}(t_0)
+&= \bm z_{\mathrm{osc}}(t_0)
+- \eps \bm u_1(\bm z_{\mathrm{osc}}, K_{\mathrm{osc}})
+\notag\\
+&\quad
+- \eps^2 \left[
+\bm u_2(\bm z_{\mathrm{osc}}, K_{\mathrm{osc}})
+- \frac{\partial \bm u_1}{\partial \bm z}\bigg|_{\mathrm{osc}}
+  \bm u_1(\bm z_{\mathrm{osc}}, K_{\mathrm{osc}})
+- \frac{\partial \bm u_1}{\partial K}\bigg|_{\mathrm{osc}}
+  v_1(\bm z_{\mathrm{osc}}, K_{\mathrm{osc}})
+\right]
++ O(\eps^3).
+\label{eq:inverse2}
+\end{align}
+The additional terms at $O(\eps^2)$ correct for the error committed by
+evaluating $\bm u_1$ at the osculating state instead of the mean state.
+This is exactly the anomaly-dependent initialization error identified in
+the master note (Section~11.6, ``Anomaly dependence''). A second-order
+theory eliminates it.
+
+
+\section{Second-Order Homological Equation}
+\label{sec:homological2}
+
+\subsection{Derivation}
+
+Substituting \eqref{eq:forward2_z}--\eqref{eq:forward2_K} into the equations
+of motion and collecting terms at $O(\eps^2)$ gives the second-order
+homological equation for the slow variables:
+\begin{equation}
+\boxed{
+n_0 \frac{\partial \bm u_2}{\partial \bar K}
+= \bm F_2(\bar{\bm z}, \bar K)
+- \bar{\bm f}_2(\bar{\bm z}),
+}
+\label{eq:homological2}
+\end{equation}
+where the effective second-order forcing is
+\begin{align}
+\bm F_2
+&= \bm f_2(\bar{\bm z}, \bar K)
+\notag\\
+&\quad
++ \frac{\partial \bm f_1}{\partial \bm z}\bigg|_{\bar{\bm z}, \bar K}
+  \bm u_1(\bar{\bm z}, \bar K)
++ \frac{\partial \bm f_1}{\partial K}\bigg|_{\bar{\bm z}, \bar K}
+  v_1(\bar{\bm z}, \bar K)
+\notag\\
+&\quad
+- \frac{\partial \bm u_1}{\partial \bar{\bm z}}
+  \bar{\bm f}_1(\bar{\bm z})
+- \frac{\partial \bm u_1}{\partial \bar K}
+  \left[
+    g_1(\bar{\bm z}, \bar K) - \bar g_1(\bar{\bm z})
+  \right].
+\label{eq:F2_forcing}
+\end{align}
+
+The solvability condition is
+\begin{equation}
+\bar{\bm f}_2 = \mean{\bm F_2}_K,
+\label{eq:solvability2}
+\end{equation}
+and the solution is
+\begin{equation}
+\bm u_2(\bar{\bm z}, \bar K)
+= \int^{\bar K}
+\frac{\bar r(\phi)}{\bar w}
+\left[
+\bm F_2(\bar{\bm z}, \phi)
+- \bar{\bm f}_2(\bar{\bm z})
+\right] d\phi
+- \text{(constant for zero mean)}.
+\label{eq:u2_integral}
+\end{equation}
+
+\subsection{Identification of terms}
+
+Each term in $\bm F_2$ has a clear physical origin:
+
+\begin{enumerate}
+\item $\bm f_2(\bar{\bm z}, \bar K)$: the second-order expansion of the
+GEqOE right-hand side from the nonlinear auxiliaries
+\eqref{eq:h_second}--\eqref{eq:wh_second}. These are the ``relaxed
+linearized auxiliaries'' discussed in the motivation. They produce terms
+proportional to $U^2$, $U \cdot \partial U/\partial\hat z$, etc.
+
+\item $\frac{\partial \bm f_1}{\partial \bm z} \bm u_1$: the coupling between
+the first-order forcing and the first-order short-period correction. This
+is where the cross-zonal products $J_n J_m$ first enter, because
+$\bm u_1$ contains contributions from all degrees $n$ while
+$\bm f_1$ contains contributions from all degrees $m$.
+
+\item $\frac{\partial \bm f_1}{\partial K} v_1$: the fast-phase feedback---the
+first-order phase correction shifts the evaluation point of the forcing.
+
+\item $-\frac{\partial \bm u_1}{\partial \bar{\bm z}} \bar{\bm f}_1$: the
+secular evolution of the mean state during one orbit, correcting for the
+``frozen slow state'' approximation.
+
+\item $-\frac{\partial \bm u_1}{\partial \bar K}
+[g_1 - \bar g_1]$: the interaction of the first-order short-period
+correction with the perturbation to the fast rate.
+\end{enumerate}
+
+
+\section{Why the Algebraic Structure Survives}
+
+\subsection{Rational structure in $F$}
+
+The first-order theory exploits three structural facts:
+\begin{enumerate}
+\item[(S1)] The first-order forcing $\bm f_1$ is a finite Laurent polynomial
+in $F = e^{if}$ for each $w$-harmonic.
+\item[(S2)] The Jacobian $dM/dF$ has the fixed denominator
+$(F+q)^2(1+qF)^2$.
+\item[(S3)] The first-order short-period correction $\bm u_1$ is a rational
+function of $F$: polynomial + simple poles at $F = -q$, $F = -1/q$,
+and higher poles at $F = 0$.
+\end{enumerate}
+
+At second order, every term in $\bm F_2$ is built from:
+\begin{itemize}
+\item $\bm f_1$, $\bm f_2$: Laurent polynomials in $F$ (from the
+trigonometric-polynomial structure of $P_n(\hat z)$ and its products).
+\item $\bm u_1$, $v_1$: rational functions of $F$ with poles at $0$, $-q$,
+$-1/q$ (from the first-order solution).
+\item Derivatives $\partial \bm u_1/\partial \bar{\bm z}$: rational functions
+of $F$ with the same pole locations (differentiation in the slow variables
+does not change the $F$-pole structure).
+\item Derivatives $\partial \bm f_1/\partial \bm z$: Laurent polynomials in
+$F$ (differentiating a Laurent polynomial in $F$ with respect to slow
+variables gives another Laurent polynomial).
+\item Products of the above: rational functions of $F$ with poles only at
+$0$, $-q$, $-1/q$ (products of rational functions with poles at these
+locations have poles only at these locations).
+\end{itemize}
+
+\textbf{Key conclusion}: The second-order effective forcing $\bm F_2$ is a
+rational function of $F$ with poles only at $F = 0$, $F = -q$, and
+$F = -1/q$. The poles may be of higher order than at first order (e.g.,
+triple or quadruple poles at $-q$ and $-1/q$, from the product of two
+double-pole terms), but the pole \emph{locations} are unchanged.
+
+\subsection{Consequences for the direct residue decomposition}
+
+Since the integrand for $\bm u_2$ is
+\begin{equation}
+\left[\bm F_2 - \bar{\bm f}_2\right] \cdot \frac{dM}{dF}
+= \frac{\text{(rational in } F\text{, poles at } 0, -q, -1/q\text{)}}
+       {(F+q)^2(1+qF)^2}
+\cdot (-i) \cdot \frac{(1-q^2)^3}{1+q^2} \cdot F,
+\end{equation}
+the full integrand is again a rational function of $F$ with poles at $0$,
+$-q$, and $-1/q$. The direct residue decomposition algorithm of the master
+note (Section~8) applies with these modifications:
+
+\begin{enumerate}
+\item The poles at $F = -q$ and $F = -1/q$ may now be of order 3 or 4
+(instead of order 2). The residue extraction requires higher-order Laurent
+coefficients, computed by repeated differentiation or by extending the
+evaluation formulas of the master note.
+
+\item The polynomial quotient from long division may be of higher degree.
+
+\item The Taylor recurrence at $F = 0$ extends to higher shift $s$.
+
+\item The structural mean formulas (master note, Eqs.~56--58) must be
+extended to include means of higher-pole terms:
+\begin{equation}
+\left\langle \frac{1}{(F+q)^k} \right\rangle_M,
+\qquad
+\left\langle \frac{1}{(1+qF)^k} \right\rangle_M,
+\qquad k = 1, 2, 3, 4.
+\end{equation}
+These are all computable by the same contour-integral residue calculus
+(substitute $F = (z-q)/(1-qz)$ and evaluate at $z = 0$).
+
+\item The log-term cancellation argument still holds: the integrand has
+zero $M$-average by construction, so log terms cannot appear.
+\end{enumerate}
+
+\subsection{New structural mean formulas needed}
+
+The $k$-th order mean of the pole terms can be derived systematically.
+For $k = 1$ the formulas are given in the master note. For general $k$, the
+substitution $F = (z-q)/(1-qz)$ gives
+\begin{equation}
+\frac{1}{(F+q)^k}
+= \frac{(1-qz)^k}{(z(1-q^2))^k}
+\cdot \frac{1}{z^0}
+\cdot \ldots
+\end{equation}
+and the mean is determined by the coefficient of $z^0$ in the Laurent
+expansion, after multiplying by the $dM/dz$ weight. The computation is
+routine but produces progressively more complex rational expressions in $q$.
+
+The means of \emph{products} of pole terms (e.g., $\langle F^j/(F+q)^k
+\rangle_M$) will also be needed. These arise from the products
+$\bm u_1 \cdot \partial \bm f_1/\partial \bm z$ in $\bm F_2$. Each such
+mean is a single contour integral and can be evaluated in closed form, but
+the total number of distinct mean formulas is larger.
+
+
+\section{Cross-Zonal Products and Harmonic Content}
+
+\subsection{Origin of cross-zonal terms}
+
+At first order, each zonal degree $n$ contributes independently to the mean
+drift and to the short-period correction. At second order, the term
+$\frac{\partial \bm f_1}{\partial \bm z} \bm u_1$ creates products of
+degree-$n$ forcing with degree-$m$ short-period corrections for all pairs
+$(n, m)$ with $2 \le n, m \le N$.
+
+For $N = 5$ there are 10 distinct pairs: $(2,2)$, $(2,3)$, $(2,4)$, $(2,5)$,
+$(3,3)$, $(3,4)$, $(3,5)$, $(4,4)$, $(4,5)$, $(5,5)$.
+
+\subsection{Harmonic content of the second-order mean drift}
+
+The first-order mean drift has $\omega$-harmonic content bounded by $|m| \le
+n - 2$ for each degree $n$. The cross-zonal product of degree $n$ with degree
+$m$ can produce harmonics up to $|m'| \le (n-2) + (m-2) = n + m - 4$.
+
+For $J_2 \times J_2$: only $m' = 0$ (secular). This is the classical
+$J_2^2$ secular correction.
+
+For $J_2 \times J_3$: $m' \le 1$ (odd harmonics in $\omega$). This
+introduces a long-period $J_2 J_3$ term.
+
+The total harmonic content for $N = 5$ would reach $|m'| \le 6$ in the most
+extreme case ($J_5 \times J_5$, though this is the smallest in magnitude).
+
+\subsection{The $J_2^2$ secular correction}
+
+The most important second-order term is the $J_2^2$ secular correction to
+the mean drift. This is the classical Brouwer second-order secular term. In
+the present GEqOE framework, it modifies:
+\begin{enumerate}
+\item the precession rates $\omega_{\Psi}$ and $\omega_{\Omega}$;
+\item the mean motion correction $\dot{\bar M}$;
+\item and, potentially, introduces a secular drift in $\bar g$ and $\bar Q$
+(which are exactly constant at first order in $J_2$).
+\end{enumerate}
+
+Whether $\bar g$ and $\bar Q$ acquire a $J_2^2$ secular drift depends on
+whether the $J_2^2$ averaged disturbing function retains $\omega$-dependence
+through the coupling terms. This is a key question that the symbolic
+computation must answer.
+
+
+\section{Computational Feasibility}
+
+\subsection{Expression complexity}
+
+The first-order theory required $\sim$80 minutes of one-time symbolic
+computation (dominated by $J_5$ Psi and Omega). At second order, the
+complexity grows in three ways:
+
+\begin{enumerate}
+\item \textbf{Number of terms}: 10 cross-zonal pairs instead of 4 isolated
+degrees, and each pair involves products of the (already large) first-order
+expressions.
+
+\item \textbf{Polynomial degree}: The products $\bm u_1 \cdot
+\partial \bm f_1/\partial \bm z$ have roughly double the Laurent polynomial
+support of the first-order forcing. The polynomial long division and
+Taylor recurrence steps scale polynomially with this degree.
+
+\item \textbf{Coefficient complexity}: The rational coefficients in
+$\mathbb{Q}(q, Q)$ grow in total degree. GCD simplification becomes
+progressively more expensive.
+\end{enumerate}
+
+\textbf{Rough estimate}: The dominant cost is the symbolic simplification of
+rational expressions in $(q, Q)$. If the first-order $J_5$ computation took
+$\sim$80 minutes, the second-order computation might take days to weeks of
+CPU time. This is large but still one-time and parallelizable (each
+cross-zonal pair and each slow variable can be computed independently).
+
+\subsection{Mitigation strategies}
+
+\begin{enumerate}
+\item \textbf{Coefficient-wise operations}: The coefficient-wise scaling
+optimization from the first-order theory (master note, Section~8.4) would be
+even more critical at second order. All multiplications, divisions, and GCD
+computations should be performed coefficient-by-coefficient in the $F$-Laurent
+expansion, never on the combined rational expression.
+
+\item \textbf{Modular arithmetic}: For verification, the symbolic expressions
+could be evaluated modulo large primes before full rational reconstruction.
+This would catch errors early without the cost of full symbolic
+simplification.
+
+\item \textbf{Incremental validation}: Each cross-zonal pair $(n, m)$ can be
+validated independently against numerical second-order differences before
+combining into the full second-order model.
+
+\item \textbf{Truncation by magnitude}: The $J_5 \times J_5$ and
+$J_4 \times J_5$ cross terms are negligibly small. In practice, only the
+$(2,2)$, $(2,3)$, $(2,4)$, $(3,3)$ pairs are likely to matter, reducing the
+computation to 4--6 pairs.
+\end{enumerate}
+
+\subsection{Validation strategy}
+
+The second-order theory can be validated incrementally:
+
+\begin{enumerate}
+\item \textbf{$J_2^2$ only}: Implement the $(2,2)$ second-order correction
+and validate against the osculating Taylor integrator with $J_2$ only. The
+reconstruction error should drop from $O(J_2)$ to $O(J_2^2)$, i.e., from
+$\sim$200~m to $\sim$sub-meter for the low-$e$ test case.
+
+\item \textbf{Zonal scaling}: The scaling test should now show a log-log
+slope of $\approx 2$ (instead of $\approx 1$), confirming that the dominant
+residual is $O(\eps^2)$ as expected.
+
+\item \textbf{Cross-zonal pairs}: Add $(2,3)$, $(2,4)$, etc., one at a time
+and verify that the reconstruction error decreases (or at least does not
+increase) with each addition.
+
+\item \textbf{Second-order inverse map}: The round-trip error
+(osc $\to$ mean $\to$ osc) should drop from meters to centimeters.
+\end{enumerate}
+
+
+\section{Expected Accuracy Improvement}
+
+For the low-eccentricity test case ($e = 0.05$, $a = 9000$~km):
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Metric & First-order & Second-order (projected) \\
+\midrule
+Position RMS & $\sim$200 m & $\sim$0.1--1 m \\
+Round-trip error & 7.2 m & $\sim$cm \\
+Scaling slope & 0.998 & $\approx 2$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+For the high-eccentricity case ($e = 0.65$), the improvement factor is
+similar but the absolute errors are larger due to the pole-proximity effect.
+The $O(\eps^2)$ residual would still be tens of meters rather than sub-meter,
+because the first-order short-period amplitudes are already large ($q \approx
+0.37$).
+
+
+\section{Outline of Implementation Steps}
+
+\begin{enumerate}
+\item Derive the second-order expansions \eqref{eq:h_second}--\eqref{eq:wh_second}
+of the GEqOE auxiliaries. This gives $\bm f_2$ and $g_2$.
+
+\item Compute the derivatives $\partial \bm f_1/\partial \bm z$ and
+$\partial \bm f_1/\partial K$ symbolically in the $(g, Q, \Psi, \Omega, G)$
+parameterization.
+
+\item For each cross-zonal pair $(n, m)$, compute the products
+$(\partial \bm f_1^{(n)}/\partial \bm z) \cdot \bm u_1^{(m)}$ and expand in
+$w$-harmonics and $F$-Laurent series.
+
+\item Apply the direct residue decomposition (with extended pole orders) to
+each resulting integrand.
+
+\item Compute the second-order mean drift $\bar{\bm f}_2$ via the
+solvability condition \eqref{eq:solvability2}.
+
+\item Assemble the second-order short-period correction $\bm u_2$ and the
+second-order inverse map \eqref{eq:inverse2}.
+
+\item Validate incrementally as described in Section~6.3.
+\end{enumerate}
+
+
+\section{Conclusion}
+
+The second-order extension of the GEqOE averaged theory is algebraically
+tractable because the rational-in-$F$ structure with fixed pole locations
+survives at second order. The main challenges are computational (expression
+complexity, symbolic GCD cost) rather than structural. The expected payoff is
+a reduction of the reconstruction error from $O(\eps)$ to $O(\eps^2)$,
+bringing the analytical theory into sub-meter accuracy for low-eccentricity
+orbits. The implementation is parallelizable and can be validated
+incrementally, starting with the most important $J_2^2$ secular correction.
+
+\end{document}
