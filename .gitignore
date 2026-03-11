@@ -71,6 +71,12 @@ docs/geqoe_taylor/paper/*.fls
 docs/geqoe_taylor/paper/*.fdb_latexmk
 docs/geqoe_taylor/paper/*.synctex.gz
 docs/geqoe_taylor/paper/*.pdf
+docs/geqoe_averaged/*.aux
+docs/geqoe_averaged/*.log
+docs/geqoe_averaged/*.out
+docs/geqoe_averaged/*.fls
+docs/geqoe_averaged/*.fdb_latexmk
+docs/geqoe_averaged/*.synctex.gz
 missfont.log
 
 #
