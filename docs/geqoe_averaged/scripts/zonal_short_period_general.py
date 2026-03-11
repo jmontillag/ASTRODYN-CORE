@@ -432,7 +432,7 @@ def _evaluate_mean_laurent(coeffs: dict[int, object], q_val: float, Q_val: float
     total = 0.0j
     for m_val, func in coeffs.items():
         total += complex(func(q_val, Q_val)) * (w_val**m_val)
-    return float(np.real_if_close(total))
+    return float(total.real)
 
 
 @lru_cache(maxsize=None)
@@ -508,7 +508,7 @@ def evaluate_isolated_degree_short_period(
         total = 0.0j
         for m_val, func in coeffs[variable].items():
             total += complex(func(q_val, Q_val, F_val)) * (w_val**m_val)
-        out[f"d{variable}"] = float(np.real_if_close(scale * total))
+        out[f"d{variable}"] = float((scale * total).real)
     return out
 
 

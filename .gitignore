@@ -77,6 +77,8 @@ docs/geqoe_averaged/*.out
 docs/geqoe_averaged/*.fls
 docs/geqoe_averaged/*.fdb_latexmk
 docs/geqoe_averaged/*.synctex.gz
+docs/geqoe_averaged/*.pdf
+docs/geqoe_averaged/*.toc
 missfont.log
 
 #
