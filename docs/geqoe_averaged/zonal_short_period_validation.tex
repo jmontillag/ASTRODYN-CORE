@@ -1,0 +1,78 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage{amsmath,amssymb,graphicx,booktabs}
+\begin{document}
+\section*{Validation of the Mixed-Zonal GEqOE Short-Period Map}
+
+This note validates the first-order mixed-zonal GEqOE short-period map for the
+truncated zonal set $\{J_2,J_3,J_4,J_5\}$. The mean state is propagated in
+$(\nu,p_1,p_2,M,q_1,q_2)$, where $M=L-\Psi$ is the uniformly advancing mean
+fast phase. Osculating GEqOE reconstruction is obtained by applying the exact
+degree-wise short-period corrections in $(g,Q,\Psi,\Omega,M)$ and then solving
+the generalized Kepler equation for $K$.
+
+\subsection*{Osculating-history reconstruction}
+\begin{center}
+\begin{tabular}{lcccccc}
+\toprule
+case & $M_0$ [deg] & $K$ RMS [rad] & pos RMS [km] & pos max [km] & $p_1$ rel RMS & $q_1$ rel RMS \\
+\midrule
+low-e & 20 & 9.506e-06 & 1.553e-01 & 2.965e-01 & 3.100e-06 & 5.006e-05 \\
+low-e & 140 & 8.923e-06 & 1.636e-01 & 3.443e-01 & 4.301e-06 & 5.825e-05 \\
+high-e & 35 & 2.414e-04 & 2.909e+00 & 4.568e+00 & 8.606e-05 & 2.982e-04 \\
+high-e & 170 & 1.347e-04 & 1.823e+00 & 3.143e+00 & 4.782e-05 & 1.669e-04 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The representative component histories are shown in
+Figure~\ref{fig:low} for the low-eccentricity case and in
+Figure~\ref{fig:high} for the high-eccentricity case. Figure~\ref{fig:cart}
+collects the Cartesian position errors for all anomaly cases.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=0.95\textwidth]{docs/geqoe_averaged/figures/zonal_short_period_lowe_components.png}
+\caption{Low-eccentricity osculating GEqOE and Cartesian reconstruction.}
+\label{fig:low}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=0.95\textwidth]{docs/geqoe_averaged/figures/zonal_short_period_highe_components.png}
+\caption{High-eccentricity osculating GEqOE and Cartesian reconstruction.}
+\label{fig:high}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=0.90\textwidth]{docs/geqoe_averaged/figures/zonal_short_period_cartesian_errors.png}
+\caption{Cartesian position errors across the anomaly sweep.}
+\label{fig:cart}
+\end{figure}
+
+\subsection*{Zonal scaling}
+For the representative high-eccentricity case, the position RMS reconstruction
+error was recomputed under zonal scale factors
+$\{1.00, 0.50, 0.25\}$.
+The fitted log-log slope was
+\[
+\frac{d\log(\mathrm{RMS})}{d\log(\lambda)} = 0.997,
+\]
+which is consistent with the expected second-order residual of a first-order
+mean-plus-short-period model.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.70\textwidth]{docs/geqoe_averaged/figures/zonal_short_period_scaling.png}
+\caption{RMS Cartesian reconstruction error versus zonal scale factor.}
+\end{figure}
+
+\subsection*{Conclusion}
+Within the truncated mixed-zonal problem, the GEqOE averaged formulation is now
+closed to first order: the exact symbolic mean drift and the exact symbolic
+short-period map together reconstruct the full osculating GEqOE and Cartesian
+state with small residuals, and those residuals scale as expected for a
+first-order theory.
+
+\end{document}

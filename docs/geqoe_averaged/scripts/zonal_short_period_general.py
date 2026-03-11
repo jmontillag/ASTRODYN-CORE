@@ -280,12 +280,30 @@ def _compute_isolated_mean_laurent_coefficients(n: int) -> dict[str, dict[int, s
 
 
 def _compute_isolated_short_period_expressions(variable: str, n: int) -> HarmonicExpr:
-    raw = dimensionless_rate_series(variable, n)
-    mean_coeffs = _mean_rate_from_raw_series(raw)
-    solved: HarmonicExpr = {}
-    for m_val, raw_by_k in _series_by_m(raw).items():
-        solved[m_val] = _integrate_periodic_expression(raw_by_k, mean_coeffs.get(m_val, sp.Integer(0)))
-    return {m_val: _clean(expr) for m_val, expr in solved.items() if expr != 0}
+    # Use the direct residue method which avoids log-term crashes and
+    # expression swell from the term-by-term ratint approach.
+    try:
+        from short_period_direct import integrate_harmonic_residue
+        raw = dimensionless_rate_series(variable, n)
+        mean_coeffs = _mean_rate_from_raw_series(raw)
+        solved: HarmonicExpr = {}
+        for m_val, raw_by_k in _series_by_m(raw).items():
+            solved[m_val] = integrate_harmonic_residue(
+                raw_by_k, mean_coeffs.get(m_val, sp.Integer(0))
+            )
+        # Skip _clean: integrate_harmonic_residue already simplifies each term.
+        # Calling _clean (sp.together + sp.cancel) would combine all structural
+        # terms over a common denominator, which is catastrophically slow for
+        # higher zonal degrees.
+        return {m_val: expr for m_val, expr in solved.items() if expr != 0}
+    except ImportError:
+        # Fallback to the original ratint approach (may fail for Psi/Omega)
+        raw = dimensionless_rate_series(variable, n)
+        mean_coeffs = _mean_rate_from_raw_series(raw)
+        solved: HarmonicExpr = {}
+        for m_val, raw_by_k in _series_by_m(raw).items():
+            solved[m_val] = _integrate_periodic_expression(raw_by_k, mean_coeffs.get(m_val, sp.Integer(0)))
+        return {m_val: _clean(expr) for m_val, expr in solved.items() if expr != 0}
 
 
 @lru_cache(maxsize=None)
@@ -295,7 +313,7 @@ def _generated_mean_coefficients(n: int) -> dict[str, dict[int, sp.Expr]] | None
         return None
     return {
         variable: {
-            int(m_key): _clean(sp.sympify(expr_str, locals=_SYMPIFY_LOCALS))
+            int(m_key): sp.sympify(expr_str, locals=_SYMPIFY_LOCALS)
             for m_key, expr_str in coeffs.items()
         }
         for variable, coeffs in raw.items()
@@ -312,7 +330,10 @@ def _generated_short_period_expressions(variable: str, n: int) -> HarmonicExpr |
         return None
     out: HarmonicExpr = {}
     for key_str, expr_str in raw_variable.items():
-        out[int(key_str)] = _clean(sp.sympify(expr_str, locals=_SYMPIFY_LOCALS))
+        # Skip _clean: the generated data is already in canonical form.
+        # Calling _clean (sp.cancel + sp.together) on large parsed expressions
+        # is catastrophically slow and unnecessary.
+        out[int(key_str)] = sp.sympify(expr_str, locals=_SYMPIFY_LOCALS)
     return out
 
 
@@ -765,7 +786,7 @@ def write_generated_data(
                 continue
             print(f"[generated] short degree {n} variable {variable}", flush=True)
             coeffs = _compute_isolated_short_period_expressions(variable, n)
-            short_data[n][variable] = {m_val: str(_clean(expr)) for m_val, expr in sorted(coeffs.items())}
+            short_data[n][variable] = {m_val: str(expr) for m_val, expr in sorted(coeffs.items())}
             _persist_generated_tables(mean_data, short_data)
 
     print(f"Wrote {GENERATED_DATA}")

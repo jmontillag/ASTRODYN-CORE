@@ -195,8 +195,14 @@ def _state_phases(state_hist: np.ndarray) -> dict[str, np.ndarray]:
     }
 
 
-def run_case(case: ValidationCase, anomaly_deg: float, scale: float = 1.0) -> dict[str, object]:
-    coeffs = {n: scale * val for n, val in J_COEFFS.items()}
+def run_case(
+    case: ValidationCase,
+    anomaly_deg: float,
+    scale: float = 1.0,
+    j_coeffs: dict[int, float] | None = None,
+) -> dict[str, object]:
+    base = j_coeffs if j_coeffs is not None else J_COEFFS
+    coeffs = {n: scale * val for n, val in base.items()}
     pert = ZonalPerturbation(coeffs, mu=MU, re=RE)
 
     r0, v0 = kepler_to_rv(
