@@ -1976,27 +1976,42 @@ Retrograde      & 7500  & 0.01  & 120    & 50  & $i > 90^\circ$ \\
 
 \subsection{Truth models}
 
-Two independent truth references are employed:
+Two independent numerical truth references are employed:
 \begin{enumerate}
-\item \textbf{Cowell (Cartesian) heyoka}: The equations of motion
-$\ddot{\bm{r}} = -\mu\bm{r}/r^3 - \nabla U_{\rm zonal}$ are integrated in
-Cartesian coordinates using a heyoka Taylor adaptive integrator with tolerance
-$10^{-15}$. This is the gold-standard truth---it uses the same $J_2$--$J_5$
-zonal potential and constants as the GEqOE theory, but is formulated entirely
-in Cartesian coordinates, eliminating any concern about artifacts from the
-GEqOE element formulation.
-\item \textbf{GEqOE Taylor (cross-check)}: The full osculating GEqOE ODE is
-integrated via heyoka with tolerance $10^{-15}$. Agreement with the Cowell
-truth to $< 10^{-7}$~km across all 12 cases confirms that the GEqOE ODE
-implementation and coordinate transformations are correct.
+\item \textbf{Cowell (Cartesian) integration}: The Newtonian equations of
+motion $\ddot{\bm{r}} = -\mu\bm{r}/r^3 - \nabla U_{\rm zonal}$ are
+integrated directly in Cartesian coordinates using the heyoka Taylor adaptive
+integrator~\cite{biscani2021} with tolerance $10^{-15}$. The zonal gradient
+$\nabla U_{\rm zonal}$ is constructed symbolically from the same
+\texttt{ZonalPerturbation} class used by the GEqOE integrator, ensuring that
+the gravitational model, constants ($\mu$, $R_e$, $J_2$--$J_5$), and
+reference frame (equatorial J2000) are \emph{identical}. Because the Cowell
+formulation involves no orbital elements---only positions and
+velocities---this truth model is completely independent of the GEqOE element
+formulation and eliminates any concern about coordinate-system artifacts.
+\item \textbf{GEqOE Taylor (cross-check)}: The full osculating GEqOE ODE
+(Eqs.~45--51 of Ba\`u et al.~\cite{bau2021}) is integrated via heyoka with
+tolerance $10^{-15}$, and the resulting GEqOE state is converted to Cartesian
+coordinates at each output epoch. Agreement with the Cowell truth to
+$< 10^{-7}$~km across all 12 cases confirms that the GEqOE ODE
+implementation and the GEqOE$\leftrightarrow$Cartesian coordinate
+transformations are numerically correct.
 \end{enumerate}
 
 \subsection{Comparison theory: Brouwer--Lyddane (Orekit)}
 
-Orekit's \texttt{BrouwerLyddanePropagator} (v13.1, with Phipps' critical-inclination fix) provides an established semi-analytical baseline.
-The propagator is initialized with the same zonal coefficients $J_2$--$J_5$
-and the same gravitational parameter and reference radius, ensuring a fair
-comparison. All propagations use the EME2000 inertial frame.
+As a representative established semi-analytical theory, the Brouwer--Lyddane
+propagator from the open-source Orekit astrodynamics library (v13.1) is used.
+Orekit's \texttt{BrouwerLyddanePropagator} implements the classical
+Brouwer~\cite{brouwer1959}--Lyddane~\cite{lyddane1963} analytical solution
+with $J_2$--$J_5$ zonal harmonics and Warren Phipps' 1992 fix for the
+critical-inclination singularity. The propagator is initialized with the
+\emph{same} zonal coefficients, gravitational parameter, and reference radius
+as the GEqOE theory, ensuring that all accuracy differences reflect the
+analytical theories themselves rather than differences in the physical model.
+All Orekit propagations use the EME2000 inertial frame, which coincides with
+the equatorial J2000 frame used by the GEqOE formulation to within the
+negligible ($\sim\!23$~mas) frame bias.
 
 \subsection{Results}
 
@@ -2189,6 +2204,13 @@ Mahajan, B., Alfriend, K.\,T. (2019).
 Analytic orbit theory with any arbitrary spherical harmonic as the
 dominant perturbation.
 \textit{Celestial Mechanics and Dynamical Astronomy}, 131, 45.
+
+\bibitem{biscani2021}
+Biscani, F., Izzo, D. (2021).
+Revisiting high-order Taylor methods for astrodynamics and celestial
+mechanics.
+\textit{Monthly Notices of the Royal Astronomical Society}, 504(2),
+2614--2628.
 
 \end{thebibliography}
 
