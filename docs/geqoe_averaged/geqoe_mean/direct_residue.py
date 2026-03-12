@@ -1,27 +1,8 @@
-#!/usr/bin/env python
 """Direct residue-based short-period solver for GEqOE zonal averaging.
 
-Replaces the term-by-term ratint approach in zonal_short_period_general.py
-with a combined partial-fraction decomposition computed via direct residue
-evaluation at the known poles F = 0, F = -q, F = -1/q.
-
-Key insight: the integrand for the periodic primitive is always of the form
-
-    dM/dF * [Σ_k a_k F^k - mean] = scale * N(F) / [F^s (F+q)^2 (1+qF)^2]
-
-where N(F) is a polynomial in F with coefficients in q, Q. The partial-
-fraction decomposition has known pole locations, so we compute the residues
-DIRECTLY (polynomial evaluation + derivatives at specific points) instead
-of calling sp.apart or ratint.
-
-All log terms (from simple poles at F=0, F=-q, F=-1/q) cancel exactly
-by the periodicity of the averaging framework, so only the rational
-antiderivative survives: the double-pole contributions give 1/(F+q) and
-1/(1+qF) terms, the higher F=0 poles give 1/F^j terms, and the polynomial
-quotient integrates to a polynomial.
-
-Run:
-  conda run -n astrodyn-core-env python docs/geqoe_averaged/scripts/short_period_direct.py
+Replaces the term-by-term ratint approach with a combined partial-fraction
+decomposition computed via direct residue evaluation at the known poles
+F = 0, F = -q, F = -1/q.
 """
 
 from __future__ import annotations
@@ -35,15 +16,7 @@ import time
 import numpy as np
 import sympy as sp
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-
-SCRIPT_DIR = Path(__file__).resolve().parent
-if str(SCRIPT_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPT_DIR))
-
-from zonal_short_period_general import (
+from .short_period import (
     q, Q, F, w, z, I,
     beta, g, alpha, gamma, delta,
     _clean,
@@ -482,7 +455,7 @@ def generate_all_degrees() -> None:
 
 def write_generated_data(results: dict[int, dict[str, HarmonicExpr]]) -> None:
     """Write the generated short-period data to the cache file."""
-    from zonal_short_period_general import (
+    from .short_period import (
         _compute_isolated_mean_laurent_coefficients,
         _load_generated_tables,
         _persist_generated_tables,
@@ -518,8 +491,8 @@ def write_generated_data(results: dict[int, dict[str, HarmonicExpr]]) -> None:
 def numerical_spot_check() -> None:
     """Evaluate all five direct J2 short-period corrections at a test point
     and compare against direct frozen-state quadrature."""
-    from zonal_symbolic_general import q_from_g
-    from zonal_short_period_general import _complex_f_from_g
+    from .symbolic import q_from_g
+    from .short_period import _complex_f_from_g
     from astrodyn_core.geqoe_taylor import J2, MU, RE
 
     print(f"\n{'=' * 70}")

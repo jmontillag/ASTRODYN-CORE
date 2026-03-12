@@ -21,15 +21,15 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-if str(SCRIPT_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPT_DIR))
-
 DOC_DIR = SCRIPT_DIR.parent
+if str(DOC_DIR) not in sys.path:
+    sys.path.insert(0, str(DOC_DIR))
+
 FIG_DIR = DOC_DIR / "figures"
 FIG_DIR.mkdir(exist_ok=True)
 
 from astrodyn_core.geqoe_taylor import (
-    J2, J3, J4, J5, MU, RE,
+    MU, RE,
     ZonalPerturbation,
     cart2geqoe,
 )
@@ -38,71 +38,16 @@ from astrodyn_core.geqoe_taylor.cowell import (
     _build_par_values,
 )
 
-from zonal_short_period_general import (
-    evaluate_truncated_mean_rhs_pqm,
+from geqoe_mean.constants import J_COEFFS
+from geqoe_mean.coordinates import kepler_to_rv, rv_to_classical
+from geqoe_mean.short_period import (
     isolated_short_period_expressions_for,
     osculating_to_mean_state,
 )
-
-J_COEFFS = {2: J2, 3: J3, 4: J4, 5: J5}
-
-
-def kepler_to_rv(a_km, e, inc_deg, raan_deg, argp_deg, M_deg, mu=MU):
-    inc = np.deg2rad(inc_deg)
-    raan = np.deg2rad(raan_deg)
-    argp = np.deg2rad(argp_deg)
-    M = np.deg2rad(M_deg)
-    E = M
-    for _ in range(50):
-        dE = (E - e * np.sin(E) - M) / (1.0 - e * np.cos(E))
-        E -= dE
-        if abs(dE) < 1e-14:
-            break
-    cE, sE = np.cos(E), np.sin(E)
-    r_pf = np.array([a_km * (cE - e), a_km * np.sqrt(1 - e * e) * sE, 0.0])
-    rm = a_km * (1.0 - e * cE)
-    v_pf = np.sqrt(mu * a_km) / rm * np.array(
-        [-sE, np.sqrt(1 - e * e) * cE, 0.0])
-    c3, s3 = np.cos(raan), np.sin(raan)
-    c1, s1 = np.cos(inc), np.sin(inc)
-    ca, sa = np.cos(argp), np.sin(argp)
-    R = np.array([
-        [c3 * ca - s3 * c1 * sa, -c3 * sa - s3 * c1 * ca, s3 * s1],
-        [s3 * ca + c3 * c1 * sa, -s3 * sa + c3 * c1 * ca, -c3 * s1],
-        [s1 * sa, s1 * ca, c1],
-    ])
-    return R @ r_pf, R @ v_pf
-
-
-def rv_to_classical(r_vec, v_vec, mu=MU):
-    """Cartesian → classical Keplerian (a, e, i) for a single state."""
-    r = np.linalg.norm(r_vec)
-    v = np.linalg.norm(v_vec)
-    E_kep = 0.5 * v * v - mu / r
-    a = -mu / (2.0 * E_kep)
-    h_vec = np.cross(r_vec, v_vec)
-    h = np.linalg.norm(h_vec)
-    inc = np.degrees(np.arccos(np.clip(h_vec[2] / h, -1, 1)))
-    e_vec = np.cross(v_vec, h_vec) / mu - r_vec / r
-    ecc = np.linalg.norm(e_vec)
-    return a, ecc, inc
-
-
-def rk4_integrate_mean(state0, t_eval, substeps=8):
-    out = np.empty((len(t_eval), 6))
-    out[0] = state0
-    y = state0.copy()
-    for i in range(len(t_eval) - 1):
-        dt = (t_eval[i + 1] - t_eval[i]) / substeps
-        for _ in range(substeps):
-            k1 = evaluate_truncated_mean_rhs_pqm(y, J_COEFFS, re_val=RE, mu_val=MU)
-            k2 = evaluate_truncated_mean_rhs_pqm(y + 0.5 * dt * k1, J_COEFFS, re_val=RE, mu_val=MU)
-            k3 = evaluate_truncated_mean_rhs_pqm(y + 0.5 * dt * k2, J_COEFFS, re_val=RE, mu_val=MU)
-            k4 = evaluate_truncated_mean_rhs_pqm(y + dt * k3, J_COEFFS, re_val=RE, mu_val=MU)
-            y = y + (dt / 6.0) * (k1 + 2 * k2 + 2 * k3 + k4)
-            y[0] = state0[0]
-        out[i + 1] = y
-    return out
+from geqoe_mean.validation import (
+    ensure_symbolic_cache,
+    rk4_integrate_mean,
+)
 
 
 def compute_data():
@@ -140,13 +85,11 @@ def compute_data():
 
     # --- 2. Mean GEqOE → approximate mean classical elements ---
     print("  Mean GEqOE propagation...")
-    for n in sorted(J_COEFFS):
-        for var in ("g", "Q", "Psi", "Omega", "M"):
-            isolated_short_period_expressions_for(var, n)
+    ensure_symbolic_cache(J_COEFFS)
 
     state0_osc = cart2geqoe(r0, v0, MU, pert)
     mean0 = osculating_to_mean_state(state0_osc, J_COEFFS, re_val=RE, mu_val=MU)
-    mean = rk4_integrate_mean(mean0, t_grid)
+    mean = rk4_integrate_mean(mean0, t_grid, J_COEFFS)
 
     # Mean classical approximations:
     # a_mean ≈ (mu / nu_mean^2)^(1/3) — nearly constant

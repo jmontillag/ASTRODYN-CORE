@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Exact symbolic averaged GEqOE zonal generator for isolated degree n.
 
 The derivation uses two exact steps:
@@ -9,9 +8,6 @@ The derivation uses two exact steps:
 
 This yields exact finite-harmonic averaged drift formulas for any isolated
 zonal degree n >= 2.
-
-Run:
-  conda run -n astrodyn-core-env python docs/geqoe_averaged/scripts/zonal_symbolic_general.py
 """
 
 from __future__ import annotations

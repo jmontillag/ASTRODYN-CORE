@@ -18,10 +18,10 @@ import sympy as sp
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 DOC_DIR = SCRIPT_DIR.parent
-if str(SCRIPT_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPT_DIR))
+if str(DOC_DIR) not in sys.path:
+    sys.path.insert(0, str(DOC_DIR))
 
-from zonal_symbolic_general import Q, harmonic_coefficients, q
+from geqoe_mean.symbolic import Q, harmonic_coefficients, q
 
 
 OUT_TEX = DOC_DIR / "zonal_symbolic_coeffs.tex"

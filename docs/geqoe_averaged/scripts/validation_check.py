@@ -14,6 +14,10 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+DOC_DIR = Path(__file__).resolve().parents[1]
+if str(DOC_DIR) not in sys.path:
+    sys.path.insert(0, str(DOC_DIR))
+
 from astrodyn_core.geqoe_taylor import (
     J2 as J2_VAL, MU, RE, J2Perturbation,
     build_state_integrator, cart2geqoe, geqoe2cart,
@@ -21,30 +25,7 @@ from astrodyn_core.geqoe_taylor import (
 from astrodyn_core.geqoe_taylor.integrator import propagate_grid
 from astrodyn_core.geqoe_taylor.utils import K_to_L, solve_kepler_gen
 
-
-# ── helpers ──────────────────────────────────────────────────────────
-def _rot3(t):
-    c, s = np.cos(t), np.sin(t)
-    return np.array([[c,-s,0],[s,c,0],[0,0,1.]])
-
-def _rot1(t):
-    c, s = np.cos(t), np.sin(t)
-    return np.array([[1,0,0],[0,c,-s],[0,s,c]])
-
-def _kepler_to_rv(a, e, i_deg, raan_deg, argp_deg, M_deg, mu=MU):
-    i, raan, argp = np.deg2rad(i_deg), np.deg2rad(raan_deg), np.deg2rad(argp_deg)
-    M = np.deg2rad(M_deg)
-    E = M if e < 0.8 else np.pi
-    for _ in range(50):
-        dE = (E - e*np.sin(E) - M) / (1 - e*np.cos(E))
-        E -= dE
-        if abs(dE) < 1e-14: break
-    cE, sE = np.cos(E), np.sin(E)
-    r_pf = np.array([a*(cE-e), a*np.sqrt(1-e*e)*sE, 0.])
-    rm = a*(1-e*cE)
-    v_pf = np.sqrt(mu*a)/rm * np.array([-sE, np.sqrt(1-e*e)*cE, 0.])
-    dcm = _rot3(raan) @ _rot1(i) @ _rot3(argp)
-    return dcm @ r_pf, dcm @ v_pf
+from geqoe_mean.coordinates import kepler_to_rv as _kepler_to_rv
 
 
 def _secular_rates(state0, j2=J2_VAL):

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import importlib.util
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -10,15 +10,10 @@ sympy = pytest.importorskip("sympy")
 
 from astrodyn_core.geqoe_taylor import J3, J4, MU, RE, ZonalPerturbation
 
-
-def _load_module(rel_path: str, module_name: str):
-    repo_root = Path(__file__).resolve().parents[1]
-    module_path = repo_root / rel_path
-    spec = importlib.util.spec_from_file_location(module_name, module_path)
-    assert spec is not None and spec.loader is not None
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
+# Add geqoe_mean package to path
+_DOC_DIR = Path(__file__).resolve().parents[1] / "docs" / "geqoe_averaged"
+if str(_DOC_DIR) not in sys.path:
+    sys.path.insert(0, str(_DOC_DIR))
 
 
 def _evaluate_harmonic_model(
@@ -63,8 +58,8 @@ def _evaluate_harmonic_model(
 
 
 def test_general_symbolic_generator_matches_exact_averaged_drift() -> None:
-    fourier_mod = _load_module("docs/geqoe_averaged/scripts/zonal_fourier_model.py", "zonal_fourier_model")
-    general_mod = _load_module("docs/geqoe_averaged/scripts/zonal_symbolic_general.py", "zonal_symbolic_general")
+    from geqoe_mean import fourier_model as fourier_mod
+    from geqoe_mean import symbolic as general_mod
 
     a_km = 16000.0
     e = 0.35
@@ -96,7 +91,7 @@ def test_general_symbolic_generator_matches_exact_averaged_drift() -> None:
 
 
 def test_isolated_degree_max_harmonic_is_n_minus_2() -> None:
-    general_mod = _load_module("docs/geqoe_averaged/scripts/zonal_symbolic_general.py", "zonal_symbolic_general_harmonics")
+    from geqoe_mean import symbolic as general_mod
 
     for degree in (3, 4):
         coeffs = general_mod.harmonic_coefficients(degree)

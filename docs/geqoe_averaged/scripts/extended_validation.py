@@ -32,11 +32,11 @@ DOC_DIR = SCRIPT_DIR.parent
 FIG_DIR = DOC_DIR / "figures"
 FIG_DIR.mkdir(exist_ok=True)
 
-if str(SCRIPT_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPT_DIR))
+if str(DOC_DIR) not in sys.path:
+    sys.path.insert(0, str(DOC_DIR))
 
 from astrodyn_core.geqoe_taylor import (
-    J2, J3, J4, J5, MU, RE,
+    MU, RE,
     ZonalPerturbation,
     build_state_integrator,
     cart2geqoe, geqoe2cart,
@@ -47,15 +47,19 @@ from astrodyn_core.geqoe_taylor.cowell import (
     _build_par_values,
 )
 
-from zonal_short_period_general import (
+from geqoe_mean.constants import J2, J3, J4, J5, J_COEFFS
+from geqoe_mean.coordinates import kepler_to_rv
+from geqoe_mean.short_period import (
     evaluate_truncated_mean_rhs_pqm,
     isolated_short_period_expressions_for,
     mean_to_osculating_state,
     osculating_to_mean_state,
 )
-
-
-J_COEFFS = {2: J2, 3: J3, 4: J4, 5: J5}
+from geqoe_mean.validation import (
+    compute_position_errors as compute_errors,
+    ensure_symbolic_cache as _ensure_symbolic_cache,
+    rk4_integrate_mean,
+)
 
 # --------------------------------------------------------------------------- #
 #  Orbit cases
@@ -93,38 +97,6 @@ CASES = [
 
 
 # --------------------------------------------------------------------------- #
-#  Coordinate conversions
-# --------------------------------------------------------------------------- #
-
-def _rot3(theta):
-    c, s = np.cos(theta), np.sin(theta)
-    return np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]], dtype=float)
-
-def _rot1(theta):
-    c, s = np.cos(theta), np.sin(theta)
-    return np.array([[1, 0, 0], [0, c, -s], [0, s, c]], dtype=float)
-
-def kepler_to_rv(a_km, e, inc_deg, raan_deg, argp_deg, M_deg, mu=MU):
-    inc = np.deg2rad(inc_deg)
-    raan = np.deg2rad(raan_deg)
-    argp = np.deg2rad(argp_deg)
-    M = np.deg2rad(M_deg)
-    E = M if e < 0.8 else np.pi
-    for _ in range(50):
-        dE = (E - e * np.sin(E) - M) / (1.0 - e * np.cos(E))
-        E -= dE
-        if abs(dE) < 1e-14:
-            break
-    cE, sE = np.cos(E), np.sin(E)
-    r_pf = np.array([a_km * (cE - e), a_km * np.sqrt(1 - e*e) * sE, 0.0])
-    rm = a_km * (1.0 - e * cE)
-    v_pf = np.sqrt(mu * a_km) / rm * np.array(
-        [-sE, np.sqrt(1 - e*e) * cE, 0.0])
-    dcm = _rot3(raan) @ _rot1(inc) @ _rot3(argp)
-    return dcm @ r_pf, dcm @ v_pf
-
-
-# --------------------------------------------------------------------------- #
 #  Cowell heyoka grid propagation
 # --------------------------------------------------------------------------- #
 
@@ -151,29 +123,6 @@ def propagate_cowell_grid(ta, t_grid):
 # --------------------------------------------------------------------------- #
 #  GEqOE mean + short-period reconstruction
 # --------------------------------------------------------------------------- #
-
-def _ensure_symbolic_cache(j_coeffs):
-    for n in sorted(j_coeffs):
-        for var in ("g", "Q", "Psi", "Omega", "M"):
-            isolated_short_period_expressions_for(var, n)
-
-
-def rk4_integrate_mean(state0, t_eval, j_coeffs, substeps=8):
-    out = np.empty((len(t_eval), 6))
-    out[0] = state0
-    y = state0.copy()
-    for i in range(len(t_eval) - 1):
-        dt = (t_eval[i + 1] - t_eval[i]) / substeps
-        for _ in range(substeps):
-            k1 = evaluate_truncated_mean_rhs_pqm(y, j_coeffs, re_val=RE, mu_val=MU)
-            k2 = evaluate_truncated_mean_rhs_pqm(y + 0.5*dt*k1, j_coeffs, re_val=RE, mu_val=MU)
-            k3 = evaluate_truncated_mean_rhs_pqm(y + 0.5*dt*k2, j_coeffs, re_val=RE, mu_val=MU)
-            k4 = evaluate_truncated_mean_rhs_pqm(y + dt*k3, j_coeffs, re_val=RE, mu_val=MU)
-            y = y + (dt / 6.0) * (k1 + 2*k2 + 2*k3 + k4)
-            y[0] = state0[0]   # nu is constant at first order
-        out[i + 1] = y
-    return out
-
 
 def run_geqoe_meansp(case, r0, v0, pert, t_grid):
     """Run GEqOE mean + short-period reconstruction. Return positions [N, 3]."""
@@ -270,32 +219,6 @@ def run_brouwer(case, t_grid):
         except Exception:
             positions[i] = np.nan
     return positions
-
-
-# --------------------------------------------------------------------------- #
-#  Error metrics
-# --------------------------------------------------------------------------- #
-
-def compute_errors(truth, test, label=""):
-    """Compute position error metrics. Returns dict."""
-    diff = test - truth
-    dist = np.linalg.norm(diff, axis=1)
-    # Radial error: project along radial direction
-    r_hat = truth / np.linalg.norm(truth, axis=1, keepdims=True)
-    radial_err = np.sum(diff * r_hat, axis=1)
-    valid = ~np.isnan(dist)
-    if valid.sum() == 0:
-        return {"label": label, "pos_rms_km": np.nan, "pos_max_km": np.nan,
-                "rad_rms_km": np.nan, "rad_max_km": np.nan}
-    d = dist[valid]
-    re = radial_err[valid]
-    return {
-        "label": label,
-        "pos_rms_km": float(np.sqrt(np.mean(d**2))),
-        "pos_max_km": float(np.max(d)),
-        "rad_rms_km": float(np.sqrt(np.mean(re**2))),
-        "rad_max_km": float(np.max(np.abs(re))),
-    }
 
 
 # --------------------------------------------------------------------------- #

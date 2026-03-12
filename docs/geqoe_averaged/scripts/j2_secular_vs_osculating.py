@@ -20,7 +20,11 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from astrodyn_core.geqoe_taylor import (  # noqa: E402
+DOC_DIR = Path(__file__).resolve().parents[1]
+if str(DOC_DIR) not in sys.path:
+    sys.path.insert(0, str(DOC_DIR))
+
+from astrodyn_core.geqoe_taylor import (
     J2,
     MU,
     RE,
@@ -28,65 +32,11 @@ from astrodyn_core.geqoe_taylor import (  # noqa: E402
     build_state_integrator,
     cart2geqoe,
 )
-from astrodyn_core.geqoe_taylor.integrator import propagate_grid  # noqa: E402
+from astrodyn_core.geqoe_taylor.integrator import propagate_grid
 
-DOC_DIR = Path(__file__).resolve().parents[1]
+from geqoe_mean.coordinates import kepler_to_rv as _kepler_to_rv
+
 FIG_DIR = DOC_DIR / "figures"
-
-
-def _rot3(theta: float) -> np.ndarray:
-    c = np.cos(theta)
-    s = np.sin(theta)
-    return np.array(
-        [[c, -s, 0.0], [s, c, 0.0], [0.0, 0.0, 1.0]],
-        dtype=float,
-    )
-
-
-def _rot1(theta: float) -> np.ndarray:
-    c = np.cos(theta)
-    s = np.sin(theta)
-    return np.array(
-        [[1.0, 0.0, 0.0], [0.0, c, -s], [0.0, s, c]],
-        dtype=float,
-    )
-
-
-def _kepler_to_rv(
-    a_km: float,
-    e: float,
-    i_deg: float,
-    raan_deg: float,
-    argp_deg: float,
-    mean_anomaly_deg: float,
-    mu: float = MU,
-) -> tuple[np.ndarray, np.ndarray]:
-    i = np.deg2rad(i_deg)
-    raan = np.deg2rad(raan_deg)
-    argp = np.deg2rad(argp_deg)
-    M = np.deg2rad(mean_anomaly_deg)
-
-    E = M if e < 0.8 else np.pi
-    for _ in range(50):
-        delta = (E - e * np.sin(E) - M) / (1.0 - e * np.cos(E))
-        E -= delta
-        if abs(delta) < 1.0e-14:
-            break
-
-    cosE = np.cos(E)
-    sinE = np.sin(E)
-    r_pf = np.array(
-        [a_km * (cosE - e), a_km * np.sqrt(1.0 - e * e) * sinE, 0.0],
-        dtype=float,
-    )
-    r_mag = a_km * (1.0 - e * cosE)
-    v_pf = np.sqrt(mu * a_km) / r_mag * np.array(
-        [-sinE, np.sqrt(1.0 - e * e) * cosE, 0.0],
-        dtype=float,
-    )
-
-    dcm = _rot3(raan) @ _rot1(i) @ _rot3(argp)
-    return dcm @ r_pf, dcm @ v_pf
 
 
 def _secular_solution(state0: np.ndarray, t_grid_s: np.ndarray) -> dict[str, np.ndarray]:

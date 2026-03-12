@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -10,10 +11,18 @@ sympy = pytest.importorskip("sympy")
 
 from astrodyn_core.geqoe_taylor import J3, J4, MU, RE, ZonalPerturbation
 
+# Add geqoe_mean package and scripts to path
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+_DOC_DIR = _REPO_ROOT / "docs" / "geqoe_averaged"
+_SCRIPT_DIR = _DOC_DIR / "scripts"
+if str(_DOC_DIR) not in sys.path:
+    sys.path.insert(0, str(_DOC_DIR))
+if str(_SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPT_DIR))
 
-def _load_module(rel_path: str, module_name: str):
-    repo_root = Path(__file__).resolve().parents[1]
-    module_path = repo_root / rel_path
+
+def _load_script(rel_path: str, module_name: str):
+    module_path = _REPO_ROOT / rel_path
     spec = importlib.util.spec_from_file_location(module_name, module_path)
     assert spec is not None and spec.loader is not None
     mod = importlib.util.module_from_spec(spec)
@@ -22,8 +31,8 @@ def _load_module(rel_path: str, module_name: str):
 
 
 def test_symbolic_j3_j4_coefficients_match_exact_averaged_drift() -> None:
-    fourier_mod = _load_module("docs/geqoe_averaged/scripts/zonal_fourier_model.py", "zonal_fourier_model")
-    coeff_mod = _load_module("docs/geqoe_averaged/scripts/zonal_symbolic_coeffs.py", "zonal_symbolic_coeffs")
+    from geqoe_mean.fourier_model import avg_slow_drift, frozen_state
+    coeff_mod = _load_script("docs/geqoe_averaged/scripts/zonal_symbolic_coeffs.py", "zonal_symbolic_coeffs")
 
     f_G31 = sympy.lambdify((coeff_mod.q, coeff_mod.Q), coeff_mod.G31, "numpy")
     f_Q31 = sympy.lambdify((coeff_mod.q, coeff_mod.Q), coeff_mod.Q31, "numpy")
@@ -50,15 +59,15 @@ def test_symbolic_j3_j4_coefficients_match_exact_averaged_drift() -> None:
     omega_grid = np.deg2rad([20.0, 45.0, 100.0, 160.0])
 
     for omega in omega_grid:
-        state = fourier_mod.frozen_state(a_km, e, inc_deg, raan_deg, np.rad2deg(omega))
+        state = frozen_state(a_km, e, inc_deg, raan_deg, np.rad2deg(omega))
 
-        drift_j3 = fourier_mod.avg_slow_drift(state, ZonalPerturbation({3: J3}))
+        drift_j3 = avg_slow_drift(state, ZonalPerturbation({3: J3}))
         assert drift_j3["g_dot"] == pytest.approx(eps3 * f_G31(q_val, Q_val) * np.cos(omega), rel=1e-10, abs=1e-14)
         assert drift_j3["Q_dot"] == pytest.approx(eps3 * f_Q31(q_val, Q_val) * np.cos(omega), rel=1e-10, abs=1e-14)
         assert drift_j3["Psi_dot"] == pytest.approx(eps3 * f_P31(q_val, Q_val) * np.sin(omega), rel=1e-10, abs=1e-14)
         assert drift_j3["Omega_dot"] == pytest.approx(eps3 * f_O31(q_val, Q_val) * np.sin(omega), rel=1e-10, abs=1e-14)
 
-        drift_j4 = fourier_mod.avg_slow_drift(state, ZonalPerturbation({4: J4}))
+        drift_j4 = avg_slow_drift(state, ZonalPerturbation({4: J4}))
         assert drift_j4["g_dot"] == pytest.approx(eps4 * f_G42(q_val, Q_val) * np.sin(2.0 * omega), rel=1e-10, abs=1e-14)
         assert drift_j4["Q_dot"] == pytest.approx(eps4 * f_Q42(q_val, Q_val) * np.sin(2.0 * omega), rel=1e-10, abs=1e-14)
         assert drift_j4["Psi_dot"] == pytest.approx(

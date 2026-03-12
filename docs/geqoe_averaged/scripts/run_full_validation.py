@@ -10,16 +10,32 @@ Runs all the validation checks from the user's requirements:
 - Zonal scaling
 """
 import sys
-sys.path.insert(0, 'docs/geqoe_averaged/scripts')
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+DOC_DIR = Path(__file__).resolve().parents[1]
+if str(DOC_DIR) not in sys.path:
+    sys.path.insert(0, str(DOC_DIR))
+
+# Script-level imports (sys.path needed for zonal_short_period_validation)
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
 
 from zonal_short_period_validation import run_case, ValidationCase
-from zonal_short_period_general import (
+
+from geqoe_mean.constants import J2, J3, J4, J5, J_COEFFS, MU, RE
+from geqoe_mean.coordinates import kepler_to_rv
+from geqoe_mean.short_period import (
+    _generated_short_period_expressions,
     isolated_short_period_expressions_for,
     osculating_to_mean_state,
     mean_to_osculating_state,
 )
 from astrodyn_core.geqoe_taylor import (
-    J2, J3, J4, J5, MU, RE, ZonalPerturbation,
+    ZonalPerturbation,
     cart2geqoe, geqoe2cart,
 )
 import numpy as np
@@ -35,7 +51,6 @@ for n in (2, 3, 4, 5):
     try:
         all_ok = True
         for var in ('g', 'Q', 'Psi', 'Omega', 'M'):
-            from zonal_short_period_general import _generated_short_period_expressions
             data = _generated_short_period_expressions(var, n)
             if data is None:
                 all_ok = False
@@ -53,8 +68,6 @@ log(f"Available degrees: {sorted(available.keys())} (max J{max_degree})")
 log("\n" + "=" * 70)
 log("1. Inverse map round-trip (osc -> mean -> osc)")
 log("=" * 70)
-
-from zonal_short_period_validation import kepler_to_rv
 
 for label, a_km, e, inc_deg in [("low-e", 9000, 0.05, 40), ("high-e", 18000, 0.65, 63)]:
     r0, v0 = kepler_to_rv(a_km, e, inc_deg, 25.0, 60.0, 45.0)

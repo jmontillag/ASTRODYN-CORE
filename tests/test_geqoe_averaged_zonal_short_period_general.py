@@ -1,35 +1,22 @@
 from __future__ import annotations
 
-import importlib.util
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import numpy as np
 import pytest
 
 from astrodyn_core.geqoe_taylor import J2
 
-
-def _load_module(rel_path: str, module_name: str):
-    repo_root = Path(__file__).resolve().parents[1]
-    module_path = repo_root / rel_path
-    spec = importlib.util.spec_from_file_location(module_name, module_path)
-    assert spec is not None and spec.loader is not None
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules[module_name] = mod
-    spec.loader.exec_module(mod)
-    return mod
+# Add geqoe_mean package to path
+_DOC_DIR = Path(__file__).resolve().parents[1] / "docs" / "geqoe_averaged"
+if str(_DOC_DIR) not in sys.path:
+    sys.path.insert(0, str(_DOC_DIR))
 
 
 def test_short_period_mean_rates_match_existing_symbolic_slow_model() -> None:
-    short_mod = _load_module(
-        "docs/geqoe_averaged/scripts/zonal_short_period_general.py",
-        "zonal_short_period_general_test",
-    )
-    slow_mod = _load_module(
-        "docs/geqoe_averaged/scripts/zonal_symbolic_general.py",
-        "zonal_symbolic_general_test",
-    )
+    from geqoe_mean import short_period as short_mod
+    from geqoe_mean import symbolic as slow_mod
 
     nu = np.sqrt(short_mod.MU / 16000.0**3)
     g_val = 0.35
@@ -67,10 +54,7 @@ def test_short_period_mean_rates_match_existing_symbolic_slow_model() -> None:
 
 
 def test_j2_mean_anomaly_short_period_support_is_finite() -> None:
-    mod = _load_module(
-        "docs/geqoe_averaged/scripts/zonal_short_period_general.py",
-        "zonal_short_period_general_support",
-    )
+    from geqoe_mean import short_period as mod
 
     coeffs = mod.isolated_short_period_coefficients_for("M", 2)
     m_support = sorted({m_val for (m_val, _) in coeffs})
@@ -82,10 +66,7 @@ def test_j2_mean_anomaly_short_period_support_is_finite() -> None:
 
 
 def test_mean_rhs_retains_keplerian_mean_anomaly_advance() -> None:
-    mod = _load_module(
-        "docs/geqoe_averaged/scripts/zonal_short_period_general.py",
-        "zonal_short_period_general_rhs",
-    )
+    from geqoe_mean import short_period as mod
 
     state_mean = np.array([np.sqrt(mod.MU / 9000.0**3), 0.02, 0.04, 0.3, 0.1, 0.2], dtype=float)
     rhs = mod.evaluate_truncated_mean_rhs_pqm(state_mean, {2: J2})
@@ -96,10 +77,7 @@ def test_mean_rhs_retains_keplerian_mean_anomaly_advance() -> None:
 
 
 def test_empty_generated_short_period_entry_is_treated_as_missing() -> None:
-    mod = _load_module(
-        "docs/geqoe_averaged/scripts/zonal_short_period_general.py",
-        "zonal_short_period_general_generated_empty",
-    )
+    from geqoe_mean import short_period as mod
 
     mod._SHORT_DATA_STR = {2: {"Psi": {}}}
     mod._generated_short_period_expressions.cache_clear()

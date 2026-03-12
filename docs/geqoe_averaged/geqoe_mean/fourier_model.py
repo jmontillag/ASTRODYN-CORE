@@ -1,20 +1,8 @@
-#!/usr/bin/env python
-"""Construct and validate the finite Fourier averaged zonal GEqOE model.
-
-Run:
-  conda run -n astrodyn-core-env python docs/geqoe_averaged/scripts/zonal_fourier_model.py
-"""
+"""Frozen-state numerical averaging and Fourier model fitting for GEqOE zonal drift."""
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import numpy as np
-
-REPO_ROOT = Path(__file__).resolve().parents[3]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
 
 from astrodyn_core.geqoe_taylor import J2, J3, J4, J5, MU, RE, ZonalPerturbation
 

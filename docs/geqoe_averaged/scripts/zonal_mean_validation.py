@@ -25,8 +25,8 @@ if str(REPO_ROOT) not in sys.path:
 SCRIPT_DIR = Path(__file__).resolve().parent
 DOC_DIR = SCRIPT_DIR.parent
 FIG_DIR = DOC_DIR / "figures"
-if str(SCRIPT_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPT_DIR))
+if str(DOC_DIR) not in sys.path:
+    sys.path.insert(0, str(DOC_DIR))
 
 from astrodyn_core.geqoe_taylor import (
     J2,
@@ -41,8 +41,9 @@ from astrodyn_core.geqoe_taylor import (
 )
 from astrodyn_core.geqoe_taylor.integrator import propagate_grid
 
-from zonal_fourier_model import avg_slow_drift, frozen_state
-from zonal_symbolic_general import evaluate_truncated_mean_rates, evaluate_truncated_mean_rhs_pq
+from geqoe_mean.coordinates import kepler_to_rv
+from geqoe_mean.fourier_model import avg_slow_drift, frozen_state
+from geqoe_mean.symbolic import evaluate_truncated_mean_rates, evaluate_truncated_mean_rhs_pq
 
 
 OUT_COMPONENTS = FIG_DIR / "zonal_mean_validation_components.png"
@@ -62,46 +63,6 @@ class ValidationCase:
     n_orbits: int = 30
     samples_per_orbit: int = 96
     rk4_substeps_per_orbit: int = 16
-
-
-def _rot3(theta: float) -> np.ndarray:
-    c, s = np.cos(theta), np.sin(theta)
-    return np.array([[c, -s, 0.0], [s, c, 0.0], [0.0, 0.0, 1.0]])
-
-
-def _rot1(theta: float) -> np.ndarray:
-    c, s = np.cos(theta), np.sin(theta)
-    return np.array([[1.0, 0.0, 0.0], [0.0, c, -s], [0.0, s, c]])
-
-
-def kepler_to_rv(
-    a_km: float,
-    e: float,
-    inc_deg: float,
-    raan_deg: float,
-    argp_deg: float,
-    M_deg: float,
-    mu: float = MU,
-) -> tuple[np.ndarray, np.ndarray]:
-    inc = np.deg2rad(inc_deg)
-    raan = np.deg2rad(raan_deg)
-    argp = np.deg2rad(argp_deg)
-    M = np.deg2rad(M_deg)
-
-    E = M if e < 0.8 else np.pi
-    for _ in range(50):
-        dE = (E - e * np.sin(E) - M) / (1.0 - e * np.cos(E))
-        E -= dE
-        if abs(dE) < 1.0e-14:
-            break
-
-    cE = np.cos(E)
-    sE = np.sin(E)
-    r_pf = np.array([a_km * (cE - e), a_km * np.sqrt(1.0 - e * e) * sE, 0.0])
-    rm = a_km * (1.0 - e * cE)
-    v_pf = np.sqrt(mu * a_km) / rm * np.array([-sE, np.sqrt(1.0 - e * e) * cE, 0.0])
-    dcm = _rot3(raan) @ _rot1(inc) @ _rot3(argp)
-    return dcm @ r_pf, dcm @ v_pf
 
 
 def _relative_rms(a: np.ndarray, b: np.ndarray) -> float:

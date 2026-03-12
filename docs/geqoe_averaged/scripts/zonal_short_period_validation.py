@@ -22,14 +22,10 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 DOC_DIR = SCRIPT_DIR.parent
 FIG_DIR = DOC_DIR / "figures"
 OUT_TEX = DOC_DIR / "zonal_short_period_validation.tex"
-if str(SCRIPT_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPT_DIR))
+if str(DOC_DIR) not in sys.path:
+    sys.path.insert(0, str(DOC_DIR))
 
 from astrodyn_core.geqoe_taylor import (
-    J2,
-    J3,
-    J4,
-    J5,
     MU,
     RE,
     ZonalPerturbation,
@@ -39,15 +35,19 @@ from astrodyn_core.geqoe_taylor import (
 )
 from astrodyn_core.geqoe_taylor.integrator import propagate_grid
 
-from zonal_short_period_general import (
+from geqoe_mean.constants import J_COEFFS
+from geqoe_mean.coordinates import kepler_to_rv
+from geqoe_mean.short_period import (
     evaluate_truncated_mean_rhs_pqm,
     isolated_short_period_expressions_for,
     mean_to_osculating_state,
     osculating_to_mean_state,
 )
-
-
-J_COEFFS = {2: J2, 3: J3, 4: J4, 5: J5}
+from geqoe_mean.validation import (
+    ensure_symbolic_cache as _ensure_symbolic_cache,
+    phase_error as _phase_error,
+    relative_rms as _relative_rms,
+)
 
 OUT_LOW = FIG_DIR / "zonal_short_period_lowe_components.png"
 OUT_HIGH = FIG_DIR / "zonal_short_period_highe_components.png"
@@ -95,55 +95,6 @@ CASES = (
 )
 
 
-def _rot3(theta: float) -> np.ndarray:
-    c, s = np.cos(theta), np.sin(theta)
-    return np.array([[c, -s, 0.0], [s, c, 0.0], [0.0, 0.0, 1.0]], dtype=float)
-
-
-def _rot1(theta: float) -> np.ndarray:
-    c, s = np.cos(theta), np.sin(theta)
-    return np.array([[1.0, 0.0, 0.0], [0.0, c, -s], [0.0, s, c]], dtype=float)
-
-
-def kepler_to_rv(
-    a_km: float,
-    e: float,
-    inc_deg: float,
-    raan_deg: float,
-    argp_deg: float,
-    M_deg: float,
-    mu: float = MU,
-) -> tuple[np.ndarray, np.ndarray]:
-    inc = np.deg2rad(inc_deg)
-    raan = np.deg2rad(raan_deg)
-    argp = np.deg2rad(argp_deg)
-    M = np.deg2rad(M_deg)
-
-    E = M if e < 0.8 else np.pi
-    for _ in range(50):
-        dE = (E - e * np.sin(E) - M) / (1.0 - e * np.cos(E))
-        E -= dE
-        if abs(dE) < 1.0e-14:
-            break
-
-    cE = np.cos(E)
-    sE = np.sin(E)
-    r_pf = np.array([a_km * (cE - e), a_km * np.sqrt(1.0 - e * e) * sE, 0.0], dtype=float)
-    rm = a_km * (1.0 - e * cE)
-    v_pf = np.sqrt(mu * a_km) / rm * np.array(
-        [-sE, np.sqrt(1.0 - e * e) * cE, 0.0],
-        dtype=float,
-    )
-    dcm = _rot3(raan) @ _rot1(inc) @ _rot3(argp)
-    return dcm @ r_pf, dcm @ v_pf
-
-
-def _ensure_symbolic_cache(j_coeffs: dict[int, float]) -> None:
-    for n in sorted(j_coeffs):
-        for variable in ("g", "Q", "Psi", "Omega", "M"):
-            isolated_short_period_expressions_for(variable, n)
-
-
 def _rk4_integrate_mean(
     state0: np.ndarray,
     t_eval: np.ndarray,
@@ -167,17 +118,6 @@ def _rk4_integrate_mean(
             y[0] = state0[0]
         out[i + 1] = y
     return out
-
-
-def _phase_error(a: np.ndarray, b: np.ndarray) -> float:
-    diff = np.arctan2(np.sin(a - b), np.cos(a - b))
-    return float(np.sqrt(np.mean(diff * diff)))
-
-
-def _relative_rms(a: np.ndarray, b: np.ndarray) -> float:
-    resid = a - b
-    denom = max(float(np.max(np.abs(b))), 1.0e-30)
-    return float(np.sqrt(np.mean(resid * resid)) / denom)
 
 
 def _state_phases(state_hist: np.ndarray) -> dict[str, np.ndarray]:

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Exact first-order mixed-zonal GEqOE short-period generator.
 
 The short-period map is formulated through the uniformly advancing generalized
@@ -20,9 +19,6 @@ state
 and reconstructs the full osculating GEqOE state by first rebuilding the
 osculating slow variables and osculating M/L, then solving the generalized
 Kepler equation for K.
-
-Run:
-  conda run -n astrodyn-core-env python docs/geqoe_averaged/scripts/zonal_short_period_general.py
 """
 
 from __future__ import annotations
@@ -38,26 +34,20 @@ import numpy as np
 import sympy as sp
 
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-
-SCRIPT_DIR = Path(__file__).resolve().parent
-DOC_DIR = SCRIPT_DIR.parent
+PKG_DIR = Path(__file__).resolve().parent
+DOC_DIR = PKG_DIR.parent
 OUT_TEX = DOC_DIR / "zonal_short_period_general.tex"
-GENERATED_DATA = SCRIPT_DIR / "zonal_short_period_generated.py"
-if str(SCRIPT_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPT_DIR))
+GENERATED_DATA = PKG_DIR / "generated_coefficients.py"
 
 from astrodyn_core.geqoe_taylor import MU, RE
 from astrodyn_core.geqoe_taylor.utils import K_to_L, solve_kepler_gen
 
 from sympy.integrals.rationaltools import ratint
 
-from zonal_symbolic_general import q_from_g
+from .symbolic import q_from_g
 
 try:
-    from zonal_short_period_generated import MEAN_DATA as _MEAN_DATA_STR, SHORT_DATA as _SHORT_DATA_STR
+    from .generated_coefficients import MEAN_DATA as _MEAN_DATA_STR, SHORT_DATA as _SHORT_DATA_STR
 except ImportError:
     _MEAN_DATA_STR = {}
     _SHORT_DATA_STR = {}
