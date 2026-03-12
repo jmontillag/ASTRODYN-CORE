@@ -1,4 +1,4 @@
-# Cross-Check Review: `geqoe_averaged_j2_zonal_note.tex`
+# Cross-Check Review: `geqoe_averaged_zonal_theory.tex`
 
 **Date:** 2026-03-11
 **Scope:** Systematic verification of claims, citations, attributions, and
@@ -6,7 +6,7 @@ numbers against reference PDFs and the codebase.
 
 **Sources checked:**
 
-- `docs/geqoe_averaged/geqoe_averaged_j2_zonal_note.tex`
+- `docs/geqoe_averaged/geqoe_averaged_zonal_theory.tex`
 - `docs/geqoe_averaged/references/*.pdf`
 - `docs/s10569-021-10049-1.pdf` (published Bau et al.)
 - `src/astrodyn_core/geqoe_taylor/rhs.py`

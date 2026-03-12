@@ -24,7 +24,7 @@ if str(DOC_DIR) not in sys.path:
 from geqoe_mean.symbolic import Q, harmonic_coefficients, q
 
 
-OUT_TEX = DOC_DIR / "zonal_symbolic_coeffs.tex"
+OUT_TEX = DOC_DIR / "notes" / "zonal_symbolic_coeffs.tex"
 
 omega = sp.symbols("omega", real=True)
 nu, a, Re = sp.symbols("nu a R_e", positive=True, real=True)

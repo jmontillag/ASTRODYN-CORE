@@ -10,7 +10,19 @@ Validated against Cowell numerics and Brouwer theory across 12 orbital regimes.
 
 ```
 docs/geqoe_averaged/
-├── *.tex                 # LaTeX notes (must stay at root for compilation)
+├── main_docs/            # Main paper + extension notes
+│   ├── geqoe_averaged_zonal_theory.tex   # Journal-ready paper
+│   ├── geqoe_averaged_second_order.tex    # Second-order extension
+│   ├── geqoe_conjunction_filter_extension.tex
+│   ├── geqoe_mean_drag_extension.tex
+│   ├── geqoe_mean_taylor_prop.tex
+│   ├── analytical_pipeline_schematic.tex  # TikZ diagram (included by main)
+│   └── extended_validation_table.tex      # Results table
+├── notes/                # Validation & symbolic notes
+│   ├── zonal_symbolic_general.tex
+│   ├── zonal_symbolic_coeffs.tex
+│   ├── zonal_mean_validation.tex
+│   └── zonal_short_period_validation.tex
 ├── geqoe_mean/           # Importable Python package — core library code
 │   ├── __init__.py       # Public API
 │   ├── coordinates.py    # kepler_to_rv, rotation matrices, rv_to_classical
@@ -30,24 +42,20 @@ docs/geqoe_averaged/
 
 ## Document hierarchy
 
-### Main paper
-- **geqoe_averaged_j2_zonal_note.tex** — Full journal-ready paper: theory, derivation, validation
-
-### Extension notes
+### Main paper and extensions (`main_docs/`)
+- **geqoe_averaged_zonal_theory.tex** — Full journal-ready paper: theory, derivation, validation
 - **geqoe_averaged_second_order.tex** — Second-order averaging roadmap
 - **geqoe_conjunction_filter_extension.tex** — Conjunction screening with mean elements
 - **geqoe_mean_drag_extension.tex** — Atmospheric drag extension
 - **geqoe_mean_taylor_prop.tex** — Taylor propagation of mean elements
+- **analytical_pipeline_schematic.tex** — TikZ pipeline diagram (included by main note)
+- **extended_validation_table.tex** — Extended validation results table
 
-### Validation / symbolic notes
+### Validation and symbolic notes (`notes/`)
 - **zonal_symbolic_general.tex** — Exact symbolic generator for arbitrary degree n
 - **zonal_symbolic_coeffs.tex** — Explicit J3–J5 coefficient tables
 - **zonal_mean_validation.tex** — Mean-element validation results
 - **zonal_short_period_validation.tex** — Short-period map validation
-
-### Supporting TeX
-- **analytical_pipeline_schematic.tex** — TikZ pipeline diagram (included by main note)
-- **extended_validation_table.tex** — Extended validation results table (included by main note)
 
 ## Package modules (`geqoe_mean/`)
 
@@ -85,7 +93,7 @@ conda run -n astrodyn-core-env python docs/geqoe_averaged/scripts/<script>.py
 
 To compile the main paper:
 ```bash
-cd docs/geqoe_averaged && latexmk -pdf geqoe_averaged_j2_zonal_note.tex
+cd docs/geqoe_averaged/main_docs && latexmk -pdf geqoe_averaged_zonal_theory.tex
 ```
 
 ## Dependencies

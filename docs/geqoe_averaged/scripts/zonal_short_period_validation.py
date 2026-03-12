@@ -21,7 +21,7 @@ if str(REPO_ROOT) not in sys.path:
 SCRIPT_DIR = Path(__file__).resolve().parent
 DOC_DIR = SCRIPT_DIR.parent
 FIG_DIR = DOC_DIR / "figures"
-OUT_TEX = DOC_DIR / "zonal_short_period_validation.tex"
+OUT_TEX = DOC_DIR / "notes" / "zonal_short_period_validation.tex"
 if str(DOC_DIR) not in sys.path:
     sys.path.insert(0, str(DOC_DIR))
 

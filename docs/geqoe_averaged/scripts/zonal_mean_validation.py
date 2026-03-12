@@ -49,7 +49,7 @@ from geqoe_mean.symbolic import evaluate_truncated_mean_rates, evaluate_truncate
 OUT_COMPONENTS = FIG_DIR / "zonal_mean_validation_components.png"
 OUT_DIAGNOSTICS = FIG_DIR / "zonal_mean_validation_diagnostics.png"
 OUT_ANGLES = FIG_DIR / "zonal_mean_validation_angles.png"
-OUT_TEX = DOC_DIR / "zonal_mean_validation.tex"
+OUT_TEX = DOC_DIR / "notes" / "zonal_mean_validation.tex"
 
 
 @dataclass(frozen=True)

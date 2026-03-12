@@ -529,7 +529,7 @@ def main():
             ms_s, br_s))
 
     # Write outputs
-    write_latex_table(all_results, DOC_DIR / "extended_validation_table.tex")
+    write_latex_table(all_results, DOC_DIR / "main_docs" / "extended_validation_table.tex")
 
     print("\nGenerating figures...")
     create_figures(all_results)
