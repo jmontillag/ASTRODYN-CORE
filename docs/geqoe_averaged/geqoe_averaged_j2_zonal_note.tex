@@ -1752,6 +1752,16 @@ high-$e$ & 1.6 m \\
 \end{center}
 The sub-10-meter round-trip error confirms that the forward and inverse maps
 are self-consistent to well within the first-order accuracy of the theory.
+Note that the high-$e$ case gives a \emph{smaller} round-trip error than the
+low-$e$ case despite having larger short-period amplitudes. This is because
+the round-trip residual scales as $\varepsilon^2$ where
+$\varepsilon \propto J_2(R_e/a)^2$, so the semi-major axis enters as
+$(R_e/a)^4$: the high-$e$ orbit ($a = 18{,}000$~km) has a $16\times$ smaller
+$\varepsilon^2$ than the low-$e$ orbit ($a = 9{,}000$~km), which more than
+compensates for the eccentricity-driven growth in $\|\bm{u}_1\|$.
+This is distinct from the multi-orbit propagation error
+(Table~\ref{tab:j2j5_validation}), which measures accumulated second-order
+secular drift and is genuinely larger for high eccentricity.
 
 \subsection{Zonal scaling test}
 
