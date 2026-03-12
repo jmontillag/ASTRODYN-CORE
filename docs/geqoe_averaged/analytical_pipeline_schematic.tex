@@ -1,0 +1,134 @@
+% Combined schematic: orbit geometry (D) + element decomposition (B/C)
+% Include in main document with \input{analytical_pipeline_schematic}
+
+\begin{figure}[ht]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[>=Stealth]
+
+% =========================================================
+%  LEFT SIDE: Physical orbit sketch
+% =========================================================
+\begin{scope}[shift={(0,0)}]
+    % Earth
+    \fill[blue!12] (0,0) circle (0.7);
+    \draw[blue!30, thick] (0,0) circle (0.7);
+    \node[font=\scriptsize, text=blue!40] at (0,0) {Earth};
+
+    % Mean orbit (clean ellipse)
+    \draw[orange!75!black, thick, densely dashed]
+        plot[domain=0:360, samples=120]
+        ({2.5*cos(\x) - 0.05}, {2.25*sin(\x)});
+
+    % Osculating orbit (perturbed)
+    \draw[blue!60!black, semithick]
+        plot[domain=0:360, samples=240]
+        ({(2.5 + 0.18*sin(5*\x) + 0.09*sin(3*\x))*cos(\x) - 0.05},
+         {(2.25 + 0.18*sin(5*\x) + 0.09*sin(3*\x))*sin(\x)});
+
+    % Satellite
+    \fill[blue!65!black] ({(2.5+0.12)*cos(35)-0.05}, {(2.25+0.12)*sin(35)})
+        circle (2pt);
+
+    % SP correction arrows at selected points
+    \foreach \ang in {75, 165, 255, 345} {
+        \pgfmathsetmacro{\rmeanx}{2.5*cos(\ang) - 0.05}
+        \pgfmathsetmacro{\rmeany}{2.25*sin(\ang)}
+        \pgfmathsetmacro{\dev}{0.18*sin(5*\ang) + 0.09*sin(3*\ang)}
+        \pgfmathsetmacro{\roscx}{(2.5+\dev)*cos(\ang) - 0.05}
+        \pgfmathsetmacro{\roscy}{(2.25+\dev)*sin(\ang)}
+        \draw[red!55, thin, <->, >=latex]
+            (\rmeanx, \rmeany) -- (\roscx, \roscy);
+    }
+
+    % Legend (above orbit)
+    \begin{scope}[shift={(-2.6, 3.0)}]
+        \draw[blue!60!black, semithick] (0,0) -- (0.55,0);
+        \node[font=\scriptsize, anchor=west] at (0.65, 0)
+            {Osculating (true path)};
+        \draw[orange!75!black, thick, densely dashed] (0,0.35) -- (0.55,0.35);
+        \node[font=\scriptsize, anchor=west] at (0.65, 0.35)
+            {Mean orbit};
+        \draw[red!55, thin, <->, >=latex] (0,0.7) -- (0.55,0.7);
+        \node[font=\scriptsize, anchor=west] at (0.65, 0.7)
+            {Short-period correction};
+    \end{scope}
+\end{scope}
+
+% =========================================================
+%  RIGHT SIDE: Element signal decomposition
+%  Three rows: osculating = mean + correction
+%  Panels are taller, axes labels darker/larger
+% =========================================================
+\begin{scope}[shift={(4.2, 0)}]
+
+    % --- Row 1: Osculating element (wiggly) ---
+    \begin{scope}[shift={(0, 2.4)}]
+        \node[font=\small\bfseries, text=blue!60!black, anchor=west]
+            at (-0.2, 1.45) {Osculating semi-major axis};
+
+        \fill[blue!3] (0,-1.2) rectangle (8.5,1.2);
+        \draw[gray!15, very thin] (0,-1.2) grid[step=0.6] (8.5,1.2);
+        \draw[->, black!40, thin] (0,0) -- (8.7,0)
+            node[below left, font=\footnotesize, text=black!50] {time};
+        \draw[->, black!40, thin] (0,-1.3) -- (0,1.4);
+
+        \draw[blue!60!black, semithick, smooth]
+            plot[domain=0:8.3, samples=120]
+            (\x, {1.0*sin(deg(3.7*\x))});
+
+        \node[font=\footnotesize, text=black!55, rotate=90, anchor=south]
+            at (-0.4, 0) {$a$ [km]};
+    \end{scope}
+
+    % --- Row 2: Mean element (flat) + Correction (periodic) ---
+    % Mean (left sub-panel)
+    \begin{scope}[shift={(0, -0.8)}]
+        \node[font=\small\bfseries, text=orange!70!black, anchor=west]
+            at (-0.2, 1.65) {Mean (propagate)};
+
+        \fill[orange!3] (0,-1.2) rectangle (3.8,1.2);
+        \draw[gray!15, very thin] (0,-1.2) grid[step=0.6] (3.8,1.2);
+        \draw[->, black!40, thin] (0,0) -- (3.9,0);
+        \draw[->, black!40, thin] (0,-1.3) -- (0,1.4);
+
+        \draw[orange!75!black, thick, densely dashed]
+            (0, 0.02) -- (3.7, 0.05);
+
+        \node[font=\footnotesize, text=black!55, rotate=90, anchor=south]
+            at (-0.4, 0) {$\bar{a}$ [km]};
+    \end{scope}
+
+    % Plus sign
+    \node[font=\Large\bfseries, text=black!30] at (4.35, -1.7) {$+$};
+
+    % Correction (right sub-panel)
+    \begin{scope}[shift={(5.0, -0.8)}]
+        \node[font=\small\bfseries, text=green!50!black, anchor=west]
+            at (-0.2, 1.65) {Correction (algebraic)};
+
+        \fill[green!3] (0,-1.2) rectangle (3.5,1.2);
+        \draw[gray!15, very thin] (0,-1.2) grid[step=0.6] (3.5,1.2);
+        \draw[->, black!40, thin] (0,0) -- (3.6,0);
+        \draw[->, black!40, thin] (0,-1.3) -- (0,1.4);
+
+        \draw[green!55!black, semithick, smooth]
+            plot[domain=0:3.4, samples=80]
+            (\x, {1.0*sin(deg(3.7*\x))});
+
+        \node[font=\footnotesize, text=black!55, rotate=90, anchor=south]
+            at (-0.4, 0) {$\delta a$ [km]};
+    \end{scope}
+
+\end{scope}
+
+\end{tikzpicture}%
+}
+\caption{Decomposition of an osculating orbit into mean elements and a
+periodic short-period correction.
+\emph{Left}: the true path oscillates around a smooth mean ellipse; red
+arrows mark the radial deviation.
+\emph{Right}: the osculating semi-major axis (top) equals a nearly constant
+mean (bottom-left) plus a periodic correction (bottom-right).}
+\label{fig:analytical_pipeline}
+\end{figure}
