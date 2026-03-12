@@ -4,6 +4,8 @@
 \usepackage{amsmath,amssymb,bm}
 \usepackage{booktabs}
 \usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, calc, decorations.pathreplacing}
 \usepackage{hyperref}
 
 \hypersetup{
@@ -1158,6 +1160,50 @@ With these optimizations, the one-time symbolic generation of all
 $J_2$--$J_5$ short-period kernels (5 variables $\times$ 4 zonal degrees)
 completes in approximately 80 minutes of CPU time on a single core.
 
+\paragraph{Why 80 minutes?}
+The dominant cost is not the number of terms in the forcing series---which
+grows only linearly with zonal degree $n$---but the \emph{size and
+complexity of the rational coefficients} that the symbolic algebra engine
+must manipulate at each step.  Each forcing term carries a coefficient that
+is a rational function of $q$ (eccentricity) and $Q$ (inclination),
+arising from the product of a degree-$n$ Legendre polynomial, an
+$(n+1)$-th power of $a/r$, and the Jacobian $dM/dF$.
+Table~\ref{tab:symbolic_complexity} shows how this compounds.
+
+\begin{table}[ht]
+\centering
+\caption{Scaling of symbolic computation with zonal degree.  ``Forcing
+terms'' is the number of $(m, k)$ monomials in the Laurent polynomial
+before residue integration.  ``Result size'' is the total character count
+of the final closed-form short-period expressions for all five state
+variables at that degree.}
+\label{tab:symbolic_complexity}
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Degree & Forcing terms & Result size [KB] & Generation time \\
+\midrule
+$J_2$ & 14--21 & 18 & seconds \\
+$J_3$ & 32--36 & 79 & $\sim$1 min \\
+$J_4$ & 44--55 & 206 & $\sim$15 min \\
+$J_5$ & 72--78 & 510 & $\sim$60 min \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The near-tripling of result size per degree is the key: each integration
+step requires SymPy to add rational functions, which involves computing
+greatest common divisors (GCDs) of multivariate polynomials in $q$ and $Q$
+whose degrees grow with $n$.  Polynomial GCD is superlinear in the degree
+of its inputs, and since the inputs themselves grow with each successive
+simplification, the cost compounds multiplicatively across the
+$\sim$70 terms at $J_5$.  The 80-minute total is thus not a
+limitation of the algorithm but an inherent consequence of exact symbolic
+arithmetic on expressions of this size.  Crucially, this cost is paid
+\emph{once}: the results are serialized to a cache file and all subsequent
+propagations load the pre-computed expressions in under 5 seconds
+(Section~\ref{sec:operational}).
+
 \section{Operational Structure of the Analytical Theory}
 \label{sec:operational}
 
@@ -1198,7 +1244,12 @@ formulas. The present theory is analytical in the same sense.
 \subsection{Runtime procedure}
 
 The complete analytical propagation cycle consists of three steps, each of
-which involves only the evaluation of closed-form expressions:
+which involves only the evaluation of closed-form expressions.
+Figure~\ref{fig:analytical_pipeline} illustrates the pipeline schematically,
+and Figure~\ref{fig:pipeline_data} shows the decomposition applied to a
+representative LEO orbit.
+
+\input{analytical_pipeline_schematic}
 
 \paragraph{Step 1: Osculating-to-mean conversion (initialization).}
 Given an osculating GEqOE state
@@ -1262,6 +1313,18 @@ to Cartesian position and velocity via the standard GEqOE-to-Cartesian
 map~\cite{bau2021}. (In Ba\`u's original $L$-based formulation, this
 conversion requires solving the generalized Kepler equation for $K$; in the
 present $K$-based formulation, $K$ is already available.)
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{figures/analytical_pipeline.png}
+\caption{Osculating vs.\ mean orbital elements for a 500\,km LEO orbit
+($a = 6878$\,km, $e = 0.001$, $i = 51.6^\circ$) over five revolutions.
+The osculating elements (blue) oscillate once per orbit due to the
+$J_2$--$J_5$ zonal perturbation; the mean elements (dashed orange) are
+constant or nearly so. The shaded region is the short-period correction
+that the analytical theory removes and later restores.}
+\label{fig:pipeline_data}
+\end{figure}
 
 \subsection{Comparison with semi-analytical methods}
 
