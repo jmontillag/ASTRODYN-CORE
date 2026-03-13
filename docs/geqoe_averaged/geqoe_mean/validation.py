@@ -3,12 +3,23 @@
 from __future__ import annotations
 
 import numpy as np
+from scipy.integrate import solve_ivp
 
 from .constants import MU, RE
 from .short_period import (
     evaluate_truncated_mean_rhs_pqm,
     isolated_short_period_expressions_for,
 )
+
+# Stage C: heyoka cfunc fast path
+try:
+    from .heyoka_compiled import (
+        rk4_integrate_mean_compiled as _rk4_cfunc,
+        adaptive_integrate_mean_compiled as _adaptive_cfunc,
+    )
+    _USE_CFUNC = True
+except ImportError:
+    _USE_CFUNC = False
 
 
 def ensure_symbolic_cache(j_coeffs: dict[int, float]) -> None:
@@ -18,27 +29,58 @@ def ensure_symbolic_cache(j_coeffs: dict[int, float]) -> None:
             isolated_short_period_expressions_for(var, n)
 
 
-def rk4_integrate_mean(
+def integrate_mean(
     state0: np.ndarray,
     t_eval: np.ndarray,
     j_coeffs: dict[int, float],
     re_val: float = RE,
     mu_val: float = MU,
+    method: str = "auto",
     substeps: int = 8,
+    rtol: float = 1e-12,
+    atol: float = 1e-12,
 ) -> np.ndarray:
-    """RK4 integration of the mean GEqOE slow flow.
+    """Integrate the mean GEqOE slow flow.
 
     Parameters
     ----------
     state0 : [nu, p1, p2, M, q1, q2] mean state
     t_eval : time grid [s]
     j_coeffs : {degree: Jn_value}
-    substeps : RK4 substeps per interval
+    method : "auto" (default), "adaptive", or "rk4"
+        "auto" uses adaptive DOP853 with cfunc when available, else rk4 cfunc,
+        else Python RK4 fallback.
+    substeps : RK4 substeps per interval (only for method="rk4")
+    rtol, atol : tolerances (only for method="adaptive")
 
     Returns
     -------
     states : (N, 6) array of mean states at each time
     """
+    has_cfunc = _USE_CFUNC and set(j_coeffs.keys()) == {2, 3, 4, 5}
+
+    if method == "auto":
+        if has_cfunc:
+            return _adaptive_cfunc(state0, t_eval, j_coeffs,
+                                   re_val=re_val, mu_val=mu_val,
+                                   rtol=rtol, atol=atol)
+        # fall through to Python RK4
+
+    elif method == "adaptive":
+        if not has_cfunc:
+            raise RuntimeError("Adaptive integrator requires heyoka cfunc "
+                               "and j_coeffs keys {2,3,4,5}")
+        return _adaptive_cfunc(state0, t_eval, j_coeffs,
+                               re_val=re_val, mu_val=mu_val,
+                               rtol=rtol, atol=atol)
+
+    elif method == "rk4":
+        if has_cfunc:
+            return _rk4_cfunc(state0, t_eval, j_coeffs,
+                              re_val=re_val, mu_val=mu_val, substeps=substeps)
+        # fall through to Python RK4
+
+    # Python RK4 fallback
     out = np.empty((len(t_eval), 6))
     out[0] = state0
     y = state0.copy()
@@ -53,6 +95,10 @@ def rk4_integrate_mean(
             y[0] = state0[0]  # nu is constant at first order
         out[i + 1] = y
     return out
+
+
+# Backwards-compatible alias
+rk4_integrate_mean = integrate_mean
 
 
 def relative_rms(a: np.ndarray, b: np.ndarray) -> float:

@@ -56,8 +56,10 @@ from geqoe_mean.short_period import (
     evaluate_truncated_mean_rhs_pqm,
     isolated_short_period_expressions_for,
     mean_to_osculating_state,
+    mean_to_osculating_state_batch,
     osculating_to_mean_state,
 )
+from geqoe_mean.batch_conversions import geqoe2cart_zonal_batch
 from geqoe_mean.validation import (
     compute_position_errors as compute_errors,
     ensure_symbolic_cache as _ensure_symbolic_cache,
@@ -138,9 +140,8 @@ def run_geqoe_meansp(case, r0, v0, pert, t_grid):
     state0_osc = cart2geqoe(r0, v0, MU, pert)
     mean0 = osculating_to_mean_state(state0_osc, J_COEFFS, re_val=RE, mu_val=MU)
     mean_hist = rk4_integrate_mean(mean0, t_grid, J_COEFFS, substeps=case.rk4_substeps)
-    osc_rec = np.array([
-        mean_to_osculating_state(s, J_COEFFS, re_val=RE, mu_val=MU) for s in mean_hist])
-    positions = np.array([geqoe2cart(s, MU, pert)[0] for s in osc_rec])
+    osc_rec = mean_to_osculating_state_batch(mean_hist, J_COEFFS, re_val=RE, mu_val=MU)
+    positions, _ = geqoe2cart_zonal_batch(osc_rec, MU, pert)
     return positions, mean_hist
 
 
@@ -245,32 +246,101 @@ def run_brouwer(case, t_grid, orbit=None, epoch=None, frame=None):
 
 
 # --------------------------------------------------------------------------- #
+#  Custom zonal harmonics provider (matched constants)
+# --------------------------------------------------------------------------- #
+
+_CUSTOM_PROVIDER = None
+
+def _get_matched_zonal_provider():
+    """Return an UnnormalizedSphericalHarmonicsProvider using our exact J2-J5.
+
+    This ensures DSST uses the same gravity constants as GEqOE, Cowell, and
+    Brouwer, eliminating the ~0.1% EGM2008 mismatch.
+    """
+    global _CUSTOM_PROVIDER
+    if _CUSTOM_PROVIDER is not None:
+        return _CUSTOM_PROVIDER
+
+    from org.orekit.forces.gravity.potential import (
+        PythonUnnormalizedSphericalHarmonicsProvider,
+        PythonUnnormalizedSphericalHarmonics,
+        TideSystem,
+    )
+    from org.orekit.time import AbsoluteDate
+
+    j_map = {2: J2, 3: J3, 4: J4, 5: J5}
+    mu_m3s2 = MU * 1e9   # km^3/s^2 -> m^3/s^2
+    re_m = RE * 1e3       # km -> m
+
+    class _FixedZonalHarmonics(PythonUnnormalizedSphericalHarmonics):
+        def __init__(self, date):
+            super().__init__()
+            self._date = date
+
+        def getDate(self):
+            return self._date
+
+        def getUnnormalizedCnm(self, n, m):
+            if m != 0:
+                return 0.0
+            return -j_map.get(n, 0.0)      # C_{n,0} = -J_n
+
+        def getUnnormalizedSnm(self, n, m):
+            return 0.0
+
+    class _FixedZonalProvider(PythonUnnormalizedSphericalHarmonicsProvider):
+        def getAe(self):             return re_m
+        def getMu(self):             return mu_m3s2
+        def getMaxDegree(self):      return 5
+        def getMaxOrder(self):       return 0
+        def getReferenceDate(self):  return AbsoluteDate.J2000_EPOCH
+        def getTideSystem(self):     return TideSystem.UNKNOWN
+        def onDate(self, date):      return _FixedZonalHarmonics(date)
+        def getUnnormalizedC20(self, date):  return -j_map[2]
+
+    _CUSTOM_PROVIDER = _FixedZonalProvider()
+    return _CUSTOM_PROVIDER
+
+
+# --------------------------------------------------------------------------- #
 #  DSST propagation
 # --------------------------------------------------------------------------- #
 
 def _build_dsst_propagator(orbit, state_type="OSCULATING"):
-    """Build a DSST (zonal-only J2-J5) propagator via astrodyn_core API."""
-    from astrodyn_core import (
-        AstrodynClient, BuildContext, GravitySpec,
-        IntegratorSpec, PropagatorKind, PropagatorSpec, SpacecraftSpec,
-    )
+    """Build a DSST (zonal-only J2-J5) propagator with matched constants.
 
-    app = AstrodynClient()
-    dsst_spec = PropagatorSpec(
-        kind=PropagatorKind.DSST,
-        spacecraft=SpacecraftSpec(mass=1.0),
-        integrator=IntegratorSpec(
-            kind="dp853",
-            min_step=1e-3,
-            max_step=300.0,
-            position_tolerance=1e-6,
-        ),
-        dsst_propagation_type="MEAN",
-        dsst_state_type=state_type,
-        force_specs=[GravitySpec(degree=5, order=0)],
+    Uses our exact J2-J5 values (not Orekit EGM2008) so that DSST, GEqOE,
+    Cowell, and Brouwer all share the same gravity model.  Includes the
+    DSSTJ2SquaredClosedForm second-order correction (Zeis model).
+    """
+    from org.orekit.propagation.semianalytical.dsst.forces import (
+        DSSTZonal, DSSTJ2SquaredClosedForm, ZeisModel,
     )
-    ctx = BuildContext(initial_orbit=orbit)
-    builder = app.propagation.build_builder(dsst_spec, ctx)
+    from org.orekit.propagation.conversion import (
+        DSSTPropagatorBuilder, DormandPrince853IntegratorBuilder,
+    )
+    from org.orekit.propagation import PropagationType
+
+    provider = _get_matched_zonal_provider()
+
+    dsst_zonal = DSSTZonal(provider)
+    j2_sq = DSSTJ2SquaredClosedForm(ZeisModel(), provider)
+
+    integrator_builder = DormandPrince853IntegratorBuilder(
+        float(1e-3), float(300.0), float(1e-6))
+
+    prop_type = PropagationType.MEAN
+    state_type_enum = (PropagationType.OSCULATING if state_type == "OSCULATING"
+                       else PropagationType.MEAN)
+
+    builder = DSSTPropagatorBuilder(
+        orbit, integrator_builder, float(10.0),
+        prop_type, state_type_enum,
+    )
+    builder.setMass(1.0)
+    builder.addForceModel(dsst_zonal)
+    builder.addForceModel(j2_sq)
+
     return builder.buildPropagator(builder.getSelectedNormalizedParameters())
 
 
@@ -300,27 +370,27 @@ def run_dsst_zonal_mean(orbit, epoch, frame, t_grid):
 def run_dsst_zonal_high_ecc(orbit, epoch, frame, t_grid, max_ecc_pow=6):
     """DSST zonal with elevated maxEccPowShortPeriodics for high-e orbits.
 
-    Manually constructs DSSTZonal with explicit eccentricity power control
-    to test convergence of DSST's truncated Fourier series.
+    Uses the same matched constants as _build_dsst_propagator, with explicit
+    eccentricity power control to test convergence of DSST's truncated
+    Fourier series.
     """
-    from org.orekit.forces.gravity.potential import GravityFieldFactory
-    from org.orekit.propagation.semianalytical.dsst.forces import DSSTZonal
+    from org.orekit.propagation.semianalytical.dsst.forces import (
+        DSSTZonal, DSSTJ2SquaredClosedForm, ZeisModel,
+    )
     from org.orekit.propagation.conversion import (
         DSSTPropagatorBuilder, DormandPrince853IntegratorBuilder,
     )
     from org.orekit.propagation import PropagationType
-    from astrodyn_core.orekit_env import get_earth_shape
 
-    provider = GravityFieldFactory.getUnnormalizedProvider(5, 0)
-    earth_shape = get_earth_shape()
-    body_frame = earth_shape.getBodyFrame()
+    provider = _get_matched_zonal_provider()
 
     dsst_zonal = DSSTZonal(
-        body_frame, provider,
+        provider,
         int(5),            # maxDegreeShortPeriodics
         int(max_ecc_pow),  # maxEccPowShortPeriodics
         int(11),           # maxFrequencyShortPeriodics = 2*5+1
     )
+    j2_sq = DSSTJ2SquaredClosedForm(ZeisModel(), provider)
 
     integrator_builder = DormandPrince853IntegratorBuilder(
         float(1e-3), float(300.0), float(1e-6))
@@ -334,6 +404,7 @@ def run_dsst_zonal_high_ecc(orbit, epoch, frame, t_grid, max_ecc_pow=6):
     )
     builder.setMass(1.0)
     builder.addForceModel(dsst_zonal)
+    builder.addForceModel(j2_sq)
 
     propagator = builder.buildPropagator(builder.getSelectedNormalizedParameters())
     return _propagate_orekit_grid(propagator, epoch, frame, t_grid)
@@ -399,7 +470,7 @@ def run_single_case(case):
         ta_geqoe, _ = build_state_integrator(pert, state0_geqoe, tol=1e-15,
                                               compact_mode=True)
         osc_geqoe = propagate_grid(ta_geqoe, t_grid)
-        geqoe_cart = np.array([geqoe2cart(s, MU, pert)[0] for s in osc_geqoe])
+        geqoe_cart, _ = geqoe2cart_zonal_batch(osc_geqoe, MU, pert)
         cross = compute_errors(truth_cart, geqoe_cart, "GEqOE-Taylor")
         result["geqoe_taylor_vs_cowell"] = cross
         result["geqoe_taylor_time"] = time.time() - t0
@@ -421,11 +492,10 @@ def run_single_case(case):
         mean_hist = rk4_integrate_mean(mean0, t_grid, J_COEFFS, substeps=case.rk4_substeps)
         mean_prop_time = time.time() - t0_mean
 
-        # Short-period reconstruction + geqoe2cart
+        # Short-period reconstruction + geqoe2cart (vectorized)
         t0_sp = time.time()
-        osc_rec = np.array([
-            mean_to_osculating_state(s, J_COEFFS, re_val=RE, mu_val=MU) for s in mean_hist])
-        meansp_cart = np.array([geqoe2cart(s, MU, pert)[0] for s in osc_rec])
+        osc_rec = mean_to_osculating_state_batch(mean_hist, J_COEFFS, re_val=RE, mu_val=MU)
+        meansp_cart, _ = geqoe2cart_zonal_batch(osc_rec, MU, pert)
         sp_time = time.time() - t0_sp
 
         result["meansp_time"] = mean_prop_time + sp_time
@@ -438,7 +508,7 @@ def run_single_case(case):
 
         # --- 3b. GEqOE mean-only (no short-period map) ---
         t0_mo = time.time()
-        geqoe_mean_cart = np.array([geqoe2cart(s, MU, pert)[0] for s in mean_hist])
+        geqoe_mean_cart, _ = geqoe2cart_zonal_batch(mean_hist, MU, pert)
         mo_time = time.time() - t0_mo
         result["geqoe_mean_only_time"] = mean_prop_time + mo_time
         err_geqoe_mean = compute_errors(truth_cart, geqoe_mean_cart, "GEqOE-mean-only")
@@ -566,8 +636,8 @@ def write_osculating_table(results, out_path):
     lines.append(r"\begin{table}[ht]")
     lines.append(r"\centering")
     lines.append(r"\caption{Osculating position RMS error [km] against Cowell truth")
-    lines.append(r"($J_2$--$J_5$ zonal, identical constants for GEqOE/Brouwer;")
-    lines.append(r"Orekit EGM2008 for DSST). ``pos'': 3D position; ``rad'': radial.}")
+    lines.append(r"($J_2$--$J_5$ zonal, identical constants for all methods).")
+    lines.append(r"``pos'': 3D position; ``rad'': radial.}")
     lines.append(r"\label{tab:dsst_osculating}")
     lines.append(r"\small")
     lines.append(r"\begin{tabular}{@{}lrrrr" + "rr" * 3 + r"@{}}")

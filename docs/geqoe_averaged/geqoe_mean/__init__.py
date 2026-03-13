@@ -23,10 +23,18 @@ from .symbolic import (
 from .short_period import (
     evaluate_truncated_mean_rhs_pqm,
     evaluate_truncated_short_period,
+    evaluate_truncated_short_period_batch,
     isolated_short_period_expressions_for,
     mean_to_osculating_state,
+    mean_to_osculating_state_batch,
     osculating_to_mean_state,
 )
+
+# Batch conversions (vectorized geqoe2cart for zonal models)
+from .batch_conversions import geqoe2cart_zonal_batch
+
+# Validation / integration
+from .validation import integrate_mean, rk4_integrate_mean
 
 # Frozen-state numerical averaging
 from .fourier_model import avg_slow_drift, fit_total_order_model, frozen_state
@@ -54,9 +62,16 @@ __all__ = [
     # short period
     "evaluate_truncated_mean_rhs_pqm",
     "evaluate_truncated_short_period",
+    "evaluate_truncated_short_period_batch",
     "isolated_short_period_expressions_for",
     "mean_to_osculating_state",
+    "mean_to_osculating_state_batch",
     "osculating_to_mean_state",
+    # batch conversions
+    "geqoe2cart_zonal_batch",
+    # integration
+    "integrate_mean",
+    "rk4_integrate_mean",
     # fourier
     "avg_slow_drift",
     "fit_total_order_model",

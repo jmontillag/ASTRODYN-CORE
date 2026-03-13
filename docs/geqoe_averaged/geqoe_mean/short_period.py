@@ -39,12 +39,21 @@ DOC_DIR = PKG_DIR.parent
 OUT_TEX = DOC_DIR / "zonal_short_period_general.tex"
 GENERATED_DATA = PKG_DIR / "generated_coefficients.py"
 
+import math as _math
+
 from astrodyn_core.geqoe_taylor import MU, RE
 from astrodyn_core.geqoe_taylor.utils import K_to_L, solve_kepler_gen
 
 from sympy.integrals.rationaltools import ratint
 
 from .symbolic import q_from_g
+
+# Stage B: CSE-optimized fast path for mean RHS
+try:
+    from .hardcoded_rates import mean_rates_cse as _mean_rates_cse
+    _USE_HARDCODED = True
+except ImportError:
+    _USE_HARDCODED = False
 
 try:
     from .generated_coefficients import MEAN_DATA as _MEAN_DATA_STR, SHORT_DATA as _SHORT_DATA_STR
@@ -556,12 +565,71 @@ def evaluate_truncated_short_period(
     return totals
 
 
+def _fast_mean_rhs_pqm(
+    state_pqm: np.ndarray,
+    j_coeffs: dict[int, float],
+    re_val: float,
+    mu_val: float,
+) -> np.ndarray:
+    """CSE-optimized mean RHS using pure Python math (no numpy overhead)."""
+    nu_val = float(state_pqm[0])
+    p1_val = float(state_pqm[1])
+    p2_val = float(state_pqm[2])
+    q1_val = float(state_pqm[4])
+    q2_val = float(state_pqm[5])
+
+    g_val = _math.hypot(p1_val, p2_val)
+    Q_val = _math.hypot(q1_val, q2_val)
+    Psi_val = _math.atan2(p1_val, p2_val)
+    Omega_val = _math.atan2(q1_val, q2_val)
+    omega_val = Psi_val - Omega_val
+
+    # q from g: q = g / (1 + sqrt(1 - g^2))
+    beta_val = _math.sqrt(max(1.0 - g_val * g_val, 0.0))
+    q_val = g_val / (1.0 + beta_val)
+
+    # Scale factors: Jn * (Re/a)^n
+    a_val = (mu_val / (nu_val * nu_val)) ** (1.0 / 3.0)
+    ra = re_val / a_val
+    ra2 = ra * ra
+    s2 = j_coeffs[2] * ra2
+    s3 = j_coeffs[3] * ra2 * ra
+    s4 = j_coeffs[4] * ra2 * ra2
+    s5 = j_coeffs[5] * ra2 * ra2 * ra
+
+    g_dot, Q_dot, Psi_dot, Omega_dot, M_dot = _mean_rates_cse(
+        q_val, Q_val, omega_val, s2, s3, s4, s5)
+
+    # Scale by nu (CSE returns dimensionless rates)
+    g_dot *= nu_val
+    Q_dot *= nu_val
+    Psi_dot *= nu_val
+    Omega_dot *= nu_val
+    M_dot *= nu_val
+
+    sinPsi = _math.sin(Psi_val)
+    cosPsi = _math.cos(Psi_val)
+    sinOmega = _math.sin(Omega_val)
+    cosOmega = _math.cos(Omega_val)
+
+    p1_dot = g_dot * sinPsi + g_val * cosPsi * Psi_dot
+    p2_dot = g_dot * cosPsi - g_val * sinPsi * Psi_dot
+    q1_dot = Q_dot * sinOmega + Q_val * cosOmega * Omega_dot
+    q2_dot = Q_dot * cosOmega - Q_val * sinOmega * Omega_dot
+
+    return np.array([0.0, p1_dot, p2_dot, nu_val + M_dot, q1_dot, q2_dot])
+
+
 def evaluate_truncated_mean_rhs_pqm(
     state_pqm: np.ndarray,
     j_coeffs: dict[int, float],
     re_val: float = RE,
     mu_val: float = MU,
 ) -> np.ndarray:
+    # Fast path: CSE-optimized when all 4 zonal degrees are present
+    if _USE_HARDCODED and set(j_coeffs.keys()) == {2, 3, 4, 5}:
+        return _fast_mean_rhs_pqm(state_pqm, j_coeffs, re_val, mu_val)
+
     nu_val, p1_val, p2_val, M_val, q1_val, q2_val = map(float, state_pqm)
     g_val = float(np.hypot(p1_val, p2_val))
     Q_val = float(np.hypot(q1_val, q2_val))
@@ -674,6 +742,116 @@ def mean_to_osculating_state(
     K_osc = float(solve_kepler_gen(L_osc, p1_osc, p2_osc))
 
     return np.array([nu_val, p1_osc, p2_osc, K_osc, q1_osc, q2_osc], dtype=float)
+
+
+# --------------------------------------------------------------------------- #
+#  Vectorized (batch) evaluators — Stage A performance optimization
+# --------------------------------------------------------------------------- #
+
+
+def _q_from_g_arr(g_arr: np.ndarray) -> np.ndarray:
+    """Vectorized q_from_g: q = g / (1 + sqrt(1 - g^2))."""
+    beta = np.sqrt(np.maximum(1.0 - g_arr * g_arr, 0.0))
+    return g_arr / (1.0 + beta)
+
+
+def _complex_f_from_g_arr(g_arr: np.ndarray, G_arr: np.ndarray) -> np.ndarray:
+    """Vectorized F = (z - q) / (1 - q*z) where z = exp(i*G)."""
+    q_arr = _q_from_g_arr(g_arr)
+    z_arr = np.exp(1j * G_arr)
+    return (z_arr - q_arr) / (1.0 - q_arr * z_arr)
+
+
+def evaluate_truncated_short_period_batch(
+    nu_arr: np.ndarray,
+    g_arr: np.ndarray,
+    Q_arr: np.ndarray,
+    G_arr: np.ndarray,
+    omega_arr: np.ndarray,
+    j_coeffs: dict[int, float],
+    re_val: float = RE,
+    mu_val: float = MU,
+) -> dict[str, np.ndarray]:
+    """Vectorized short-period evaluation over N states.
+
+    All input arrays have shape (N,).  Returns dict of (N,) correction arrays.
+    The lambdified functions (created with ``sp.lambdify(..., "numpy")``) already
+    accept numpy arrays, so each inner call processes the whole batch at once.
+    """
+    N = len(nu_arr)
+    results = {f"d{v}": np.zeros(N) for v in ("g", "Q", "Psi", "Omega", "M")}
+
+    q_arr = _q_from_g_arr(g_arr)
+    F_arr = _complex_f_from_g_arr(g_arr, G_arr)
+    w_arr = np.exp(1j * omega_arr)
+    a_arr = (mu_val / (nu_arr * nu_arr)) ** (1.0 / 3.0)
+
+    for n, jn_val in sorted(j_coeffs.items()):
+        scale_arr = jn_val * (re_val / a_arr) ** n
+        coeffs = _lambdified_short_period_expressions(n)
+
+        for variable in ("g", "Q", "Psi", "Omega", "M"):
+            total = np.zeros(N, dtype=complex)
+            for m_val, func in coeffs[variable].items():
+                total += func(q_arr, Q_arr, F_arr) * (w_arr ** m_val)
+            results[f"d{variable}"] += scale_arr * total.real
+
+    return results
+
+
+def mean_to_osculating_state_batch(
+    mean_states: np.ndarray,
+    j_coeffs: dict[int, float],
+    re_val: float = RE,
+    mu_val: float = MU,
+) -> np.ndarray:
+    """Vectorized mean -> osculating transformation for N states.
+
+    Parameters
+    ----------
+    mean_states : (N, 6) array of [nu, p1, p2, M, q1, q2]
+    j_coeffs : {degree: Jn_value}
+
+    Returns
+    -------
+    (N, 6) array of osculating [nu, p1, p2, K, q1, q2]
+    """
+    nu_arr = mean_states[:, 0]
+    p1_arr = mean_states[:, 1]
+    p2_arr = mean_states[:, 2]
+    M_arr = mean_states[:, 3]
+    q1_arr = mean_states[:, 4]
+    q2_arr = mean_states[:, 5]
+
+    g_arr = np.hypot(p1_arr, p2_arr)
+    Q_arr = np.hypot(q1_arr, q2_arr)
+    Psi_arr = np.arctan2(p1_arr, p2_arr)
+    Omega_arr = np.arctan2(q1_arr, q2_arr)
+    omega_arr = Psi_arr - Omega_arr
+
+    L_mean = Psi_arr + M_arr
+    K_mean = solve_kepler_gen(L_mean, p1_arr, p2_arr)
+    G_mean = K_mean - Psi_arr
+
+    corr = evaluate_truncated_short_period_batch(
+        nu_arr, g_arr, Q_arr, G_mean, omega_arr,
+        j_coeffs, re_val, mu_val,
+    )
+
+    g_osc = g_arr + corr["dg"]
+    Psi_osc = Psi_arr + corr["dPsi"]
+    Q_osc = Q_arr + corr["dQ"]
+    Omega_osc = Omega_arr + corr["dOmega"]
+    M_osc = M_arr + corr["dM"]
+
+    p1_osc = g_osc * np.sin(Psi_osc)
+    p2_osc = g_osc * np.cos(Psi_osc)
+    q1_osc = Q_osc * np.sin(Omega_osc)
+    q2_osc = Q_osc * np.cos(Omega_osc)
+    L_osc = Psi_osc + M_osc
+    K_osc = solve_kepler_gen(L_osc, p1_osc, p2_osc)
+
+    return np.column_stack([nu_arr, p1_osc, p2_osc, K_osc, q1_osc, q2_osc])
 
 
 def _latex(expr: sp.Expr) -> str:

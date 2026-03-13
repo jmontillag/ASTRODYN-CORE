@@ -1,0 +1,513 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+\newcommand{\eps}{\varepsilon}
+\newcommand{\mean}[1]{\langle #1 \rangle}
+\newcommand{\master}{geqoe\_averaged\_zonal\_theory}
+\newcommand{\secondorder}{geqoe\_averaged\_second\_order}
+\newcommand{\tesseral}{geqoe\_tesseral\_thirdbody\_extension}
+
+\title{Second-Order Tesseral Theory for GEqOE:\\
+\large Resolving the Time-Angle Transcendental via
+Fourier-Taylor Decomposition}
+\author{Jose Manuel Montilla Garc\'ia}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This note addresses a specific structural obstacle identified in the
+tesseral extension plan (\texttt{\tesseral{}}): at second order in the
+tesseral perturbation parameter, the frozen-$\theta_G$ approximation used
+for first-order single-averaging breaks down, because the advance of the
+Greenwich sidereal angle during one orbital revolution introduces a
+transcendental factor $e^{-im\omega_E M(K)/n_0}$ that is not a rational
+function of the complex true anomaly $F$. This breaks the
+rational-in-$F$ structure required by the direct residue decomposition.
+
+The resolution is a hybrid symbolic-numerical approach: the transcendental
+time-angle factor is decomposed into a rapidly converging truncated
+Fourier series (Jacobi-Anger expansion) in the eccentric anomaly $K$,
+producing a finite Laurent polynomial in $z = e^{iK}$ and hence a
+rational function of $F$. The convergence is controlled by the parameter
+$x = m\omega_E g / n_0$, which is small ($x < 0.04$) for all practical
+orbits, so that $N \lesssim 10$ Fourier terms suffice for machine
+precision. The Fourier coefficients are Bessel functions $J_k(x)$,
+computable once per orbit at negligible cost.
+
+After this decomposition, the full second-order tesseral integrand
+recovers the rational-in-$F$ structure and the direct residue
+decomposition applies unchanged. The result is a hybrid theory:
+symbolic in $(q, Q)$ (from the residue algorithm) and numerical in the
+time-angle Fourier coefficients (from the Jacobi-Anger truncation).
+
+This extension targets ultra-high-precision applications where the
+$O(\eps_T^2) \sim 10^{-12}$ tesseral second-order terms become relevant,
+such as precise orbit determination for geodetic satellites or
+long-duration catalog maintenance.
+\end{abstract}
+
+\tableofcontents
+
+
+%======================================================================
+\section{The Problem}
+\label{sec:problem}
+%======================================================================
+
+\subsection{Origin of the transcendental factor}
+
+The first-order tesseral theory (\texttt{\tesseral{}}) freezes the
+Greenwich sidereal angle $\theta_G$ during the one-revolution orbital
+average. At first order, the freezing error is
+$O(\eps_T \cdot \omega_E / n_0)$, which is second-order in the combined
+perturbation counting and therefore negligible.
+
+At second order in $\eps_T$, the freezing error becomes comparable to the
+terms being captured. A rigorous $O(\eps_T^2)$ theory must account for
+the advance of $\theta_G$ during the orbital average:
+\begin{equation}
+\theta_G(t(K)) = \theta_G(t_0) + \omega_E \cdot \frac{M(K)}{n_0},
+\label{eq:theta_advance}
+\end{equation}
+where $t(K) - t_0 = M(K) / n_0$ is the time elapsed from the reference
+epoch to the point $K$ on the orbit, and $M(K) = K - g\sin K$ is the
+mean anomaly (generalized Kepler equation).
+
+The tesseral forcing at the ``unfrozen'' level therefore contains factors
+of the form
+\begin{equation}
+e^{-im\theta_G(t(K))}
+= e^{-im\theta_{G0}} \cdot e^{-im\omega_E K / n_0}
+\cdot e^{+im\omega_E g \sin K / n_0}.
+\label{eq:unfrozen_phase}
+\end{equation}
+
+The first factor is a constant (absorbed into the epoch-dependent
+coefficients). The second factor $e^{-im\omega_E K / n_0}$ is a complex
+exponential at the non-integer frequency $m\omega_E / n_0$; it is
+\emph{not} a Laurent polynomial in $z = e^{iK}$ when $m\omega_E/n_0
+\notin \mathbb{Z}$ (which is the generic non-resonant case). The third
+factor involves $e^{ix\sin K}$ with $x = m\omega_E g / n_0$, which is
+also transcendental in $K$.
+
+Together, these factors break the rational-in-$F$ structure that the
+direct residue decomposition requires.
+
+\subsection{Why this does not affect the first-order theory}
+
+At first order, the tesseral short-period correction is obtained from:
+\begin{equation}
+n_0 \frac{\partial \bm u_T}{\partial K}
+= \bm f_T(\bar{\bm z}, K, \theta_{G0})
+- \mean{\bm f_T}_K,
+\end{equation}
+with $\theta_G$ frozen at $\theta_{G0}$. The frozen forcing
+$\bm f_T(\bar{\bm z}, K, \theta_{G0})$ contains only the satellite's
+orbital-geometry dependence on $K$, which is rational in $F$. The
+transcendental factor \eqref{eq:unfrozen_phase} does not appear.
+
+At second order, the effective forcing $\bm F_2$ (cf.\ the second-order
+note, \texttt{\secondorder{}}, Eq.~17) contains products of first-order
+quantities evaluated at the ``true'' phase $\theta_G(t(K))$, which is
+where the unfrozen factor enters.
+
+
+%======================================================================
+\section{The Jacobi-Anger Resolution}
+\label{sec:jacobi_anger}
+%======================================================================
+
+\subsection{Factoring the transcendental}
+
+Rewrite \eqref{eq:unfrozen_phase} as
+\begin{equation}
+e^{-im\omega_E M(K)/n_0}
+= e^{-im\omega_E K / n_0}
+\cdot e^{+ix\sin K},
+\qquad
+x \equiv \frac{m\omega_E g}{n_0}.
+\label{eq:factored_phase}
+\end{equation}
+
+The first factor $e^{-i\alpha K}$ with $\alpha = m\omega_E/n_0$ is a
+pure complex exponential at a fixed (non-integer) frequency. It can be
+handled by absorbing it into the integration variable or by treating
+$\alpha$ as a parameter in the Fourier analysis.
+
+The second factor admits the exact \textbf{Jacobi-Anger expansion}:
+\begin{equation}
+e^{ix\sin K}
+= \sum_{k=-\infty}^{\infty} J_k(x)\, e^{ikK},
+\label{eq:jacobi_anger}
+\end{equation}
+where $J_k(x)$ is the Bessel function of the first kind of order $k$.
+
+\subsection{Rapid convergence}
+
+The Bessel functions satisfy the asymptotic bound
+\begin{equation}
+|J_k(x)| \le \frac{1}{|k|!}\left(\frac{x}{2}\right)^{|k|}
+\qquad \text{for } |k| \ge 1,
+\label{eq:bessel_bound}
+\end{equation}
+which shows that the series \eqref{eq:jacobi_anger} converges
+\emph{exponentially} in $|k|$ for any fixed $x$.
+
+The parameter $x = m\omega_E g / n_0$ is small for all practical orbits:
+\begin{center}
+\begin{tabular}{lcccl}
+\toprule
+Regime & $\omega_E / n_0$ & $g$ & $x$ ($m=2$) & $N$ for $10^{-15}$ \\
+\midrule
+LEO circular   & 0.066 & 0.001 & $1.3 \times 10^{-4}$ & 2 \\
+LEO moderate-$e$& 0.066 & 0.05  & $6.6 \times 10^{-3}$ & 3 \\
+SSO            & 0.065 & 0.001 & $1.3 \times 10^{-4}$ & 2 \\
+MEO/GPS        & 0.49  & 0.01  & $9.8 \times 10^{-3}$ & 4 \\
+HEO/Molniya   & 0.046 & 0.74  & $6.8 \times 10^{-2}$ & 5 \\
+GTO            & 0.052 & 0.73  & $7.6 \times 10^{-2}$ & 5 \\
+GEO            & 1.003 & 0.001 & $2.0 \times 10^{-3}$ & 3 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The column ``$N$ for $10^{-15}$'' gives the truncation order at which
+$|J_k(x)| < 10^{-15}$ for all $|k| > N$, using the bound
+\eqref{eq:bessel_bound}. In all cases, $N \le 5$ suffices for
+double-precision machine epsilon.
+
+\subsection{Truncated Laurent polynomial form}
+
+Truncating \eqref{eq:jacobi_anger} at order $N$ and combining with the
+first factor of \eqref{eq:factored_phase}:
+\begin{equation}
+e^{-im\omega_E M(K)/n_0}
+\approx \sum_{k=-N}^{N} J_k(x)\,
+e^{i(k - m\omega_E/n_0)K}.
+\label{eq:truncated_phase}
+\end{equation}
+
+For the purpose of the residue decomposition, the non-integer frequency
+shift $\alpha = m\omega_E / n_0$ can be handled in one of two ways:
+
+\paragraph{Option A: Absorb into the integration contour.}
+Change the averaging variable from $M$ to a shifted mean longitude
+$\tilde M = M - \alpha M = (1 - \alpha)M$. This restores integer-frequency
+exponentials but modifies the Jacobian.
+
+\paragraph{Option B: Discrete Fourier projection.}
+Instead of requiring exact periodicity in $K$, compute the Fourier
+coefficients of the full integrand (including the $e^{-i\alpha K}$ factor)
+numerically via discrete Fourier transform at $2N_{\mathrm{FFT}} + 1$
+equally spaced points in $K$. This directly produces the Laurent
+coefficients needed for the residue decomposition, bypassing the
+non-integer frequency issue entirely.
+
+\textbf{Option B is recommended} because it is fully general (works for
+any non-autonomous perturbation, not just tesserals) and the FFT cost is
+negligible ($\sim$microseconds).
+
+\subsection{Recovery of rational-in-\texorpdfstring{$F$}{F} structure}
+
+After the Fourier truncation (either option), the time-angle factor is
+represented as a finite Laurent polynomial in $z = e^{iK}$:
+\begin{equation}
+e^{-im\omega_E M(K)/n_0}
+\approx \sum_{k=-N_{\mathrm{tot}}}^{N_{\mathrm{tot}}}
+b_k\, z^k,
+\qquad
+z = e^{iK}.
+\label{eq:laurent_time_angle}
+\end{equation}
+
+Through the M\"obius map $F = (z - q)/(1 - qz)$, each monomial $z^k$ maps
+to a rational function of $F$ with poles at $F = -q$ and $F = -1/q$
+(from the denominator $(1-qz)^k$) and possibly at $F = 0$ (from
+$z^k$ for $k < 0$). The pole \emph{locations} are the same as in the
+zonal and first-order tesseral theories.
+
+Therefore, the full second-order tesseral integrand---the product of
+\eqref{eq:laurent_time_angle} with the rational-in-$F$ second-order
+effective forcing---is a rational function of $F$ with poles only at
+$F = 0$, $F = -q$, $F = -1/q$ (at higher multiplicities due to the
+products). The direct residue decomposition algorithm applies
+with the same modifications already identified in the second-order zonal
+note (higher-order pole extraction).
+
+
+%======================================================================
+\section{Hybrid Symbolic-Numerical Architecture}
+\label{sec:architecture}
+%======================================================================
+
+The resulting second-order tesseral theory has a natural two-layer
+structure:
+
+\subsection{Symbolic layer (offline, one-time)}
+
+The residue decomposition is applied to the second-order tesseral
+integrand with the time-angle Fourier coefficients $\{b_k\}$ carried as
+\emph{symbolic parameters}. The output is a set of short-period kernel
+expressions of the form
+\begin{equation}
+\bm u_{T,2}(F; q, Q, \{b_k\})
+= \sum_k b_k \cdot \bm R_k(F; q, Q),
+\end{equation}
+where each $\bm R_k$ is a rational function of $F$ with coefficients in
+$\mathbb{Q}(q, Q)$---exactly the same kind of expression produced by the
+zonal residue decomposition.
+
+The symbolic computation treats $\{b_k\}$ as free parameters and produces
+$2N_{\mathrm{tot}} + 1$ kernel functions $\bm R_k$, one per Fourier mode.
+This is a one-time cost, parallelizable over $k$.
+
+\subsection{Numerical layer (once per orbit)}
+
+For a specific orbit with parameters $(g, n_0)$:
+\begin{enumerate}
+\item Compute $x = m\omega_E g / n_0$.
+\item Evaluate the Bessel coefficients $J_k(x)$ for $|k| \le N$.
+\item Optionally, apply the FFT-based projection (Option~B) to obtain
+the full set $\{b_k\}$ including the non-integer frequency shift.
+\end{enumerate}
+
+This takes microseconds and produces the numerical values of $\{b_k\}$
+that are substituted into the symbolic expressions.
+
+\subsection{Runtime evaluation}
+
+At each output epoch, the second-order tesseral short-period correction is
+\begin{equation}
+\bm u_{T,2}(F)
+= \sum_{k=-N_{\mathrm{tot}}}^{N_{\mathrm{tot}}}
+b_k \cdot \bm R_k(F; q, Q),
+\end{equation}
+which is a weighted sum of $2N_{\mathrm{tot}} + 1$ rational function
+evaluations. Since $N_{\mathrm{tot}} \lesssim 10$, this is comparable in
+cost to evaluating $\sim$20 zonal short-period kernels---well within the
+budget of any practical propagator.
+
+
+%======================================================================
+\section{Connection to Hansen Coefficients}
+\label{sec:hansen}
+%======================================================================
+
+The Fourier decomposition of orbital quantities in the mean anomaly (or
+eccentric anomaly) is closely related to the classical Hansen coefficients
+$X_k^{n,m}(e)$, defined by
+\begin{equation}
+\left(\frac{r}{a}\right)^n e^{imf}
+= \sum_{k=-\infty}^{\infty} X_k^{n,m}(e)\, e^{ikM}.
+\end{equation}
+
+The present approach differs from the classical Hansen machinery in three
+respects:
+\begin{enumerate}
+\item The Fourier decomposition is applied to the \emph{time-angle
+correction factor} $e^{-im\omega_E M/n_0}$ specifically, not to the
+full orbital-geometry integrand. The orbital geometry is handled exactly
+by the $F$-variable residue decomposition.
+
+\item The Fourier coefficients (Bessel functions) are computed
+\emph{numerically} for the specific orbit, not expanded as power series
+in eccentricity. This avoids the slow convergence of Hansen coefficient
+series for high eccentricity.
+
+\item The hybrid approach keeps the $(q, Q)$ dependence in symbolic
+(exact rational) form and isolates the time-angle coupling into a small
+number of numerical coefficients. Classical Hansen-based theories carry
+the eccentricity dependence in the Hansen coefficients themselves,
+losing the exact symbolic structure.
+\end{enumerate}
+
+An alternative fully-symbolic route would use the Taylor expansion of the
+Bessel functions:
+\begin{equation}
+J_k(x) = \sum_{j=0}^{\infty}
+\frac{(-1)^j}{j!\,(j+k)!}\left(\frac{x}{2}\right)^{2j+k},
+\end{equation}
+with $x = m\omega_E g / n_0$, where $g$ is the GEqOE eccentricity
+parameter. Truncating at a low order in $g$ would produce polynomial
+expressions in $g$ for each $b_k$, restoring a fully symbolic theory at
+the cost of an eccentricity expansion. For low-to-moderate eccentricity,
+a handful of terms suffice; for high eccentricity, the numerical Bessel
+evaluation is preferable.
+
+
+%======================================================================
+\section{Generalization via Taylor Algebra}
+\label{sec:taylor_algebra}
+%======================================================================
+
+The Jacobi-Anger/Bessel approach is specific to the exponential of a
+sinusoidal argument. A more general framework for handling arbitrary
+smooth transcendental factors in the orbital average is provided by
+\textbf{Taylor algebra} (differential algebra, DA), as implemented in
+tools such as heyoka's jet transport or the COSY INFINITY framework.
+
+\subsection{General procedure}
+
+Given any smooth function $h(M(K))$ that is not a rational function of
+$F$:
+\begin{enumerate}
+\item \textbf{Sample}: evaluate $h(M(K_j))$ at $2N_{\mathrm{FFT}} + 1$
+equally spaced points $K_j = 2\pi j / (2N_{\mathrm{FFT}} + 1)$.
+\item \textbf{FFT}: apply the discrete Fourier transform to obtain
+Laurent coefficients $\{b_k\}_{|k| \le N_{\mathrm{FFT}}}$.
+\item \textbf{Substitute}: use $\{b_k\}$ as numerical parameters in the
+symbolic residue decomposition framework.
+\end{enumerate}
+
+This procedure works for \emph{any} smooth function of time along the
+orbit, not just the tesseral time-angle factor. Potential applications
+include:
+\begin{itemize}
+\item Atmospheric density models with complex altitude profiles
+(transcendental in $K$ through $r(K)$).
+\item Eclipse/shadow functions (non-smooth, but approximable by smooth
+cutoffs).
+\item Time-varying thrust profiles that depend on the orbital phase
+through a non-polynomial control law.
+\end{itemize}
+
+\subsection{DA-enhanced Fourier coefficients}
+
+For parametric studies where the Fourier coefficients must be known as
+functions of orbital parameters (not just at a single orbit), Taylor
+algebra provides automatic differentiation:
+\begin{enumerate}
+\item Initialize the orbital parameters $(g, Q, \omega_E/n_0, \ldots)$
+as DA variables (Taylor jets).
+\item Evaluate $h(M(K_j))$ at each sample point using DA arithmetic.
+\item Apply the FFT to the DA-valued samples.
+\item The resulting Fourier coefficients are themselves Taylor polynomials
+in the orbital parameters, valid over a neighborhood.
+\end{enumerate}
+
+This produces a ``Taylor map of the Fourier coefficients''---a polynomial
+approximation of the $b_k(g, \omega_E/n_0)$ dependence. Combined with
+the symbolic-in-$(q, Q)$ kernel functions $\bm R_k$, this yields a
+fully parametric second-order tesseral theory without ever solving the
+transcendental issue in closed symbolic form.
+
+
+%======================================================================
+\section{Practical Relevance and When This Matters}
+\label{sec:relevance}
+%======================================================================
+
+The second-order tesseral correction captures terms at
+$O(\eps_T^2) \sim J_{2,2}^2 (R_e/a)^4 \sim 10^{-12}$ for LEO. This is:
+\begin{itemize}
+\item Below the first-order zonal truncation error
+($O(\eps_Z^2) \sim 10^{-6}$) by six orders of magnitude.
+\item Below the first-order tesseral correction itself
+($O(\eps_T) \sim 10^{-6}$) by six orders of magnitude.
+\item Below the zonal-tesseral cross term
+($O(\eps_Z \eps_T) \sim 10^{-9}$) by three orders of magnitude.
+\end{itemize}
+
+Therefore, the second-order tesseral theory is only relevant when:
+\begin{enumerate}
+\item The second-order zonal theory is already implemented
+($O(\eps_Z^2)$ captured).
+\item The first-order tesseral and third-body theories are implemented
+($O(\eps_T)$, $O(\eps_{3B})$ captured).
+\item The cross-coupling layer is implemented
+($O(\eps_Z \eps_T)$, $O(\eps_Z \eps_{3B})$ captured).
+\item The application demands sub-millimeter or better analytical
+accuracy (geodetic POD, gravity field recovery, inter-satellite ranging).
+\end{enumerate}
+
+The main value of this note is therefore \emph{architectural}: it
+demonstrates that the rational-in-$F$ residue decomposition framework
+is not fundamentally limited by the time-angle transcendental, and that
+a clean resolution exists when the need arises.
+
+
+%======================================================================
+\section{Summary}
+\label{sec:summary}
+%======================================================================
+
+\begin{enumerate}
+\item The transcendental factor $e^{-im\omega_E M(K)/n_0}$ that obstructs
+a purely rational-in-$F$ second-order tesseral theory is resolved by the
+\textbf{Jacobi-Anger expansion}, which converts it to a rapidly converging
+Fourier series in $K$.
+
+\item The convergence parameter $x = m\omega_E g / n_0 < 0.08$ for all
+practical orbits ensures that $N \le 5$ Fourier terms suffice for machine
+precision.
+
+\item After Fourier truncation, the second-order tesseral integrand
+recovers the rational-in-$F$ structure and the \textbf{direct residue
+decomposition applies unchanged}.
+
+\item The resulting theory is \textbf{hybrid}: symbolic in $(q, Q)$
+and numerical in the Bessel/Fourier coefficients $\{b_k\}$. The
+numerical coefficients are computed once per orbit at negligible cost.
+
+\item \textbf{Taylor algebra} (DA) generalizes the approach to arbitrary
+smooth transcendental factors, providing automatic Fourier decomposition
+and parametric sensitivity through jet transport.
+
+\item The $O(\eps_T^2) \sim 10^{-12}$ magnitude of the second-order
+tesseral terms makes this extension relevant only for ultra-high-precision
+applications. Its primary value is demonstrating that the residue
+decomposition framework has \textbf{no fundamental ceiling}---every layer
+of the perturbation hierarchy can be captured within the same algorithmic
+structure.
+\end{enumerate}
+
+
+\begin{thebibliography}{99}
+
+\bibitem{bau2021}
+Ba\`u, G., Hernando-Ayuso, J., Bombardelli, C. (2021).
+A generalization of the equinoctial orbital elements.
+\textit{Celestial Mechanics and Dynamical Astronomy}, 133, 50.
+
+\bibitem{watson1944}
+Watson, G.\,N. (1944).
+\textit{A Treatise on the Theory of Bessel Functions}.
+2nd ed., Cambridge University Press.
+
+\bibitem{abramowitz1964}
+Abramowitz, M., Stegun, I.\,A. (1964).
+\textit{Handbook of Mathematical Functions}.
+National Bureau of Standards.
+
+\bibitem{berz1999}
+Berz, M. (1999).
+\textit{Modern Map Methods in Particle Beam Physics}.
+Academic Press.
+
+\bibitem{biscani2021}
+Biscani, F., Izzo, D. (2021).
+Revisiting high-order Taylor methods for astrodynamics and celestial
+mechanics.
+\textit{Monthly Notices of the Royal Astronomical Society}, 504(2),
+2614--2628.
+
+\bibitem{kaula1966}
+Kaula, W.\,M. (1966).
+\textit{Theory of Satellite Geodesy}.
+Blaisdell, Waltham, MA.
+
+\end{thebibliography}
+
+\end{document}

@@ -25,44 +25,27 @@
 
 \begin{abstract}
 This paper presents a complete analytical first-order theory for the
-Generalized Equinoctial Orbital Elements (GEqOE) under autonomous Earth zonal
-harmonics through $J_5$, comprising closed-form mean-element equations,
-closed-form short-period corrections, and closed-form osculating
-reconstruction. For pure $J_2$ the mean propagation is itself closed-form;
-for the general mixed-zonal model it reduces to a smooth, slowly varying ODE
-that is orders of magnitude cheaper than osculating integration.
-Three main results are established.
-First, the GEqOE state vector admits an exact first-order orbit-averaging
-operator in the generalized eccentric longitude $K$, yielding a finite
-Fourier-harmonic mean-element system in the single slow angle
-$\omega = \Psi - \Omega$. For pure $J_2$, the secular closure is especially
-simple: $\nu$, $g$, and $Q$ are constant, while the equinoctial pairs
-$(p_1,p_2)$ and $(q_1,q_2)$ undergo uniform rotations with explicit rates.
-Second, a direct residue decomposition method is developed for constructing
-the short-period kernels: by exploiting the fixed pole structure of the
-$dM/dF$ Jacobian (where $F = e^{if}$ is the complex true anomaly exponential),
-each kernel reduces to a polynomial-plus-simple-poles form that is free of
-spurious logarithmic terms and scales gracefully to high zonal degree. The
-resulting expressions are exact closed-form rational functions of $(q, Q)$,
-precomputed once by symbolic algebra; at runtime the theory requires only the
-evaluation of these algebraic formulas---no numerical quadrature, no
-interpolation, no iterative solution (except the standard Kepler equation).
-Third, the resulting analytical mean-plus-short-period model is validated
-numerically against full osculating GEqOE Taylor integration, achieving
-sub-kilometer osculating position reconstruction for low-eccentricity orbits
-and few-kilometer reconstruction for high-eccentricity ($e = 0.65$) orbits
-over 10+ orbital periods, with reconstruction errors scaling linearly with
-the zonal perturbation parameter as expected for a first-order theory.
-A controlled comparison against the Draper Semi-analytical Satellite Theory
-(DSST, as implemented in Orekit) using the same zonal-only force model
-reveals that the GEqOE theory outperforms DSST across all 12 test regimes,
-with a theoretical per-epoch cost that is orders of magnitude smaller
-(though the current Python prototype is slower than the compiled Java DSST).
-DSST achieves better secular drift accuracy (due to its $J_2^2$ correction),
-but this advantage is overwhelmed by the GEqOE theory's superior short-period
-reconstruction: the closed-form rational expressions, exact in eccentricity,
-produce 1.5--93$\times$ smaller osculating errors than DSST's
-eccentricity-truncated Fourier series.
+Generalized Equinoctial Orbital Elements (GEqOE) under autonomous Earth
+zonal harmonics through $J_5$.
+The GEqOE state vector admits exact first-order orbit averaging in the
+generalized eccentric longitude $K$, yielding a finite Fourier-harmonic
+mean-element system in the single slow angle $\omega = \Psi - \Omega$.
+A direct residue decomposition exploiting the fixed pole structure of the
+$dM/dF$ Jacobian ($F = e^{if}$) produces the short-period kernels as
+closed-form rational functions of $(q,Q)$---exact in eccentricity, free of
+logarithmic terms, and precomputed once by symbolic algebra. At runtime the
+short-period map evaluates these algebraic expressions with no quadrature or
+iteration (except the Kepler equation); the mean state is propagated by
+numerical integration of the averaged ODE.
+Validation against osculating Taylor integration achieves sub-kilometer
+position reconstruction for low-eccentricity orbits over 10+ periods, with
+errors scaling linearly in the zonal perturbation parameter.
+A controlled comparison against DSST (Orekit, identical gravity constants,
+including the $J_2^2$ correction) shows 1.7--55$\times$ better osculating
+position accuracy across all 12 test regimes: DSST's second-order secular
+advantage is overwhelmed by GEqOE's superior short-period reconstruction.
+The current prototype implementation is slower than compiled DSST; the
+accuracy advantage is structural and independent of implementation.
 \end{abstract}
 
 \section{Introduction}
@@ -148,7 +131,7 @@ extensions.
 Define the auxiliary quantities
 \begin{align}
 g^2 &= p_1^2 + p_2^2, \qquad \beta = \sqrt{1-g^2}, \qquad
-\alpha = \frac{1}{1+\beta}, \\
+\alpha = \frac{1}{1+\beta}, \label{eq:prelim_beta}\\
 a &= \left(\frac{\mu}{\nu^2}\right)^{1/3}, \\
 Q^2 &= q_1^2 + q_2^2, \qquad
 \gamma = 1 + Q^2, \qquad
@@ -208,7 +191,7 @@ with
 w &= \sqrt{\frac{\mu}{a}}, \\
 h &= \sqrt{c^2 - 2r^2 U}, \\
 d &= \frac{h-c}{r^2}, \\
-\mathcal{E}_Z &= \sum_{n\ge 2} (1-n) U_n, \\
+\mathcal{E}_Z &= \sum_{n\ge 2} (1-n) U_n, \label{eq:euler_combo}\\
 F_h &= - \frac{\delta}{\gamma r}\,\frac{\partial U}{\partial \hat z}, \\
 w_X &= \frac{X}{h}F_h, \qquad
 w_Y = \frac{Y}{h}F_h, \qquad
@@ -491,6 +474,7 @@ Using the standard first-order $J_2$ secular rate of the mean anomaly,
 + \frac{3}{4}\,\nu J_2
 \left(\frac{R_e}{a\beta^2}\right)^2
 \beta\left(3c_i^2-1\right),
+\label{eq:MdotJ2}
 \end{equation}
 one obtains
 \begin{equation}
@@ -546,14 +530,22 @@ K_{\mathrm{osc}}
 \end{align}
 with periodic short-period corrections $\bm u_1$ and $v_1$.
 
-The usual normalization is
+The gauge fixing the decomposition is
 \begin{equation}
 \frac{1}{2\pi}\int_0^{2\pi} \bm u_1(\bar{\bm z},\bar K)\,d\bar K = \bm 0,
 \qquad
-\frac{1}{2\pi}\int_0^{2\pi} v_1(\bar{\bm z},\bar K)\,d\bar K = 0,
+\frac{1}{2\pi}\int_0^{2\pi} v_1(\bar{\bm z},\bar K)\,d\bar K = 0.
 \label{eq:zero_mean_norm}
 \end{equation}
-which fixes the decomposition into mean and periodic parts.
+Note that this is the \emph{unweighted} $K$-average, not the
+orbit-averaged $\langle \cdot \rangle_K$ of \eqref{eq:avg_operator} which
+carries the weight $r/a$. At first order the distinction is a free gauge
+choice: using the unweighted average produces a different (but equally
+valid) constant $C$ in the short-period expressions, and the resulting
+mean elements differ from those of a weighted gauge by $O(\varepsilon)$
+terms that are absorbed into the $O(\varepsilon^2)$ truncation error.
+Throughout this paper, the unweighted gauge~\eqref{eq:zero_mean_norm} is
+used consistently in all short-period constructions.
 
 The inverse initialization map, used to convert osculating initial conditions
 to mean initial conditions, follows directly from
@@ -684,7 +676,8 @@ U = -\frac{A}{r^3}\left(1-3s_i^2\sin^2 u\right).
 These follow from the exact definitions \eqref{eq:p1_zonal}--\eqref{eq:q2_zonal}
 by expanding to first order in~$J_2$. In particular, $w_h$~is obtained by
 substituting $F_h = -(\delta/\gamma r)\,\partial U/\partial\hat z$,
-$\hat z = 2(Yq_2-Xq_1)/(\gamma r)$, and $h = c + O(J_2)$:
+$\hat z = 2(Yq_2-Xq_1)/(\gamma r)$, and $h = c + O(J_2)$.
+From~\eqref{eq:zhat}, $Xq_1 - Yq_2 = -\gamma r\hat z/2$, so
 \begin{equation}
 w_h
 = \frac{F_h}{h}(Xq_1 - Yq_2)
@@ -734,15 +727,18 @@ $p_1,p_2$ equations,
 \begin{equation}
 \dot\Psi = \frac{p_2 \dot p_1 - p_1 \dot p_2}{g^2},
 \end{equation}
-not by shortcut analogy. For the zonal GEqOE right-hand side this gives
+not by shortcut analogy. For the general zonal GEqOE right-hand side this
+gives
 \begin{equation}
 \dot\Psi = d - w_h + \frac{\mathcal E_Z}{c}
 \left(1 + \frac{\cos G}{g}\right),
+\label{eq:Psidot_general}
 \end{equation}
-and therefore \eqref{eq:Psidot_j2_first} for $J_2$ with
-$\mathcal E_Z = -U$. Equations \eqref{eq:Psidot_j2_first} and the above are
-algebraically consistent, confirming that the direct derivation from the
-$\dot p$ equations reproduces the expected structure.
+where $\mathcal E_Z = \sum_n (1-n) U_n$ is the Euler-homogeneity
+combination~\eqref{eq:euler_combo}. This is the general form valid for
+all zonals. Equation~\eqref{eq:Psidot_j2_first} is the $J_2$
+specialization with $\mathcal E_Z = -U_{J_2}$; for higher zonals,
+$\mathcal E_Z \neq -U$ and \eqref{eq:Psidot_general} must be used.
 
 Multiplying by
 \begin{equation}
@@ -973,11 +969,13 @@ q = \frac{g}{1+\beta} = \frac{1-\beta}{g},
 \qquad 0 \le q < 1,
 \label{eq:q_def}
 \end{equation}
+where $\beta = \sqrt{1 - g^2}$ (cf.\ \eqref{eq:prelim_beta}),
 which satisfies $q \to 0$ in the circular limit ($g \to 0$) and $q \to 1$ in
-the parabolic limit ($g \to 1$). (The eccentricity parameter~$q$ should not
-be confused with the equinoctial inclination components~$q_1, q_2$; in the
-short-period expressions of Sections~\ref{sec:complex_tav}--\ref{sec:residue},
-$q$~always denotes the eccentricity parameter.)
+the parabolic limit ($g \to 1$). (The scalar eccentricity parameter~$q$ should not
+be confused with the equinoctial inclination components~$q_1, q_2$ or with
+$Q = \sqrt{q_1^2+q_2^2}$; in the short-period expressions of
+Sections~\ref{sec:complex_tav}--\ref{sec:residue}, an unsubscripted~$q$
+always denotes the eccentricity parameter~\eqref{eq:q_def}.)
 
 The complex true anomaly $F$ is related to the eccentric anomaly exponential
 $z = e^{iG}$ by the bilinear M\"obius transformation
@@ -1114,11 +1112,11 @@ The principal parts at the double poles are extracted by evaluation:
 \begin{equation}
 B = \frac{N_{\mathrm{rem}}(-q)}{(-q)^s\,(1-q^2)^2},
 \qquad
-D_c = \frac{N_{\mathrm{rem}}(-1/q)}{(-1/q)^s\,\left(-1/q + q\right)^2}.
+\hat B = \frac{N_{\mathrm{rem}}(-1/q)}{(-1/q)^s\,\left(-1/q + q\right)^2}.
 \label{eq:double_pole_residues}
 \end{equation}
 These give the double-pole contributions to the antiderivative:
-$-B/(F+q)$ and $-D_c/(q(1+qF))$.
+$-B/(F+q)$ and $-\hat B/(q(1+qF))$.
 
 \paragraph{Step 3: Residues at $F = 0$.}
 For $s \ge 2$, the pole at $F = 0$ contributes higher-order residues.
@@ -1144,7 +1142,7 @@ u_{1,m}^v(F)
 \;-\;
 \underbrace{\frac{B}{F+q}}_{\text{pole at } -q}
 \;-\;
-\underbrace{\frac{D_c}{q(1+qF)}}_{\text{pole at } -1/q}
+\underbrace{\frac{\hat B}{q(1+qF)}}_{\text{pole at } -1/q}
 \;-\;
 \underbrace{\sum_{j=2}^{s} \frac{E_j}{(j-1)F^{j-1}}}_{\text{poles at } 0}
 \;-\; C.
@@ -1153,32 +1151,49 @@ u_{1,m}^v(F)
 
 All logarithmic terms that would arise from simple-pole residues in the
 standard rational function integration are provably absent.
-On the physical orbit, $F$ traces the closed contour $|F| = 1$ as $M$
-advances by~$2\pi$. The integrand
-$f^{(n)}_v - \langle f^{(n)}_v \rangle_M$ has zero $M$-average by
-construction, so its contour integral vanishes:
+The short-period generator $u_1(F)$ must be single-valued
+on the physical orbit $|F| = 1$, since it represents a periodic
+perturbation in~$M$. The homological equation, after the change of
+variable from $M$ to $F$, gives the integrand as
+$\bigl[f^{(n)}_v - \langle f^{(n)}_v \rangle_M\bigr]\,(dM/dF)$,
+which is a rational function of $F$ with poles at $F = 0$ (from the
+Laurent forcing), $F = -q$ (from the double pole of the $dM/dF$ Jacobian,
+inside the unit circle since $q < 1$), and $F = -1/q$ (also from $dM/dF$,
+outside the unit circle). After partial fraction decomposition, any
+simple-pole residue at $F = -q$ would produce a term
+$\alpha\log(F+q)$, which is multi-valued on~$|F|=1$ because the
+circle passes on both sides of the branch point $F = -q$.
+Since $u_1$ must be single-valued (periodic in $M$), $\alpha$ must
+vanish identically.
+
+A separate argument is needed at $F = -1/q$. A simple-pole residue
+there would produce $\beta\log(1+qF)$. However, $1+qF$ does
+\emph{not} wind around zero on $|F|=1$ for $0 \le q < 1$: the image
+circle $\{1+qe^{if}\}$ is centered at~1 with radius~$q < 1$, hence
+excludes the origin. Therefore $\log(1+qF)$ is single-valued on
+$|F|=1$, and the periodicity requirement \emph{cannot} force
+$\beta = 0$.
+
+Instead, $\beta = 0$ is verified by direct evaluation. In the partial
+fraction decomposition of Step~2, the coefficient~$\hat B$ at the
+simple pole $F = -1/q$ is computed as the residue
 \begin{equation}
-\oint_{|F|=1}
-\bigl[f^{(n)}_v - \langle f^{(n)}_v \rangle_M\bigr]\,dF = 0.
+\hat B = \lim_{F\to -1/q} (F + 1/q)\,
+\frac{R(F)}{(F+q)^2\,F^s},
+\label{eq:beta_residue}
 \end{equation}
-By the residue theorem, the sum of residues at poles inside the unit
-circle must equal zero. The integrand has poles at $F = 0$ (from the
-Laurent series) and $F = -q$ (since $|{-}q| = q < 1$); the pole at
-$F = -1/q$ lies outside the contour and does not contribute.
-The residue at $F = 0$ vanishes because the $M$-average has been subtracted
-(the $F^0$ coefficient is zero by construction).
-Therefore the residue at $F = -q$ must also vanish, so the coefficient of
-$\log(F+q)$ in the antiderivative is zero.
+where $R(F)$ is the numerator polynomial of the integrand. For each
+zonal degree $n = 2,\ldots,5$, symbolic evaluation confirms
+$\hat B = 0$. This computation is a trivial addition to Step~2
+(evaluate one rational expression at $F = -1/q$) and should be
+included for any extension to $n > 5$.
 
-For periodicity of the antiderivative, the coefficient of $\log(1+qF)$
-must vanish independently: since $\log(1+qF)$ is multi-valued on $|F|=1$,
-any nonzero coefficient would produce a non-single-valued~$u_1$,
-contradicting the required periodicity. With all simple-pole residues
-vanishing, no logarithmic terms arise in the antiderivative.
-
-The vanishing of these residues is not a coincidence but a structural
-consequence of the zero-mean normalization. It is this guarantee that
-makes the residue decomposition method well-posed for all zonal degrees.
+In summary, the vanishing of $\alpha$ is a \emph{structural}
+guarantee from the periodicity of $u_1$ on the physical orbit, while
+the vanishing of $\beta$ is an \emph{additional} property verified
+computationally at each zonal degree. Together they ensure the
+antiderivative is purely rational in~$F$, which is the foundation of
+the residue decomposition method.
 
 \paragraph{Step 5: Zero-mean gauge.}
 The constant $C$ is computed from the condition
@@ -1201,7 +1216,10 @@ $\langle u_{1,m}^v \rangle_M = 0$ using the structural formulas
 \end{align}
 These are derived by substituting $F = (z-q)/(1-qz)$ and using
 $dM = (1-g\cos G)\,dG$ to convert the $M$-average to a contour integral at
-the interior pole $z = 0$. Since the averages are real-valued,
+the interior pole $z = 0$. Since $F = e^{if}$ on the unit circle,
+$\langle F^{-k}\rangle_M = \overline{\langle F^k\rangle_M}$;
+but the $M$-average is real-valued (all coefficients
+in $dM/dF$ and the Legendre polynomials are real), so
 $\langle F^{-k}\rangle_M = \langle F^k\rangle_M$.
 The first two explicit values are
 \begin{equation}
@@ -1511,13 +1529,10 @@ the averaged degree-$n$ disturbing function has the form
 \mathcal A_{n,m}(\bar\nu,\bar g,\bar Q)\,\Phi_{n,m}(\bar\omega),
 \label{eq:Un_fourier}
 \end{equation}
-where
-\begin{equation}
-\mathcal M_n = \{m \in \mathbb N_0: m \le n,\ m \equiv n \pmod 2\}.
-\end{equation}
-The sharper bound $|m| \le n-2$, established in
-Section~\ref{sec:harmonic_bound}, applies: the harmonics $m = n$ and
-$m = n-1$ vanish identically upon averaging, so
+where, by the harmonic bound established in
+Section~\ref{sec:harmonic_bound}, the surviving harmonics satisfy
+$|m| \le n-2$ (the $m = n$ and $m = n-1$ harmonics vanish identically
+upon averaging):
 \begin{equation}
 \mathcal M_n = \{m \in \mathbb N_0: m \le n-2,\ m \equiv n \pmod 2\},
 \end{equation}
@@ -1539,23 +1554,23 @@ finite zonal truncation $N$, as
 \dot{\bar g}
 &=
 \sum_{\substack{2\le n\le N\\ n\ \mathrm{even}}}
-\sum_{\substack{2\le m\le n\\ m\ \mathrm{even}}}
+\sum_{\substack{2\le m\le n-2\\ m\ \mathrm{even}}}
 \mathcal G_{n,m}(\bar\nu,\bar g,\bar Q)\sin(m\bar\omega)
 \notag\\
 &\quad+
 \sum_{\substack{2\le n\le N\\ n\ \mathrm{odd}}}
-\sum_{\substack{1\le m\le n\\ m\ \mathrm{odd}}}
+\sum_{\substack{1\le m\le n-2\\ m\ \mathrm{odd}}}
 \widetilde{\mathcal G}_{n,m}(\bar\nu,\bar g,\bar Q)\cos(m\bar\omega),
 \label{eq:gdot_general_fourier}\\
 \dot{\bar Q}
 &=
 \sum_{\substack{2\le n\le N\\ n\ \mathrm{even}}}
-\sum_{\substack{2\le m\le n\\ m\ \mathrm{even}}}
+\sum_{\substack{2\le m\le n-2\\ m\ \mathrm{even}}}
 \mathcal Q_{n,m}(\bar\nu,\bar g,\bar Q)\sin(m\bar\omega)
 \notag\\
 &\quad+
 \sum_{\substack{2\le n\le N\\ n\ \mathrm{odd}}}
-\sum_{\substack{1\le m\le n\\ m\ \mathrm{odd}}}
+\sum_{\substack{1\le m\le n-2\\ m\ \mathrm{odd}}}
 \widetilde{\mathcal Q}_{n,m}(\bar\nu,\bar g,\bar Q)\cos(m\bar\omega),
 \label{eq:Qdot_general_fourier}\\
 \dot{\bar\Psi}
@@ -1564,13 +1579,13 @@ finite zonal truncation $N$, as
 \left[
 \mathcal P_{n,0}(\bar\nu,\bar g,\bar Q)
 +
-\sum_{\substack{2\le m\le n\\ m\ \mathrm{even}}}
+\sum_{\substack{2\le m\le n-2\\ m\ \mathrm{even}}}
 \mathcal P_{n,m}(\bar\nu,\bar g,\bar Q)\cos(m\bar\omega)
 \right]
 \notag\\
 &\quad+
 \sum_{\substack{2\le n\le N\\ n\ \mathrm{odd}}}
-\sum_{\substack{1\le m\le n\\ m\ \mathrm{odd}}}
+\sum_{\substack{1\le m\le n-2\\ m\ \mathrm{odd}}}
 \widetilde{\mathcal P}_{n,m}(\bar\nu,\bar g,\bar Q)\sin(m\bar\omega),
 \label{eq:Psidot_general_fourier}\\
 \dot{\bar\Omega}
@@ -1579,13 +1594,13 @@ finite zonal truncation $N$, as
 \left[
 \mathcal N_{n,0}(\bar\nu,\bar g,\bar Q)
 +
-\sum_{\substack{2\le m\le n\\ m\ \mathrm{even}}}
+\sum_{\substack{2\le m\le n-2\\ m\ \mathrm{even}}}
 \mathcal N_{n,m}(\bar\nu,\bar g,\bar Q)\cos(m\bar\omega)
 \right]
 \notag\\
 &\quad+
 \sum_{\substack{2\le n\le N\\ n\ \mathrm{odd}}}
-\sum_{\substack{1\le m\le n\\ m\ \mathrm{odd}}}
+\sum_{\substack{1\le m\le n-2\\ m\ \mathrm{odd}}}
 \widetilde{\mathcal N}_{n,m}(\bar\nu,\bar g,\bar Q)\sin(m\bar\omega).
 \label{eq:Omegadot_general_fourier}
 \end{align}
@@ -1671,44 +1686,43 @@ J_{2s}:&\quad
 
 For actual propagation, the degree-by-degree decomposition need not be kept
 explicit. After summation over $n=2,\dots,N$, the total averaged slow system
-can be written directly in a finite harmonic basis. The formal upper bound is
-$m \le N$, but the sharp bound $|m| \le n-2$ per degree means that terms
-with $m > N-2$ have identically zero coefficients:
+can be written directly in a finite harmonic basis with upper harmonic index
+$N-2$ (since $|m| \le n-2$ for each degree):
 \begin{align}
 \dot{\bar g}
 &=
-\sum_{\substack{1\le m\le N\\ m\ \mathrm{odd}}}
+\sum_{\substack{1\le m\le N-2\\ m\ \mathrm{odd}}}
 G^{(c)}_m(\bar\nu,\bar g,\bar Q)\cos(m\bar\omega)
 +
-\sum_{\substack{2\le m\le N\\ m\ \mathrm{even}}}
+\sum_{\substack{2\le m\le N-2\\ m\ \mathrm{even}}}
 G^{(s)}_m(\bar\nu,\bar g,\bar Q)\sin(m\bar\omega),
 \label{eq:gdot_total_N}\\
 \dot{\bar Q}
 &=
-\sum_{\substack{1\le m\le N\\ m\ \mathrm{odd}}}
+\sum_{\substack{1\le m\le N-2\\ m\ \mathrm{odd}}}
 Q^{(c)}_m(\bar\nu,\bar g,\bar Q)\cos(m\bar\omega)
 +
-\sum_{\substack{2\le m\le N\\ m\ \mathrm{even}}}
+\sum_{\substack{2\le m\le N-2\\ m\ \mathrm{even}}}
 Q^{(s)}_m(\bar\nu,\bar g,\bar Q)\sin(m\bar\omega),
 \label{eq:Qdot_total_N}\\
 \dot{\bar\Psi}
 &=
 P_0(\bar\nu,\bar g,\bar Q)
 +
-\sum_{\substack{1\le m\le N\\ m\ \mathrm{odd}}}
+\sum_{\substack{1\le m\le N-2\\ m\ \mathrm{odd}}}
 P^{(s)}_m(\bar\nu,\bar g,\bar Q)\sin(m\bar\omega)
 +
-\sum_{\substack{2\le m\le N\\ m\ \mathrm{even}}}
+\sum_{\substack{2\le m\le N-2\\ m\ \mathrm{even}}}
 P^{(c)}_m(\bar\nu,\bar g,\bar Q)\cos(m\bar\omega),
 \label{eq:Psidot_total_N}\\
 \dot{\bar\Omega}
 &=
 N_0(\bar\nu,\bar g,\bar Q)
 +
-\sum_{\substack{1\le m\le N\\ m\ \mathrm{odd}}}
+\sum_{\substack{1\le m\le N-2\\ m\ \mathrm{odd}}}
 N^{(s)}_m(\bar\nu,\bar g,\bar Q)\sin(m\bar\omega)
 +
-\sum_{\substack{2\le m\le N\\ m\ \mathrm{even}}}
+\sum_{\substack{2\le m\le N-2\\ m\ \mathrm{even}}}
 N^{(c)}_m(\bar\nu,\bar g,\bar Q)\cos(m\bar\omega).
 \label{eq:Omegadot_total_N}
 \end{align}
@@ -1720,19 +1734,19 @@ The mean anomaly rate completes the system:
 \nu
 + M_0(\bar\nu,\bar g,\bar Q)
 +
-\sum_{\substack{1\le m\le N\\ m\ \mathrm{odd}}}
+\sum_{\substack{1\le m\le N-2\\ m\ \mathrm{odd}}}
 M^{(s)}_m(\bar\nu,\bar g,\bar Q)\sin(m\bar\omega)
 +
-\sum_{\substack{2\le m\le N\\ m\ \mathrm{even}}}
+\sum_{\substack{2\le m\le N-2\\ m\ \mathrm{even}}}
 M^{(c)}_m(\bar\nu,\bar g,\bar Q)\cos(m\bar\omega),
 \label{eq:Mdot_total_N}
 \end{equation}
 where $M_0$ contains the secular $J_2$ piece and the higher-zonal constant
 contributions, and the $M^{(s)}_m$, $M^{(c)}_m$ coefficients share the same
 parity structure as $\dot{\bar\Psi}$ and $\dot{\bar\Omega}$ (even harmonics
-from even zonals, odd from odd), plus the Keplerian $\nu$ term. For pure
-$J_2$, $\dot{\bar M}$ reduces to the classical linear rate
-\eqref{eq:OmegaJ2}--\eqref{eq:PsiJ2}.
+from even zonals, odd from odd), plus the Keplerian $\nu$ term. For pure $J_2$, the sums vanish (since $\mathcal M_2 = \{0\}$) and
+$M_0 = \frac{3}{4}\nu J_2 (R_e/a\beta^2)^2 \beta(3c_i^2-1)$, recovering
+the classical rate~\eqref{eq:MdotJ2}.
 
 This is the most useful statement for a reusable GEqOE averaged theory: the
 entire order-$N$ zonal model is parameterized by a finite set of coefficient
@@ -1881,6 +1895,11 @@ in a first-order averaged theory:
 
 The complete mean-plus-short-period model is validated against full osculating
 GEqOE Taylor integration with the zonal potential $\{J_2, J_3, J_4, J_5\}$.
+Here, ``GEqOE Taylor integration'' refers to the numerical integration of
+the full osculating GEqOE ODE (Eqs.~45--51 of~\cite{bau2021}) using the
+heyoka Taylor-series adaptive integrator~\cite{biscani2021} with tolerance
+$10^{-15}$; this serves as the truth reference for this section (see also
+Appendix~\ref{sec:extended_validation} for the independent Cowell cross-check).
 
 \subsection{Test orbits}
 
@@ -1912,12 +1931,10 @@ procedure is applied:
     first-order inverse map \eqref{eq:inverse_map_z}-\eqref{eq:inverse_map_K};
     \item propagate the mean state for 10 (low-$e$) or 8 (high-$e$) orbital
     periods using the exact symbolic mean drift;
-    \item at each output epoch, apply the forward short-period map
+    \item at each output epoch, solve the generalized Kepler equation for
+    $\bar K$ from the propagated $\bar M$, apply the forward short-period map
     \eqref{eq:forward_map_z}-\eqref{eq:forward_map_K} to reconstruct the
-    osculating GEqOE state;
-    \item solve the generalized Kepler equation for mean $\bar K$ from the
-    propagated $\bar M$, apply the short-period map to obtain the osculating
-    state, and convert to Cartesian position;
+    osculating GEqOE state, and convert to Cartesian position;
     \item compare against the reference osculating Taylor integration.
 \end{enumerate}
 
@@ -1952,7 +1969,12 @@ The low-eccentricity case achieves sub-300-meter RMS position accuracy; the
 high-eccentricity case stays below 4~km RMS. The maximum position RMS
 difference between $J_2$--$J_4$ and $J_2$--$J_5$ across all test cases is
 less than 1~meter, confirming that $J_5$ contributes negligibly to the
-first-order short-period corrections at these orbital regimes.
+first-order short-period corrections at these orbital regimes. The inclusion
+of $J_5$ in the theory is motivated by completeness and generality: it
+demonstrates that the residue decomposition framework handles arbitrary
+zonal degree with no algorithmic change, and ensures the theory is ready
+for regimes (e.g., very low altitude, or high-fidelity catalog maintenance)
+where $J_5$ may become significant.
 
 \subsection{Inverse round-trip test}
 \label{sec:roundtrip}
@@ -2071,6 +2093,31 @@ The fitted log-log slope of $0.998$ confirms the expected first-order scaling.}
 \label{fig:scaling}
 \end{figure}
 
+\subsection{Arc-length convergence}
+\label{sec:arc_convergence}
+
+To confirm that the reconstruction error accumulates as $O(\varepsilon^2 t)$
+(linear secular drift from the first-order truncation), the low-eccentricity
+and high-eccentricity cases are propagated over arc lengths ranging from
+2 to 160 orbital periods. Figure~\ref{fig:arc_convergence} shows the
+resulting log-log plot of position RMS error versus number of orbits.
+The fitted slopes are close to~$1.0$ for both cases, confirming
+that the dominant error grows linearly with arc length---consistent with
+the expected $O(\varepsilon^2)$ secular drift rate of a first-order theory.
+Sublinear growth would indicate numerical artifacts, while superlinear
+growth would signal uncontrolled resonances or higher-order effects
+becoming dominant.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.70\textwidth]{../figures/arc_length_convergence.png}
+\caption{Position RMS error versus number of orbital periods for the
+low-eccentricity ($e=0.05$) and high-eccentricity ($e=0.65$) test cases.
+The fitted log-log slopes confirm linear secular error growth, consistent
+with the $O(\varepsilon^2 t)$ truncation of the first-order theory.}
+\label{fig:arc_convergence}
+\end{figure}
+
 \section{Conclusions}
 \label{sec:conclusions}
 
@@ -2111,15 +2158,17 @@ The main contributions are:
     Cowell Cartesian truth with the same $J_2$--$J_5$ zonal model.
 
     \item A controlled comparison against the Draper Semi-analytical Satellite
-    Theory (DSST, Orekit implementation) using zonal-only $J_2$--$J_5$ forces
-    (Appendix~\ref{sec:dsst_comparison}) reveals that the GEqOE theory
-    outperforms DSST in all 12 test regimes by 1.5--93$\times$ in position
-    RMS, despite a theoretical per-epoch cost that is orders of magnitude
-    smaller (Table~\ref{tab:dsst_timing}, implementation caveat). DSST has better secular
-    drift accuracy (due to its $J_2^2$ correction), but this is overwhelmed
-    by the GEqOE theory's superior short-period reconstruction: the
-    closed-form rational expressions, exact in eccentricity, consistently
-    outperform DSST's truncated Fourier series.
+    Theory (DSST, Orekit implementation) using the same $J_2$--$J_5$ zonal
+    constants and including DSST's $J_2^2$ second-order correction
+    (Appendix~\ref{sec:dsst_comparison}) shows 1.7--55$\times$ better
+    osculating position accuracy across all 12 test regimes.
+    DSST has better secular drift accuracy (due to its $J_2^2$ correction),
+    but this is overwhelmed by GEqOE's superior short-period reconstruction:
+    the closed-form rational expressions, exact in eccentricity, consistently
+    outperform DSST's truncated Fourier series in the osculating position
+    metric. The current Python prototype is 6--300$\times$ slower than
+    compiled DSST (Table~\ref{tab:dsst_timing}); this reflects the
+    implementation, not the theoretical cost of formula evaluation.
 \end{enumerate}
 
 \paragraph{Limitations.}
@@ -2306,11 +2355,19 @@ short-period reconstruction error.
 The critical-inclination cases ($i = 63.4^\circ$) show no degradation
 whatsoever: the GEqOE theory achieves 0.28--0.50~km RMS (among the best
 results), while Brouwer--Lyddane degrades to 30--40~km despite Orekit's
-Phipps correction. This confirms that the GEqOE formulation, which avoids
+critical-inclination patch. This confirms that the GEqOE formulation, which avoids
 the $(1-5\cos^2 i)$ denominator entirely, is naturally well-conditioned at the
-critical inclination. The $\dot\omega \approx 0$ condition causes no
-resonance because the averaging is performed over the fast angle $K$, not
-over $\omega$.
+critical inclination as a \emph{coordinate} singularity.
+It should be noted that the absence of the singular denominator does not
+eliminate the \emph{physical} near-resonance $\dot\omega \approx 0$: for
+very long arcs near critical inclination, the long-period terms in
+$\bar g$ and $\bar Q$ driven by odd zonals ($J_3, J_5, \ldots$) through
+$\cos\bar\omega$ and $\sin\bar\omega$ will have very long periods and large
+amplitudes. The 100-orbit validation arcs used here are sufficient to
+demonstrate the coordinate regularity but may not fully expose the
+long-period dynamics. The key point is that these long-period terms remain
+bounded and well-behaved in the GEqOE formulation, even though their periods
+become very long near $i = 63.4^\circ$.
 
 \paragraph{Comparison fairness.}
 Note that Brouwer--Lyddane is a purely analytical theory whose reported
@@ -2468,11 +2525,12 @@ eccentricity terms improve DSST's short-period accuracy and whether the
 GEqOE closed-form expressions retain an advantage.
 \end{enumerate}
 
-All DSST runs use \texttt{GravitySpec(degree=5, order=0)}, restricting the
-force model to zonal harmonics $J_2$--$J_5$ to match the GEqOE theory's
-scope. The DSST implementation uses Orekit's EGM2008 gravity field provider,
-which introduces a ${\sim}\,0.1\%$ difference in the $J_n$ constants compared
-to our hardcoded values; this is accepted as negligible.
+All DSST runs use a custom gravity provider that returns the same
+$J_2$--$J_5$ constants used by the GEqOE theory and the Cowell truth,
+eliminating any gravity-constant mismatch. The DSST force model includes
+the \texttt{DSSTJ2SquaredClosedForm} (Zeis model) second-order $J_2^2$
+correction in addition to the first-order \texttt{DSSTZonal}
+contribution.
 
 \subsection{Results: osculating comparison}
 
@@ -2480,33 +2538,29 @@ to our hardcoded values; this is accepted as negligible.
 
 Table~\ref{tab:dsst_osculating} presents the primary three-way comparison.
 Contrary to the \emph{a priori} expectation, the GEqOE first-order theory
-outperforms DSST osculating in \emph{all 12 cases}:
+achieves better osculating position accuracy than DSST in \emph{all 12 cases}:
 
 \begin{itemize}
-\item GEqOE mean+SP achieves 1.5--8$\times$ smaller position RMS than DSST
+\item GEqOE mean+SP achieves 1.7--55$\times$ smaller position RMS than DSST
 osculating across all regimes. The advantage is smallest for LEO circular
-(1.3 vs.\ 1.9~km, ratio 1.5$\times$) and largest for GTO
-(7.5 vs.\ 56~km, ratio 7.5$\times$).
+(1.3 vs.\ 2.2~km, ratio 1.7$\times$) and largest for MEO/GPS
+(0.009 vs.\ 0.5~km, ratio 55$\times$).
 
-\item GEqOE mean+SP outperforms Brouwer--Lyddane by 4--80$\times$ across
+\item GEqOE mean+SP outperforms Brouwer--Lyddane by 4--335$\times$ across
 all regimes, consistent with the results of
 Appendix~\ref{sec:extended_validation}.
 
 \item DSST osculating is intermediate between GEqOE and Brouwer in most
-cases, but for GTO ($e = 0.73$) and near-equatorial ($i = 5^\circ$) it
-approaches Brouwer-class errors (56 vs.\ 61~km and 15.7 vs.\ 17.0~km),
-suggesting severe short-period reconstruction degradation.
+cases, but for GTO ($e = 0.73$) it approaches Brouwer-class errors
+(56 vs.\ 61~km), suggesting severe short-period reconstruction degradation
+at high eccentricity.
 \end{itemize}
 
 \noindent
-\textbf{Caveat:} the DSST propagator uses Orekit's EGM2008 gravity field
-provider, which introduces a ${\sim}\,0.1\%$ difference in the $J_n$
-constants compared to the hardcoded values used by the Cowell truth and
-GEqOE. This constant mismatch penalizes DSST by an amount comparable to the
-$J_2^2$ secular correction (${\sim}\,10^{-6}$~rad/orbit). While this
-partially accounts for DSST's mean-drift error, it does not explain the
-much larger short-period reconstruction errors observed (cf.\
-Section~\ref{sec:dsst_mean_drift_decomp}).
+\textbf{Note:} all five methods (Cowell, GEqOE, Brouwer--Lyddane,
+DSST osculating, DSST mean-only) now use identical $J_2$--$J_5$
+constants, so the comparison reflects only structural differences between
+the theories---not gravity-constant artefacts.
 
 \begin{figure}[p]
 \centering
@@ -2540,15 +2594,23 @@ value is in the \emph{ratio}: it isolates the secular/long-period accuracy
 from the short-period reconstruction.
 
 DSST mean-only is systematically more accurate, with ratios ranging from
-$1.2\times$ (SSO, polar) to $327\times$ (near-equatorial). This confirms
+$1.2\times$ (SSO, polar) to $347\times$ (near-equatorial). This confirms
 that DSST's $J_2^2$ secular correction and its numerical mean-element
 integration yield better secular drift accuracy than GEqOE's first-order
-analytical mean-state propagation.
+analytical mean-state propagation. The extreme near-equatorial ratio
+($347\times$) arises because the $J_2^2$ correction to $\dot{\bar M}$
+involves terms proportional to $(3\cos^2 i - 1)^2$ and related even
+powers of $\cos i$; at $i = 5^\circ$ these terms are near their maximum
+and add constructively, so the second-order correction captured by DSST
+is disproportionately large. A similar but less extreme effect explains
+the Molniya ratio ($267\times$), where DSST's numerical mean-element
+integration captures long-period cross-zonal interactions that the
+first-order GEqOE analytical mean flow omits.
 
 The key insight is that this mean-drift advantage is \emph{overwhelmed by
 the short-period reconstruction}: when the short-period maps are applied
 (Table~\ref{tab:dsst_osculating}), GEqOE's closed-form rational expressions
-produce osculating trajectories that are 1.5--93$\times$ more accurate than
+produce osculating trajectories that are 1.7--55$\times$ more accurate than
 DSST's truncated eccentricity-power Fourier series, despite GEqOE's worse
 mean-drift accuracy.
 
@@ -2571,7 +2633,8 @@ Table~\ref{tab:dsst_ecc_power} compares the default DSST eccentricity power
 for the three high-eccentricity cases. Testing higher eccentricity powers
 ($6$, $8$) was attempted but is blocked by an Orekit implementation
 constraint: \texttt{maxEccPowShortPeriodics} must satisfy
-$\leq \texttt{maxDegreeShortPeriodics} - 1$, which for degree~5 limits
+$\leq \texttt{maxDegreeShortPeriodics} - 1$ (enforced by a range check in
+\texttt{DSSTZonal.initialize()}), which for degree~5 limits
 the range to $[0, 4]$. The convergence study thus reduces to a comparison
 of GEqOE's exact expressions against DSST's default truncation.
 
@@ -2600,15 +2663,16 @@ eccentricity powers could not be tested due to Orekit's constraint
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.65\textwidth]{../figures/cost_accuracy_scatter.png}
-\caption{Cost--accuracy Pareto frontier. Each point is one (case, theory)
-combination. GEqOE mean+SP occupies the fast-and-accurate region;
-DSST osculating trades significantly more compute time for
-incrementally better accuracy; Brouwer--Lyddane is fast but least accurate.}
+\caption{Cost--accuracy scatter. Each point is one (case, theory)
+combination. GEqOE mean+SP is the most accurate but, in the current
+prototype implementation, the slowest (see implementation caveat);
+DSST osculating is intermediate in both cost and accuracy;
+Brouwer--Lyddane is fastest but least accurate.}
 \label{fig:cost_accuracy}
 \end{figure}
 
-Figure~\ref{fig:cost_accuracy} visualizes the cost--accuracy Pareto
-frontier across all 12 cases and three theories. The results define three
+Figure~\ref{fig:cost_accuracy} visualizes the cost--accuracy tradeoff
+across all 12 cases and three theories. The results define three
 distinct clusters:
 
 \begin{itemize}
@@ -2631,14 +2695,16 @@ interpreted RK4 loop) against optimized compiled Java (Orekit). The
 current Python/SymPy prototype is 6--300$\times$ slower than the
 compiled Java DSST implementation, so the measured timings do not
 reflect the theoretical per-epoch cost.
-The theoretical per-epoch cost of the GEqOE mean+SP evaluation is
-$O(\mu\text{s})$ per evaluation point, comparable to
-Brouwer--Lyddane, since both involve only algebraic formula evaluation.
-A compiled implementation (e.g., via heyoka compiled functions or
-generated C code) would be expected to close the speed gap entirely,
-placing GEqOE in the lower-left corner of the cost--accuracy plane:
-simultaneously the fastest \emph{and} most accurate of the three
-semi-analytical theories.
+The theoretical per-epoch cost of the GEqOE short-period map
+evaluation is comparable to Brouwer--Lyddane, since both involve only
+algebraic formula evaluation with no quadrature. (The mean-state
+propagation itself requires numerical integration of the averaged ODE,
+as described in Section~\ref{sec:operational}, but with step sizes
+unconstrained by the orbital period.) A compiled
+implementation (e.g., via heyoka compiled functions or generated C
+code) would be expected to substantially reduce the speed gap, though
+quantifying the actual improvement requires an implementation effort
+that is beyond the scope of this paper.
 
 \subsection{Discussion}
 
@@ -2652,43 +2718,42 @@ The closed-form rational expressions of the GEqOE theory---exact in
 eccentricity and free of series truncation---provide a decisive advantage.
 
 \paragraph{Where GEqOE's advantage is largest.}
-The improvement factor is greatest for orbits where DSST's eccentricity
-truncation is most severe:
-GTO ($e = 0.73$, $7.5\times$),
-near-equatorial ($7.6\times$),
-critical inclination ($14.5\times$ at low~$e$, $29\times$ at moderate~$e$).
+The improvement factor is greatest for MEO/GPS ($55\times$) and the
+critical-inclination cases ($14\times$ at low~$e$, $15\times$ at
+moderate~$e$), where DSST's eccentricity truncation and Fourier
+discretization are most limiting.
 For the critical-inclination cases, the GEqOE theory's absence of the
 $(1-5\cos^2 i)$ divisor and its cleaner averaging over $K$ both contribute
 to the dramatically better result.
 
 \paragraph{Where the advantage is smallest.}
-The ratio is smallest for LEO circular ($1.5\times$) and Molniya
-($2.2\times$). In LEO the perturbation parameter $\varepsilon$ is large,
+The ratio is smallest for LEO circular ($1.7\times$) and Molniya
+($1.8\times$). In LEO the perturbation parameter $\varepsilon$ is large,
 so the $J_2^2$ secular correction matters most. For Molniya the DSST
-mean-drift accuracy is notably better (Table~\ref{tab:dsst_mean_drift},
-ratio 278$\times$), partially offsetting the short-period truncation error.
+mean-drift accuracy is notably better (Table~\ref{tab:dsst_mean_drift}),
+partially offsetting the short-period truncation error.
 
-\paragraph{Gravity constant caveat.}
-A portion of DSST's error relative to the Cowell truth originates from the
-${\sim}\,0.1\%$ difference in $J_n$ constants between Orekit's EGM2008
-provider and the hardcoded values used by the truth model. This affects
-DSST's mean drift on the order of $J_2^2 \approx 10^{-6}$~rad/orbit---comparable
-to the $J_2^2$ secular correction itself. A perfectly controlled comparison
-would require injecting custom $J_n$ values into DSST's gravity field
-provider. The present analysis accepts this limitation because the
-short-period reconstruction errors dominate the total error budget by a wide
-margin: even if the constant mismatch were eliminated, the DSST osculating
-errors would decrease by at most ${\sim}\,1$~km, leaving the qualitative
-ordering unchanged.
+\paragraph{Matched-constant comparison.}
+All five methods use the same hardcoded $J_2$--$J_5$ values, implemented
+for DSST via a custom \texttt{UnnormalizedSphericalHarmonicsProvider} that
+bypasses Orekit's EGM2008 data files. This ensures that every difference in
+the comparison is structural (averaging order, short-period reconstruction
+method, eccentricity truncation), not a gravity-constant artefact.
+The DSST propagator additionally includes the
+\texttt{DSSTJ2SquaredClosedForm} (Zeis model) second-order $J_2^2$
+correction, giving DSST the benefit of its second-order secular accuracy.
 
 \paragraph{Path forward.}
-Two extensions would further strengthen the comparison:
-(i)~a second-order $J_2^2$ secular correction within the GEqOE framework to
-close the mean-drift gap, and (ii)~a custom gravity-field provider for DSST
-to eliminate the constant mismatch. The present results already demonstrate
-that the GEqOE theory outperforms DSST for zonal-only propagation, with a
-theoretical per-epoch cost that is orders of magnitude smaller (pending a
-compiled implementation).
+A second-order $J_2^2$ secular correction within the GEqOE framework would
+close the mean-drift gap. The present results already demonstrate
+that the GEqOE theory achieves superior osculating accuracy over DSST for
+zonal-only propagation. A compiled implementation would be needed to
+assess whether the theoretical cost advantage translates to practice.
+
+For LEO arcs substantially longer than those tested here ($>$10~days), the
+$O(J_2^2)$ secular drift accumulation would be expected to eventually
+dominate the error budget, potentially reversing the accuracy comparison in
+DSST's favor until the second-order correction is implemented.
 
 
 \begin{thebibliography}{99}
