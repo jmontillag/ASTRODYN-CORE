@@ -1045,6 +1045,19 @@ def main():
     except ImportError:
         print("  heyoka cfuncs not available, using Python fallback")
 
+    # Full pipeline warmup: run a short dummy case to trigger all first-call
+    # JIT costs (scipy DOP853, numpy, geqoe2cart heyoka compilation, etc.)
+    print("Pipeline warmup (short dummy propagation)...")
+    _r0, _v0 = kepler_to_rv(7000, 0.01, 45, 0, 0, 0)
+    _pert = ZonalPerturbation(J_COEFFS, mu=MU, re=RE)
+    _s0 = cart2geqoe(_r0, _v0, MU, _pert)
+    _m0 = osculating_to_mean_state(_s0, J_COEFFS, re_val=RE, mu_val=MU)
+    _tg = np.linspace(0, 5000, 10)
+    _mh = rk4_integrate_mean(_m0, _tg, J_COEFFS, substeps=4)
+    _ob = mean_to_osculating_state_batch(_mh, J_COEFFS, re_val=RE, mu_val=MU)
+    geqoe2cart_zonal_batch(_ob, MU, _pert)
+    print("  done.")
+
     # Initialize Orekit
     print("Initializing Orekit...")
     _init_orekit()
