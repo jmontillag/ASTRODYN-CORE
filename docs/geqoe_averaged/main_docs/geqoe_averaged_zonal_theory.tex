@@ -2100,8 +2100,14 @@ To confirm that the reconstruction error accumulates as $O(\varepsilon^2 t)$
 (linear secular drift from the first-order truncation), the low-eccentricity
 and high-eccentricity cases are propagated over arc lengths ranging from
 2 to 160 orbital periods. Figure~\ref{fig:arc_convergence} shows the
-resulting log-log plot of position RMS error versus number of orbits.
-The fitted slopes are close to~$1.0$ for both cases, confirming
+resulting log-log plot of the position error at the final epoch versus the
+number of orbits. The endpoint metric is used rather than the arc-averaged
+RMS because the constant-amplitude short-period reconstruction error
+($\sim\!O(\varepsilon)$ per orbit) would otherwise dominate the RMS at
+short arcs and mask the secular drift.  At integer-orbit endpoints the
+fast phase returns to the same value, so the short-period contribution
+is approximately constant across all~$N$; only the secular drift varies.
+The fitted slopes are $0.95$ (low-$e$) and $0.99$ (high-$e$), confirming
 that the dominant error grows linearly with arc length---consistent with
 the expected $O(\varepsilon^2)$ secular drift rate of a first-order theory.
 Sublinear growth would indicate numerical artifacts, while superlinear
@@ -2111,10 +2117,11 @@ becoming dominant.
 \begin{figure}[h!]
 \centering
 \includegraphics[width=0.70\textwidth]{../figures/arc_length_convergence.png}
-\caption{Position RMS error versus number of orbital periods for the
-low-eccentricity ($e=0.05$) and high-eccentricity ($e=0.65$) test cases.
-The fitted log-log slopes confirm linear secular error growth, consistent
-with the $O(\varepsilon^2 t)$ truncation of the first-order theory.}
+\caption{Position error at the final epoch versus number of orbital periods
+for the low-eccentricity ($e=0.05$, slope~$=0.95$) and high-eccentricity
+($e=0.65$, slope~$=0.99$) test cases. The near-unity log-log slopes confirm
+linear secular error growth, consistent with the $O(\varepsilon^2 t)$
+truncation of the first-order theory.}
 \label{fig:arc_convergence}
 \end{figure}
 
