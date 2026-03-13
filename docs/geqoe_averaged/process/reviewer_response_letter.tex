@@ -1,0 +1,450 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{xcolor}
+
+\definecolor{revcolor}{rgb}{0.0,0.3,0.6}
+\newcommand{\rev}[1]{\textcolor{revcolor}{\emph{#1}}}
+
+\title{Response to Reviewer Comments\\[4pt]
+\large ``An Analytical First-Order Mixed-Zonal Theory for GEqOE''}
+\author{Jose Manuel Montilla Garc\'ia}
+\date{March 2026}
+
+\begin{document}
+\maketitle
+
+We thank the referee for the thorough and constructive review. The
+manuscript was submitted in internal-note form, and the revision addresses
+all concerns raised. Below we provide a point-by-point response to each
+finding.
+
+\bigskip
+
+%% ====================================================================
+\section*{R-1: Harmonic-order contradiction ($|m| \le n$ vs $|m| \le n-2$)}
+
+\rev{Reviewer: The paper states three different bounds for the maximum
+harmonic order, which is confusing.}
+
+\textbf{Response:} We agree. The preliminary bound $\mathcal{M}_n = \{m \le n\}$
+has been immediately followed by a remark noting that the sharp bound
+$|m| \le n-2$ applies (with forward reference to the proof). The total-model
+summation bounds now include a remark that terms with $m > N-2$ have
+identically zero coefficients. A new label \verb|\label{sec:harmonic_bound}|
+has been added to the maximum-harmonic-order subsection for cross-referencing.
+
+\textbf{Changes:} Eq.~after (Un\_fourier): added sharp-bound remark.
+Section~10.2: added \verb|\label{sec:harmonic_bound}|.
+Section~10.3 preamble: added remark on zero coefficients beyond $N-2$.
+
+%% ====================================================================
+\section*{R-2: Error-order inconsistency ($O(\varepsilon)$ vs $O(\varepsilon^2)$)}
+
+\rev{Reviewer: The paper uses ``$O(\varepsilon^2)$'' and ``$O(J^2)$''
+inconsistently across three separate validation contexts.}
+
+\textbf{Response:} We agree. A three-part error taxonomy has been introduced
+at the beginning of Section~11 (Validation), clearly distinguishing:
+\begin{enumerate}[nosep]
+\item Initialization error ($O(\varepsilon^2)$),
+\item Short-period reconstruction error ($O(\varepsilon)$ amplitude),
+\item Secular drift error ($O(\varepsilon^2)$ per orbit, linear accumulation).
+\end{enumerate}
+
+The slow-flow parity gap language has been corrected to distinguish absolute
+and relative metrics. The scaling test opening sentence has been rewritten
+to avoid the misleading ``expected $O(\varepsilon^2)$ residual'' phrasing;
+it now states that the slope identifies the dominant error source.
+
+\textbf{Changes:} Section~11: new error taxonomy (3-item enumerated list).
+Section~10.5 (slow-flow parity): clarified relative vs absolute gap.
+Section~11.4 (scaling test): rewritten opening paragraph.
+Section~13 (conclusions): language consistent with corrected taxonomy.
+
+%% ====================================================================
+\section*{R-3: Fast-phase reconstruction ambiguity}
+
+\rev{Reviewer: Steps 1 and 3 conflate $\bm{u}_1$ (slow state) and $v_1$
+(fast phase). It is unclear when Kepler inversion is needed.}
+
+\textbf{Response:} Agreed. Steps 1--3 of the operational procedure have been
+rewritten to use both $\bm{u}_1$ and $v_1$ explicitly, with separate
+equations for $\bar{\bm{z}}$ and $\bar K$. Step~2 now states that
+$\bar M$ is propagated alongside the slow state and $\bar K$ is recovered
+from $\bar M$ by solving the generalized Kepler equation. Step~3 clarifies
+that the osculating $K$ is obtained directly via $v_1$ without an additional
+Kepler inversion.
+
+\textbf{Changes:} Section~9.2, Steps 1--3: rewritten with explicit
+$\bm{z}$/$K$ notation. Section~11.2 (reconstruction procedure): step~4
+clarified.
+
+%% ====================================================================
+\section*{R-4: Log-cancellation proof wrong}
+
+\rev{Reviewer: The winding-number argument at L1115--1118 is mathematically
+false. $F = -q$ lies inside the unit circle, giving winding number 1.}
+
+\textbf{Response:} The referee is correct. The winding-number statement was
+incorrect. We have replaced it with a rigorous residue-theorem argument:
+\begin{enumerate}[nosep]
+\item The zero-mean-subtracted integrand has vanishing contour integral
+  by construction.
+\item By the residue theorem, the sum of residues inside $|F|=1$ (at
+  $F=0$ and $F=-q$) must equal zero.
+\item The residue at $F=0$ vanishes because the $M$-average has been
+  subtracted.
+\item Therefore the residue at $F=-q$ also vanishes.
+\item The $\log(1+qF)$ coefficient vanishes independently by the
+  periodicity requirement.
+\end{enumerate}
+A structural remark has been added noting that this vanishing is a
+consequence of the zero-mean normalization, not a coincidence.
+
+\textbf{Changes:} Section~8.1 (antiderivative assembly): proof completely
+rewritten with contour-integral equation and residue-theorem argument.
+
+%% ====================================================================
+\section*{R-5: $w_h$ formula missing $\gamma$}
+
+\rev{Reviewer: The display formula $w_h = (3A/cr^3)\,c_i\,\hat z^2$ is
+missing a factor of $\gamma$. The correct expression is
+$w_h = 3A\delta\,\hat z^2/(cr^3)$.}
+
+\textbf{Response:} The referee correctly identified a missing factor of
+$\gamma$ in the display formula (since $\delta = \gamma c_i$). The formula
+has been corrected, and a derivation sketch has been added showing the chain
+from the exact GEqOE definitions to the first-order result.
+The reduced equations and all numerical results are unaffected because
+the symbolic computation operates on the exact GEqOE equations, not on the
+hand-reduced display formula.
+
+\textbf{Changes:} Eq.~(wh\_j2\_first): corrected $c_i \to \delta$.
+New derivation paragraph with explicit intermediate steps.
+
+%% ====================================================================
+\section*{R-6: Paper not self-contained}
+
+\rev{Reviewer: Placeholders and deferrals to companion notes make the paper
+incomplete.}
+
+\textbf{Response:} We agree. Three specific improvements:
+\begin{enumerate}[nosep]
+\item The $\langle F^k \rangle_M$ placeholder has been replaced with
+  the explicit contour-integral formula and the first two values
+  ($\langle F \rangle_M = -g$, $\langle F^2 \rangle_M = g^2(1+2\beta)/(1+\beta)^2$).
+\item The J$_3$/J$_4$ drift formulas are too long for inline display
+  (500--1000+ character rational expressions), but the paper now states
+  their harmonic structure and characterizes the coefficient functions
+  as rational functions of degree 8--16 in $(q, Q)$.
+\item The general degree-$n$ result is now summarized in the paper
+  (structure of the residue computation, linear growth of degrees).
+\item All companion-note references have been changed to ``supplementary
+  material'' or ``electronic appendix.''
+\end{enumerate}
+
+\textbf{Changes:} Eq.~(mean\_Fk): explicit formulas. Section~10.4:
+expanded coefficient characterization. Section~10.4: general degree-$n$
+structural result. All \texttt{docs/geqoe\_averaged/} paths removed.
+
+%% ====================================================================
+\section*{R-7: Performance ranges numerically inconsistent}
+
+\rev{Reviewer: Stated improvement ranges (4--80$\times$ for Brouwer,
+1.5--8$\times$ for DSST) do not match the tables.}
+
+\textbf{Response:} The referee is correct. We have recomputed all
+improvement ratios from the published tables:
+\begin{itemize}[nosep]
+\item GEqOE vs Brouwer: 4--335$\times$ (was 4--80$\times$).
+\item GEqOE vs DSST: 1.5--93$\times$ (was 1.5--8$\times$).
+\end{itemize}
+All instances in the abstract, conclusions, and appendix discussion have
+been corrected. The ``best case 335$\times$'' is consistent with
+Table~\ref{tab:dsst\_osculating} ($2.884/0.0086 = 335$).
+
+\textbf{Changes:} Abstract, Section~13 (conclusions), Appendix~A
+discussion, Appendix~B discussion: all ratios corrected.
+
+%% ====================================================================
+\section*{R-8: Novelty positioning too loose}
+
+\rev{Reviewer: The introduction does not isolate the real novelties
+sharply enough.}
+
+\textbf{Response:} The novelty paragraph has been rewritten to state three
+specific respects in which the present work differs from prior art:
+(1)~direct operation in non-canonical GEqOE variables,
+(2)~averaging in the generalized eccentric longitude $K$,
+(3)~short-period construction by residue decomposition in the complex true
+anomaly $F$.
+
+\textbf{Changes:} Section~1 (Introduction): novelty paragraph completely
+rewritten.
+
+%% ====================================================================
+\section*{R-9: $w$ notation reuse}
+
+\rev{Reviewer: $w = \sqrt{\mu/a}$ and $w = e^{i\omega}$ create ambiguity.}
+
+\textbf{Response:} The complex pericenter exponential has been renamed to
+$W = e^{i\omega}$ (capital $W$) throughout Sections~7--8 and the residue
+decomposition. The mean-motion quantity $w = \sqrt{\mu/a}$ is unchanged.
+
+\textbf{Changes:} Eq.~(W\_def) and all occurrences in Sections~7--8:
+$w \to W$.
+
+%% ====================================================================
+\section*{R-10: Internal-note language and repo paths}
+
+\rev{Reviewer: Several passages use internal-note language and repository
+paths.}
+
+\textbf{Response:} All instances have been fixed:
+\begin{itemize}[nosep]
+\item ``current implementation'' $\to$ removed
+\item ``current branch uses'' $\to$ ``the exact conservative GEqOE system is''
+\item ``present branch'' $\to$ ``present variables''
+\item ``current probe'' $\to$ ``Numerically''
+\item All \texttt{docs/geqoe\_averaged/} paths $\to$ ``supplementary material''
+\item ``This note'' $\to$ ``This paper'' throughout
+\end{itemize}
+
+\textbf{Changes:} Sections~2, 3, 10, and throughout.
+
+%% ====================================================================
+\section*{R-11: Phipps citation}
+
+\rev{Reviewer: ``Warren Phipps' 1992 fix'' is not a proper citation.}
+
+\textbf{Response:} Replaced with reference to Orekit's internal
+critical-inclination correction as documented in the Orekit v13.1 API
+documentation.
+
+\textbf{Changes:} Appendix~A (Brouwer comparison): Phipps reference
+replaced with Orekit citation.
+
+%% ====================================================================
+\section*{R-12: $q$ notation overloading}
+
+\rev{Reviewer: The eccentricity parameter $q$ could be confused with the
+inclination components $q_1, q_2$.}
+
+\textbf{Response:} A parenthetical disambiguation has been added after the
+definition of $q = g/(1+\beta)$.
+
+\textbf{Changes:} Eq.~(q\_def): parenthetical remark added.
+
+%% ====================================================================
+\section*{R-13: $\omega$ osculating vs mean not flagged}
+
+\rev{Reviewer: $\omega = \Psi - \Omega$ is used interchangeably for
+osculating and mean values without clarification.}
+
+\textbf{Response:} A clarifying statement has been added at the beginning of
+Section~5.2: ``In the integrands that follow, all slow variables---including
+$\omega$, $g$, $Q$---are evaluated at their mean values, consistent with the
+first-order averaging prescription.''
+
+\textbf{Changes:} Section~5.2 opening: new paragraph.
+
+%% ====================================================================
+\section*{R-14: Sign/definition chain not shown}
+
+\rev{Reviewer: The chain $A \to \mathcal{E}_Z \to \dot{p}$ is not shown
+explicitly.}
+
+\textbf{Response:} A derivation sketch has been added after the corrected
+$w_h$ formula showing the chain from the exact GEqOE definitions through
+$F_h$, $\hat z$, and $h$ to the first-order result.
+
+\textbf{Changes:} Section~5.2: new derivation paragraph after
+Eq.~(wh\_j2\_first).
+
+%% ====================================================================
+\section*{R-15: $\dot\Psi$ narrative confusion}
+
+\rev{Reviewer: The cautionary remark about equations (86)/(88) is confusing.}
+
+\textbf{Response:} A confirmation statement has been added: ``Equations~(86)
+and the above are algebraically consistent, confirming that the direct
+derivation from the $\dot p$ equations reproduces the expected structure.''
+
+\textbf{Changes:} After Eq.~(Psidot\_j2\_first) derivation: one sentence
+added.
+
+%% ====================================================================
+\section*{R-16: Averaging weight $T = 2\pi a$ unexplained}
+
+\rev{Reviewer: Why is $T = 2\pi a$ in the $K$-average?}
+
+\textbf{Response:} A derivation paragraph has been added explaining that
+$T = \int_0^{2\pi}(r/w)\,dK = 2\pi a$ follows from $\langle r \rangle_K = a$
+for the unperturbed ellipse, and noting that the weight $r/a$ replaces the
+unit weight of the classical $M$-average.
+
+\textbf{Changes:} After Eq.~(avg\_operator): new paragraph.
+
+%% ====================================================================
+\section*{R-17: Missing general-zonal $\dot{\bar M}$}
+
+\rev{Reviewer: The general-zonal mean anomaly rate is absent from the paper
+(though implemented in code).}
+
+\textbf{Response:} The referee correctly identified a gap in the paper.
+Eq.~(Mdot\_total\_N) has been added after the mean-state ODE, giving
+$\dot{\bar M}$ in the same finite-harmonic form as the slow variables.
+The runtime procedure (Step~2) now explicitly states that $\bar M$ is
+integrated alongside the slow state. Step~3 clarifies the Kepler equation
+solve for $\bar K$ from $\bar M$.
+
+\textbf{Changes:} New Eq.~(Mdot\_total\_N) with surrounding text.
+Section~9.2, Steps 2--3: updated.
+
+%% ====================================================================
+\section*{R-18: $J_5$ claim unsupported}
+
+\rev{Reviewer: The claim that results are ``indistinguishable from
+$J_2$--$J_4$'' is unsupported by table data.}
+
+\textbf{Response:} The text now quotes the maximum difference numerically:
+``The maximum position RMS difference between $J_2$--$J_4$ and $J_2$--$J_5$
+across all test cases is less than 1~meter.''
+
+\textbf{Changes:} Section~11.3: quantified the $J_5$ contribution.
+
+%% ====================================================================
+\section*{R-19: $\ell_1$ derivation gap}
+
+\rev{Reviewer: The derivation of Eq.~(ell\_v\_relation) is not shown.}
+
+\textbf{Response:} A one-line remark has been added: ``Equation~(ell\_v\_relation)
+follows from expanding $L_{\mathrm{osc}}$ at first order using
+$\partial L/\partial K = r/a$; the cross-term
+$v_1(p_1\sin K + p_2\cos K)$ reduces to $(\bar r/a)\,v_1$.''
+
+\textbf{Changes:} After Eq.~(ell\_v\_relation): one-line remark.
+
+%% ====================================================================
+\section*{R-20: $n_0^2$ division well-definedness}
+
+\rev{Reviewer: The division by $n_0 = w/r$ in the $v_1$ quadrature may
+not be well-defined.}
+
+\textbf{Response:} A parenthetical note has been added: ``(the division
+by $n_0 = w/r$ is well-defined for all non-rectilinear orbits, where
+$r > 0$ throughout).''
+
+\textbf{Changes:} After Eq.~(v\_prime): parenthetical note.
+
+%% ====================================================================
+\section*{R-21: Brouwer comparison fairness}
+
+\rev{Reviewer: Since Brouwer is second-order in $J_2$, the 4--335$\times$
+advantage may be from better SP reconstruction, not secular drift.}
+
+\textbf{Response:} A comparison fairness paragraph has been added in the
+Appendix~A discussion, noting that Brouwer is a purely analytical theory
+with no mean-only output mode, and that the DSST mean-drift decomposition
+shows short-period reconstruction dominates the total error budget.
+
+\textbf{Changes:} Appendix~A, Discussion: new ``Comparison fairness''
+paragraph.
+
+%% ====================================================================
+\section*{R-22: $h$ domain of validity}
+
+\rev{Reviewer: When is the radicand in $h = \sqrt{c^2 - 2r^2 U}$ positive?}
+
+\textbf{Response:} A remark has been added: ``The radicand is positive for
+perturbations satisfying $2r^2|U|/c^2 \ll 1$, which holds for all practical
+zonal truncations.''
+
+\textbf{Changes:} After the exact GEqOE system: one-line remark.
+
+%% ====================================================================
+\section*{R-23: Thrust section too thin}
+
+\rev{Reviewer: Section~12 is a brief sketch with no validation, weakening
+the otherwise rigorous presentation.}
+
+\textbf{Response:} We agree. The standalone thrust section has been removed.
+The key structural observation has been compressed into a paragraph in the
+Conclusions, framed as future work: the GEqOE structure makes thrust-induced
+averaged kernels low-order trigonometric polynomials in $K$.
+
+\textbf{Changes:} Section~12 removed. Section~13 (Conclusions): thrust
+extension described in extension item~(iii).
+
+%% ====================================================================
+\section*{R-24: Overclaiming language}
+
+\rev{Reviewer: ``Complete,'' ``exact,'' and ``orders of magnitude'' are used
+without sufficient qualification.}
+
+\textbf{Response:} ``Orders of magnitude'' claims that were not backed by
+specific numbers have been qualified with references to the relevant
+tables or with implementation caveats. ``This note'' has been changed to
+``This paper'' throughout. The timing claim in the DSST appendix has been
+qualified with the measured wall-clock ratio.
+
+\textbf{Changes:} Abstract, Appendix~B discussion and caveat: language
+audited and qualified.
+
+%% ====================================================================
+\section*{R-25: $\backslash$date\{$\backslash$today\} on title page}
+
+\rev{Reviewer: The date should not be \texttt{$\backslash$today}.}
+
+\textbf{Response:} Replaced with ``March 2026.''
+
+\textbf{Changes:} Line~21: fixed date.
+
+%% ====================================================================
+\section*{R-26: Repetitive phrasing}
+
+\rev{Reviewer: ``No numerical quadrature, no interpolation, no iterative
+solution'' appears multiple times.}
+
+\textbf{Response:} The phrase now appears only twice: once in the abstract
+and once in Section~9 (operational structure), which is acceptable.
+
+\textbf{Changes:} Verified; no additional removals needed.
+
+%% ====================================================================
+\section*{R-27: Missing limitations paragraph}
+
+\rev{Reviewer: The paper does not discuss its limitations.}
+
+\textbf{Response:} A limitations paragraph has been added before the
+extensions list in the Conclusions, covering:
+(1)~first-order truncation ($O(\varepsilon^2)$ neglected),
+(2)~singular cases (retrograde equatorial, rectilinear),
+(3)~high-eccentricity degradation,
+(4)~zonal-only restriction.
+
+\textbf{Changes:} Section~13 (Conclusions): new ``Limitations'' paragraph
+with 4-item list.
+
+%% ====================================================================
+\section*{R-28: Timing claim misleading}
+
+\rev{Reviewer: ``10--100$\times$ faster'' is misleading when the Python
+prototype is actually slower than compiled DSST.}
+
+\textbf{Response:} The timing claim has been qualified throughout:
+\begin{itemize}[nosep]
+\item Abstract: now states ``theoretical per-epoch cost that is orders of
+  magnitude smaller (though the current Python prototype is slower than the
+  compiled Java DSST).''
+\item Conclusions: ``theoretical per-epoch cost that is orders of magnitude
+  smaller (Table, implementation caveat).''
+\item Appendix~B caveat: now states the measured wall-clock ratio explicitly
+  (``6--300$\times$ slower than compiled DSST'').
+\end{itemize}
+
+\textbf{Changes:} Abstract, Section~13, Appendix~B: timing language qualified.
+
+\end{document}
