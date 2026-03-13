@@ -54,6 +54,22 @@ Expression sizes scale ~28× from J3 → J5 (18 KB → 510 KB) due to polynomial
 GCD on the Q(q, Q) rational expressions. This is fundamental to the algebraic
 structure, not a code issue.
 
+### F → cos f + i sin f substitution is intractable for SP expressions
+SHORT_DATA expressions are rational functions of `(q, Q, F)` with F powers up
+to F¹¹ and denominator factors `(F+q)·(F·q+1)`.  Substituting
+`F → cos_f + I*sin_f` and calling `sp.expand()` hangs for 20+ min on n=5
+because it expands O(10⁴) intermediate terms before simplification.
+The working approach is a recursive complex-arithmetic converter that maps
+SymPy trees to `(re, im)` heyoka expression pairs, handling `(F+q)^(-1)` as
+complex inversion rather than symbolic trig expansion.  See
+`performance_optimization_plan.md` §Lessons Learned for full details.
+
+### SymPy restructures expression trees unpredictably
+`sp.sympify()` rewrites `F⁵·n₁/d₁ + F⁴·n₂/d₂ + ...` by factoring out
+common denominator factors, producing `(F+q)^(-1)` and `(F·q+1)^(-1)` as Pow
+nodes with F **inside** the base.  Any SymPy→other-DSL converter must handle
+the restructured form, not the written form.
+
 ---
 
 ## 3. GEqOE-Specific Pitfalls

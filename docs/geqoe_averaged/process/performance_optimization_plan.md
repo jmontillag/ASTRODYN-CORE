@@ -570,3 +570,136 @@ After Stage C, produce a short report (`docs/geqoe_averaged/process/performance_
 | SymPy→heyoka expression translation fails on edge cases | Start with n=2 (simplest), validate each degree independently |
 | heyoka cfunc compilation takes minutes | Cache compiled objects; lazy-build on first call |
 | Complex arithmetic in vectorized path gives different rounding | Convert to real trig in Stage B; carry through to C |
+
+---
+
+## Lessons Learned
+
+### 1. The naive F → cos f + i sin f approach is computationally intractable
+
+The original B.2 plan called for substituting `F → cos_f + I*sin_f` in each
+SHORT_DATA expression, then calling `sp.expand()` to separate real and imaginary
+parts.  This works for the 42 mean-rate expressions (MEAN_DATA), which are
+compact rational functions of `(q, Q)` with no `F` dependence.  It **hangs for
+20+ minutes** on the 88 short-period expressions.
+
+**Root cause**: SHORT_DATA expressions are rational functions of `(q, Q, F)`
+where F appears in both numerator and denominator.  A typical n=5 expression is
+~12,000 characters long, with F powers up to F¹¹ in the numerator, F⁹ in the
+denominator, and additional factors `(F + q)·(F·q + 1)` in the denominator.
+These denominator factors arise from integrating the short-period generating
+function via `ratint(F^k · dM/dF, F)`, where `dM/dF` contains the canonical
+factors `(F + q)²·(F·q + 1)²` from the Kepler equation in the F-domain.
+
+Substituting `F → cos_f + I·sin_f` into these rational functions and expanding
+produces expressions whose intermediate form is astronomically large — SymPy
+must expand products of 10+ binomials `(cos_f + I·sin_f)^k` in both numerator
+and denominator, collect real/imaginary parts, then simplify.  For n=5, this is
+a multivariate polynomial expansion with O(10⁴) terms before simplification.
+
+**Lesson**: When an expression is natively in a complex domain (F on the unit
+circle), don't try to convert it to real arithmetic symbolically.  Instead,
+work in the complex domain as long as possible and defer the real/imaginary
+split to the evaluation stage.
+
+### 2. SymPy restructures expression trees in ways that break naive converters
+
+The SymPy→heyoka converter for mean rates (`_sympy_to_heyoka`) handles `Pow`,
+`Add`, `Mul`, `Symbol`, and numeric atoms.  When applied to SHORT_DATA
+expressions, it crashes with `ValueError: Unknown symbol 'F'`.
+
+**Root cause**: `sp.sympify()` does not preserve the written form of the
+expression.  The written form groups terms by F power:
+
+```
+F⁵·numer₁/denom₁ + F⁴·numer₂/denom₂ + ... + numer₀/denom₀
+─────────────────────────────────────────────────────────────
+                    F³·q·(F + q)·(F·q + 1)
+```
+
+But SymPy internally factors out common denominators and restructures the tree
+to something like:
+
+```
+F⁻³ · q⁻¹ · (F + q)⁻¹ · (F·q + 1)⁻¹ · [sum of F-polynomial terms]
+```
+
+This means F appears **inside the base** of Pow nodes like `(F + q)⁻¹`, not
+just as standalone `F^k` terms.  A converter that only handles `F^k` at the
+top level misses these and crashes on the `F` symbol inside the subexpression.
+
+**The key insight**: `(F + q)` and `(F·q + 1)` are **complex expressions**
+when `F = exp(if)` is on the unit circle.  The converter must treat them as
+complex-valued and compute their reciprocals using complex arithmetic:
+`1/(a + bi) = (a - bi)/(a² + b²)`.
+
+**Lesson**: Never assume SymPy preserves a particular algebraic form.  Any
+converter walking the expression tree must handle the restructured form, which
+may interleave the complex variable F with real variables in arbitrary
+subexpressions.
+
+### 3. The solution: recursive complex-arithmetic converter with None sentinels
+
+The working approach converts each SymPy expression to a `(re, im)` pair of
+heyoka expressions, where `None` represents zero.  Three helpers implement
+complex arithmetic on these pairs:
+
+- `_complex_mul(a_re, a_im, b_re, b_im)` — 4-term expansion with None skips
+- `_complex_inv(re, im)` — conjugate/norm formula, with purely-real and
+  purely-imaginary fast paths
+- `_complex_pow_int(re, im, n)` — repeated multiplication + inversion
+
+The recursive converter `_sympy_to_heyoka_complex()` maps:
+- `F` → `(cos_f_tab[1], sin_f_tab[1])` — cos/sin of true anomaly
+- `F^k` → `(cos_f_tab[k], sin_f_tab[k])` — precomputed Chebyshev recurrence
+- `I` → `(None, 1.0)` — imaginary unit
+- Real symbols → `(var_map[name], None)`
+- `(F + q)^(-1)` → complex inversion of `(cos_f + q, sin_f)`
+- Arbitrary Pow, Mul, Add → recursive complex arithmetic
+
+The `None` sentinel is critical for performance: it avoids creating heyoka
+expression tree nodes for zero components, which would otherwise double the
+DAG size for the many purely-real or purely-imaginary subexpressions.
+
+**Result**: All 88 expressions convert in ~5.5 s (tree construction) + 3.3 s
+(LLVM compile) = ~9 s total.  The cfunc evaluates 3201 points in 7–10 ms.
+
+### 4. Why mean rates were easy but short-period was hard
+
+| Property | MEAN_DATA (42 terms) | SHORT_DATA (88 terms) |
+|----------|---------------------|----------------------|
+| Variables | `q, Q` only | `q, Q, F` |
+| Domain | Real | Complex (F on unit circle) |
+| Max expression size | ~200 chars | ~25,000 chars |
+| Denominator structure | Pure `q,Q` polynomials | `F^k · (F+q) · (F·q+1)` factors |
+| SymPy→heyoka | Simple real converter | Full complex arithmetic needed |
+| F→trig substitution | N/A | Intractable via sp.expand |
+
+The mean-rate expressions have `F` already integrated out (they're the
+orbit-averaged secular rates).  The short-period expressions retain `F`
+because they describe the oscillatory corrections at each point in the orbit.
+The `F`-dependence brings complex arithmetic, denominator factoring, and
+expression swell — none of which exist for the mean rates.
+
+### 5. Failed approaches (for the record)
+
+1. **B.2 CSE code generator** (`generate_hardcoded_sp.py`): `F → cos_f + I·sin_f`
+   substitution + `sp.expand()`.  Hangs for 20+ min on n=5 expressions.
+   Retained as reference only.
+
+2. **Polynomial decomposition**: Attempted `sp.Poly(expr, F)` to extract
+   coefficients as polynomials in `(q, Q)`, then reassemble as Chebyshev sums.
+   Works for n=2–3 but takes ~10 min for n=4–5 due to multivariate GCD in the
+   coefficient extraction.
+
+3. **Opaque symbol approach**: Replace `F` with a real symbol, convert to
+   heyoka, then post-substitute.  Fails because heyoka expressions don't
+   support symbolic substitution — they're compiled expression DAGs.
+
+4. **Term-by-term conversion**: Split the expression at the top-level `Add`
+   into individual `F^k` terms, convert each independently.  Fails because
+   SymPy restructures the sum so that individual terms share denominator
+   factors containing `F` — you can't split cleanly.
+
+The recursive complex converter (approach 5) was the only one that handled
+the algebraic structure correctly within acceptable time.
