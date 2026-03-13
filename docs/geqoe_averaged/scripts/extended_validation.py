@@ -1032,6 +1032,19 @@ def main():
     print("\nBuilding symbolic short-period cache...")
     _ensure_symbolic_cache(J_COEFFS)
 
+    # Pre-build heyoka cfuncs (one-time cost, excluded from per-case timings)
+    try:
+        from geqoe_mean.heyoka_compiled import get_mean_rhs_cfunc, get_sp_cfunc
+        print("Building heyoka cfuncs (one-time cost)...")
+        _, info_mean = get_mean_rhs_cfunc()
+        print(f"  Mean RHS cfunc: {info_mean['build_time']:.1f}s build + "
+              f"{info_mean['compile_time']:.1f}s compile")
+        _, info_sp = get_sp_cfunc()
+        print(f"  SP cfunc: {info_sp['build_time']:.1f}s build + "
+              f"{info_sp['compile_time']:.1f}s compile")
+    except ImportError:
+        print("  heyoka cfuncs not available, using Python fallback")
+
     # Initialize Orekit
     print("Initializing Orekit...")
     _init_orekit()

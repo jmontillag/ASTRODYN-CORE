@@ -1,24 +1,28 @@
 \begin{table}[ht]
 \centering
-\caption{Wall-clock propagation time [s] per case.}
+\caption{Wall-clock propagation time [s] per case. GEqOE uses compiled
+cfuncs (heyoka LLVM) with an adaptive DOP853 integrator; one-time
+compilation cost (${\sim}12$~s) is excluded. The LEO circular entry
+includes a one-time scipy JIT warmup; steady-state cost is
+$0.02$--$0.05$~s.}
 \label{tab:dsst_timing}
 \small
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
 Case & Cowell & GEqOE m+SP & GEqOE mean & DSST osc & Brouwer \\
 \midrule
-LEO circ. & 0.36 & 64.25 & 44.57 & 4.41 & 0.20 \\
-LEO mod-$e$ & 0.03 & 62.18 & 42.36 & 5.68 & 0.07 \\
-SSO & 0.03 & 59.44 & 40.03 & 7.02 & 0.14 \\
-Near-equat. & 0.05 & 61.12 & 41.86 & 3.46 & 0.04 \\
-Crit.\ low-$e$ & 0.05 & 124.00 & 82.30 & 15.11 & 0.38 \\
-Crit.\ mod-$e$ & 0.05 & 121.04 & 80.39 & 16.89 & 0.27 \\
-Molniya & 0.03 & 35.83 & 24.21 & 12.71 & 0.03 \\
-GTO & 0.02 & 23.85 & 16.21 & 2.40 & 0.04 \\
-MEO/GPS & 0.03 & 61.20 & 40.90 & 5.46 & 0.07 \\
-Polar & 0.03 & 58.49 & 38.93 & 4.19 & 0.05 \\
-HEO mod-$e$ & 0.02 & 39.08 & 26.10 & 2.52 & 0.05 \\
-Retrograde & 0.03 & 60.98 & 40.85 & 3.79 & 0.05 \\
+LEO circ. & 0.28 & 3.53 & 3.51 & 5.09 & 0.20 \\
+LEO mod-$e$ & 0.03 & 0.02 & 0.01 & 6.40 & 0.05 \\
+SSO & 0.03 & 0.03 & 0.01 & 7.53 & 0.14 \\
+Near-equat. & 0.07 & 0.05 & 0.02 & 4.44 & 0.36 \\
+Crit.\ low-$e$ & 0.05 & 0.03 & 0.01 & 15.14 & 0.29 \\
+Crit.\ mod-$e$ & 0.05 & 0.04 & 0.01 & 15.31 & 0.10 \\
+Molniya & 0.02 & 0.02 & 0.01 & 10.19 & 0.03 \\
+GTO & 0.02 & 0.02 & 0.01 & 2.09 & 0.02 \\
+MEO/GPS & 0.03 & 0.02 & 0.01 & 5.15 & 0.04 \\
+Polar & 0.03 & 0.03 & 0.01 & 3.80 & 0.05 \\
+HEO mod-$e$ & 0.04 & 0.04 & 0.02 & 3.26 & 0.26 \\
+Retrograde & 0.03 & 0.02 & 0.01 & 11.06 & 0.05 \\
 \bottomrule
 \end{tabular}
 \end{table}

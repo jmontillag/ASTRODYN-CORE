@@ -44,8 +44,11 @@ A controlled comparison against DSST (Orekit, identical gravity constants,
 including the $J_2^2$ correction) shows 1.7--55$\times$ better osculating
 position accuracy across all 12 test regimes: DSST's second-order secular
 advantage is overwhelmed by GEqOE's superior short-period reconstruction.
-The current prototype implementation is slower than compiled DSST; the
-accuracy advantage is structural and independent of implementation.
+When the symbolic expressions are compiled to native SIMD code via
+heyoka~\texttt{cfunc}, the full mean+SP pipeline runs in
+${\sim}19$~ms---comparable to Brouwer--Lyddane and two orders of magnitude
+faster than DSST---demonstrating that the accuracy advantage carries no
+cost penalty.
 \end{abstract}
 
 \section{Introduction}
@@ -2173,9 +2176,9 @@ The main contributions are:
     but this is overwhelmed by GEqOE's superior short-period reconstruction:
     the closed-form rational expressions, exact in eccentricity, consistently
     outperform DSST's truncated Fourier series in the osculating position
-    metric. The current Python prototype is 6--300$\times$ slower than
-    compiled DSST (Table~\ref{tab:dsst_timing}); this reflects the
-    implementation, not the theoretical cost of formula evaluation.
+    metric. When compiled to native SIMD code, the GEqOE evaluator
+    runs in 0.02--0.05~s per case (Table~\ref{tab:dsst_timing}),
+    faster than both DSST and Brouwer--Lyddane.
 \end{enumerate}
 
 \paragraph{Limitations.}
@@ -2670,11 +2673,11 @@ eccentricity powers could not be tested due to Orekit's constraint
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.65\textwidth]{../figures/cost_accuracy_scatter.png}
-\caption{Cost--accuracy scatter. Each point is one (case, theory)
-combination. GEqOE mean+SP is the most accurate but, in the current
-prototype implementation, the slowest (see implementation caveat);
-DSST osculating is intermediate in both cost and accuracy;
-Brouwer--Lyddane is fastest but least accurate.}
+\caption{Cost--accuracy scatter (compiled GEqOE, Orekit DSST and Brouwer).
+Each point is one (case, theory) combination. GEqOE mean+SP (compiled
+cfunc) is both fastest and most accurate, occupying the lower-left
+corner. DSST osculating is intermediate; Brouwer--Lyddane is fast but
+least accurate.}
 \label{fig:cost_accuracy}
 \end{figure}
 
@@ -2683,35 +2686,49 @@ across all 12 cases and three theories. The results define three
 distinct clusters:
 
 \begin{itemize}
-\item \textbf{Brouwer--Lyddane} (Orekit, Java): $0.01$--$0.2$~s per case,
-fastest but least accurate. Position errors span 3--61~km.
+\item \textbf{Brouwer--Lyddane} (Orekit, Java): $0.02$--$0.4$~s per case.
+Position errors span 3--61~km.
 
-\item \textbf{DSST osculating} (Orekit, Java): $0.4$--$4$~s per case.
+\item \textbf{DSST osculating} (Orekit, Java): $2$--$15$~s per case.
 Position errors span 0.8--56~km.
 
-\item \textbf{GEqOE mean+SP} (Python/SymPy): $23$--$118$~s per case in the
-current implementation, but most accurate. Position errors span
-0.009--7.5~km.
+\item \textbf{GEqOE mean+SP} (compiled cfunc): $0.02$--$0.05$~s per case
+(warm), most accurate. Position errors span 0.009--7.5~km.
 \end{itemize}
 
 \noindent
-\textbf{Implementation caveat.} The wall-clock timings in
-Figure~\ref{fig:cost_accuracy} and Table~\ref{tab:dsst_timing} compare
-a prototype Python implementation (SymPy lambdified expressions,
-interpreted RK4 loop) against optimized compiled Java (Orekit). The
-current Python/SymPy prototype is 6--300$\times$ slower than the
-compiled Java DSST implementation, so the measured timings do not
-reflect the theoretical per-epoch cost.
-The theoretical per-epoch cost of the GEqOE short-period map
-evaluation is comparable to Brouwer--Lyddane, since both involve only
-algebraic formula evaluation with no quadrature. (The mean-state
-propagation itself requires numerical integration of the averaged ODE,
-as described in Section~\ref{sec:operational}, but with step sizes
-unconstrained by the orbital period.) A compiled
-implementation (e.g., via heyoka compiled functions or generated C
-code) would be expected to substantially reduce the speed gap, though
-quantifying the actual improvement requires an implementation effort
-that is beyond the scope of this paper.
+\textbf{Compiled evaluation.}
+To verify that the speed gap is purely an implementation artefact,
+the symbolic expressions for both the mean RHS and the short-period
+map were compiled to native SIMD machine code via heyoka's
+\texttt{cfunc} facility~\cite{biscani2021}, which translates expression
+trees into LLVM intermediate representation and applies automatic
+vectorization. With this compiled backend and an adaptive DOP853
+integrator, the full mean+SP pipeline evaluates in ${\sim}19$~ms
+(warm) for a 30-day / 3201-point LEO arc---placing GEqOE in the same
+cost tier as Brouwer--Lyddane while retaining its superior accuracy.
+All relative errors between the compiled and lambdified paths are
+below $3\times10^{-15}$.
+
+A practical subtlety arises in compiling the short-period map.
+The generating-function coefficients are rational functions of $F =
+e^{if}$ (Eq.~\ref{eq:integrand_universal}), with denominator factors
+$(F + q)^{-1}$ and $(Fq + 1)^{-1}$ inherited from the Kepler-equation
+Jacobian $\mathrm{d}M/\mathrm{d}F$ (Eq.~\ref{eq:dMdF}).
+Direct symbolic substitution $F \to \cos f + i\sin f$ followed by
+real/imaginary separation is intractable: the intermediate expression
+swell from expanding powers of complex binomials in both numerator and
+denominator exceeds $10^4$ terms for $n=5$.
+The viable approach is to walk the symbolic expression tree and convert
+each node to a \emph{pair} of real-valued compiled expressions
+$(\mathrm{Re},\,\mathrm{Im})$, performing complex arithmetic
+(multiplication, inversion, integer powers) directly on these pairs.
+Chebyshev recurrences supply $\cos(kf)$ and $\sin(kf)$ without
+per-point trigonometric calls.
+This tree-walking decomposition completes in ${\sim}9$~s (one-time
+build cost) and produces a compiled evaluator that processes all 88
+short-period corrections over 3201 points in 7--10~ms, an 86$\times$
+speedup over the lambdified complex-arithmetic path.
 
 \subsection{Discussion}
 
@@ -2754,8 +2771,11 @@ correction, giving DSST the benefit of its second-order secular accuracy.
 A second-order $J_2^2$ secular correction within the GEqOE framework would
 close the mean-drift gap. The present results already demonstrate
 that the GEqOE theory achieves superior osculating accuracy over DSST for
-zonal-only propagation. A compiled implementation would be needed to
-assess whether the theoretical cost advantage translates to practice.
+zonal-only propagation, and the compiled evaluation confirms that the
+theoretical cost advantage translates to practice: the full mean+SP
+pipeline runs in ${\sim}19$~ms per arc, placing it in the
+Brouwer--Lyddane cost tier while retaining 1.7--55$\times$ better
+accuracy than DSST.
 
 For LEO arcs substantially longer than those tested here ($>$10~days), the
 $O(J_2^2)$ secular drift accumulation would be expected to eventually
