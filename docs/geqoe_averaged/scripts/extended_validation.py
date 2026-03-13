@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 """Extended validation of GEqOE first-order averaged theory.
 
-Tests across 12 orbital regimes with three comparison models:
+Tests across 12 orbital regimes with five comparison models:
   1. Cowell (Cartesian) heyoka — gold-standard truth (same J2-J5 potential)
   2. GEqOE mean + short-period reconstruction — theory under test
-  3. Orekit Brouwer-Lyddane (J2-J5) — competing analytical theory
+  3. GEqOE mean-only — isolates mean-drift accuracy
+  4. Orekit Brouwer-Lyddane (J2-J5) — competing analytical theory
+  5. Orekit DSST (zonal J2-J5) — competing semi-analytical theory
+     (osculating, mean-only, and high-eccentricity-power variants)
 
 Produces summary LaTeX tables and figures for inclusion in the main note.
 
@@ -125,18 +128,24 @@ def propagate_cowell_grid(ta, t_grid):
 # --------------------------------------------------------------------------- #
 
 def run_geqoe_meansp(case, r0, v0, pert, t_grid):
-    """Run GEqOE mean + short-period reconstruction. Return positions [N, 3]."""
+    """Run GEqOE mean + short-period reconstruction.
+
+    Returns
+    -------
+    positions : (N, 3) array of osculating Cartesian positions [km]
+    mean_hist : (N, 6) array of mean GEqOE states
+    """
     state0_osc = cart2geqoe(r0, v0, MU, pert)
     mean0 = osculating_to_mean_state(state0_osc, J_COEFFS, re_val=RE, mu_val=MU)
     mean_hist = rk4_integrate_mean(mean0, t_grid, J_COEFFS, substeps=case.rk4_substeps)
     osc_rec = np.array([
         mean_to_osculating_state(s, J_COEFFS, re_val=RE, mu_val=MU) for s in mean_hist])
     positions = np.array([geqoe2cart(s, MU, pert)[0] for s in osc_rec])
-    return positions
+    return positions, mean_hist
 
 
 # --------------------------------------------------------------------------- #
-#  Orekit Brouwer-Lyddane
+#  Orekit initialization and shared helpers
 # --------------------------------------------------------------------------- #
 
 _OREKIT_AVAILABLE = None
@@ -161,25 +170,24 @@ def _init_orekit():
     return _OREKIT_AVAILABLE
 
 
-def run_brouwer(case, t_grid):
-    """Run Orekit Brouwer-Lyddane propagator. Return positions [N, 3] in km."""
+def _build_orekit_orbit(case):
+    """Build an Orekit KeplerianOrbit + epoch + frame from an OrbitCase.
+
+    Returns (orbit, epoch, frame) or (None, None, None) if Orekit unavailable.
+    """
     if not _init_orekit():
-        return None
+        return None, None, None
 
     from org.orekit.frames import FramesFactory
     from org.orekit.orbits import KeplerianOrbit, PositionAngleType
     from org.orekit.time import AbsoluteDate, TimeScalesFactory
-    from org.orekit.propagation.analytical import BrouwerLyddanePropagator
-    from org.orekit.utils import Constants
 
     frame = FramesFactory.getEME2000()
     utc = TimeScalesFactory.getUTC()
     epoch = AbsoluteDate(2024, 1, 1, 0, 0, 0.0, utc)
 
-    # Orekit uses SI: meters, seconds, kg
     a_m = case.a_km * 1e3
-    mu_m = MU * 1e9        # km³/s² → m³/s²
-    re_m = RE * 1e3         # km → m
+    mu_m = MU * 1e9  # km^3/s^2 -> m^3/s^2
 
     orbit = KeplerianOrbit(
         float(a_m),
@@ -193,18 +201,33 @@ def run_brouwer(case, t_grid):
         epoch,
         float(mu_m),
     )
+    return orbit, epoch, frame
 
-    # Unnormalized zonal coefficients: C_{n,0} = -J_n
+
+# --------------------------------------------------------------------------- #
+#  Orekit Brouwer-Lyddane
+# --------------------------------------------------------------------------- #
+
+def run_brouwer(case, t_grid, orbit=None, epoch=None, frame=None):
+    """Run Orekit Brouwer-Lyddane propagator. Return positions [N, 3] in km."""
+    if orbit is None:
+        orbit, epoch, frame = _build_orekit_orbit(case)
+    if orbit is None:
+        return None
+
+    from org.orekit.propagation.analytical import BrouwerLyddanePropagator
+
+    re_m = RE * 1e3
+    mu_m = MU * 1e9
     c20 = float(-J2)
     c30 = float(-J3)
     c40 = float(-J4)
     c50 = float(-J5)
-    m2 = 0.0  # no drag
 
     try:
         prop = BrouwerLyddanePropagator(
             orbit, float(re_m), float(mu_m),
-            c20, c30, c40, c50, m2)
+            c20, c30, c40, c50, 0.0)
     except Exception as exc:
         print(f"  [WARN] Brouwer failed for {case.name}: {exc}")
         return None
@@ -219,6 +242,101 @@ def run_brouwer(case, t_grid):
         except Exception:
             positions[i] = np.nan
     return positions
+
+
+# --------------------------------------------------------------------------- #
+#  DSST propagation
+# --------------------------------------------------------------------------- #
+
+def _build_dsst_propagator(orbit, state_type="OSCULATING"):
+    """Build a DSST (zonal-only J2-J5) propagator via astrodyn_core API."""
+    from astrodyn_core import (
+        AstrodynClient, BuildContext, GravitySpec,
+        IntegratorSpec, PropagatorKind, PropagatorSpec, SpacecraftSpec,
+    )
+
+    app = AstrodynClient()
+    dsst_spec = PropagatorSpec(
+        kind=PropagatorKind.DSST,
+        spacecraft=SpacecraftSpec(mass=1.0),
+        integrator=IntegratorSpec(
+            kind="dp853",
+            min_step=1e-3,
+            max_step=300.0,
+            position_tolerance=1e-6,
+        ),
+        dsst_propagation_type="MEAN",
+        dsst_state_type=state_type,
+        force_specs=[GravitySpec(degree=5, order=0)],
+    )
+    ctx = BuildContext(initial_orbit=orbit)
+    builder = app.propagation.build_builder(dsst_spec, ctx)
+    return builder.buildPropagator(builder.getSelectedNormalizedParameters())
+
+
+def _propagate_orekit_grid(propagator, epoch, frame, t_grid):
+    """Propagate an Orekit propagator to a time grid, return positions [N, 3] km."""
+    positions = np.empty((len(t_grid), 3))
+    for i, t in enumerate(t_grid):
+        state = propagator.propagate(epoch.shiftedBy(float(t)))
+        pv = state.getPVCoordinates(frame)
+        pos = pv.getPosition()
+        positions[i] = np.array([pos.getX(), pos.getY(), pos.getZ()]) / 1e3
+    return positions
+
+
+def run_dsst_zonal_osc(orbit, epoch, frame, t_grid):
+    """DSST zonal, osculating output — primary comparison."""
+    prop = _build_dsst_propagator(orbit, state_type="OSCULATING")
+    return _propagate_orekit_grid(prop, epoch, frame, t_grid)
+
+
+def run_dsst_zonal_mean(orbit, epoch, frame, t_grid):
+    """DSST zonal, mean-only output — isolates mean-drift accuracy."""
+    prop = _build_dsst_propagator(orbit, state_type="MEAN")
+    return _propagate_orekit_grid(prop, epoch, frame, t_grid)
+
+
+def run_dsst_zonal_high_ecc(orbit, epoch, frame, t_grid, max_ecc_pow=6):
+    """DSST zonal with elevated maxEccPowShortPeriodics for high-e orbits.
+
+    Manually constructs DSSTZonal with explicit eccentricity power control
+    to test convergence of DSST's truncated Fourier series.
+    """
+    from org.orekit.forces.gravity.potential import GravityFieldFactory
+    from org.orekit.propagation.semianalytical.dsst.forces import DSSTZonal
+    from org.orekit.propagation.conversion import (
+        DSSTPropagatorBuilder, DormandPrince853IntegratorBuilder,
+    )
+    from org.orekit.propagation import PropagationType
+    from astrodyn_core.orekit_env import get_earth_shape
+
+    provider = GravityFieldFactory.getUnnormalizedProvider(5, 0)
+    earth_shape = get_earth_shape()
+    body_frame = earth_shape.getBodyFrame()
+
+    dsst_zonal = DSSTZonal(
+        body_frame, provider,
+        int(5),            # maxDegreeShortPeriodics
+        int(max_ecc_pow),  # maxEccPowShortPeriodics
+        int(11),           # maxFrequencyShortPeriodics = 2*5+1
+    )
+
+    integrator_builder = DormandPrince853IntegratorBuilder(
+        float(1e-3), float(300.0), float(1e-6))
+
+    builder = DSSTPropagatorBuilder(
+        orbit,
+        integrator_builder,
+        float(10.0),  # positionScale
+        PropagationType.MEAN,
+        PropagationType.OSCULATING,
+    )
+    builder.setMass(1.0)
+    builder.addForceModel(dsst_zonal)
+
+    propagator = builder.buildPropagator(builder.getSelectedNormalizedParameters())
+    return _propagate_orekit_grid(propagator, epoch, frame, t_grid)
 
 
 # --------------------------------------------------------------------------- #
@@ -254,13 +372,22 @@ def run_single_case(case):
         "n_orbits": case.n_orbits,
     }
 
+    # Initialize cart arrays to None for safe access in plotting section
+    meansp_cart = None
+    mean_hist = None
+    geqoe_mean_cart = None
+    brouwer_cart = None
+    dsst_osc_cart = None
+    dsst_mean_cart = None
+
     # --- 1. Cowell truth ---
     t0 = time.time()
     try:
         ta_cow = build_cowell_integrator(pert, r0, v0)
         truth_cart = propagate_cowell_grid(ta_cow, t_grid)
         result["cowell_ok"] = True
-        print(f"  Cowell:    {time.time()-t0:.1f}s")
+        result["cowell_time"] = time.time() - t0
+        print(f"  Cowell:        {result['cowell_time']:.1f}s")
     except Exception as exc:
         print(f"  Cowell FAILED: {exc}")
         result["cowell_ok"] = False
@@ -275,7 +402,8 @@ def run_single_case(case):
         geqoe_cart = np.array([geqoe2cart(s, MU, pert)[0] for s in osc_geqoe])
         cross = compute_errors(truth_cart, geqoe_cart, "GEqOE-Taylor")
         result["geqoe_taylor_vs_cowell"] = cross
-        print(f"  GEqOE-Taylor: {time.time()-t0:.1f}s  "
+        result["geqoe_taylor_time"] = time.time() - t0
+        print(f"  GEqOE-Taylor:  {result['geqoe_taylor_time']:.1f}s  "
               f"(cross-check: pos RMS = {cross['pos_rms_km']:.2e} km)")
     except Exception as exc:
         print(f"  GEqOE-Taylor FAILED: {exc}")
@@ -283,43 +411,127 @@ def run_single_case(case):
         result["geqoe_taylor_vs_cowell"] = None
 
     # --- 3. GEqOE mean + short-period ---
-    t0 = time.time()
     try:
         _ensure_symbolic_cache(J_COEFFS)
-        meansp_cart = run_geqoe_meansp(case, r0, v0, pert, t_grid)
+
+        # Time the mean propagation separately for accurate cost breakdown
+        t0_mean = time.time()
+        state0_osc = cart2geqoe(r0, v0, MU, pert)
+        mean0 = osculating_to_mean_state(state0_osc, J_COEFFS, re_val=RE, mu_val=MU)
+        mean_hist = rk4_integrate_mean(mean0, t_grid, J_COEFFS, substeps=case.rk4_substeps)
+        mean_prop_time = time.time() - t0_mean
+
+        # Short-period reconstruction + geqoe2cart
+        t0_sp = time.time()
+        osc_rec = np.array([
+            mean_to_osculating_state(s, J_COEFFS, re_val=RE, mu_val=MU) for s in mean_hist])
+        meansp_cart = np.array([geqoe2cart(s, MU, pert)[0] for s in osc_rec])
+        sp_time = time.time() - t0_sp
+
+        result["meansp_time"] = mean_prop_time + sp_time
         err_meansp = compute_errors(truth_cart, meansp_cart, "GEqOE-mean+SP")
         result["geqoe_meansp"] = err_meansp
         result["meansp_cart"] = meansp_cart
-        print(f"  GEqOE-mean+SP: {time.time()-t0:.1f}s  "
+        print(f"  GEqOE-mean+SP: {result['meansp_time']:.1f}s  "
               f"pos RMS = {err_meansp['pos_rms_km']:.4f} km  "
               f"rad RMS = {err_meansp['rad_rms_km']:.4f} km")
+
+        # --- 3b. GEqOE mean-only (no short-period map) ---
+        t0_mo = time.time()
+        geqoe_mean_cart = np.array([geqoe2cart(s, MU, pert)[0] for s in mean_hist])
+        mo_time = time.time() - t0_mo
+        result["geqoe_mean_only_time"] = mean_prop_time + mo_time
+        err_geqoe_mean = compute_errors(truth_cart, geqoe_mean_cart, "GEqOE-mean-only")
+        result["geqoe_mean_only"] = err_geqoe_mean
+        print(f"  GEqOE-mean:    "
+              f"pos RMS = {err_geqoe_mean['pos_rms_km']:.4f} km")
+
     except Exception as exc:
         print(f"  GEqOE-mean+SP FAILED: {exc}")
         traceback.print_exc()
         result["geqoe_meansp"] = None
+        result["geqoe_mean_only"] = None
+
+    # Build Orekit orbit once for Brouwer + DSST
+    orekit_orbit, epoch_ok, frame_ok = _build_orekit_orbit(case)
 
     # --- 4. Brouwer-Lyddane ---
     t0 = time.time()
     try:
-        brouwer_cart = run_brouwer(case, t_grid)
+        brouwer_cart = run_brouwer(case, t_grid, orekit_orbit, epoch_ok, frame_ok)
+        result["brouwer_time"] = time.time() - t0
         if brouwer_cart is not None:
             err_brouwer = compute_errors(truth_cart, brouwer_cart, "Brouwer-Lyddane")
             result["brouwer"] = err_brouwer
-            print(f"  Brouwer:   {time.time()-t0:.1f}s  "
+            print(f"  Brouwer:       {result['brouwer_time']:.1f}s  "
                   f"pos RMS = {err_brouwer['pos_rms_km']:.4f} km  "
                   f"rad RMS = {err_brouwer['rad_rms_km']:.4f} km")
         else:
             result["brouwer"] = None
-            print(f"  Brouwer:   skipped")
+            print(f"  Brouwer:       skipped")
     except Exception as exc:
         print(f"  Brouwer FAILED: {exc}")
         traceback.print_exc()
         result["brouwer"] = None
 
+    # --- 5. DSST zonal (osculating) — primary comparison ---
+    t0 = time.time()
+    try:
+        if orekit_orbit is not None:
+            dsst_osc_cart = run_dsst_zonal_osc(orekit_orbit, epoch_ok, frame_ok, t_grid)
+            result["dsst_osc_time"] = time.time() - t0
+            err_dsst_osc = compute_errors(truth_cart, dsst_osc_cart, "DSST-osc")
+            result["dsst_osc"] = err_dsst_osc
+            print(f"  DSST-osc:      {result['dsst_osc_time']:.1f}s  "
+                  f"pos RMS = {err_dsst_osc['pos_rms_km']:.4f} km  "
+                  f"rad RMS = {err_dsst_osc['rad_rms_km']:.4f} km")
+        else:
+            result["dsst_osc"] = None
+            print(f"  DSST-osc:      skipped (no Orekit)")
+    except Exception as exc:
+        print(f"  DSST-osc FAILED: {exc}")
+        traceback.print_exc()
+        result["dsst_osc"] = None
+
+    # --- 6. DSST zonal (mean-only) — isolates mean-drift accuracy ---
+    t0 = time.time()
+    try:
+        if orekit_orbit is not None:
+            dsst_mean_cart = run_dsst_zonal_mean(orekit_orbit, epoch_ok, frame_ok, t_grid)
+            result["dsst_mean_time"] = time.time() - t0
+            err_dsst_mean = compute_errors(truth_cart, dsst_mean_cart, "DSST-mean")
+            result["dsst_mean"] = err_dsst_mean
+            print(f"  DSST-mean:     {result['dsst_mean_time']:.1f}s  "
+                  f"pos RMS = {err_dsst_mean['pos_rms_km']:.4f} km")
+        else:
+            result["dsst_mean"] = None
+    except Exception as exc:
+        print(f"  DSST-mean FAILED: {exc}")
+        traceback.print_exc()
+        result["dsst_mean"] = None
+
+    # --- 7. DSST high-eccentricity-power (only for e >= 0.35) ---
+    if case.e >= 0.35 and orekit_orbit is not None:
+        for max_ecc in [6, 8]:
+            t0 = time.time()
+            try:
+                dsst_he_cart = run_dsst_zonal_high_ecc(
+                    orekit_orbit, epoch_ok, frame_ok, t_grid, max_ecc_pow=max_ecc)
+                result[f"dsst_osc_ecc{max_ecc}_time"] = time.time() - t0
+                err_he = compute_errors(truth_cart, dsst_he_cart, f"DSST-osc-ecc{max_ecc}")
+                result[f"dsst_osc_ecc{max_ecc}"] = err_he
+                print(f"  DSST-ecc{max_ecc}:    {result[f'dsst_osc_ecc{max_ecc}_time']:.1f}s  "
+                      f"pos RMS = {err_he['pos_rms_km']:.4f} km")
+            except Exception as exc:
+                print(f"  DSST-ecc{max_ecc} FAILED: {exc}")
+                traceback.print_exc()
+                result[f"dsst_osc_ecc{max_ecc}"] = None
+
     # Store position error time series for plots
     result["t_grid"] = t_grid
     result["truth_cart"] = truth_cart
-    if result.get("geqoe_meansp"):
+
+    if result.get("geqoe_meansp") and meansp_cart is not None:
         diff_ms = meansp_cart - truth_cart
         result["pos_err_meansp"] = np.linalg.norm(diff_ms, axis=1)
         r_hat = truth_cart / np.linalg.norm(truth_cart, axis=1, keepdims=True)
@@ -329,48 +541,67 @@ def run_single_case(case):
         result["pos_err_brouwer"] = np.linalg.norm(diff_br, axis=1)
         r_hat = truth_cart / np.linalg.norm(truth_cart, axis=1, keepdims=True)
         result["rad_err_brouwer"] = np.sum(diff_br * r_hat, axis=1)
+    if result.get("dsst_osc") and dsst_osc_cart is not None:
+        diff_do = dsst_osc_cart - truth_cart
+        result["pos_err_dsst_osc"] = np.linalg.norm(diff_do, axis=1)
+        r_hat = truth_cart / np.linalg.norm(truth_cart, axis=1, keepdims=True)
+        result["rad_err_dsst_osc"] = np.sum(diff_do * r_hat, axis=1)
+    if result.get("dsst_mean") and dsst_mean_cart is not None:
+        diff_dm = dsst_mean_cart - truth_cart
+        result["pos_err_dsst_mean"] = np.linalg.norm(diff_dm, axis=1)
+    if result.get("geqoe_mean_only") and geqoe_mean_cart is not None:
+        diff_gm = geqoe_mean_cart - truth_cart
+        result["pos_err_geqoe_mean_only"] = np.linalg.norm(diff_gm, axis=1)
 
     return result
 
 
 # --------------------------------------------------------------------------- #
-#  Output: LaTeX table
+#  Output: LaTeX tables
 # --------------------------------------------------------------------------- #
 
-def write_latex_table(results, out_path):
-    """Write summary LaTeX table."""
+def write_osculating_table(results, out_path):
+    """Table A: osculating comparison — GEqOE mean+SP vs DSST-osc vs Brouwer."""
     lines = []
     lines.append(r"\begin{table}[ht]")
     lines.append(r"\centering")
-    lines.append(r"\caption{Extended validation: position RMS error [km] against Cowell truth")
-    lines.append(r"($J_2$--$J_5$ zonal, same constants). Propagation windows range from")
-    lines.append(r"3 to 20 days depending on orbital period.}")
-    lines.append(r"\label{tab:extended_validation}")
+    lines.append(r"\caption{Osculating position RMS error [km] against Cowell truth")
+    lines.append(r"($J_2$--$J_5$ zonal, identical constants for GEqOE/Brouwer;")
+    lines.append(r"Orekit EGM2008 for DSST). ``pos'': 3D position; ``rad'': radial.}")
+    lines.append(r"\label{tab:dsst_osculating}")
     lines.append(r"\small")
-    lines.append(r"\begin{tabular}{@{}lrrrrrrrr@{}}")
+    lines.append(r"\begin{tabular}{@{}lrrrr" + "rr" * 3 + r"@{}}")
     lines.append(r"\toprule")
     lines.append(r"Case & $a$ & $e$ & $i$ & Days"
                  r" & \multicolumn{2}{c}{GEqOE mean+SP}"
+                 r" & \multicolumn{2}{c}{DSST osc.}"
                  r" & \multicolumn{2}{c}{Brouwer--Lyddane} \\")
     lines.append(r" & [km] & & [deg] & "
-                 r" & pos & rad & pos & rad \\")
+                 r" & pos & rad & pos & rad & pos & rad \\")
     lines.append(r"\midrule")
 
     for r in results:
         if not r.get("cowell_ok"):
             continue
         ms = r.get("geqoe_meansp")
+        do = r.get("dsst_osc")
         br = r.get("brouwer")
-        ms_pos = f"{ms['pos_rms_km']:.3f}" if ms else "---"
-        ms_rad = f"{ms['rad_rms_km']:.3f}" if ms else "---"
-        br_pos = f"{br['pos_rms_km']:.3f}" if br else "---"
-        br_rad = f"{br['rad_rms_km']:.3f}" if br else "---"
-
         case = next(c for c in CASES if c.name == r["case_name"])
+
+        def _fmt(d, key):
+            if d is None:
+                return "---"
+            v = d[key]
+            if v < 0.01:
+                return f"{v:.4f}"
+            return f"{v:.3f}"
+
         lines.append(
             f"{case.label} & {r['a_km']:.0f} & {r['e']:.3f} & "
             f"{r['inc_deg']:.1f} & {r['t_final_days']:.1f} & "
-            f"{ms_pos} & {ms_rad} & {br_pos} & {br_rad} \\\\"
+            f"{_fmt(ms, 'pos_rms_km')} & {_fmt(ms, 'rad_rms_km')} & "
+            f"{_fmt(do, 'pos_rms_km')} & {_fmt(do, 'rad_rms_km')} & "
+            f"{_fmt(br, 'pos_rms_km')} & {_fmt(br, 'rad_rms_km')} \\\\"
         )
 
     lines.append(r"\bottomrule")
@@ -378,7 +609,126 @@ def write_latex_table(results, out_path):
     lines.append(r"\end{table}")
 
     out_path.write_text("\n".join(lines), encoding="utf-8")
-    print(f"\n  LaTeX table written to {out_path}")
+    print(f"  Table A (osculating) written to {out_path}")
+
+
+def write_mean_drift_table(results, out_path):
+    """Table B: mean-drift decomposition — GEqOE mean-only vs DSST mean-only."""
+    lines = []
+    lines.append(r"\begin{table}[ht]")
+    lines.append(r"\centering")
+    lines.append(r"\caption{Mean-drift position RMS [km]: mean-element propagation without")
+    lines.append(r"short-period reconstruction, isolating secular/long-period accuracy.}")
+    lines.append(r"\label{tab:dsst_mean_drift}")
+    lines.append(r"\small")
+    lines.append(r"\begin{tabular}{@{}lrrrrrr@{}}")
+    lines.append(r"\toprule")
+    lines.append(r"Case & $a$ [km] & $e$ & Days"
+                 r" & GEqOE mean & DSST mean & Ratio \\")
+    lines.append(r"\midrule")
+
+    for r in results:
+        if not r.get("cowell_ok"):
+            continue
+        gm = r.get("geqoe_mean_only")
+        dm = r.get("dsst_mean")
+        case = next(c for c in CASES if c.name == r["case_name"])
+        gm_s = f"{gm['pos_rms_km']:.3f}" if gm else "---"
+        dm_s = f"{dm['pos_rms_km']:.3f}" if dm else "---"
+        if gm and dm and dm["pos_rms_km"] > 0:
+            ratio = gm["pos_rms_km"] / dm["pos_rms_km"]
+            ratio_s = f"{ratio:.1f}"
+        else:
+            ratio_s = "---"
+        lines.append(
+            f"{case.label} & {r['a_km']:.0f} & {r['e']:.3f} & "
+            f"{r['t_final_days']:.1f} & {gm_s} & {dm_s} & {ratio_s} \\\\"
+        )
+
+    lines.append(r"\bottomrule")
+    lines.append(r"\end{tabular}")
+    lines.append(r"\end{table}")
+
+    out_path.write_text("\n".join(lines), encoding="utf-8")
+    print(f"  Table B (mean-drift) written to {out_path}")
+
+
+def write_ecc_power_table(results, out_path):
+    """Table C: eccentricity power convergence for high-e cases."""
+    high_e = [r for r in results
+              if r.get("cowell_ok") and r.get("e", 0) >= 0.35]
+    if not high_e:
+        return
+
+    lines = []
+    lines.append(r"\begin{table}[ht]")
+    lines.append(r"\centering")
+    lines.append(r"\caption{Eccentricity power convergence: position RMS [km] for")
+    lines.append(r"high-eccentricity cases. DSST ecc$=N$ denotes")
+    lines.append(r"\texttt{maxEccPowShortPeriodics}$=N$ (default 4).}")
+    lines.append(r"\label{tab:dsst_ecc_power}")
+    lines.append(r"\small")
+    lines.append(r"\begin{tabular}{@{}lrrrrrr@{}}")
+    lines.append(r"\toprule")
+    lines.append(r"Case & $e$ & GEqOE & DSST ecc=4 & DSST ecc=6 & DSST ecc=8 \\")
+    lines.append(r"\midrule")
+
+    for r in high_e:
+        case = next(c for c in CASES if c.name == r["case_name"])
+        ms = r.get("geqoe_meansp")
+        do = r.get("dsst_osc")  # default ecc=4
+        e6 = r.get("dsst_osc_ecc6")
+        e8 = r.get("dsst_osc_ecc8")
+
+        def _f(d):
+            return f"{d['pos_rms_km']:.3f}" if d else "---"
+
+        lines.append(
+            f"{case.label} & {r['e']:.2f} & {_f(ms)} & {_f(do)} & {_f(e6)} & {_f(e8)} \\\\"
+        )
+
+    lines.append(r"\bottomrule")
+    lines.append(r"\end{tabular}")
+    lines.append(r"\end{table}")
+
+    out_path.write_text("\n".join(lines), encoding="utf-8")
+    print(f"  Table C (ecc-power) written to {out_path}")
+
+
+def write_timing_table(results, out_path):
+    """Wall-clock timing table for all methods."""
+    lines = []
+    lines.append(r"\begin{table}[ht]")
+    lines.append(r"\centering")
+    lines.append(r"\caption{Wall-clock propagation time [s] per case.}")
+    lines.append(r"\label{tab:dsst_timing}")
+    lines.append(r"\small")
+    lines.append(r"\begin{tabular}{@{}lrrrrr@{}}")
+    lines.append(r"\toprule")
+    lines.append(r"Case & Cowell & GEqOE m+SP & GEqOE mean & DSST osc & Brouwer \\")
+    lines.append(r"\midrule")
+
+    for r in results:
+        if not r.get("cowell_ok"):
+            continue
+        case = next(c for c in CASES if c.name == r["case_name"])
+
+        def _t(key):
+            v = r.get(key)
+            return f"{v:.2f}" if v is not None else "---"
+
+        lines.append(
+            f"{case.label} & {_t('cowell_time')} & {_t('meansp_time')} & "
+            f"{_t('geqoe_mean_only_time')} & {_t('dsst_osc_time')} & "
+            f"{_t('brouwer_time')} \\\\"
+        )
+
+    lines.append(r"\bottomrule")
+    lines.append(r"\end{tabular}")
+    lines.append(r"\end{table}")
+
+    out_path.write_text("\n".join(lines), encoding="utf-8")
+    print(f"  Timing table written to {out_path}")
 
 
 # --------------------------------------------------------------------------- #
@@ -405,6 +755,9 @@ def create_figures(results):
         if "pos_err_meansp" in r:
             tau = r["t_grid"] / T
             ax.plot(tau, r["pos_err_meansp"], lw=0.8, label="GEqOE")
+        if "pos_err_dsst_osc" in r:
+            tau = r["t_grid"] / T
+            ax.plot(tau, r["pos_err_dsst_osc"], lw=0.8, label="DSST", ls=":")
         if "pos_err_brouwer" in r:
             tau = r["t_grid"] / T
             ax.plot(tau, r["pos_err_brouwer"], lw=0.8, label="Brouwer", ls="--")
@@ -437,6 +790,9 @@ def create_figures(results):
             if "rad_err_meansp" in r:
                 tau = r["t_grid"] / T
                 ax.plot(tau, r["rad_err_meansp"], lw=0.8, label="GEqOE")
+            if "rad_err_dsst_osc" in r:
+                tau = r["t_grid"] / T
+                ax.plot(tau, r["rad_err_dsst_osc"], lw=0.8, label="DSST", ls=":")
             if "rad_err_brouwer" in r:
                 tau = r["t_grid"] / T
                 ax.plot(tau, r["rad_err_brouwer"], lw=0.8, label="Brouwer", ls="--")
@@ -453,23 +809,26 @@ def create_figures(results):
         plt.close(fig)
         print(f"  Figure saved: {out}")
 
-    # --- Figure 3: Bar chart comparison ---
-    names, geqoe_vals, brouwer_vals = [], [], []
+    # --- Figure 3: Bar chart — three theories ---
+    names, geqoe_vals, dsst_vals, brouwer_vals = [], [], [], []
     for r in results:
         ms = r.get("geqoe_meansp")
+        do = r.get("dsst_osc")
         br = r.get("brouwer")
         if ms and br:
             case = next(c for c in CASES if c.name == r["case_name"])
             names.append(case.name)
             geqoe_vals.append(ms["pos_rms_km"])
+            dsst_vals.append(do["pos_rms_km"] if do else np.nan)
             brouwer_vals.append(br["pos_rms_km"])
 
     if names:
-        fig, ax = plt.subplots(figsize=(12, 5))
+        fig, ax = plt.subplots(figsize=(13, 5))
         x = np.arange(len(names))
-        w = 0.35
-        ax.bar(x - w/2, geqoe_vals, w, label="GEqOE mean+SP")
-        ax.bar(x + w/2, brouwer_vals, w, label="Brouwer-Lyddane")
+        w = 0.25
+        ax.bar(x - w, geqoe_vals, w, label="GEqOE mean+SP", color="C0")
+        ax.bar(x, dsst_vals, w, label="DSST osculating", color="C1")
+        ax.bar(x + w, brouwer_vals, w, label="Brouwer-Lyddane", color="C2")
         ax.set_xticks(x)
         ax.set_xticklabels(names, rotation=45, ha="right", fontsize=8)
         ax.set_ylabel("Position RMS error [km]")
@@ -482,6 +841,112 @@ def create_figures(results):
         plt.close(fig)
         print(f"  Figure saved: {out}")
 
+    # --- Figure 4: Cost-accuracy scatter plot ---
+    fig, ax = plt.subplots(figsize=(9, 7))
+    markers = {"GEqOE m+SP": ("o", "C0"), "DSST osc": ("s", "C1"),
+               "Brouwer": ("^", "C2"), "Cowell": ("D", "C3")}
+    for r in results:
+        if not r.get("cowell_ok"):
+            continue
+        case = next(c for c in CASES if c.name == r["case_name"])
+        pairs = []
+        if r.get("geqoe_meansp") and r.get("meansp_time"):
+            pairs.append(("GEqOE m+SP", r["meansp_time"], r["geqoe_meansp"]["pos_rms_km"]))
+        if r.get("dsst_osc") and r.get("dsst_osc_time"):
+            pairs.append(("DSST osc", r["dsst_osc_time"], r["dsst_osc"]["pos_rms_km"]))
+        if r.get("brouwer") and r.get("brouwer_time"):
+            pairs.append(("Brouwer", r["brouwer_time"], r["brouwer"]["pos_rms_km"]))
+        for label, t_wall, pos_rms in pairs:
+            m, c = markers[label]
+            ax.scatter(t_wall, pos_rms, marker=m, color=c, s=40, alpha=0.7)
+
+    # Legend (one entry per theory)
+    for label, (m, c) in markers.items():
+        if label == "Cowell":
+            continue
+        ax.scatter([], [], marker=m, color=c, s=40, label=label)
+    ax.set_xlabel("Wall-clock time [s]")
+    ax.set_ylabel("Position RMS error [km]")
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.legend()
+    ax.grid(True, alpha=0.3, which="both")
+    ax.set_title("Cost-accuracy Pareto frontier")
+    fig.tight_layout()
+    out = FIG_DIR / "cost_accuracy_scatter.png"
+    fig.savefig(out, dpi=180)
+    plt.close(fig)
+    print(f"  Figure saved: {out}")
+
+    # --- Figure 5: Mean-drift comparison ---
+    drift_cases = ["LEO-circ", "Crit-low-e", "Molniya", "MEO-GPS"]
+    drift_results = [r for r in results if r["case_name"] in drift_cases]
+    if drift_results:
+        n_panels = len(drift_results)
+        fig, axes = plt.subplots(1, n_panels, figsize=(4 * n_panels, 4))
+        if n_panels == 1:
+            axes = [axes]
+        for idx, r in enumerate(drift_results):
+            ax = axes[idx]
+            T = r.get("T_orbit_s", 1.0)
+            case = next(c for c in CASES if c.name == r["case_name"])
+            if "pos_err_geqoe_mean_only" in r:
+                tau = r["t_grid"] / T
+                ax.plot(tau, r["pos_err_geqoe_mean_only"], lw=0.8, label="GEqOE mean")
+            if "pos_err_dsst_mean" in r:
+                tau = r["t_grid"] / T
+                ax.plot(tau, r["pos_err_dsst_mean"], lw=0.8, label="DSST mean", ls=":")
+            ax.set_title(f"{case.name}", fontsize=10)
+            ax.set_xlabel("orbits", fontsize=9)
+            ax.set_ylabel("pos err [km]", fontsize=9)
+            ax.grid(True, alpha=0.3)
+            ax.tick_params(labelsize=8)
+            ax.legend(fontsize=8)
+        fig.tight_layout()
+        out = FIG_DIR / "mean_drift_comparison.png"
+        fig.savefig(out, dpi=180)
+        plt.close(fig)
+        print(f"  Figure saved: {out}")
+
+    # --- Figure 6: Eccentricity power convergence ---
+    high_e_results = [r for r in results
+                      if r.get("e", 0) >= 0.35 and r.get("cowell_ok")]
+    if high_e_results:
+        fig, ax = plt.subplots(figsize=(8, 5))
+        x_labels = []
+        bar_data = {}  # {label: [values]}
+        for r in high_e_results:
+            case = next(c for c in CASES if c.name == r["case_name"])
+            x_labels.append(case.name)
+            ms = r.get("geqoe_meansp")
+            do = r.get("dsst_osc")
+            e6 = r.get("dsst_osc_ecc6")
+            e8 = r.get("dsst_osc_ecc8")
+            bar_data.setdefault("GEqOE", []).append(ms["pos_rms_km"] if ms else np.nan)
+            bar_data.setdefault("DSST ecc=4", []).append(do["pos_rms_km"] if do else np.nan)
+            bar_data.setdefault("DSST ecc=6", []).append(e6["pos_rms_km"] if e6 else np.nan)
+            bar_data.setdefault("DSST ecc=8", []).append(e8["pos_rms_km"] if e8 else np.nan)
+
+        x = np.arange(len(x_labels))
+        n_bars = len(bar_data)
+        w = 0.8 / n_bars
+        for i, (label, vals) in enumerate(bar_data.items()):
+            offset = (i - n_bars / 2 + 0.5) * w
+            ax.bar(x + offset, vals, w, label=label)
+
+        ax.set_xticks(x)
+        ax.set_xticklabels(x_labels, fontsize=9)
+        ax.set_ylabel("Position RMS error [km]")
+        ax.set_yscale("log")
+        ax.legend()
+        ax.grid(True, alpha=0.3, which="both")
+        ax.set_title("Eccentricity power convergence (high-e cases)")
+        fig.tight_layout()
+        out = FIG_DIR / "ecc_power_convergence.png"
+        fig.savefig(out, dpi=180)
+        plt.close(fig)
+        print(f"  Figure saved: {out}")
+
 
 # --------------------------------------------------------------------------- #
 #  Main
@@ -490,6 +955,7 @@ def create_figures(results):
 def main():
     print("=" * 60)
     print("  Extended GEqOE Averaged Theory Validation")
+    print("  (with DSST semi-analytical comparison)")
     print("=" * 60)
 
     # Pre-build symbolic cache
@@ -511,30 +977,36 @@ def main():
             all_results.append({"case_name": case.name, "cowell_ok": False})
 
     # --- Summary ---
-    print("\n" + "=" * 60)
+    print("\n" + "=" * 70)
     print("  SUMMARY")
-    print("=" * 60)
-    fmt = "{:<14s} {:>8s} {:>8s} {:>10s} {:>10s}"
-    print(fmt.format("Case", "e", "i [deg]", "GEqOE RMS", "Brouwer RMS"))
-    print("-" * 54)
+    print("=" * 70)
+    fmt = "{:<14s} {:>6s} {:>6s} {:>10s} {:>10s} {:>10s}"
+    print(fmt.format("Case", "e", "i", "GEqOE RMS", "DSST RMS", "Brouwer"))
+    print("-" * 62)
     for r in all_results:
         ms = r.get("geqoe_meansp")
+        do = r.get("dsst_osc")
         br = r.get("brouwer")
         ms_s = f"{ms['pos_rms_km']:.4f}" if ms else "FAIL"
+        do_s = f"{do['pos_rms_km']:.4f}" if do else "FAIL"
         br_s = f"{br['pos_rms_km']:.4f}" if br else "FAIL"
         print(fmt.format(
             r["case_name"],
-            f"{r.get('e','?')}",
-            f"{r.get('inc_deg','?')}",
-            ms_s, br_s))
+            f"{r.get('e', '?')}",
+            f"{r.get('inc_deg', '?')}",
+            ms_s, do_s, br_s))
 
-    # Write outputs
-    write_latex_table(all_results, DOC_DIR / "main_docs" / "extended_validation_table.tex")
+    # Write LaTeX tables
+    table_dir = DOC_DIR / "main_docs"
+    write_osculating_table(all_results, table_dir / "dsst_osculating_table.tex")
+    write_mean_drift_table(all_results, table_dir / "dsst_mean_drift_table.tex")
+    write_ecc_power_table(all_results, table_dir / "dsst_ecc_power_table.tex")
+    write_timing_table(all_results, table_dir / "dsst_timing_table.tex")
 
     print("\nGenerating figures...")
     create_figures(all_results)
 
-    # Save raw metrics as JSON (for later use)
+    # Save raw metrics as JSON
     json_out = DOC_DIR / "extended_validation_results.json"
     serializable = []
     for r in all_results:

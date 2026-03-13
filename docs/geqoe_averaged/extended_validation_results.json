@@ -8,6 +8,7 @@
     "t_final_days": 3.2805895328651826,
     "n_orbits": 50,
     "cowell_ok": true,
+    "cowell_time": 0.374725341796875,
     "geqoe_taylor_vs_cowell": {
       "label": "GEqOE-Taylor",
       "pos_rms_km": 4.948387233228326e-09,
@@ -15,6 +16,8 @@
       "rad_rms_km": 2.9873952019937886e-11,
       "rad_max_km": 6.889705900735201e-11
     },
+    "geqoe_taylor_time": 0.411876916885376,
+    "meansp_time": 65.62058544158936,
     "geqoe_meansp": {
       "label": "GEqOE-mean+SP",
       "pos_rms_km": 1.2668329260755369,
@@ -22,12 +25,37 @@
       "rad_rms_km": 0.7459998338446469,
       "rad_max_km": 1.796767367304704
     },
+    "geqoe_mean_only_time": 45.766927003860474,
+    "geqoe_mean_only": {
+      "label": "GEqOE-mean-only",
+      "pos_rms_km": 3149.246251834068,
+      "pos_max_km": 3489.747182380795,
+      "rad_rms_km": 729.1838770435746,
+      "rad_max_km": 886.7962012260106
+    },
+    "brouwer_time": 0.19400906562805176,
     "brouwer": {
       "label": "Brouwer-Lyddane",
       "pos_rms_km": 10.57167932578179,
       "pos_max_km": 21.437593894038727,
       "rad_rms_km": 7.716072103536537,
       "rad_max_km": 14.441432959142254
+    },
+    "dsst_osc_time": 4.126901626586914,
+    "dsst_osc": {
+      "label": "DSST-osc",
+      "pos_rms_km": 1.884709039458027,
+      "pos_max_km": 3.4209985860830323,
+      "rad_rms_km": 1.0380697644977046,
+      "rad_max_km": 1.7691380754138142
+    },
+    "dsst_mean_time": 1.0811069011688232,
+    "dsst_mean": {
+      "label": "DSST-mean",
+      "pos_rms_km": 1599.765276096484,
+      "pos_max_km": 2767.6488541713547,
+      "rad_rms_km": 244.55365944307636,
+      "rad_max_km": 556.776355182747
     }
   },
   {
@@ -39,6 +67,7 @@
     "t_final_days": 3.3694243867423688,
     "n_orbits": 50,
     "cowell_ok": true,
+    "cowell_time": 0.02566051483154297,
     "geqoe_taylor_vs_cowell": {
       "label": "GEqOE-Taylor",
       "pos_rms_km": 5.418026466259756e-09,
@@ -46,6 +75,8 @@
       "rad_rms_km": 1.8930295334742472e-10,
       "rad_max_km": 5.870253928354211e-10
     },
+    "geqoe_taylor_time": 0.055284976959228516,
+    "meansp_time": 59.70913028717041,
     "geqoe_meansp": {
       "label": "GEqOE-mean+SP",
       "pos_rms_km": 0.9757720136856312,
@@ -53,12 +84,37 @@
       "rad_rms_km": 0.026431485986715464,
       "rad_max_km": 0.0715921476363065
     },
+    "geqoe_mean_only_time": 40.25688600540161,
+    "geqoe_mean_only": {
+      "label": "GEqOE-mean-only",
+      "pos_rms_km": 9567.349872810531,
+      "pos_max_km": 10016.684573576782,
+      "rad_rms_km": 6563.871754173577,
+      "rad_max_km": 7511.908973015646
+    },
+    "brouwer_time": 0.03619575500488281,
     "brouwer": {
       "label": "Brouwer-Lyddane",
       "pos_rms_km": 7.653340468414835,
       "pos_max_km": 15.846427913788292,
       "rad_rms_km": 4.737750210039222,
       "rad_max_km": 11.237177213428748
+    },
+    "dsst_osc_time": 0.8144121170043945,
+    "dsst_osc": {
+      "label": "DSST-osc",
+      "pos_rms_km": 5.6834015542614535,
+      "pos_max_km": 8.920942482244708,
+      "rad_rms_km": 3.6296474515779886,
+      "rad_max_km": 4.312641632107862
+    },
+    "dsst_mean_time": 0.7999618053436279,
+    "dsst_mean": {
+      "label": "DSST-mean",
+      "pos_rms_km": 687.6046015880355,
+      "pos_max_km": 1254.5906689516084,
+      "rad_rms_km": 49.92060846820414,
+      "rad_max_km": 162.71567910637046
     }
   },
   {
@@ -70,6 +126,7 @@
     "t_final_days": 3.424982836767561,
     "n_orbits": 50,
     "cowell_ok": true,
+    "cowell_time": 0.025011777877807617,
     "geqoe_taylor_vs_cowell": {
       "label": "GEqOE-Taylor",
       "pos_rms_km": 5.337771113190752e-09,
@@ -77,6 +134,8 @@
       "rad_rms_km": 2.837886353234646e-11,
       "rad_max_km": 6.665724341376029e-11
     },
+    "geqoe_taylor_time": 0.05453634262084961,
+    "meansp_time": 59.20409059524536,
     "geqoe_meansp": {
       "label": "GEqOE-mean+SP",
       "pos_rms_km": 1.5291283610132274,
@@ -84,12 +143,37 @@
       "rad_rms_km": 0.6067922213452355,
       "rad_max_km": 2.3366527683885363
     },
+    "geqoe_mean_only_time": 39.90691423416138,
+    "geqoe_mean_only": {
+      "label": "GEqOE-mean-only",
+      "pos_rms_km": 3073.459122123177,
+      "pos_max_km": 3633.1439025256723,
+      "rad_rms_km": 688.6603095198767,
+      "rad_max_km": 936.1631898903058
+    },
+    "brouwer_time": 0.03636670112609863,
     "brouwer": {
       "label": "Brouwer-Lyddane",
       "pos_rms_km": 18.997633422025867,
       "pos_max_km": 32.26301832336369,
       "rad_rms_km": 13.605678439974836,
       "rad_max_km": 21.145561827233877
+    },
+    "dsst_osc_time": 0.7568647861480713,
+    "dsst_osc": {
+      "label": "DSST-osc",
+      "pos_rms_km": 4.745303400848754,
+      "pos_max_km": 6.63404961170376,
+      "rad_rms_km": 4.547028324162826,
+      "rad_max_km": 5.960599329960723
+    },
+    "dsst_mean_time": 0.7539987564086914,
+    "dsst_mean": {
+      "label": "DSST-mean",
+      "pos_rms_km": 2470.5534002229683,
+      "pos_max_km": 4256.270058977842,
+      "rad_rms_km": 573.2854816680283,
+      "rad_max_km": 1279.7218019601592
     }
   },
   {
@@ -101,6 +185,7 @@
     "t_final_days": 3.5141371699691666,
     "n_orbits": 50,
     "cowell_ok": true,
+    "cowell_time": 0.025668859481811523,
     "geqoe_taylor_vs_cowell": {
       "label": "GEqOE-Taylor",
       "pos_rms_km": 4.6552298226519363e-10,
@@ -108,6 +193,8 @@
       "rad_rms_km": 1.4567603741428466e-11,
       "rad_max_km": 4.413483145835791e-11
     },
+    "geqoe_taylor_time": 0.053241729736328125,
+    "meansp_time": 58.6492760181427,
     "geqoe_meansp": {
       "label": "GEqOE-mean+SP",
       "pos_rms_km": 2.063292195928155,
@@ -115,12 +202,37 @@
       "rad_rms_km": 0.03651645765225215,
       "rad_max_km": 0.06604475194037934
     },
+    "geqoe_mean_only_time": 39.47012901306152,
+    "geqoe_mean_only": {
+      "label": "GEqOE-mean-only",
+      "pos_rms_km": 6005.831798884447,
+      "pos_max_km": 7281.858103702056,
+      "rad_rms_km": 2580.238638115602,
+      "rad_max_km": 3746.8731458686825
+    },
+    "brouwer_time": 0.03231692314147949,
     "brouwer": {
       "label": "Brouwer-Lyddane",
       "pos_rms_km": 16.956498827015363,
       "pos_max_km": 29.99061124087987,
       "rad_rms_km": 8.422672693439095,
       "rad_max_km": 18.089972912935597
+    },
+    "dsst_osc_time": 0.742211103439331,
+    "dsst_osc": {
+      "label": "DSST-osc",
+      "pos_rms_km": 15.695775528957311,
+      "pos_max_km": 24.260797768738126,
+      "rad_rms_km": 9.091678906015021,
+      "rad_max_km": 9.17700907692715
+    },
+    "dsst_mean_time": 0.7415316104888916,
+    "dsst_mean": {
+      "label": "DSST-mean",
+      "pos_rms_km": 18.366802025127893,
+      "pos_max_km": 31.582733383298375,
+      "rad_rms_km": 11.10183834533147,
+      "rad_max_km": 18.16190564668839
     }
   },
   {
@@ -132,6 +244,7 @@
     "t_final_days": 7.49418403374274,
     "n_orbits": 100,
     "cowell_ok": true,
+    "cowell_time": 0.044916391372680664,
     "geqoe_taylor_vs_cowell": {
       "label": "GEqOE-Taylor",
       "pos_rms_km": 3.719087555295465e-08,
@@ -139,6 +252,8 @@
       "rad_rms_km": 3.011722131813477e-10,
       "rad_max_km": 9.681203396064453e-10
     },
+    "geqoe_taylor_time": 0.10196566581726074,
+    "meansp_time": 117.85823225975037,
     "geqoe_meansp": {
       "label": "GEqOE-mean+SP",
       "pos_rms_km": 0.5021203855149322,
@@ -146,12 +261,37 @@
       "rad_rms_km": 0.027492546160391717,
       "rad_max_km": 0.043049482646546886
     },
+    "geqoe_mean_only_time": 78.54089713096619,
+    "geqoe_mean_only": {
+      "label": "GEqOE-mean-only",
+      "pos_rms_km": 12330.207049320054,
+      "pos_max_km": 13044.133399966395,
+      "rad_rms_km": 10146.75232242246,
+      "rad_max_km": 11400.573021637409
+    },
+    "brouwer_time": 0.07793498039245605,
     "brouwer": {
       "label": "Brouwer-Lyddane",
       "pos_rms_km": 39.9674774800626,
       "pos_max_km": 83.03970877026147,
       "rad_rms_km": 15.447824211116302,
       "rad_max_km": 33.18885920784211
+    },
+    "dsst_osc_time": 1.4367778301239014,
+    "dsst_osc": {
+      "label": "DSST-osc",
+      "pos_rms_km": 7.306128091700054,
+      "pos_max_km": 13.727297084426992,
+      "rad_rms_km": 1.9504762602716055,
+      "rad_max_km": 2.988848926273975
+    },
+    "dsst_mean_time": 1.421492576599121,
+    "dsst_mean": {
+      "label": "DSST-mean",
+      "pos_rms_km": 3896.489161407861,
+      "pos_max_km": 6710.521680365332,
+      "rad_rms_km": 1353.293419647342,
+      "rad_max_km": 3050.4082284665233
     }
   },
   {
@@ -163,6 +303,7 @@
     "t_final_days": 15.15733971769942,
     "n_orbits": 100,
     "cowell_ok": true,
+    "cowell_time": 0.0437016487121582,
     "geqoe_taylor_vs_cowell": {
       "label": "GEqOE-Taylor",
       "pos_rms_km": 2.0912386266122012e-08,
@@ -170,6 +311,8 @@
       "rad_rms_km": 2.2479187048772805e-09,
       "rad_max_km": 7.939817604960875e-09
     },
+    "geqoe_taylor_time": 0.10395407676696777,
+    "meansp_time": 117.88336253166199,
     "geqoe_meansp": {
       "label": "GEqOE-mean+SP",
       "pos_rms_km": 0.28064794698228807,
@@ -177,12 +320,37 @@
       "rad_rms_km": 0.0033197741840046632,
       "rad_max_km": 0.008313883555739403
     },
+    "geqoe_mean_only_time": 78.58285450935364,
+    "geqoe_mean_only": {
+      "label": "GEqOE-mean-only",
+      "pos_rms_km": 20246.95618734316,
+      "pos_max_km": 21476.12622775145,
+      "rad_rms_km": 17165.317113639092,
+      "rad_max_km": 20474.133857671524
+    },
+    "brouwer_time": 0.06379961967468262,
     "brouwer": {
       "label": "Brouwer-Lyddane",
       "pos_rms_km": 29.16560860248781,
       "pos_max_km": 59.64270003974222,
       "rad_rms_km": 12.311608693886102,
       "rad_max_km": 23.02287442833724
+    },
+    "dsst_osc_time": 1.5483832359313965,
+    "dsst_osc": {
+      "label": "DSST-osc",
+      "pos_rms_km": 8.236111853080352,
+      "pos_max_km": 15.056255763152336,
+      "rad_rms_km": 1.3765858783389597,
+      "rad_max_km": 3.22789014922026
+    },
+    "dsst_mean_time": 1.496077537536621,
+    "dsst_mean": {
+      "label": "DSST-mean",
+      "pos_rms_km": 4106.561939683387,
+      "pos_max_km": 8147.577244241922,
+      "rad_rms_km": 1086.3354927111995,
+      "rad_max_km": 3548.606733890695
     }
   },
   {
@@ -194,6 +362,7 @@
     "t_final_days": 14.952991350314969,
     "n_orbits": 30,
     "cowell_ok": true,
+    "cowell_time": 0.020693540573120117,
     "geqoe_taylor_vs_cowell": {
       "label": "GEqOE-Taylor",
       "pos_rms_km": 7.116974566836216e-08,
@@ -201,6 +370,8 @@
       "rad_rms_km": 4.077202594066941e-08,
       "rad_max_km": 1.6132235732951953e-07
     },
+    "geqoe_taylor_time": 0.0427706241607666,
+    "meansp_time": 34.99395251274109,
     "geqoe_meansp": {
       "label": "GEqOE-mean+SP",
       "pos_rms_km": 3.1575893900608696,
@@ -208,13 +379,40 @@
       "rad_rms_km": 0.0038480064678972936,
       "rad_max_km": 0.012450638772336504
     },
+    "geqoe_mean_only_time": 23.59155583381653,
+    "geqoe_mean_only": {
+      "label": "GEqOE-mean-only",
+      "pos_rms_km": 21945.99350275665,
+      "pos_max_km": 36534.45777869374,
+      "rad_rms_km": 19712.157962885132,
+      "rad_max_km": 35420.265550734955
+    },
+    "brouwer_time": 0.019479751586914062,
     "brouwer": {
       "label": "Brouwer-Lyddane",
       "pos_rms_km": 12.639540740568194,
       "pos_max_km": 65.7197421124726,
       "rad_rms_km": 9.18309656678918,
       "rad_max_km": 65.70055769144878
-    }
+    },
+    "dsst_osc_time": 0.6784040927886963,
+    "dsst_osc": {
+      "label": "DSST-osc",
+      "pos_rms_km": 6.9052424457521315,
+      "pos_max_km": 11.716720602640986,
+      "rad_rms_km": 1.6498606397290279,
+      "rad_max_km": 1.8005873995352457
+    },
+    "dsst_mean_time": 0.655980110168457,
+    "dsst_mean": {
+      "label": "DSST-mean",
+      "pos_rms_km": 79.08639090292782,
+      "pos_max_km": 344.0767488432168,
+      "rad_rms_km": 44.52852673528362,
+      "rad_max_km": 147.90730258495086
+    },
+    "dsst_osc_ecc6": null,
+    "dsst_osc_ecc8": null
   },
   {
     "case_name": "GTO",
@@ -225,6 +423,7 @@
     "t_final_days": 8.785165867133808,
     "n_orbits": 20,
     "cowell_ok": true,
+    "cowell_time": 0.015367984771728516,
     "geqoe_taylor_vs_cowell": {
       "label": "GEqOE-Taylor",
       "pos_rms_km": 9.45903224801717e-09,
@@ -232,6 +431,8 @@
       "rad_rms_km": 5.251792558533049e-09,
       "rad_max_km": 1.7859099069289892e-08
     },
+    "geqoe_taylor_time": 0.030321359634399414,
+    "meansp_time": 23.679518699645996,
     "geqoe_meansp": {
       "label": "GEqOE-mean+SP",
       "pos_rms_km": 7.474728409171002,
@@ -239,13 +440,40 @@
       "rad_rms_km": 0.011463886902551325,
       "rad_max_km": 0.0367362281884712
     },
+    "geqoe_mean_only_time": 16.087761640548706,
+    "geqoe_mean_only": {
+      "label": "GEqOE-mean-only",
+      "pos_rms_km": 40212.988302578226,
+      "pos_max_km": 48817.298384375994,
+      "rad_rms_km": 31788.104908114386,
+      "rad_max_km": 48817.29157894644
+    },
+    "brouwer_time": 0.013365030288696289,
     "brouwer": {
       "label": "Brouwer-Lyddane",
       "pos_rms_km": 61.351820077299315,
       "pos_max_km": 267.13513185254857,
       "rad_rms_km": 34.32659501205953,
       "rad_max_km": 119.01808900667386
-    }
+    },
+    "dsst_osc_time": 0.43647050857543945,
+    "dsst_osc": {
+      "label": "DSST-osc",
+      "pos_rms_km": 56.287777908269256,
+      "pos_max_km": 224.9289417371837,
+      "rad_rms_km": 30.36952959991093,
+      "rad_max_km": 98.06549879217141
+    },
+    "dsst_mean_time": 0.42519664764404297,
+    "dsst_mean": {
+      "label": "DSST-mean",
+      "pos_rms_km": 8651.012206057372,
+      "pos_max_km": 25775.621930704063,
+      "rad_rms_km": 6438.275725365729,
+      "rad_max_km": 25775.416507041406
+    },
+    "dsst_osc_ecc6": null,
+    "dsst_osc_ecc8": null
   },
   {
     "case_name": "MEO-GPS",
@@ -256,6 +484,7 @@
     "t_final_days": 24.926851959768477,
     "n_orbits": 50,
     "cowell_ok": true,
+    "cowell_time": 0.025814056396484375,
     "geqoe_taylor_vs_cowell": {
       "label": "GEqOE-Taylor",
       "pos_rms_km": 1.1719713138045465e-08,
@@ -263,6 +492,8 @@
       "rad_rms_km": 1.587262757356279e-10,
       "rad_max_km": 5.100035254498481e-10
     },
+    "geqoe_taylor_time": 0.05401921272277832,
+    "meansp_time": 58.303099393844604,
     "geqoe_meansp": {
       "label": "GEqOE-mean+SP",
       "pos_rms_km": 0.008623739899652075,
@@ -270,12 +501,37 @@
       "rad_rms_km": 0.0003698675057210429,
       "rad_max_km": 0.0007090183363420276
     },
+    "geqoe_mean_only_time": 39.17609405517578,
+    "geqoe_mean_only": {
+      "label": "GEqOE-mean-only",
+      "pos_rms_km": 13653.611539595697,
+      "pos_max_km": 14001.469088871287,
+      "rad_rms_km": 3515.8474198121808,
+      "rad_max_km": 3824.5394952330457
+    },
+    "brouwer_time": 0.03466486930847168,
     "brouwer": {
       "label": "Brouwer-Lyddane",
       "pos_rms_km": 2.8842935754719705,
       "pos_max_km": 5.3630800483196746,
       "rad_rms_km": 1.703657958788727,
       "rad_max_km": 2.8122725015314445
+    },
+    "dsst_osc_time": 0.8848476409912109,
+    "dsst_osc": {
+      "label": "DSST-osc",
+      "pos_rms_km": 0.7979544512855318,
+      "pos_max_km": 1.4707626214598406,
+      "rad_rms_km": 0.19717167565355237,
+      "rad_max_km": 0.29238032781080636
+    },
+    "dsst_mean_time": 0.8605334758758545,
+    "dsst_mean": {
+      "label": "DSST-mean",
+      "pos_rms_km": 466.4803162736251,
+      "pos_max_km": 816.0186364410505,
+      "rad_rms_km": 5.513479333771157,
+      "rad_max_km": 17.998281550660153
     }
   },
   {
@@ -287,6 +543,7 @@
     "t_final_days": 3.514017338074928,
     "n_orbits": 50,
     "cowell_ok": true,
+    "cowell_time": 0.024975061416625977,
     "geqoe_taylor_vs_cowell": {
       "label": "GEqOE-Taylor",
       "pos_rms_km": 5.915421211914249e-09,
@@ -294,6 +551,8 @@
       "rad_rms_km": 4.53008506458628e-11,
       "rad_max_km": 1.0742188876370534e-10
     },
+    "geqoe_taylor_time": 0.054633140563964844,
+    "meansp_time": 54.76704978942871,
     "geqoe_meansp": {
       "label": "GEqOE-mean+SP",
       "pos_rms_km": 0.7194039250795727,
@@ -301,12 +560,37 @@
       "rad_rms_km": 0.055943911246526985,
       "rad_max_km": 0.12909097825864513
     },
+    "geqoe_mean_only_time": 36.858728647232056,
+    "geqoe_mean_only": {
+      "label": "GEqOE-mean-only",
+      "pos_rms_km": 3038.2116537351008,
+      "pos_max_km": 3748.2826928983227,
+      "rad_rms_km": 666.6953564732495,
+      "rad_max_km": 992.8911309616267
+    },
+    "brouwer_time": 0.032405853271484375,
     "brouwer": {
       "label": "Brouwer-Lyddane",
       "pos_rms_km": 17.375448231562675,
       "pos_max_km": 36.64654776202112,
       "rad_rms_km": 12.029547834869934,
       "rad_max_km": 20.231969439907992
+    },
+    "dsst_osc_time": 0.7346665859222412,
+    "dsst_osc": {
+      "label": "DSST-osc",
+      "pos_rms_km": 4.94976215698266,
+      "pos_max_km": 6.9810729702328835,
+      "rad_rms_km": 4.7187261977898896,
+      "rad_max_km": 6.143706877411637
+    },
+    "dsst_mean_time": 0.7286491394042969,
+    "dsst_mean": {
+      "label": "DSST-mean",
+      "pos_rms_km": 2492.8686758624326,
+      "pos_max_km": 4310.797243696507,
+      "rad_rms_km": 573.8343468391538,
+      "rad_max_km": 1290.4937097144793
     }
   },
   {
@@ -318,6 +602,7 @@
     "t_final_days": 6.348708630491601,
     "n_orbits": 30,
     "cowell_ok": true,
+    "cowell_time": 0.017398357391357422,
     "geqoe_taylor_vs_cowell": {
       "label": "GEqOE-Taylor",
       "pos_rms_km": 6.638315135137677e-09,
@@ -325,6 +610,8 @@
       "rad_rms_km": 1.900270627302658e-09,
       "rad_max_km": 6.24524004030515e-09
     },
+    "geqoe_taylor_time": 0.039309024810791016,
+    "meansp_time": 34.93664860725403,
     "geqoe_meansp": {
       "label": "GEqOE-mean+SP",
       "pos_rms_km": 1.4268610474238683,
@@ -332,13 +619,40 @@
       "rad_rms_km": 0.024091320464229213,
       "rad_max_km": 0.05721611598094711
     },
+    "geqoe_mean_only_time": 23.571225881576538,
+    "geqoe_mean_only": {
+      "label": "GEqOE-mean-only",
+      "pos_rms_km": 27532.956898553864,
+      "pos_max_km": 29393.579376840502,
+      "rad_rms_km": 24730.380538606896,
+      "rad_max_km": 29344.465208829784
+    },
+    "brouwer_time": 0.019565343856811523,
     "brouwer": {
       "label": "Brouwer-Lyddane",
       "pos_rms_km": 6.236294292902379,
       "pos_max_km": 17.250600170654184,
       "rad_rms_km": 3.6303523240774114,
       "rad_max_km": 14.289189432304985
-    }
+    },
+    "dsst_osc_time": 0.523047685623169,
+    "dsst_osc": {
+      "label": "DSST-osc",
+      "pos_rms_km": 3.2221303009435136,
+      "pos_max_km": 5.652524678424627,
+      "rad_rms_km": 1.4747842260212007,
+      "rad_max_km": 1.9810445970314747
+    },
+    "dsst_mean_time": 0.5223996639251709,
+    "dsst_mean": {
+      "label": "DSST-mean",
+      "pos_rms_km": 274.05583352975725,
+      "pos_max_km": 710.2922577846957,
+      "rad_rms_km": 78.88105710238942,
+      "rad_max_km": 212.18788265802374
+    },
+    "dsst_osc_ecc6": null,
+    "dsst_osc_ecc8": null
   },
   {
     "case_name": "Retrograde",
@@ -349,6 +663,7 @@
     "t_final_days": 3.7362269386545974,
     "n_orbits": 50,
     "cowell_ok": true,
+    "cowell_time": 0.02479410171508789,
     "geqoe_taylor_vs_cowell": {
       "label": "GEqOE-Taylor",
       "pos_rms_km": 1.927022323008865e-09,
@@ -356,6 +671,8 @@
       "rad_rms_km": 4.6645939754365755e-11,
       "rad_max_km": 1.1858541426393418e-10
     },
+    "geqoe_taylor_time": 0.0546262264251709,
+    "meansp_time": 58.37452292442322,
     "geqoe_meansp": {
       "label": "GEqOE-mean+SP",
       "pos_rms_km": 0.24440974384174216,
@@ -363,12 +680,37 @@
       "rad_rms_km": 0.019661651519428558,
       "rad_max_km": 0.034125538058800226
     },
+    "geqoe_mean_only_time": 39.23824429512024,
+    "geqoe_mean_only": {
+      "label": "GEqOE-mean-only",
+      "pos_rms_km": 4728.3718983471645,
+      "pos_max_km": 5560.742362358891,
+      "rad_rms_km": 1522.5864820386096,
+      "rad_max_km": 2111.221992529631
+    },
+    "brouwer_time": 0.031890869140625,
     "brouwer": {
       "label": "Brouwer-Lyddane",
       "pos_rms_km": 12.404474796644411,
       "pos_max_km": 28.2486900909046,
       "rad_rms_km": 7.21844577634879,
       "rad_max_km": 11.968919209413551
+    },
+    "dsst_osc_time": 0.739809513092041,
+    "dsst_osc": {
+      "label": "DSST-osc",
+      "pos_rms_km": 3.110464104906196,
+      "pos_max_km": 5.492978187644853,
+      "rad_rms_km": 1.3569877943149289,
+      "rad_max_km": 2.2187319070321423
+    },
+    "dsst_mean_time": 0.7325592041015625,
+    "dsst_mean": {
+      "label": "DSST-mean",
+      "pos_rms_km": 1841.9438283694865,
+      "pos_max_km": 3212.1104252299892,
+      "rad_rms_km": 299.042885778472,
+      "rad_max_km": 687.918860540244
     }
   }
 ]
