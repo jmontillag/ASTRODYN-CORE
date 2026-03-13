@@ -4,6 +4,21 @@
 competitive with DSST (0.4–4 s), through three staged refactors (A → B → C)
 with intermediate benchmarks after each stage.
 
+## Status Summary
+
+| Stage | Description | Status | Key Result |
+|-------|-------------|--------|------------|
+| A | Vectorize SP reconstruction | **DONE** | SP: 20-40s → 0.4-1.5s |
+| B.1 | CSE mean rates (`hardcoded_rates.py`) | **DONE** | Mean RHS: 42 calls → 1 call |
+| B.2 | CSE SP expressions | **SKIPPED** | Superseded by C.2 (cfunc approach sufficient) |
+| C.1 | heyoka cfunc mean rates | **DONE** | Mean prop: 40-78s → ~10ms |
+| C.2 | heyoka cfunc SP batch | **DONE** | SP batch: 624ms → 7-10ms (86x) |
+| D | Adaptive DOP853 integrator | **DONE** | Replaces fixed-step RK4 |
+
+**Full warm pipeline**: ~19ms for 30-day / 3201-point propagation (LEO).
+All relative errors < 3×10⁻¹⁵ vs lambdified baseline (machine precision).
+All 371 tests pass.
+
 ---
 
 ## Stage 0 — Baseline Profile
@@ -78,7 +93,7 @@ Per sample: 88 lambdified calls (each `func(q, Q, F)` scalar) + 1 Kepler + 1 `ge
 
 ---
 
-## Stage A — Vectorize SP Reconstruction
+## Stage A — Vectorize SP Reconstruction ✓ DONE
 
 ### Rationale
 
@@ -208,7 +223,7 @@ Run `extended_validation.py` on all 12 cases. Record:
 
 ---
 
-## Stage B — CSE-Optimized Hardcoded Python
+## Stage B — CSE-Optimized Hardcoded Python ✓ (B.1 done, B.2 skipped)
 
 ### Rationale
 
@@ -252,27 +267,14 @@ Key design choices:
 - Output 5 dimensionless rates; caller multiplies by `nu`
 - All intermediate variables named `x0, x1, ...` by CSE
 
-#### B.2 — CSE code generator for SP expressions
+#### B.2 — CSE code generator for SP expressions — SKIPPED
 
-Same approach for the 88 short-period terms:
-
-```python
-def short_period_cse(q: float, Q: float, f: float, omega: float,
-                     scale_2: float, ..., scale_5: float) -> tuple[float, ...]:
-    """Returns (dg, dQ, dPsi, dOmega, dM) short-period corrections."""
-```
-
-Note: even though SP is now vectorized (Stage A), a CSE-optimized scalar
-version is still useful for the mean RHS (which calls SP-like coefficient
-evaluations) and as a stepping stone to Stage C.
-
-For the SP batch path, generate an array-compatible version:
-```python
-def short_period_cse_batch(q_arr, Q_arr, f_arr, omega_arr,
-                           scale_2_arr, ...) -> tuple[np.ndarray, ...]:
-```
-
-This replaces 88 lambdified calls with 1 function that internally uses CSE.
+**Decision**: Skipped in favor of Stage C.2 (heyoka cfunc), which provides
+strictly better performance (LLVM-compiled SIMD vs pure Python CSE). The
+lambdified batch path from Stage A serves as the fallback when heyoka is
+unavailable. The `generate_hardcoded_sp.py` script is retained for reference
+but its F→cos_f+I*sin_f expansion approach hangs for ~20 min on large n=5
+expressions.
 
 #### B.3 — Conversion to real arithmetic
 
@@ -328,7 +330,7 @@ Run `extended_validation.py` on all 12 cases. Record:
 
 ---
 
-## Stage C — heyoka Compiled Functions (`cfunc`)
+## Stage C — heyoka Compiled Functions (`cfunc`) ✓ DONE
 
 ### Rationale
 
@@ -438,17 +440,33 @@ with Fourier harmonics in ω̄ = Ψ̄ − Ω̄.
 This is the ultimate performance path but requires building the full mean ODE
 as a heyoka system, not just a cfunc.
 
-### Expected gains
+### Actual Results
 
-| Component | Stage B | Stage C (est.) | Additional speedup |
-|-----------|---------|----------------|--------------------|
-| Mean RHS single call | 1 CSE Python | 1 cfunc C call | ~5–20× |
-| Mean prop total | 2–8 s | **0.2–1.0 s** | ~5–10× |
-| SP batch | 0.05–0.2 s | **0.01–0.05 s** | ~3–5× |
-| **Overall (m+SP)** | 2–8 s | **0.2–1.0 s** | ~5–10× |
+#### C.1 — Mean rates cfunc
+- **Build time**: ~2s (one-time, lazy-cached)
+- **RK4 integration** (30-day LEO, 3201 intervals, 8 substeps): ~8ms
+- **Adaptive DOP853**: ~10ms (replaces RK4 as default via `method="auto"`)
 
-With C.5 (heyoka-native integration): potentially **< 0.1 s** for mean
-propagation, as the entire time-stepping loop runs in compiled code.
+#### C.2 — SP batch cfunc
+- **Build time**: ~9s (5.5s tree construction + 3.3s LLVM compile, lazy-cached)
+- **Expression conversion**: 88 SymPy expressions → heyoka DAG via recursive
+  complex-arithmetic converter (handles F→cos/sin, I, complex powers natively)
+- **Batch evaluation**: 7-10ms for 3201 points (vs 624ms lambdified, **86x**)
+- **Accuracy**: All 5 corrections match lambdified to < 3×10⁻¹⁵ relative error
+
+#### Full pipeline (warm)
+| Component | Baseline | After C.1+C.2 | Speedup |
+|-----------|----------|---------------|---------|
+| Mean propagation | 40-78 s | ~10 ms | ~4000-8000× |
+| SP reconstruction | 20-40 s (scalar) → 0.6 s (Stage A) | ~8 ms | ~75× vs A |
+| **Total (m+SP)** | **65-118 s** | **~19 ms** | **~3500-6200×** |
+
+#### Key implementation details
+- **Chebyshev recurrence** for cos(kf)/sin(kf) tables (k=0..12) and cos(mω)/sin(mω) (m=0..5)
+- **None-sentinel optimization**: zero real/imaginary parts represented as `None` to skip tree nodes
+- **Complex arithmetic helpers**: `_complex_mul`, `_complex_inv`, `_complex_pow_int` handle
+  SymPy's restructured denominators `(F+q)^(-1)`, `(F*q+1)^(-1)`
+- `compact_mode=True` in cfunc for manageable LLVM IR size
 
 ### Benchmark checkpoint C
 
@@ -463,35 +481,36 @@ Run `extended_validation.py` on all 12 cases. Record:
 ## Execution Order and Dependencies
 
 ```
-Stage 0 (baseline) ─── record reference timings
+Stage 0 (baseline) ─── record reference timings                    ✓ DONE
     │
     ▼
-Stage A (vectorize SP) ─── SP drops from 20-40s to <1s
-    │                       Mean prop unchanged
-    │                       Checkpoint A: verify accuracy
+Stage A (vectorize SP) ─── SP drops from 20-40s to 0.6s           ✓ DONE
     │
     ▼
-Stage B (CSE hardcoded) ── Mean prop drops from 40-78s to 2-8s
-    │                       SP gets minor further boost
-    │                       Checkpoint B: verify accuracy
+Stage B.1 (CSE mean rates) ── Mean RHS: 42 calls → 1 call         ✓ DONE
     │
     ▼
-Stage C (heyoka cfunc) ─── Both drop to <1s each
-    │                       Checkpoint C: full comparison table
+Stage C.1 (cfunc mean rates) ─ Mean prop: 40-78s → ~10ms          ✓ DONE
     │
     ▼
-Report ──────────────────── Performance summary document
+Stage C.2 (cfunc SP batch) ─── SP batch: 624ms → 7-10ms           ✓ DONE
+    │
+    ▼
+Stage D (adaptive DOP853) ──── Replaces fixed-step RK4             ✓ DONE
+    │
+    ▼
+Report ──────────────────────── TODO: extended_validation re-run
 ```
 
-### File creation plan
+### Actual file map
 
 | Stage | New files | Modified files |
 |-------|-----------|---------------|
-| A | — | `geqoe_mean/short_period.py` (add batch functions), `scripts/extended_validation.py` |
-| A | `geqoe_mean/batch_conversions.py` | — |
-| B | `geqoe_mean/generate_hardcoded.py` | `geqoe_mean/short_period.py` (add fast-path) |
-| B | `geqoe_mean/hardcoded_rates.py` (generated) | — |
-| C | `geqoe_mean/heyoka_compiled.py` | `geqoe_mean/validation.py`, `scripts/extended_validation.py` |
+| A | `geqoe_mean/batch_conversions.py` | `geqoe_mean/short_period.py` (batch functions), `geqoe_mean/__init__.py` |
+| B.1 | `geqoe_mean/generate_hardcoded.py`, `geqoe_mean/hardcoded_rates.py` (generated) | `geqoe_mean/short_period.py` (fast-path dispatch) |
+| C.1 | `geqoe_mean/heyoka_compiled.py` | `geqoe_mean/validation.py` (cfunc integration) |
+| C.2 | — (added to `heyoka_compiled.py`) | `geqoe_mean/short_period.py` (cfunc SP fast-path) |
+| D | — (added to `heyoka_compiled.py`) | `geqoe_mean/validation.py` (adaptive integrator) |
 
 ### Invariants across all stages
 

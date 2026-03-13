@@ -61,6 +61,13 @@ except ImportError:
     _MEAN_DATA_STR = {}
     _SHORT_DATA_STR = {}
 
+# Stage C.2: heyoka cfunc fast path for short-period corrections
+try:
+    from .heyoka_compiled import get_sp_cfunc as _get_sp_cfunc
+    _HAS_SP_CFUNC = True
+except ImportError:
+    _HAS_SP_CFUNC = False
+
 
 q, Q, F, w, z = sp.symbols("q Q F w z", positive=True, real=True)
 I = sp.I
@@ -762,6 +769,31 @@ def _complex_f_from_g_arr(g_arr: np.ndarray, G_arr: np.ndarray) -> np.ndarray:
     return (z_arr - q_arr) / (1.0 - q_arr * z_arr)
 
 
+def _evaluate_sp_batch_cfunc(
+    N: int,
+    cos_f_arr: np.ndarray,
+    sin_f_arr: np.ndarray,
+    q_arr: np.ndarray,
+    Q_arr: np.ndarray,
+    cos_omega_arr: np.ndarray,
+    sin_omega_arr: np.ndarray,
+    s2: float, s3: float, s4: float, s5: float,
+) -> dict[str, np.ndarray]:
+    """Evaluate SP corrections via heyoka cfunc (SIMD batch mode)."""
+    cf, _ = _get_sp_cfunc()
+
+    # heyoka batch: inputs (n_vars, N), pars (n_pars, N), outputs (n_outputs, N)
+    inp = np.vstack([cos_f_arr, sin_f_arr, q_arr, Q_arr,
+                     cos_omega_arr, sin_omega_arr])  # (6, N)
+    pars = np.tile(np.array([[s2], [s3], [s4], [s5]]), (1, N))  # (4, N)
+    out = np.empty((5, N))
+
+    cf(inp, pars=pars, outputs=out)
+
+    return {"dg": out[0], "dQ": out[1], "dPsi": out[2],
+            "dOmega": out[3], "dM": out[4]}
+
+
 def evaluate_truncated_short_period_batch(
     nu_arr: np.ndarray,
     g_arr: np.ndarray,
@@ -775,10 +807,34 @@ def evaluate_truncated_short_period_batch(
     """Vectorized short-period evaluation over N states.
 
     All input arrays have shape (N,).  Returns dict of (N,) correction arrays.
-    The lambdified functions (created with ``sp.lambdify(..., "numpy")``) already
-    accept numpy arrays, so each inner call processes the whole batch at once.
+    Uses heyoka cfunc fast path when available (Stage C.2), otherwise falls
+    back to the lambdified path.
     """
     N = len(nu_arr)
+
+    # --- cfunc fast path ---
+    if _HAS_SP_CFUNC and set(j_coeffs.keys()) == {2, 3, 4, 5}:
+        q_arr_val = _q_from_g_arr(g_arr)
+        F_arr = _complex_f_from_g_arr(g_arr, G_arr)
+        cos_f_arr = np.real(F_arr)
+        sin_f_arr = np.imag(F_arr)
+        cos_omega_arr = np.cos(omega_arr)
+        sin_omega_arr = np.sin(omega_arr)
+
+        nu_val = float(nu_arr[0])
+        a_val = (mu_val / (nu_val * nu_val)) ** (1.0 / 3.0)
+        ra = re_val / a_val
+        ra2 = ra * ra
+        s2 = j_coeffs[2] * ra2
+        s3 = j_coeffs[3] * ra2 * ra
+        s4 = j_coeffs[4] * ra2 * ra2
+        s5 = j_coeffs[5] * ra2 * ra2 * ra
+
+        return _evaluate_sp_batch_cfunc(
+            N, cos_f_arr, sin_f_arr, q_arr_val, Q_arr,
+            cos_omega_arr, sin_omega_arr, s2, s3, s4, s5)
+
+    # --- Lambdified fallback ---
     results = {f"d{v}": np.zeros(N) for v in ("g", "Q", "Psi", "Omega", "M")}
 
     q_arr = _q_from_g_arr(g_arr)
