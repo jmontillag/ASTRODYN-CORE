@@ -250,7 +250,7 @@ Total estimated effort: ~1 day
 Phases 1-7 implemented and validated:
 - `integrate_harmonic_residue()` returns `(rational, C_log)` tuple
 - `compute_log_coefficient()` standalone function added
-- LOG_DATA generated for n=2,3 (n=4,5 pending — symbolic computation slow)
+- LOG_DATA generated for n=2,3,4,5 (45 entries total)
 - SP evaluation includes log terms via `arctan2(q*Im(F), 1+q*Re(F))`
 - heyoka cfunc includes `phi_hy` and log contributions
 - All 371 tests pass
