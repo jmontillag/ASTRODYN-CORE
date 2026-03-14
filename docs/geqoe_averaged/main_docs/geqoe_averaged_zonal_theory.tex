@@ -60,10 +60,10 @@ remain indispensable wherever the cost--accuracy tradeoff favors algebraic
 evaluation over numerical integration: conjunction screening across catalogs
 of tens of thousands of tracked objects, long-term orbit evolution studies
 for debris mitigation compliance, and mean-element uncertainty propagation
-for space surveillance.  The present work introduces a new analytical theory
-that combines three ingredients not previously assembled: Generalized
-Equinoctial Orbital Elements (GEqOE) that absorb zonal perturbative effects
-into the element definitions, orbit averaging in a generalized eccentric
+for space surveillance.  This paper develops the first orbit-averaging theory for the Generalized
+Equinoctial Orbital Elements (GEqOE), combining three ingredients not
+previously assembled: element definitions that absorb zonal perturbative
+effects into the reference orbit, averaging in a generalized eccentric
 longitude that produces finite-harmonic mean-element systems, and a direct
 residue decomposition in the complex true anomaly exponential $F = e^{if}$
 that yields the short-period corrections as closed-form rational expressions
@@ -112,9 +112,11 @@ earlier; Campbell and Jefferys~\cite{campbell1970} established equivalence
 of the two formulations through explicit calculation to sixth order and a
 general argument extending to all orders.  Hori~\cite{hori1971} subsequently
 extended the Lie series approach to non-canonical systems by replacing the
-Poisson bracket with Lie derivatives of vector fields, establishing the
-theoretical foundation for orbit averaging in arbitrary (non-Hamiltonian)
-variable sets---a tradition directly relevant to the present work.
+Poisson bracket with Lie derivatives of vector fields.  This generalization
+allows perturbation averaging to be carried out in arbitrary variable sets
+that need not be canonical or even derived from a Hamiltonian, providing
+the theoretical license for the non-canonical GEqOE averaging developed
+in the present work.
 
 %%% Higher-order main problem %%%
 Deprit and Rom~\cite{depritrom1970} carried the main problem to third order
@@ -180,15 +182,12 @@ Draper Semi-analytical Satellite Theory
 (DSST)~\cite{cefola1972,danielson1995}.  DSST averages over the mean
 longitude~$\lambda$ (the fast variable in equinoctial elements),
 analytically for conservative perturbations and via Gaussian numerical
-quadrature for non-conservative forces.  Short-period corrections are
-expressed as Fourier series in mean longitude with coefficients involving
-Hansen coefficients~\cite{giacaglia1976}; the series are truncated by
-coefficient magnitude relative to a tolerance, and certain second-order
-contributions (notably the $J_2^2$ effect) have historically been
-approximated as power series in eccentricity.  These truncations become the
-theory's principal limitation at high eccentricity, where the convergence
-of Hansen coefficient expansions slows and the omitted higher-order terms
-grow.  At the simplified operational end of the spectrum, the SGP4/SDP4
+quadrature for non-conservative forces.  Short-period corrections are expressed as Fourier series in mean
+longitude whose coefficients are Hansen coefficients
+$X_s^{n,m}(e)$~\cite{giacaglia1976}---infinite power series in
+eccentricity that must be truncated, either by coefficient magnitude or
+at a fixed eccentricity power.  This truncation is the theory's principal
+accuracy limitation at high eccentricity.  At the simplified operational end of the spectrum, the SGP4/SDP4
 propagator~\cite{spacetrack1980,vallado2006}---derived from Brouwer's theory
 with modifications by Lane, Hoots, and Roehrich---achieves
 approximately~1~km accuracy at epoch with 1--3~km/day growth, sufficient for
@@ -219,18 +218,22 @@ transformation, the work of Ba\`u and collaborators progressed through
 EDromo~\cite{bau2015}---non-singular, eight-element---and universal
 intermediate elements~\cite{bauroa2020} valid across all energy values, to
 the Generalized Equinoctial Orbital Elements
-(GEqOE)~\cite{bau2021}.  GEqOE consists of six elements: the generalized
-mean motion~$\nu$, generalized eccentricity projections $p_1$ and $p_2$,
-generalized mean longitude~$L$, and inclination parameters $q_1,\,q_2$
-identical to classical equinoctial.  The generalized eccentric
-longitude~$K$ satisfies a generalized Kepler equation
-$L = K + p_1\cos K - p_2\sin K$,
-with Jacobian $dL/dK = 1 - p_1\sin K - p_2\cos K = r/a$---extending the
-$r/a$ Jacobian property from classical to generalized elements.  When the
-disturbing potential vanishes, all quantities reduce exactly to classical
-equinoctial elements.  The non-osculating ellipse defined by GEqOE produces significantly
-improved propagation accuracy compared to classical equinoctial elements
-in special-perturbation (numerical integration) mode~\cite{bau2021}.
+(GEqOE)~\cite{bau2021}.  GEqOE are a set of six non-singular elements
+that generalize the classical equinoctial set by incorporating the
+disturbing potential into the definitions of the semi-major axis,
+eccentricity projections, and mean longitude.  The resulting reference
+orbit is non-osculating: it absorbs part of the perturbation into its
+shape, varying more slowly than the osculating ellipse and producing
+significantly improved propagation accuracy even in numerical integration
+mode~\cite{bau2021}.  When the disturbing potential vanishes, all
+quantities reduce exactly to classical equinoctial elements.  A
+generalized eccentric longitude~$K$, related to the generalized mean
+longitude~$L$ through a generalized Kepler equation with the classical
+$r/a$ Jacobian property, serves as the natural fast angle for the element
+set.  The present work propagates $K$ rather than $L$ because the
+osculating $K$ is obtained directly from the mean state plus the
+short-period correction, without requiring an additional Kepler-equation
+inversion at each evaluation epoch.
 
 %%% GEqOE properties and applications %%%
 A related approach by Aristoff, Horwood, and
@@ -243,30 +246,45 @@ realism over multi-orbit propagations, as measured by Cram\'er--von~Mises
 tests.  All applications of GEqOE to date, however, are for special
 perturbations and uncertainty propagation---no prior work has developed an
 orbit-averaging (general perturbation) theory for GEqOE or any generalized
-element set with an intermediate anomaly.
+element set with an intermediate anomaly.  The obstacle is that the
+generalized eccentric longitude~$K$ is not a standard canonical angle:
+classical Lie-transform machinery in Delaunay or Poincar\'e variables does
+not apply directly, and the non-canonical averaging framework of
+Hori~\cite{hori1971} must be adapted to the specific structure of the
+GEqOE variation-of-parameters equations.
 
-%%% Complex variable methods — the gap %%%
+%%% Hansen coefficients and their computational tradition %%%
 The closest mathematical relatives to the technique introduced here are the
 Hansen coefficients $X_s^{n,m}(e)$, whose evaluation reduces to a contour
 integral when the eccentric anomaly exponential $z = e^{iE}$ is
-introduced~\cite{giacaglia1976}.  Extensive
-computational literature exists for evaluating these coefficients via
-recurrence relations or hypergeometric series, but the contour integral is
-never exploited for short-period kernel construction.
+introduced~\cite{giacaglia1976}.  An extensive computational literature
+treats these coefficients via recurrence relations, hypergeometric series,
+or the finite-polynomial eccentric-anomaly variants of Lion and
+M\'etris~\cite{lion2013}, but the contour integral representation is used
+exclusively as a tool for deriving recurrence relations and convergence
+bounds---it is never exploited for short-period kernel construction.
 Sadov~\cite{sadov2008} explicitly studied the poles and residues of Hansen
 coefficients, but in the complex $\eta = \sqrt{1-e^2}$ plane as functions
-of the eccentricity parameter---fundamentally different from working in the
-complex $F = e^{if}$ plane.  It is well known~\cite{jefferys1971} that the equation of the center
+of the eccentricity parameter, characterizing their meromorphic structure
+for convergence analysis---fundamentally different from working in the
+complex $F = e^{if}$ plane of the true anomaly.
+
+%%% Algebraic obstruction and the F-plane approach %%%
+It is well known~\cite{jefferys1971} that the equation of the center
 $f - \ell$ cannot be integrated in closed form within the algebra of
-trigonometric functions.  The
-residue approach in $F$ adopted here circumvents this algebraic obstruction
-by operating in the algebra of Laurent series rather than trigonometric
-functions.  The tangent-half-angle substitution $t = \tan(f/2)$, widely used
-in closed-form orbit averaging (e.g., by
+trigonometric functions---an algebraic obstruction that forces all
+real-variable averaging methods to rely on integral tables, auxiliary
+substitutions, or truncated series.  The residue approach in $F = e^{if}$
+adopted here circumvents this obstruction entirely by operating in the
+algebra of Laurent series rather than trigonometric functions.  The
+tangent-half-angle substitution $t = \tan(f/2)$, widely used in
+closed-form orbit averaging (e.g., by
 de~Saedeleer~\cite{desaedeleer2005} and Lara~\cite{lara2020}), is
-mathematically related to $F = e^{if}$ through $t = -i(F-1)/(F+1)$, but no
-prior work in the celestial mechanics literature connects the
-tangent-half-angle approach to contour integration or residue methods.
+mathematically related to $F$ through $t = -i(F-1)/(F+1)$---both convert
+trigonometric integrands to rational functions---but the tangent-half-angle
+substitution has always been used purely as a real-variable algebraic
+trick, never as a change of contour for complex integration.  No prior
+work in the celestial mechanics literature connects it to residue methods.
 
 %%% The present work: three contributions %%%
 The present paper develops the first orbit-averaging formulation for GEqOE.
@@ -337,10 +355,12 @@ reconstruction across all eccentricities and inclinations over multi-day
 arcs.  A controlled comparison against DSST and Brouwer--Lyddane (identical
 gravity model) shows that the GEqOE first-order theory consistently
 outperforms both references in osculating position accuracy across all test
-regimes, despite lacking second-order secular corrections.  This accuracy
-advantage is directly relevant to conjunction screening pipelines, where a
-propagator combining sub-kilometer accuracy with analytical evaluation cost
-reduces the false-positive rate of geometric conjunction filters while
+regimes, despite lacking second-order secular corrections.  This accuracy advantage is directly relevant to conjunction screening
+pipelines: recent work on geometric conjunction filters for space traffic
+management~\cite{rivero2025} demonstrates that the accuracy of the
+underlying analytical propagator directly determines the false-positive
+rate of the screening pipeline, so a propagator combining sub-kilometer
+accuracy with analytical evaluation cost reduces operational workload while
 maintaining the throughput required for catalog-scale pair evaluations.
 It is equally relevant to mean-element uncertainty propagation, where
 GEqOE's established advantage in maintaining Gaussian
@@ -3375,6 +3395,14 @@ Hernando-Ayuso, J., Bombardelli, C., Ba\`u, G., Mart\'inez-Cacho, A. (2023).
 Near-linear orbit uncertainty propagation using the generalized equinoctial
 orbital elements.
 \textit{Journal of Guidance, Control and Dynamics}, 46, 654--669.
+
+%%% Space situational awareness %%%
+
+\bibitem{rivero2025}
+Rivero, A.\,S., V\'azquez, R., Bombardelli, C. (2025).
+Conjunction assessment for space debris using analytical propagation and
+geometric filters.
+\textit{Chinese Journal of Aeronautics}, in press.
 
 %%% Numerical integration and compiled evaluation %%%
 
