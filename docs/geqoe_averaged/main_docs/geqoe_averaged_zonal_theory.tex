@@ -32,28 +32,22 @@ generalized eccentric longitude $K$, yielding a finite Fourier-harmonic
 mean-element system in the single slow angle $\omega = \Psi - \Omega$.
 A direct residue decomposition exploiting the fixed pole structure of the
 $dM/dF$ Jacobian ($F = e^{if}$) produces the short-period kernels as
-closed-form rational functions of $(q,Q,F)$---verified through $J_5$ and
+closed-form functions of $(q,Q,F)$---verified through $J_5$ and
 conjectured for all zonal degrees---exact in eccentricity and precomputed
-once by symbolic algebra. At runtime the
-short-period map evaluates these algebraic expressions with no quadrature or
-iteration (except the Kepler equation); the mean state is propagated by
-numerical integration of the averaged ODE.
+once by symbolic algebra.
 An equinoctial variant of the short-period map constructs corrections
 directly in $(p_1,p_2,q_1,q_2)$ via complex reduced rates, eliminating
 the polar-coordinate singularity at $g \to 0$ and $Q \to 0$.
+At runtime the short-period map evaluates algebraic expressions with no
+quadrature or iteration (except the Kepler equation), at a per-epoch cost
+comparable to Brouwer--Lyddane.
 Validation against osculating Taylor integration achieves sub-kilometer
 position reconstruction across all eccentricities and inclinations
-over 10 orbital periods.
-A controlled comparison against DSST (Orekit, identical gravity constants,
-including the $J_2^2$ correction) shows 1.7--55$\times$ better osculating
-position accuracy across all 12 test regimes over arcs of 3--25~days:
-DSST's second-order secular advantage is overwhelmed by GEqOE's superior
-short-period reconstruction.
-The theoretical per-epoch cost of the short-period evaluation is comparable
-to Brouwer--Lyddane (algebraic formula evaluation with no quadrature),
-while the accuracy advantage ranges from 4--335$\times$ over
-Brouwer--Lyddane and 1.7--55$\times$ over DSST across 12 test regimes
-spanning arcs of 3--25~days.
+over multi-day arcs.
+A controlled comparison against DSST and Brouwer--Lyddane
+(identical gravity model) shows that the GEqOE first-order theory
+consistently outperforms both references in osculating position accuracy
+across all test regimes, despite lacking second-order secular corrections.
 \end{abstract}
 
 \section{Introduction}
@@ -1147,6 +1141,7 @@ where $D_j$ and $N_{\mathrm{rem},k}$ are the Taylor coefficients of
 $(F+q)^2(1+qF)^2$ and $N_{\mathrm{rem}}(F)$ respectively.
 
 \paragraph{Step 4: Assembly of periodic antiderivative.}
+\label{sec:step4}
 The complete antiderivative is assembled from the partial fraction
 decomposition:
 \begin{equation}
@@ -2248,10 +2243,11 @@ The main contributions are:
     For the vast majority of harmonics (those with zero secular rate), the
     double-pole residue $D$ at $F = -1/q$ vanishes structurally---a
     consequence of the zonal forcing vanishing at $a/r = 0$---and the
-    antiderivative is purely rational.  For the two secular-rate
-    harmonics per degree, logarithmic terms arise but are absorbed into
-    the mean-element definition; the rational-only transformation is
-    self-consistent to $O(\varepsilon^2)$.
+    antiderivative is purely rational.  For the secular-rate
+    harmonics, the complete antiderivative includes a smooth logarithmic
+    correction $C_{\log}\,\varphi(K)$ (Section~\ref{sec:step4}), making
+    the short-period map the exact first-order solution of the homological
+    equation.
 
     \item Numerical validation against full osculating Taylor integration
     demonstrates sub-kilometer position reconstruction for moderate-altitude
