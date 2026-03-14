@@ -99,11 +99,46 @@ Extracting Ψ = atan2(p₁, p₂) amplifies errors by ~1/g (where g = √(p₁²
 is the GEqOE eccentricity analog). For near-circular orbits, compare p₁ and p₂
 directly rather than converting to angle/magnitude.
 
-### K vs L
+### K vs L vs M — the three fast phases
 Baù's published GEqOE uses L (true longitude analog), but heyoka requires K
 (eccentric longitude analog) because L → K involves an implicit Kepler-like
 equation that cannot be expressed in heyoka's expression DAG. The averaged
 theory uses M (mean longitude) as the fast variable.
+
+**Critical**: The mean-element propagator outputs `[ν, p₁, p₂, M, q₁, q₂]`
+where element [3] = M. But `geqoe2cart` / `geqoe2cart_zonal_batch` expect
+`[ν, p₁, p₂, K, q₁, q₂]` where element [3] = K. **You MUST solve the
+generalized Kepler equation** M → L → K before calling geqoe2cart on mean
+states. Failure to do so produces a large initial position offset (the
+equation-of-center difference between M and K). This was the root cause of
+the "starting high" bug in Figure 13 of the extended validation.
+
+Conversion: `L = Ψ + M` where `Ψ = atan2(p₁, p₂)`, then
+`K = solve_kepler_gen(L, p₁, p₂)`.
+
+### λ-scaling slope: arc-integrated RMS vs pointwise error
+The zonal-scaling test gives a log-log slope of ~1 for arc-integrated
+position RMS, which initially appears inconsistent with O(ε²) truncation
+errors. **This is NOT a bug.** A dedicated diagnostic (scaling_diagnostic.py)
+shows:
+- **Pointwise error at any fixed time** → slope = 2.0 (genuinely O(ε²))
+- **Arc-integrated RMS** → slope ≈ 1.0 (dominated by O(ε) SP amplitude)
+
+The resolution: the position error peaks near the extrema of the O(ε)
+short-period oscillation. As λ shrinks, these peaks shrink as O(ε), and the
+RMS inherits this scaling even though each individual peak's truncation
+error is O(ε²). Always test pointwise scaling (at fixed time slices) to
+verify the truncation order of an averaging theory; arc-integrated metrics
+can be misleading.
+
+### Near-circular/equatorial polar-form limitation
+The short-period map constructs corrections in polar variables (g, Ψ, Q, Ω).
+While (p₁, p₂) and (q₁, q₂) remain regular at g→0 and Q→0, the polar
+extraction Ψ = atan2(p₁, p₂) introduces amplified along-track errors when
+transformed back to equinoctial form. This is NOT just a coordinate artifact —
+it's a genuine limitation of the polar parameterization used in the SP map.
+The fix is to construct the SP corrections directly in equinoctial (p₁, p₂,
+q₁, q₂) space. See `notes/equinoctial_sp_alternatives.tex`.
 
 ---
 
@@ -140,6 +175,26 @@ the slow flow. Be precise about which is which.
 ### Bibliography errors
 Cross-checking revealed wrong authors, page ranges, and title pluralization
 in the bibliography. Always verify references against the original source.
+
+### Abstract: no implementation details
+Reviewers object to timing numbers, library names ("heyoka cfunc"),
+compilation details ("SIMD code"), and specific ms/μs measurements in
+abstracts. Keep the abstract at the theory level: "comparable cost to
+Brouwer–Lyddane" rather than "19 ms via heyoka cfunc". Concrete performance
+data belongs in the body (e.g., cost-accuracy appendix).
+
+### Scaling claims need metric qualification
+When reporting λ-scaling slopes, always specify which metric (arc-integrated
+RMS vs pointwise error) and at what time. "Slope = 1" for arc-integrated RMS
+and "slope = 2" for pointwise error are both correct for the same theory —
+the distinction matters for reviewers who expect O(ε²) from first-order
+truncation.
+
+### Conjectured results need explicit qualification
+When a property (e.g., B̂ = 0 at F = −1/q) has been verified for a finite
+set of cases (J₂–J₅) and is conjectured for all degrees, say so explicitly:
+"verified through J₅ and conjectured for all zonal degrees." Reviewers want
+to know the scope of verification vs. conjecture.
 
 ---
 

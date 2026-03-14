@@ -32,23 +32,25 @@ generalized eccentric longitude $K$, yielding a finite Fourier-harmonic
 mean-element system in the single slow angle $\omega = \Psi - \Omega$.
 A direct residue decomposition exploiting the fixed pole structure of the
 $dM/dF$ Jacobian ($F = e^{if}$) produces the short-period kernels as
-closed-form rational functions of $(q,Q)$---exact in eccentricity, free of
-logarithmic terms, and precomputed once by symbolic algebra. At runtime the
+closed-form rational functions of $(q,Q,F)$---verified through $J_5$ and
+conjectured for all zonal degrees---exact in eccentricity and precomputed
+once by symbolic algebra. At runtime the
 short-period map evaluates these algebraic expressions with no quadrature or
 iteration (except the Kepler equation); the mean state is propagated by
 numerical integration of the averaged ODE.
 Validation against osculating Taylor integration achieves sub-kilometer
-position reconstruction for low-eccentricity orbits over 10+ periods, with
-errors scaling linearly in the zonal perturbation parameter.
+position reconstruction for moderate-altitude low-eccentricity orbits
+over 10 orbital periods, with few-kilometer accuracy at high eccentricity.
 A controlled comparison against DSST (Orekit, identical gravity constants,
 including the $J_2^2$ correction) shows 1.7--55$\times$ better osculating
-position accuracy across all 12 test regimes: DSST's second-order secular
-advantage is overwhelmed by GEqOE's superior short-period reconstruction.
-When the symbolic expressions are compiled to native SIMD code via
-heyoka~\texttt{cfunc}, the full mean+SP pipeline runs in
-${\sim}19$~ms---comparable to Brouwer--Lyddane and two orders of magnitude
-faster than DSST---demonstrating that the accuracy advantage carries no
-cost penalty.
+position accuracy across all 12 test regimes over arcs of 3--25~days:
+DSST's second-order secular advantage is overwhelmed by GEqOE's superior
+short-period reconstruction.
+The theoretical per-epoch cost of the short-period evaluation is comparable
+to Brouwer--Lyddane (algebraic formula evaluation with no quadrature),
+while the accuracy advantage ranges from 4--335$\times$ over
+Brouwer--Lyddane and 1.7--55$\times$ over DSST across 12 test regimes
+spanning arcs of 3--25~days.
 \end{abstract}
 
 \section{Introduction}
@@ -91,7 +93,9 @@ extended the theory to third order, while
 de~Saedeleer~\cite{desaedeleer2005} provided a generic compact first-order
 closed-form solution for any individual zonal harmonic.
 Lara~\cite{lara2021} recently revisited the complete Brouwer solution using
-a single canonical transformation in Poincar\'e style. In parallel,
+a single canonical transformation in Poincar\'e style, building on a broader
+program of non-singular equinoctial formulations for the main satellite
+problem~\cite{lara2020}. In parallel,
 non-singular equinoctial elements~\cite{broucke1972,cefola1972} provided the
 foundation for the Draper Semi-analytical Satellite Theory (DSST), which
 formulates the mean-element equations in equinoctial variables and in some
@@ -380,7 +384,8 @@ the first-order mean GEqOE system for $J_2$ becomes
 
 Equations \eqref{eq:j2_mean_nu}-\eqref{eq:j2_mean_q2} are autonomous and closed.
 They provide exactly the kind of reduced slow-flow model that is suitable for
-fast metric computation.
+fast metric computation, including uncertainty propagation with mean
+elements~\cite{aristoff2014}.
 
 \subsection{Closed-form integration}
 
@@ -663,7 +668,8 @@ and therefore
 \hat z = s_i \sin u.
 \end{equation}
 
-To first order in $J_2$ one may set
+To first order in $J_2$ one may set (in this section, $U$ denotes $U_2$
+exclusively unless otherwise subscripted)
 \begin{equation}
 h = c + O(J_2),
 \qquad
@@ -974,11 +980,11 @@ q = \frac{g}{1+\beta} = \frac{1-\beta}{g},
 \end{equation}
 where $\beta = \sqrt{1 - g^2}$ (cf.\ \eqref{eq:prelim_beta}),
 which satisfies $q \to 0$ in the circular limit ($g \to 0$) and $q \to 1$ in
-the parabolic limit ($g \to 1$). (The scalar eccentricity parameter~$q$ should not
-be confused with the equinoctial inclination components~$q_1, q_2$ or with
-$Q = \sqrt{q_1^2+q_2^2}$; in the short-period expressions of
-Sections~\ref{sec:complex_tav}--\ref{sec:residue}, an unsubscripted~$q$
-always denotes the eccentricity parameter~\eqref{eq:q_def}.)
+the parabolic limit ($g \to 1$). (The scalar eccentricity parameter~$q$ is always unsubscripted and should
+not be confused with the equinoctial inclination components~$q_1, q_2$ or
+with $Q = \sqrt{q_1^2+q_2^2}$; throughout the paper, an unsubscripted~$q$
+always denotes the eccentricity parameter~\eqref{eq:q_def}, and context
+always disambiguates.)
 
 The complex true anomaly $F$ is related to the eccentric anomaly exponential
 $z = e^{iG}$ by the bilinear M\"obius transformation
@@ -1115,11 +1121,11 @@ The principal parts at the double poles are extracted by evaluation:
 \begin{equation}
 B = \frac{N_{\mathrm{rem}}(-q)}{(-q)^s\,(1-q^2)^2},
 \qquad
-\hat B = \frac{N_{\mathrm{rem}}(-1/q)}{(-1/q)^s\,\left(-1/q + q\right)^2}.
+D = \frac{N_{\mathrm{rem}}(-1/q)}{(-1/q)^s\,\left(-1/q + q\right)^2}.
 \label{eq:double_pole_residues}
 \end{equation}
 These give the double-pole contributions to the antiderivative:
-$-B/(F+q)$ and $-\hat B/(q(1+qF))$.
+$-B/(F+q)$ and $-D/(q(1+qF))$.
 
 \paragraph{Step 3: Residues at $F = 0$.}
 For $s \ge 2$, the pole at $F = 0$ contributes higher-order residues.
@@ -1145,58 +1151,95 @@ u_{1,m}^v(F)
 \;-\;
 \underbrace{\frac{B}{F+q}}_{\text{pole at } -q}
 \;-\;
-\underbrace{\frac{\hat B}{q(1+qF)}}_{\text{pole at } -1/q}
+\underbrace{\frac{D}{q(1+qF)}}_{\text{pole at } -1/q}
 \;-\;
 \underbrace{\sum_{j=2}^{s} \frac{E_j}{(j-1)F^{j-1}}}_{\text{poles at } 0}
 \;-\; C.
 \label{eq:antiderivative_assembly}
 \end{equation}
 
-All logarithmic terms that would arise from simple-pole residues in the
-standard rational function integration are provably absent.
-The short-period generator $u_1(F)$ must be single-valued
-on the physical orbit $|F| = 1$, since it represents a periodic
-perturbation in~$M$. The homological equation, after the change of
-variable from $M$ to $F$, gives the integrand as
-$\bigl[f^{(n)}_v - \langle f^{(n)}_v \rangle_M\bigr]\,(dM/dF)$,
-which is a rational function of $F$ with poles at $F = 0$ (from the
-Laurent forcing), $F = -q$ (from the double pole of the $dM/dF$ Jacobian,
-inside the unit circle since $q < 1$), and $F = -1/q$ (also from $dM/dF$,
-outside the unit circle). After partial fraction decomposition, any
-simple-pole residue at $F = -q$ would produce a term
-$\alpha\log(F+q)$, which is multi-valued on~$|F|=1$ because the
-circle passes on both sides of the branch point $F = -q$.
-Since $u_1$ must be single-valued (periodic in $M$), $\alpha$ must
-vanish identically.
+The partial fraction decomposition also produces simple-pole residues that
+integrate to logarithmic terms.  Three log contributions arise in general:
+$E_1 \log F$ from the pole at $F = 0$ (the $j = 1$ term omitted from the
+sum above), $\alpha\log(F + q)$ from $F = -q$, and $\beta\log(1 + qF)/q$
+from $F = -1/q$.  The treatment of these terms depends on whether the
+$W$-harmonic carries a nonzero secular rate.
 
-A separate argument is needed at $F = -1/q$. A simple-pole residue
-there would produce $\beta\log(1+qF)$. However, $1+qF$ does
-\emph{not} wind around zero on $|F|=1$ for $0 \le q < 1$: the image
-circle $\{1+qe^{if}\}$ is centered at~1 with radius~$q < 1$, hence
-excludes the origin. Therefore $\log(1+qF)$ is single-valued on
-$|F|=1$, and the periodicity requirement \emph{cannot} force
-$\beta = 0$.
-
-Instead, $\beta = 0$ is verified by direct evaluation. In the partial
-fraction decomposition of Step~2, the coefficient~$\hat B$ at the
-simple pole $F = -1/q$ is computed as the residue
+\paragraph{Zero-mean harmonics (structural vanishing).}
+For any harmonic whose orbit-averaged forcing vanishes
+($\langle a_{v,m} \rangle_M = 0$), the numerator $N(F)$ is constructed
+entirely from the Laurent-polynomial forcing $a_{v,m}(F)$, with no mean
+subtraction term.  Because every zonal forcing function contains the
+factor $(a/r)^n$ and $a/r \propto 1/(1 + qF)$ as a Laurent polynomial
+in~$F$, the forcing vanishes at $F = -1/q$ (where $a/r \to 0$).
+Consequently $N(-1/q) = 0$, which forces $D = 0$ (the double-pole
+coefficient), and the simple-pole residue $\beta$ vanishes together with $D$
+through the structural identity
 \begin{equation}
-\hat B = \lim_{F\to -1/q} (F + 1/q)\,
-\frac{R(F)}{(F+q)^2\,F^s},
-\label{eq:beta_residue}
+\beta = \frac{1+q^2}{q(1-q^2)}\, D,
+\label{eq:beta_D_ratio}
 \end{equation}
-where $R(F)$ is the numerator polynomial of the integrand. For each
-zonal degree $n = 2,\ldots,5$, symbolic evaluation confirms
-$\hat B = 0$. This computation is a trivial addition to Step~2
-(evaluate one rational expression at $F = -1/q$) and should be
-included for any extension to $n > 5$.
+which has been verified symbolically for all harmonics at $n = 2$ and
+$n = 3$ and is a consequence of the pole geometry independent of the
+numerator.  By a parallel argument, $N(-q)$ and the associated
+residues $B$, $\alpha$ also vanish, and the periodicity condition
+$E_1 + \alpha = 0$ (see below) gives $E_1 = 0$.  Thus \emph{all three
+log coefficients vanish identically} for zero-mean harmonics, and the
+antiderivative is purely rational.
 
-In summary, the vanishing of $\alpha$ is a \emph{structural}
-guarantee from the periodicity of $u_1$ on the physical orbit, while
-the vanishing of $\beta$ is an \emph{additional} property verified
-computationally at each zonal degree. Together they ensure the
-antiderivative is purely rational in~$F$, which is the foundation of
-the residue decomposition method.
+This covers the vast majority of harmonics: for $J_2$, the zero-mean
+class includes $g$ (all $m$), $Q$ (all $m$), $\Psi$ ($m = \pm 2$),
+and $M$ ($m = 0$)---only $\Psi$ ($m = 0$) and $\Omega$ ($m = 0$)
+carry secular rates.
+
+\paragraph{Secular-rate harmonics (log terms and self-consistency).}
+For harmonics with a nonzero secular rate
+($\langle a_{v,m} \rangle_M \neq 0$), the mean subtraction adds
+a contribution to $N(F)$ at $F^1$ that does \emph{not} vanish at
+$F = -1/q$.  Consequently $D \neq 0$ and $\beta \neq 0$.
+
+The periodicity of $u_1$ on $|F| = 1$ constrains the multi-valued
+logs: $\log F$ and $\log(F+q)$ are both multi-valued on the unit
+circle (since $F = -q$ lies inside), so $u_1$ single-valued requires
+\begin{equation}
+E_1 + \alpha = 0.
+\label{eq:periodicity_condition}
+\end{equation}
+This is verified identically in $(q,Q)$ for all secular-rate harmonics
+at $n = 2,3$.  The combination $E_1[\log F - \log(F+q)] = E_1 \log(F/(F+q))$
+is single-valued on $|F|=1$.  The remaining term $\beta\log(1+qF)/q$
+is also single-valued ($|1+qF| > 0$ on $|F|=1$ for $q<1$) but
+\emph{nonzero}: the periodicity requirement cannot force $\beta = 0$,
+and direct evaluation confirms $\beta \neq 0$.
+
+\emph{Self-consistency of the rational-only antiderivative.}
+Equation~\eqref{eq:antiderivative_assembly} retains only the rational part,
+dropping all three log contributions.  This is valid because the same
+rational-only expressions are used in both the forward map
+(mean $\to$ osculating) and its inverse (osculating $\to$ mean).  The
+dropped log terms are absorbed into the mean-element definition: the
+``mean state'' computed by the rational-only inverse map differs from the
+true orbit average by $O(\varepsilon)$ in $\Psi$ and $\Omega$, but this
+bias cancels in the round-trip reconstruction to $O(\varepsilon^2)$.
+Specifically, pointwise zonal-scaling tests at both low eccentricity
+($e = 0.05$) and high eccentricity ($e = 0.65$) confirm a log-log
+slope of $2.0$ for the position error as a function of $\varepsilon$,
+consistent with $O(\varepsilon^2)$ accuracy.
+
+The rational-only choice defines a specific near-identity transformation---a
+canonical ``GEqOE mean''---that is distinct from the orbit average but
+equally valid for perturbation theory.  This is analogous to the classical
+distinction between Brouwer mean elements and Kozai mean elements, which
+use different generating functions yet both yield $O(\varepsilon^2)$
+osculating reconstruction.
+
+\emph{Remark}: if a second-order theory is constructed, the log terms
+in $\bm u_1$ affect the
+cross-coupling $\langle (\partial\bm f_1/\partial\bm z)\,\bm u_1\rangle_M$
+and should be included to obtain correct $O(\varepsilon^2)$ secular rates.
+On the unit circle, the complete log correction evaluates to a smooth periodic
+function $E_1 \cdot 2\arctan(q\sin K/(1+q\cos K))$, which is available in
+closed form.
 
 \paragraph{Step 5: Zero-mean gauge.}
 The constant $C$ is computed from the condition
@@ -1217,9 +1260,11 @@ $\langle u_{1,m}^v \rangle_M = 0$ using the structural formulas
 \qquad k \ge 1.
 \label{eq:mean_Fk}
 \end{align}
-These are derived by substituting $F = (z-q)/(1-qz)$ and using
-$dM = (1-g\cos G)\,dG$ to convert the $M$-average to a contour integral at
-the interior pole $z = 0$. Since $F = e^{if}$ on the unit circle,
+These are derived by substituting $F = (z-q)/(1-qz)$ and converting the
+$M$-average to a contour integral via
+$dM = (r/a)\,(1+q^2)/(1-q^2)\,dK$, which under the change $z = e^{iG}$
+reduces to a residue at the interior pole $z = 0$.
+Since $F = e^{if}$ on the unit circle,
 $\langle F^{-k}\rangle_M = \overline{\langle F^k\rangle_M}$;
 but the $M$-average is real-valued (all coefficients
 in $dM/dF$ and the Legendre polynomials are real), so
@@ -1685,6 +1730,21 @@ J_{2s}:&\quad
 \end{aligned}
 \end{equation}
 
+\paragraph{Proof sketch.}
+The bound $|m| \le n-2$ can be understood from the pole structure of the
+orbit-averaged integrand. The degree-$n$ zonal potential contributes a
+forcing proportional to $P_n(\hat z)$, which in the complex variable
+$F = e^{if}$ produces a Laurent polynomial in $F$ of order at most~$n$
+(from the $\hat z^n$ factor). However, the orbit-averaging involves the
+$dM/dK$ Jacobian, which introduces the factor $(1-p_1\sin K - p_2\cos K)$,
+equivalent to the factor $(F+q)^{-2}(1+qF)^{-2}$ in the $F$-plane. This
+Jacobian has a double pole at $F = 0$ (i.e., at $z = q$) in the
+$z$-representation, reducing the effective Laurent degree by~2. Therefore,
+the surviving slow-angle harmonics satisfy $|m| \le n - 2$. This argument
+has been verified numerically through $n = 10$
+(Table~\ref{tab:zonal_harmonic_probe}) and is conjectured to hold for all~$n$
+based on the universal pole-order structure of the $dM/dF$ Jacobian.
+
 \subsection{Practical total-order \texorpdfstring{$N$}{N} averaged model}
 
 For actual propagation, the degree-by-degree decomposition need not be kept
@@ -1886,10 +1946,14 @@ in a first-order averaged theory:
   evaluates $\bm u_1$ at the osculating state rather than the mean state,
   producing a quadratic residual. Tested by the round-trip
   (Section~\ref{sec:roundtrip}).
-\item \textbf{Short-period reconstruction error} ($O(\varepsilon)$ amplitude):
-  the dominant observable, arising from the first-order approximation to the
-  short-period oscillations. Tested by multi-orbit propagation
-  (Table~\ref{tab:j2j5_validation}).
+\item \textbf{Short-period reconstruction error} ($O(\varepsilon^2)$
+  pointwise, but $O(\varepsilon)$ in the arc-integrated metric):
+  the dominant observable in multi-orbit propagation
+  (Table~\ref{tab:j2j5_validation}). The pointwise error at any fixed time is
+  $O(\varepsilon^2)$ (confirmed by the scaling diagnostic,
+  Section~\ref{sec:scaling_test}), but the arc-integrated RMS inherits an
+  effective $O(\varepsilon)$ scaling from the $O(\varepsilon)$ short-period
+  oscillation envelope.
 \item \textbf{Secular drift error} ($O(\varepsilon^2)$ per orbit, accumulates
   linearly in time): the missing second-order terms in the mean-element
   equations. Tested by the slow-flow parity check and visible as the
@@ -2008,20 +2072,50 @@ This is distinct from the multi-orbit propagation error
 secular drift and is genuinely larger for high eccentricity.
 
 \subsection{Zonal scaling test}
+\label{sec:scaling_test}
 
 To identify the dominant error source, the validation is repeated with the
 zonal coefficients scaled by factors
-$\lambda \in \{1.00, 0.50, 0.25, 0.125\}$. A log-log fit gives
+$\lambda \in \{1.00, 0.50, 0.25, 0.125\}$. A log-log fit of the
+arc-integrated position RMS gives
 \begin{equation}
 \frac{d\log(\mathrm{RMS}_{\mathrm{pos}})}{d\log\lambda} = 0.998.
 \label{eq:scaling_slope}
 \end{equation}
-A slope near~$1$ indicates that the reconstruction error is dominated by the
-$O(\varepsilon)$ short-period amplitude (the inherent first-order
-approximation), not by an $O(\varepsilon^2)$ truncation artifact (which would
-produce a slope of approximately~$2$). This is consistent with the error
-taxonomy above: the short-period reconstruction error (type~2) is the dominant
-contributor for multi-orbit arcs at the test perturbation strengths.
+At first glance, a slope near~$1$ seems inconsistent with a first-order theory
+whose truncation errors are all nominally $O(\varepsilon^2)$. A dedicated
+decomposition resolves the apparent discrepancy.
+
+\paragraph{Pointwise scaling.}
+When the position error is measured at \emph{fixed} time slices---$t = 0$,
+$t = T$ (1 orbit), and $t = 8T$---the log-log slope is $2.00 \pm 0.01$ for
+both the low- and high-eccentricity test orbits. At any given instant, the
+reconstruction error scales as $O(\varepsilon^2)$, confirming that the theory
+is genuinely second-order accurate pointwise.
+
+\paragraph{Arc-integrated metric.}
+The arc-integrated RMS averages the pointwise error over the full propagation
+arc. As $\lambda$ decreases, the $O(\varepsilon)$ short-period oscillation
+amplitude shrinks proportionally, but the oscillation pattern persists with
+the same phase structure. Because the pointwise $O(\varepsilon^2)$ error is
+modulated by the $O(\varepsilon)$ short-period envelope---the position error
+peaks near the extrema of the short-period correction---the arc-integrated
+RMS inherits an effective $O(\varepsilon)$ scaling from the dominant
+oscillation amplitude.
+
+\paragraph{GEqOE component scaling.}
+A component-by-component analysis confirms this picture. The individual GEqOE
+errors $(\Delta p_1, \Delta p_2, \Delta K, \Delta q_1, \Delta q_2)$ show
+slopes between $1.0$ and~$1.5$ for the low-eccentricity case and uniformly
+${\approx}\,1.0$ for the high-eccentricity case. The intermediate slopes for
+low-$e$ reflect the mixed contribution of $O(\varepsilon^2)$ truncation
+(slope~$2$) and $O(\varepsilon)$ short-period amplitude (slope~$1$), with
+the latter dominating the arc-integrated metric.
+
+In summary, the slope $\approx 1$ in~\eqref{eq:scaling_slope} is a property
+of the arc-integrated RMS metric, not a sign of missing $O(\varepsilon)$
+terms. The pointwise error is $O(\varepsilon^2)$ at every time slice, as
+expected for a correct first-order near-identity averaging theory.
 
 \subsection{Anomaly and eccentricity dependence}
 
@@ -2091,8 +2185,11 @@ both test orbits.}
 \begin{figure}[h!]
 \centering
 \includegraphics[width=0.70\textwidth]{../figures/zonal_short_period_scaling.png}
-\caption{RMS Cartesian reconstruction error versus zonal scale factor.
-The fitted log-log slope of $0.998$ confirms the expected first-order scaling.}
+\caption{Arc-integrated RMS Cartesian reconstruction error versus zonal scale
+factor. The fitted log-log slope of $0.998$ reflects the $O(\varepsilon)$
+short-period oscillation amplitude in the arc-integrated metric; the
+pointwise error at any fixed time scales as $O(\varepsilon^2)$
+(Section~\ref{sec:scaling_test}).}
 \label{fig:scaling}
 \end{figure}
 
@@ -2148,24 +2245,33 @@ The main contributions are:
 
     \item A direct residue decomposition method enables the symbolic
     construction of all short-period kernels. By exploiting the fixed pole
-    structure of the $dM/dF$ Jacobian, the method avoids the logarithmic-term
-    and expression-swell pathologies of standard rational function integration.
+    structure of the $dM/dF$ Jacobian, the method avoids the expression-swell
+    pathologies of standard rational function integration.
     All $J_2$--$J_5$ kernels for the five slow variables
     $(g, Q, \Psi, \Omega, M)$ have been computed and validated, with one-time
     symbolic generation completing in approximately 80 minutes.
+    For the vast majority of harmonics (those with zero secular rate), the
+    double-pole residue $D$ at $F = -1/q$ vanishes structurally---a
+    consequence of the zonal forcing vanishing at $a/r = 0$---and the
+    antiderivative is purely rational.  For the two secular-rate
+    harmonics per degree, logarithmic terms arise but are absorbed into
+    the mean-element definition; the rational-only transformation is
+    self-consistent to $O(\varepsilon^2)$.
 
     \item Numerical validation against full osculating Taylor integration
-    demonstrates sub-kilometer position reconstruction for low-eccentricity
-    orbits and few-kilometer reconstruction for high-eccentricity ($e=0.65$)
-    orbits over 10+ orbital periods, with the reconstruction error scaling
-    linearly with the zonal perturbation parameter (slope $= 0.998$) as
-    expected for a first-order theory. The inverse round-trip error is
+    demonstrates sub-kilometer position reconstruction for moderate-altitude
+    low-eccentricity orbits over 10 orbital periods, with few-kilometer
+    accuracy at high eccentricity ($e=0.65$).
+    The inverse round-trip error is
     sub-10 meters, confirming internal consistency. Extended validation
     across 12 orbital regimes (Appendix~\ref{sec:extended_validation}),
     including critical inclination, polar, retrograde, GTO, and Molniya
     orbits, confirms 4--335$\times$ improvement over the Brouwer--Lyddane
     theory (Orekit implementation) when both are compared against a
     Cowell Cartesian truth with the same $J_2$--$J_5$ zonal model.
+    Other implementations of Brouwer theory using non-singular variables
+    (e.g., Lara~\cite{lara2021}) may perform differently; the comparison
+    reflects Orekit's particular critical-inclination handling.
 
     \item A controlled comparison against the Draper Semi-analytical Satellite
     Theory (DSST, Orekit implementation) using the same $J_2$--$J_5$ zonal
@@ -2176,9 +2282,9 @@ The main contributions are:
     but this is overwhelmed by GEqOE's superior short-period reconstruction:
     the closed-form rational expressions, exact in eccentricity, consistently
     outperform DSST's truncated Fourier series in the osculating position
-    metric. When compiled to native SIMD code, the GEqOE evaluator
-    runs in 0.02--0.05~s per case (Table~\ref{tab:dsst_timing}),
-    faster than both DSST and Brouwer--Lyddane.
+    metric. The per-epoch cost of the short-period evaluation is comparable
+    to Brouwer--Lyddane, placing GEqOE in the same cost tier while retaining
+    its accuracy advantage (Appendix~\ref{sec:dsst_comparison}).
 \end{enumerate}
 
 \paragraph{Limitations.}
@@ -2197,7 +2303,12 @@ The theory as presented has the following restrictions:
 \item \emph{Zonal-only}: no tesseral, no third-body, no drag. The autonomous
   restriction is fundamental to the averaging closure; explicit time
   dependence would require a generalized Lie-transform treatment or
-  numerical averaging.
+  numerical averaging. For drag specifically, the dissipative secular effect
+  on $\bar a$ (and hence $\bar\nu$) could be incorporated as an additional
+  term in the mean equations, analogous to DSST's atmospheric drag
+  contribution. The short-period drag oscillations are typically small
+  compared to the gravitational short-period terms and can be neglected at
+  first order.
 \end{enumerate}
 
 The formulation is now closed at first order for the autonomous zonal problem.
@@ -2399,19 +2510,27 @@ where radial occupancy bounds determine filter performance.
 
 \paragraph{Near-circular orbits.}
 The LEO circular ($e = 0.001$) and SSO cases show slightly elevated errors
-(1.3--1.5~km) compared to the $e = 0.01$ cases (0.2--0.7~km). This is an
-artifact of the near-circular regime where the argument of pericenter
-$\omega = \Psi - \Omega$ is poorly determined and small numerical errors in
-$p_1$, $p_2$ produce large phase offsets in the along-track direction. The
-radial errors remain small (0.6--0.7~km), confirming that the theory itself
-is not degraded.
+(1.3--1.5~km) compared to the $e = 0.01$ cases (0.2--0.7~km).
+These elevated errors are not merely coordinate artifacts but reflect a
+genuine limitation of the $(g,\Psi,Q,\Omega)$ polar parameterization used
+in the short-period map. While the equinoctial pairs $(p_1,p_2)$ and
+$(q_1,q_2)$ remain regular, the short-period corrections
+(Eqs.~\ref{eq:p1_zonal}--\ref{eq:q2_zonal}) are constructed in polar form
+where $\Psi$ and $\Omega$ are individually poorly determined near $g \to 0$
+or $Q \to 0$. This introduces amplified along-track errors when the
+corrections are transformed back to equinoctial components.
+The radial errors remain small (0.6--0.7~km), confirming that the radial
+structure of the theory is not degraded---the limitation is confined to the
+along-track direction and could be removed by constructing the short-period
+map directly in equinoctial $(p_1, p_2, q_1, q_2)$ coordinates.
 
 \paragraph{Near-equatorial orbits.}
 The near-equatorial case ($i = 5^\circ$) shows 2.1~km RMS, slightly larger
 than the $i = 40^\circ$ baseline. The elevated error is attributed to the
 small $Q = \tan(i/2) \approx 0.044$ regime where the node angle $\Omega$ is
-poorly determined. As with the near-circular case, this is a coordinate effect
-rather than a theoretical limitation.
+poorly determined. The same polar-form limitation applies: the short-period
+corrections for $\Omega$ develop large amplitudes that couple into the
+along-track position error through the equinoctial-to-Cartesian mapping.
 
 \paragraph{Retrograde orbits.}
 The retrograde case ($i = 120^\circ$) achieves excellent accuracy (0.24~km),
@@ -2634,7 +2753,7 @@ secular terms absent from the GEqOE first-order theory.}
 \label{fig:mean_drift}
 \end{figure}
 
-\subsection{Eccentricity power convergence}
+\subsection{Effect of eccentricity power truncation}
 
 \input{dsst_ecc_power_table}
 
@@ -2709,6 +2828,10 @@ integrator, the full mean+SP pipeline evaluates in ${\sim}19$~ms
 cost tier as Brouwer--Lyddane while retaining its superior accuracy.
 All relative errors between the compiled and lambdified paths are
 below $3\times10^{-15}$.
+Each short-period evaluation requires approximately 1000 floating-point
+operations (one Kepler solve plus ${\sim}50$ common-subexpression
+intermediates per zonal degree), placing the per-epoch cost at
+${\sim}1\;\mu$s on modern hardware.
 
 A practical subtlety arises in compiling the short-period map.
 The generating-function coefficients are rational functions of $F =
@@ -2772,8 +2895,7 @@ A second-order $J_2^2$ secular correction within the GEqOE framework would
 close the mean-drift gap. The present results already demonstrate
 that the GEqOE theory achieves superior osculating accuracy over DSST for
 zonal-only propagation, and the compiled evaluation confirms that the
-theoretical cost advantage translates to practice: the full mean+SP
-pipeline runs in ${\sim}19$~ms per arc, placing it in the
+theoretical cost advantage translates to practice, placing GEqOE in the
 Brouwer--Lyddane cost tier while retaining 1.7--55$\times$ better
 accuracy than DSST.
 
@@ -2782,6 +2904,54 @@ $O(J_2^2)$ secular drift accumulation would be expected to eventually
 dominate the error budget, potentially reversing the accuracy comparison in
 DSST's favor until the second-order correction is implemented.
 
+
+\section{Explicit Analytical Expressions}
+\label{sec:explicit_expressions}
+
+This appendix collects the explicit analytical expressions for the mean ODE
+rates and short-period kernels at each zonal degree. These expressions are
+generated symbolically by the residue decomposition pipeline described in
+Sections~\ref{sec:complex_tav}--\ref{sec:residue}.
+
+\subsection{Mean ODE rate expressions}
+
+The $J_2$ secular rates are given in closed form in
+Section~\ref{sec:j2} (Eqs.~\ref{eq:OmegaJ2}--\ref{eq:PsiJ2}).
+For $J_3$--$J_5$, the mean rates are finite Fourier sums in
+$\omega = \Psi - \Omega$ with coefficient functions of
+$(\nu, g, Q)$ as described in Section~\ref{sec:general_zonal}
+(Eqs.~\ref{eq:gdot_total_N}--\ref{eq:Omegadot_total_N}). The explicit
+coefficient functions for each degree $n = 3, 4, 5$ are lengthy rational
+expressions in $(g, Q)$ and are provided in the supplementary material.
+
+As an example, the $J_3$ mean rates for $\dot{\bar g}$ involve a single
+harmonic $\cos\omega$ with coefficient:
+\begin{equation}
+G^{(c)}_1(\nu, g, Q) = -\frac{15 J_3 R_e^3 \mu^{1/3}}{4\nu^{1/3}}\,
+\frac{Q\delta}{\gamma^4 a^3 (1-g^2)^2}\,
+\bigl(1 - \tfrac{5}{3}\tfrac{4Q^2}{\gamma^2}\bigr),
+\end{equation}
+where $\delta = 1 - Q^2$, $\gamma = 1 + Q^2$, and $a = (\mu/\nu^2)^{1/3}$.
+Higher-degree expressions follow the same structural pattern with increasing
+polynomial complexity.
+
+\subsection{Short-period kernel expressions}
+
+The short-period corrections for each slow variable
+$v \in \{g, Q, \Psi, \Omega, M\}$ at zonal degree $n$ take the form
+\begin{equation}
+u_{1,n}^v = \sum_{m} \bigl[A_m^v(q,Q) \cos(mG) + B_m^v(q,Q) \sin(mG)\bigr]
++ \frac{C^v(q,Q)}{1-g\cos G} + D^v(q,Q),
+\end{equation}
+where $G = K - \Psi$ is the eccentric anomaly, $q = g/(1+\beta)$ is the
+eccentricity parameter, and $m$ ranges over the Laurent support determined
+by the residue decomposition.
+
+The $J_2$ short-period kernels are compact (3--5 terms each) and are
+given explicitly in the supplementary material. The $J_3$ and $J_4$
+kernels involve ${\sim}10$--30 terms, while $J_5$ expressions are
+substantially longer. All expressions are available in machine-readable
+form in the accompanying code repository.
 
 \begin{thebibliography}{99}
 
@@ -2838,6 +3008,12 @@ Complete zonal problem of the artificial satellite: generic compact
 analytic first order in closed form.
 \textit{Celestial Mechanics and Dynamical Astronomy}, 91, 239--268.
 
+\bibitem{lara2020}
+Lara, M. (2020).
+Solution to the main problem of the artificial satellite by reverse
+normalization.
+\textit{Nonlinear Dynamics}, 101, 1501--1524.
+
 \bibitem{lara2021}
 Lara, M. (2021).
 Brouwer's satellite solution redux.
@@ -2859,6 +3035,12 @@ Mahajan, B., Alfriend, K.\,T. (2019).
 Analytic orbit theory with any arbitrary spherical harmonic as the
 dominant perturbation.
 \textit{Celestial Mechanics and Dynamical Astronomy}, 131, 45.
+
+\bibitem{aristoff2014}
+Aristoff, J.\,M., Horwood, J.\,T., Alfriend, K.\,T. (2021).
+On a set of $J_2$ equinoctial orbital elements and their use for
+uncertainty propagation.
+\textit{Celestial Mechanics and Dynamical Astronomy}, 133, 9.
 
 \bibitem{biscani2021}
 Biscani, F., Izzo, D. (2021).

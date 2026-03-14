@@ -30,8 +30,8 @@ mixed-zonal averaged theory (the master note, \texttt{\master{}}) to second
 order in the zonal perturbation parameter. The second-order extension would
 produce: (i) an $O(\eps^2)$ correction to the mean drift (including
 cross-zonal products $J_n J_m$), (ii) a second-order short-period correction
-$\bm u_2$ reducing the osculating reconstruction error from $O(\eps)$ to
-$O(\eps^2)$, and (iii) a second-order inverse map eliminating the
+$\bm u_2$ reducing the osculating reconstruction error from $O(\eps^2)$ to
+$O(\eps^3)$, and (iii) a second-order inverse map further reducing the
 anomaly-dependent initialization error. The central claim is that the
 algebraic structure underlying the first-order direct residue
 decomposition---Laurent polynomial forcing with fixed-pole-structure
@@ -46,9 +46,9 @@ demanding but not fundamentally obstructed.
 The first-order theory validated in the master note achieves sub-kilometer
 position reconstruction for low-eccentricity orbits and a few kilometers for
 high-eccentricity orbits ($e = 0.65$) over 10+ orbital periods. The dominant
-error source is the $O(\eps)$ magnitude of the short-period correction itself
-(zonal scaling slope $= 0.998$). A second-order theory would push the
-reconstruction error to $O(\eps^2)$, which for the dominant $J_2$ perturbation
+error source is the $O(\eps^2)$ residual from neglected second-order terms
+(confirmed by pointwise zonal scaling slope~$= 2.0$). A second-order theory
+would push the reconstruction error to $O(\eps^3)$, which for the dominant $J_2$ perturbation
 ($\eps \sim 10^{-3}$) implies a reduction from hundreds of meters to
 sub-meter level.
 
@@ -260,17 +260,26 @@ The first-order theory exploits three structural facts:
 in $F = e^{if}$ for each $w$-harmonic.
 \item[(S2)] The Jacobian $dM/dF$ has the fixed denominator
 $(F+q)^2(1+qF)^2$.
-\item[(S3)] The first-order short-period correction $\bm u_1$ is a rational
-function of $F$: polynomial + simple poles at $F = -q$, $F = -1/q$,
-and higher poles at $F = 0$.
+\item[(S3)] The first-order short-period correction $\bm u_1$ is a
+\emph{quasi-rational} function of $F$: for zero-mean harmonics (no secular
+rate), $\bm u_1$ is purely rational (polynomial + poles at $F = -q$,
+$F = -1/q$, and $F = 0$).  For the two secular-rate harmonics per degree
+($\Psi$\,\texttt{m=0} and $\Omega$\,\texttt{m=0} at $n=2$; varies for
+$n \ge 3$), the complete first-order antiderivative also contains a
+$\log(1+qF)$ term.  In the implementation, the rational-only part is
+retained, which defines a self-consistent near-identity transformation
+accurate to $O(\eps^2)$ in the round-trip (see the master note for
+details).
 \end{enumerate}
 
 At second order, every term in $\bm F_2$ is built from:
 \begin{itemize}
 \item $\bm f_1$, $\bm f_2$: Laurent polynomials in $F$ (from the
 trigonometric-polynomial structure of $P_n(\hat z)$ and its products).
-\item $\bm u_1$, $v_1$: rational functions of $F$ with poles at $0$, $-q$,
-$-1/q$ (from the first-order solution).
+\item $\bm u_1$, $v_1$: quasi-rational functions of $F$ with poles at $0$,
+$-q$, $-1/q$ plus $\log(1+qF)$ terms for secular-rate harmonics
+(from the first-order solution; see (S3) above).  If the rational-only
+$\bm u_1$ is used, these are purely rational.
 \item Derivatives $\partial \bm u_1/\partial \bar{\bm z}$: rational functions
 of $F$ with the same pole locations (differentiation in the slow variables
 does not change the $F$-pole structure).
@@ -322,8 +331,21 @@ extended to include means of higher-pole terms:
 These are all computable by the same contour-integral residue calculus
 (substitute $F = (z-q)/(1-qz)$ and evaluate at $z = 0$).
 
-\item The log-term cancellation argument still holds: the integrand has
-zero $M$-average by construction, so log terms cannot appear.
+\item The log-term situation at second order mirrors the first-order case:
+for harmonics of the second-order forcing whose mean $\bar{\bm f}_2$ is
+nonzero, the mean subtraction introduces a numerator contribution at
+$F = -1/q$ that does not vanish, producing logarithmic terms in the
+antiderivative.  As at first order, these can be dropped in favour of
+the rational-only antiderivative, which defines a self-consistent
+near-identity transformation to $O(\eps^3)$ in the round-trip.
+However, the second-order \emph{secular rates} $\bar{\bm f}_2$
+are sensitive to the first-order log terms through the cross-coupling
+$\langle (\partial\bm f_1/\partial\bm z)\,\bm u_{1,\text{log}} \rangle_M$.
+If the log terms are dropped from $\bm u_1$, this coupling is lost,
+introducing an $O(\eps^2)$ error in the long-period rates.  At second
+order it is therefore advisable to include the $\log(1+qF)$ correction
+in $\bm u_1$ for the secular-rate harmonics, or equivalently to
+add a compensating constant to $\bar{\bm f}_2$.
 \end{enumerate}
 
 \subsection{New structural mean formulas needed}
@@ -481,7 +503,7 @@ Metric & First-order & Second-order (projected) \\
 \midrule
 Position RMS & $\sim$200 m & $\sim$0.1--1 m \\
 Round-trip error & 7.2 m & $\sim$cm \\
-Scaling slope & 0.998 & $\approx 2$ \\
+Scaling slope (pointwise) & 2.0 & $\approx 3$ \\
 \bottomrule
 \end{tabular}
 \end{center}

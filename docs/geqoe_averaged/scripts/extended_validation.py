@@ -49,6 +49,7 @@ from astrodyn_core.geqoe_taylor.cowell import (
     _build_cowell_heyoka_general_system,
     _build_par_values,
 )
+from astrodyn_core.geqoe_taylor.utils import K_to_L, solve_kepler_gen
 
 from geqoe_mean.constants import J2, J3, J4, J5, J_COEFFS
 from geqoe_mean.coordinates import kepler_to_rv
@@ -507,8 +508,16 @@ def run_single_case(case):
               f"rad RMS = {err_meansp['rad_rms_km']:.4f} km")
 
         # --- 3b. GEqOE mean-only (no short-period map) ---
+        # mean_hist has [nu, p1, p2, M, q1, q2] where element [3] = M (mean
+        # fast phase).  geqoe2cart_zonal_batch expects K (eccentric longitude).
+        # Convert M -> L -> K via the generalized Kepler equation.
         t0_mo = time.time()
-        geqoe_mean_cart, _ = geqoe2cart_zonal_batch(mean_hist, MU, pert)
+        mean_for_cart = mean_hist.copy()
+        Psi_arr = np.arctan2(mean_hist[:, 1], mean_hist[:, 2])
+        L_arr = Psi_arr + mean_hist[:, 3]          # L = Psi + M
+        K_arr = solve_kepler_gen(L_arr, mean_hist[:, 1], mean_hist[:, 2])
+        mean_for_cart[:, 3] = K_arr
+        geqoe_mean_cart, _ = geqoe2cart_zonal_batch(mean_for_cart, MU, pert)
         mo_time = time.time() - t0_mo
         result["geqoe_mean_only_time"] = mean_prop_time + mo_time
         err_geqoe_mean = compute_errors(truth_cart, geqoe_mean_cart, "GEqOE-mean-only")

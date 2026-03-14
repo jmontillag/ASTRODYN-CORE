@@ -22,6 +22,7 @@ scripts/
   ├── zonal_short_period_validation.py   # → geqoe_mean.short_period, validation
   ├── run_full_validation.py             # → zonal_short_period_validation
   ├── extended_validation.py             # → geqoe_mean.short_period, validation
+  ├── scaling_diagnostic.py             # → zonal_short_period_validation, geqoe_mean
   ├── analytical_pipeline_figure.py      # → geqoe_mean.short_period, validation
   ├── j2_secular_vs_osculating.py        # → geqoe_mean.coordinates
   └── validation_check.py               # → geqoe_mean.coordinates
@@ -68,6 +69,7 @@ run from the repository root.
 | `validation_check.py` | Comprehensive averaged J2 validation | Console output | ~2 min |
 | `run_full_validation.py` | Full J2–J4/J5 validation suite | Console + figures | ~5 min |
 | `extended_validation.py` | Extended validation across 12 orbital regimes | `figures/extended_*.png`, JSON | ~10 min |
+| `scaling_diagnostic.py` | Diagnose λ-scaling slope (pointwise vs arc-integrated) | `figures/scaling_diagnostic.png` | ~3 min |
 | `analytical_pipeline_figure.py` | Orbital element decomposition figure | `figures/analytical_pipeline.png` | ~2 min |
 
 ## Environment
