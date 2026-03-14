@@ -1,0 +1,131 @@
+Classical Analytical Theories
+
+Brouwer, D. (1959). "Solution of the Problem of Artificial Satellite Theory Without Drag." The Astronomical Journal, 64, 378–397.
+Kozai, Y. (1959). "The Motion of a Close Earth Satellite." The Astronomical Journal, 64, 367–377.
+Lyddane, R.H. (1963). "Small Eccentricities or Inclinations in the Brouwer Theory of the Artificial Satellite." The Astronomical Journal, 68, 555–558.
+Hori, G. (1966). "Theory of General Perturbation with Unspecified Canonical Variables." Publications of the Astronomical Society of Japan, 18, 287–296.
+Deprit, A. (1969). "Canonical Transformations Depending on a Small Parameter." Celestial Mechanics, 1, 12–30.
+Campbell, J.A. & Jefferys, W.H. (1970). (Equivalence of Deprit and Hori methods). Celestial Mechanics, 2, 467–473.
+Deprit, A. & Rom, A. (1970). "The Main Problem of Artificial Satellite Theory for Small and Moderate Eccentricities." Celestial Mechanics, 2, 166–206.
+Jefferys, W.H. (1971). (Impossibility of integrating the equation of the center in trigonometric function algebra). Celestial Mechanics, 3, 390–394.
+Aksnes, K. (1971). (Criticism of eccentricity-series regression in Deprit & Rom). Referenced contextually.
+Deprit, A. (1981). "The Elimination of the Parallax in Satellite Theory." Celestial Mechanics, 24, 111–153.
+Coffey, S.L. & Deprit, A. (1982). "Third-Order Solution to the Main Problem in Satellite Theory." Journal of Guidance, Control and Dynamics, 5(4), 366–371.
+Healy, L.M. (2000). "The Main Problem in Satellite Theory Revisited." Celestial Mechanics and Dynamical Astronomy, 76, 79–120.
+
+
+Modern Analytical Reformulations (Lara and collaborators)
+
+Lara, M. (2020). "Solution to the Main Problem of the Artificial Satellite by Reverse Normalization." Nonlinear Dynamics, 101, 1501–1524.
+Lara, M. (2021). "Brouwer's Satellite Solution Redux." Celestial Mechanics and Dynamical Astronomy, 133, article 43 (also cited as article 47 in some databases).
+Lara, M., Fantino, E., Susanto, H. & Flores, R. (2024). "Higher-Order Composition of Short- and Long-Period Effects for Satellite Analytical Ephemeris Computation." Communications in Nonlinear Science and Numerical Simulation, 2024 (preprint arXiv:2307.06864).
+Lara, M. (2025). "Purely Periodic, Second-Order Terms of the J₂-Problem in Closed Form and Arbitrary Variables." The Journal of the Astronautical Sciences, 72, article 514.
+
+
+Zonal Problem — Generic and Higher-Order
+
+de Saedeleer, B. (2005). "Complete Zonal Problem of the Artificial Satellite: Generic Compact Analytic First Order in Closed Form." Celestial Mechanics and Dynamical Astronomy, 91, 239–268.
+Mahajan, B. & Alfriend, K.T. (2019). "Analytic Orbit Theory with Any Arbitrary Spherical Harmonic as the Dominant Perturbation." Celestial Mechanics and Dynamical Astronomy, 131, article 45. (Correction: CMDA 133, 25, 2021.)
+
+
+DSST Lineage and Semi-Analytical Propagation
+
+Broucke, R.A. & Cefola, P.J. (1972). "On the Equinoctial Orbit Elements." Celestial Mechanics, 5, 303–310.
+Cefola, P.J. (1972). "Equinoctial Orbit Elements—Application to Artificial Satellite Orbits." AIAA Paper 72-937.
+McClain, W.D. (1977). "A Recursively Formulated First-Order Semianalytic Artificial Satellite Theory Based on the Generalized Method of Averaging." CSC/TR-77/6010 (the DSST "Blue Book").
+Danielson, D.A., Neta, B. & Early, L.W. (1995). "Semianalytic Satellite Theory." Naval Postgraduate School, NPS Report NPS-MA-95-002.
+San-Juan, J.F., López, R. & Cefola, P.J. (2022). "A Second-Order Closed-Form J₂ Model for the Draper Semi-Analytical Satellite Theory." The Journal of the Astronautical Sciences, 69, 1292–1318.
+Folcik, Z. & Cefola, P.J. (2012). (Gauss-Kronrod quadrature for DSST short-period corrections at high eccentricity). AMOS Conference, 2012. Referenced contextually.
+(Anonymous) (2024). "An Accurate and Efficient Second-Order J₂ Model for the Draper Semianalytic Satellite Theory." Acta Astronautica, S0094576524004727.
+Cazabonne, B. & Maisonobe, L. (2018). "Open Source Orbit Determination with Semi-Analytical Theory." ICATT 2018, ESA.
+(Orekit validation paper) Cazabonne et al. (2015). "Validation of the Draper Semi-Analytical Satellite Theory Implementation in Orekit." Referenced via ResearchGate.
+Orekit Development Team (2024). Orekit: An Open Source Space Dynamics Library, v13.1. https://www.orekit.org.
+
+
+Operational Propagators (SGP4/SDP4 and Others)
+
+Lane, M.H., Hoots, F.R. & Roehrich, R.L. (1980). "Spacetrack Report No. 3: Models for Propagation of NORAD Element Sets."
+Vallado, D.A., Crawford, P., Hujsak, R. & Kelso, T.S. (2006). "Revisiting Spacetrack Report #3." AIAA-2006-6753 (Rev. 3).
+STELA — CNES semi-analytical tool for long-term orbit evolution. https://www.connectbycnes.fr/en/stela.
+DRAMA/OSCAR — ESA Debris Risk Assessment and Mitigation Analysis tool suite.
+STORM — Airbus semi-analytical orbit propagator. (Lèvy et al., Acta Astronautica, S0094576521005130, 2022.)
+
+
+Equinoctial and Non-Singular Element Formulations
+
+Walker, M.J.H., Ireland, B. & Owens, J. (1985). "A Set of Modified Equinoctial Orbit Elements." Celestial Mechanics, 36, 409–419.
+Hintz, G.R. (2008). "Survey of Orbit Element Sets." Journal of Guidance, Control and Dynamics, 31, 785–790.
+
+
+GEqOE Lineage (Baù and collaborators)
+
+Baù, G., Bombardelli, C. & Peláez, J. (2013). "Non-Singular Orbital Elements for Special Perturbations in the Two-Body Problem." Celestial Mechanics and Dynamical Astronomy, 116, 53–78. (DromoP elements.)
+Baù, G., Bombardelli, C., Peláez, J. & Lorenzini, E. (2015). "Non-Singular Orbital Elements for Special Perturbations in the Two-Body Problem." Monthly Notices of the Royal Astronomical Society, 454, 2890–2908. (EDromo elements.)
+Baù, G. & Roa, J. (2020). "Uniform Formulation for Orbit Computation: The Intermediate Elements." Celestial Mechanics and Dynamical Astronomy, 132, article 10.
+Baù, G., Hernando-Ayuso, J. & Bombardelli, C. (2021). "A Generalization of the Equinoctial Orbital Elements." Celestial Mechanics and Dynamical Astronomy, 133, 50.
+
+
+J₂ Elements and Uncertainty Propagation with GEqOE
+
+Aristoff, J.M., Horwood, J.T. & Alfriend, K.T. (2021). "On a Set of J₂ Equinoctial Orbital Elements and Their Use for Uncertainty Propagation." Celestial Mechanics and Dynamical Astronomy, 133, article 9.
+Hernando-Ayuso, J., Bombardelli, C. & Baù, G. (2023). "Near-Linear Orbit Uncertainty Propagation Using the Generalized Equinoctial Orbital Elements." Journal of Guidance, Control and Dynamics, 46, 654–669.
+Gupta et al. (2025). M-GEqOE for cislunar dynamics. Referenced contextually.
+
+
+Hansen Coefficients and Complex Variable Methods
+
+Giacaglia, G.E.O. (1976). "A Note on Hansen's Coefficients in Satellite Theory." Celestial Mechanics, 14, 515–523.
+Hughes, S. (1981). "The Computation of Tables of Hansen Coefficients." Celestial Mechanics, 25, 101–107.
+Breiter, S., Métris, G. & Vokrouhlický, D. (2004). "Generalized Hansen Coefficients." Proceedings IAU Colloquium (also: Charles University preprint).
+Sadov, S.Yu. (2008). "Analytic Properties of Hansen Coefficients." Celestial Mechanics and Dynamical Astronomy, 100, 287–300.
+Lion, G. & Métris, G. (2013). "Two Algorithms to Compute Hansen-Like Coefficients with Respect to the Eccentric Anomaly." Advances in Space Research, 51, 1–9.
+Lion, G., Métris, G. & Deleflie, F. (2016). "Towards an Analytical Theory of the Third-Body Problem for Highly Elliptical Orbits." arXiv:1605.07901.
+Kaufman, B. & Dasenbrock, R. (1972/1973). (Averaging using eccentric anomaly as integration variable). Journal of Spacecraft and Rockets, 10, 377–383.
+
+
+Classical References (Tisserand, Brumberg)
+
+Tisserand, F. (1889–1896). Traité de Mécanique Céleste. 4 volumes. Gauthier-Villars, Paris.
+Brumberg, V.A. (1995). Analytical Techniques of Celestial Mechanics. Springer-Verlag.
+
+
+Averaging Theory (General)
+
+Hori, G. (1971). (Extension of Lie series to non-canonical systems). Publications of the Astronomical Society of Japan, 23, 567–587.
+Ahmed, A.H. & Tapley, B.D. (Equivalence of generalized Lie-Hori method and KBM averaging). Celestial Mechanics. Referenced via Semantic Scholar.
+Cary, J.R. (1978). "Lie Transform Perturbation Theory for Hamiltonian Systems." DOE/ET/70074 report; also Physics Reports, 79, 129–159, 1981.
+Howland, R.A. (1977). (Superconvergent perturbation methods). Celestial Mechanics, 15, 327–352.
+
+
+Space Situational Awareness and Conjunction Assessment
+
+Rivero, A.S., Vázquez, R. & Merz, K. (2025). "Advancing Geometric Conjunction Filters to Handle Satellite Manoeuvres." ESA 9th Space Debris Conference (SDC9), paper 167.
+Rivero, A.S., Baù, G., Vázquez, R. & Bombardelli, C. (2025). "Fast and Accurate Computation of the Minimum Distance Between RSO Trajectories." ESA SDC9, paper 168.
+Rivero, A.S. et al. (2025). (Conjunction assessment for space debris). Chinese Journal of Aeronautics, S100757042500646X.
+Rivero, A.S. (PhD thesis / predoctoral work). Universidad de Sevilla, IDUS repository (bitstream 16f23ab4-4a77-41f9-b4ac-52a1511136f3).
+
+
+Numerical Integration and Compiled Evaluation
+
+Biscani, F. & Izzo, D. (2021). "Revisiting High-Order Taylor Methods for Astrodynamics and Celestial Mechanics." Monthly Notices of the Royal Astronomical Society, 504(2), 2614–2628. (heyoka.)
+
+
+Automatic Differentiation, DA, and Modern Computational Methods
+
+Massari, M., Di Lizia, P. & Rasotto, M. (2017). (DACE — Differential Algebra Computational Engine for jet transport). Journal of Aerospace Information Systems, 14, 493–503.
+(∂SGP4) Izzo, D. et al. (2024). "Closing the Gap Between SGP4 and High-Precision Propagation via Differentiable Programming." arXiv:2402.04830.
+San-Juan, J.F. et al. (2017). (Hybrid ML-SGP4 approaches). Acta Astronautica, 137.
+Arnas, D. & Linares, R. (2021). (Koopman operator methods for orbit propagation). Journal of Guidance, Control and Dynamics, 44, 1909–1923.
+Efthymiopoulos, C. et al. (2025). (Fully analytical lunar satellite propagator via Hamiltonian normal forms). arXiv:2505.09241.
+
+
+Relative Motion and Extended Zonal Applications
+
+Schaub, H. & Alfriend, K.T. (2016/2017). "Analytic Solution for Satellite Relative Motion: The Complete Zonal Gravitational Problem." Referenced via ResearchGate.
+
+
+That gives 66 distinct references. A few notes for your bibliography work:
+
+References 24, 27, 42, and 53 are cited contextually in the review without full publication details — you may want to track down exact citations or omit them if they're tangential.
+The Lara (2024) composed-transformation paper has an arXiv preprint (2307.06864) but the final journal version appeared in Commun. Nonlinear Sci. Numer. Simul. — worth confirming the exact volume/pages.
+The Rivero references (56–59) correspond to the three URLs you provided plus the IDUS repository link.
