@@ -1,0 +1,309 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,bm,booktabs}
+
+\title{Equinoctial Short-Period Map: Alternative Constructions\\
+\large Notes on removing the near-circular/equatorial degradation}
+\author{Internal note}
+\date{March 2026}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+The current GEqOE short-period map constructs corrections in the polar
+variables $(g, \Psi, Q, \Omega)$ extracted from the equinoctial pairs
+$(p_1, p_2)$ and $(q_1, q_2)$. While the equinoctial pairs themselves are
+regular at $g \to 0$ (circular) and $Q \to 0$ (equatorial), the polar
+extraction $\Psi = \arctan(p_1/p_2)$ and $\Omega = \arctan(q_1/q_2)$
+introduces angular variables that are poorly determined in these limits.
+The short-period corrections $\delta\Psi$ and $\delta\Omega$ develop large
+amplitudes that, when transformed back to equinoctial components
+via $\delta p_1 = g\cos\Psi\,\delta g + \ldots$, produce amplified
+along-track position errors.
+
+This note outlines four approaches to eliminate this limitation, followed by
+a feasibility study (Section~\ref{sec:feasibility}) that confirms
+Approach~1 is viable and identifies the concrete implementation path.
+
+\section{Approach 1: Direct Equinoctial Short-Period Map}
+
+Construct short-period corrections directly in $(p_1, p_2, q_1, q_2)$
+space rather than $(g, \Psi, Q, \Omega)$.
+
+The $F$-variable residue decomposition framework is element-agnostic:
+the forcing functions $\dot p_1, \dot p_2, \dot q_1, \dot q_2$ in the
+GEqOE ODE (Eqs.~45--51 of Ba\"u et al.) are already expressed in
+equinoctial form. The homological equation
+\[
+\frac{\partial u_{1}^{p_j}}{\partial M} = \dot p_j - \langle \dot p_j \rangle_M
+\]
+is solved by exactly the same Laurent-polynomial / residue technique,
+since $\dot p_j$ has the same rational structure in $F$ (same denominator
+$(F+q)^2(1+qF)^2$, different numerator polynomial). This eliminates the
+polar-form singularity entirely.
+
+\textbf{Advantages:}
+\begin{itemize}
+\item No $\arctan$ extraction or reconstruction needed.
+\item Corrections remain bounded as $g \to 0$ or $Q \to 0$.
+\item The residue method scales identically (same pole structure).
+\end{itemize}
+
+\textbf{Cost:} Re-derive and re-validate all short-period kernels. The
+symbolic pipeline already handles arbitrary forcing polynomials, so the
+implementation effort is modest.
+
+\section{Approach 2: Historical Precedent}
+
+Brouwer's original theory (1959) was singular at $e = 0$ and $i = 0$;
+reformulation in non-singular Delaunay variables by Lyddane (1963) and
+in equinoctial variables by Aksnes (1972) removed these singularities.
+The GEqOE averaged theory is ripe for a similar evolution: the averaging
+framework (near-identity transformation, residue decomposition) is
+element-agnostic---only the choice of short-period correction variables
+matters.
+
+The key insight is that the \emph{mean-element ODE} is already well-behaved
+(the coefficient functions depend on $g$, $Q$, not on $\Psi$ or $\Omega$
+individually). The singularity is confined entirely to the short-period
+reconstruction layer.
+
+\section{Approach 3: Hybrid Approach}
+
+Use $(g, \omega)$ for the secular rates---where they are well-conditioned
+and yield compact expressions---but $(p_1, p_2)$ directly for the
+short-period corrections.
+
+The secular rates involve only $|m| \le n-2$ harmonics of $\omega$,
+which are smooth functions of $(p_1, p_2)$:
+\[
+\cos(m\omega) = T_m(\cos\omega) - \ldots, \qquad
+\omega = \arctan\frac{p_1}{p_2} - \arctan\frac{q_1}{q_2}.
+\]
+The Chebyshev expansion in $\cos\omega$ and $\sin\omega$ remains bounded
+and can be evaluated without extracting $\omega$ explicitly.
+
+\textbf{Advantage:} Reuses existing mean-element expressions while
+improving only the short-period layer.
+
+\section{Approach 4: Regularized Angle Extraction (Band-Aid)}
+
+Use $\operatorname{atan2}$-based extraction with explicit quadrant handling
+and singular-limit smoothing:
+\[
+\delta p_1 = \delta g \cdot \frac{p_1}{g} + g \cdot \delta\Psi \cdot \frac{p_2}{g},
+\qquad
+\delta p_2 = \delta g \cdot \frac{p_2}{g} - g \cdot \delta\Psi \cdot \frac{p_1}{g}.
+\]
+In the limit $g \to 0$, both $\delta g$ and $g \cdot \delta\Psi$ remain
+$O(\varepsilon)$, so the product $g \cdot \delta\Psi$ is well-behaved even
+though $\delta\Psi$ itself diverges. The key is to evaluate the products
+$g\cos\Psi \cdot \delta\Psi$ and $g\sin\Psi \cdot \delta\Psi$ directly
+from the symbolic expressions, never computing $\delta\Psi$ in isolation.
+
+\textbf{Advantage:} Minimal code change---restructure the evaluation order.
+
+\textbf{Disadvantage:} Does not address the fundamental issue; merely avoids
+the worst numerical artifacts.
+
+%% ======================================================================
+\section{Feasibility Study: Complex-Variable Formulation}
+\label{sec:feasibility}
+%% ======================================================================
+
+Approach~1 has been validated numerically
+(\texttt{scripts/equinoctial\_sp\_feasibility.py}).
+The key construction uses the complex eccentricity and complex inclination
+to reduce the equinoctial SP problem to the existing residue machinery with
+no new infrastructure.
+
+\subsection{Complex eccentricity and inclination}
+
+Define the complex eccentricity and inclination vectors
+\[
+\zeta \;=\; p_2 + i\,p_1 \;=\; g\,e^{i\Psi},
+\qquad
+\eta \;=\; q_2 + i\,q_1 \;=\; Q\,e^{i\Omega}.
+\]
+Their time derivatives factorize as
+\[
+\dot\zeta \;=\; (\dot g + i\,g\,\dot\Psi)\,e^{i\Psi}
+         \;=\; (\dot g + i\,g\,\dot\Psi)\,w\,e^{i\Omega},
+\qquad
+\dot\eta \;=\; (\dot Q + i\,Q\,\dot\Omega)\,e^{i\Omega},
+\]
+where $w = e^{i\omega}$ and $\Psi = \omega + \Omega$.
+
+\subsection{Reduced rate series}
+
+The ``reduced'' complex rates (with the frozen factor $e^{i\Omega}$ stripped)
+\begin{align}
+\frac{\dot\zeta_{\mathrm{red}}}{\nu\lambda_n}
+  &= \left[\frac{\dot g}{\nu\lambda_n}
+     + i\,g\,\frac{\dot\Psi}{\nu\lambda_n}\right] w, \label{eq:zeta_red}\\[4pt]
+\frac{\dot\eta_{\mathrm{red}}}{\nu\lambda_n}
+  &= \frac{\dot Q}{\nu\lambda_n}
+     + i\,Q\,\frac{\dot\Omega}{\nu\lambda_n}, \label{eq:eta_red}
+\end{align}
+are finite Laurent polynomials in $(w, F)$ with coefficients that are
+rational functions of $(q, Q)$ alone.
+
+\textbf{Critical cancellation.}
+The $\dot\Psi$ dimensionless rate contains a term
+$-(n-1)/(2g\beta)\,D^{-n}P_n(\hat z)(F + F^{-1})$, singular as $g \to 0$.
+When multiplied by $g$ in~\eqref{eq:zeta_red}, this becomes the bounded
+expression $-(n-1)/(2\beta)\,D^{-n}P_n(\hat z)(F + F^{-1})$, since
+$g = 2q/(1+q^2)$ and $1/g = (1+q^2)/(2q)$ cancel algebraically.
+The resulting Laurent coefficients are regular rational functions
+of~$q$ at $q = 0$.
+
+\subsection{Pipeline integration}
+
+The reduced series~\eqref{eq:zeta_red}--\eqref{eq:eta_red} are constructed
+by algebraic combination of the existing polar rate series:
+\[
+\texttt{zeta\_series} = \texttt{\_poly\_mul}\!\Big(
+  \texttt{\_poly\_add}\big(\texttt{g\_series},\;
+  \texttt{\_poly\_scale}(\texttt{Psi\_series},\, i\,g)\big),\;
+  \{(1,0): 1\}
+\Big).
+\]
+The multiplication by $\{(1,0): 1\}$ shifts the $w$-harmonic index by $+1$.
+This Laurent polynomial is then processed by the \emph{same}
+\texttt{integrate\_harmonic\_residue} solver used for the polar variables:
+no new residue kernels, no new integration routines.
+
+Reconstruction at evaluation time applies the frozen rotation:
+\[
+\delta p_1 = \operatorname{Im}\!\big(\delta\zeta_{\mathrm{red}}
+  \cdot e^{i\Omega}\big),
+\qquad
+\delta p_2 = \operatorname{Re}\!\big(\delta\zeta_{\mathrm{red}}
+  \cdot e^{i\Omega}\big),
+\]
+and analogously for $(\delta q_1, \delta q_2)$ from $\delta\eta_{\mathrm{red}}$.
+
+\subsection{Numerical validation}
+
+\paragraph{Algebraic equivalence.}
+For moderate eccentricity ($g = 0.05$) and inclination ($Q = 0.36$), the
+equinoctial and polar SP corrections agree to machine precision
+($|\Delta(\delta p_j)| \sim 10^{-19}$) for both $J_2$ and $J_3$. The two
+routes are algebraically identical.
+
+\paragraph{Regularity at $g \to 0$.}
+All $\zeta$-kernel Laurent coefficients converge to finite values as
+$q \to 0$, confirmed by symbolic limit evaluation. The $J_2$ kernel
+has 3~harmonics ($m \in \{-1, 1, 3\}$) and the $J_3$ kernel has
+4~harmonics ($m \in \{-2, 0, 2, 4\}$), all finite at the circular limit.
+
+\paragraph{Stability sweep.}
+Evaluating the $J_2$ short-period correction $|\delta p_1|$ across seven
+decades of eccentricity:
+
+\medskip
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$g$ & $|\delta\Psi|$ (polar) & $|\delta p_1|$ (equinoctial) \\
+\midrule
+$10^{-1}$  & $1.3 \times 10^{-4}$  & $1.32 \times 10^{-4}$ \\
+$10^{-3}$  & $1.9 \times 10^{-3}$  & $1.30 \times 10^{-4}$ \\
+$10^{-5}$  & $1.7 \times 10^{-1}$  & $1.30 \times 10^{-4}$ \\
+$10^{-7}$  & $1.7 \times 10^{+1}$  & $1.30 \times 10^{-4}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\medskip
+
+\noindent
+The polar $\delta\Psi$ grows as $O(1/g)$ while the equinoctial $\delta p_1$
+remains constant at $O(\varepsilon)$, confirming that the singularity is
+eliminated by construction.
+
+%% ======================================================================
+\section{Plan Forward}
+\label{sec:plan}
+%% ======================================================================
+
+Based on the feasibility results, Approach~1 via the complex-variable
+formulation is the selected path. The existing polar SP map is retained
+as-is; the equinoctial route is built in parallel.
+
+\subsection*{Stage 1: Full kernel generation (J2--J5)}
+
+Extend the feasibility script to generate and cache equinoctial SP
+coefficients for all four zonal degrees. Store in
+\texttt{generated\_coefficients.py} alongside the existing polar data under
+new keys (\texttt{zeta}, \texttt{eta}).
+
+\subsection*{Stage 2: Parallel evaluator}
+
+Add \texttt{mean\_to\_osculating\_state\_equinoctial} (scalar and batch) to
+\texttt{short\_period.py}. This function:
+\begin{enumerate}
+\item Evaluates $\delta\zeta_{\mathrm{red}}$ and $\delta\eta_{\mathrm{red}}$
+      from the cached Laurent kernels.
+\item Applies the $e^{i\Omega}$ rotation to recover
+      $(\delta p_1, \delta p_2, \delta q_1, \delta q_2)$.
+\item Adds corrections to the mean state directly---no polar extraction,
+      no $\arctan$, no angle reconstruction.
+\item Recovers $K_{\mathrm{osc}}$ from the generalized Kepler equation
+      (unchanged from the polar route).
+\end{enumerate}
+The $\delta M$ correction is shared with the polar route (it has no
+polar-coordinate dependence).
+
+\subsection*{Stage 3: Validation}
+
+Run the full \texttt{extended\_validation.py} suite with the equinoctial
+evaluator and compare against the polar route and Cowell ground truth.
+The critical test cases are:
+\begin{itemize}
+\item Near-circular LEO ($e = 0.001$): expect along-track error reduction
+      from $\sim\!1.5$~km to $\sim\!0.5$~km (matching the moderate-$e$ baseline).
+\item Near-equatorial ($i = 5^\circ$): expect similar improvement in the
+      inclination-plane error.
+\item Retrograde and high-eccentricity cases: expect no regression.
+\end{itemize}
+
+\subsection*{Stage 4: Paper integration}
+
+If validation confirms the improvement:
+\begin{itemize}
+\item Remove the near-circular/equatorial caveat from Section~A.2.
+\item Add a brief note on the complex-variable construction (the formulation
+      is compact enough for an appendix paragraph).
+\item Update Table~12 with the improved error metrics.
+\end{itemize}
+
+\section{Recommendation (Updated)}
+
+Approach~1 via the complex-variable formulation
+(Section~\ref{sec:feasibility}) is confirmed feasible and is the selected
+path forward. The construction reuses the entire existing residue pipeline,
+requires no new symbolic infrastructure, and eliminates the $g \to 0$ and
+$Q \to 0$ singularities by algebraic cancellation rather than numerical
+workaround.
+
+\subsection*{Log correction in the equinoctial route}
+
+The log correction $C_{\log}\,\varphi(K)$ from the polar route carries
+over identically to the equinoctial formulation.  The function
+$\varphi = \arctan\!\bigl(q\sin f\,/\,(1 + q\cos f)\bigr)$ depends only
+on the fast angle $f$ and the eccentricity parameter~$q$, so it is shared
+between the polar and equinoctial evaluation paths.
+
+For the $\zeta$-reduced rate (eccentricity channel), the log coefficient
+$C_{\log}^{\zeta}$ is constructed from the same Taylor coefficient $E_1$
+as the polar route but applied to the combined
+$\dot g + ig\dot\Psi$ integrand.  Crucially, the equinoctial log
+coefficients inherit the $g \to 0$ regularity of the equinoctial
+formulation: $g \cdot E_1^{\Psi}$ remains bounded as $g \to 0$ (the $1/g$
+pole in $\dot\Psi$ is cancelled by the $g$ prefactor in
+$\zeta_{\mathrm{red}} = g e^{i\Psi}$), so $C_{\log}^{\zeta}$ is regular
+at $g = 0$, just as the rational part is.
+
+\end{document}

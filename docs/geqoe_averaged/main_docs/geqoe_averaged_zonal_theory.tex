@@ -1144,7 +1144,8 @@ where $D_j$ and $N_{\mathrm{rem},k}$ are the Taylor coefficients of
 $(F+q)^2(1+qF)^2$ and $N_{\mathrm{rem}}(F)$ respectively.
 
 \paragraph{Step 4: Assembly of periodic antiderivative.}
-The antiderivative is assembled from the partial fraction decomposition:
+The complete antiderivative is assembled from the partial fraction
+decomposition:
 \begin{equation}
 u_{1,m}^v(F)
 = \underbrace{\int Q_{\mathrm{poly}}(F)\,dF}_{\text{polynomial}}
@@ -1154,16 +1155,23 @@ u_{1,m}^v(F)
 \underbrace{\frac{D}{q(1+qF)}}_{\text{pole at } -1/q}
 \;-\;
 \underbrace{\sum_{j=2}^{s} \frac{E_j}{(j-1)F^{j-1}}}_{\text{poles at } 0}
-\;-\; C.
+\;+\;
+\underbrace{C_{\log}\;\varphi(K)}_{\text{log correction}}
+\;-\; C,
 \label{eq:antiderivative_assembly}
 \end{equation}
-
-The partial fraction decomposition also produces simple-pole residues that
-integrate to logarithmic terms.  Three log contributions arise in general:
-$E_1 \log F$ from the pole at $F = 0$ (the $j = 1$ term omitted from the
-sum above), $\alpha\log(F + q)$ from $F = -q$, and $\beta\log(1 + qF)/q$
-from $F = -1/q$.  The treatment of these terms depends on whether the
-$W$-harmonic carries a nonzero secular rate.
+where $\varphi(K) = \arctan\!\bigl(q\sin f\,/\,(1 + q\cos f)\bigr)$
+is a smooth periodic function of $K$, and the log coefficient is
+\begin{equation}
+C_{\log} = \frac{2(1-q^2)^3}{1+q^2}\, E_1,
+\label{eq:C_log}
+\end{equation}
+with $E_1$ the simple-pole residue at $F = 0$ (the $j=1$ Taylor
+coefficient of $\chi(F) = N_{\mathrm{rem}}/[(F+q)^2(1+qF)^2]$).
+The partial fraction decomposition also produces simple-pole residues
+$\alpha$ at $F = -q$ and $\beta$ at $F = -1/q$ that integrate to
+multi-valued logarithms.  The treatment of these terms depends on whether
+the $W$-harmonic carries a nonzero secular rate.
 
 \paragraph{Zero-mean harmonics (structural vanishing).}
 For any harmonic whose orbit-averaged forcing vanishes
@@ -1185,14 +1193,15 @@ numerator.  By a parallel argument, $N(-q)$ and the associated
 residues $B$, $\alpha$ also vanish, and the periodicity condition
 $E_1 + \alpha = 0$ (see below) gives $E_1 = 0$.  Thus \emph{all three
 log coefficients vanish identically} for zero-mean harmonics, and the
-antiderivative is purely rational.
+antiderivative~\eqref{eq:antiderivative_assembly} reduces to a purely
+rational function of~$F$ (with $C_{\log} = 0$).
 
 This covers the vast majority of harmonics: for $J_2$, the zero-mean
 class includes $g$ (all $m$), $Q$ (all $m$), $\Psi$ ($m = \pm 2$),
 and $M$ ($m = 0$)---only $\Psi$ ($m = 0$) and $\Omega$ ($m = 0$)
 carry secular rates.
 
-\paragraph{Secular-rate harmonics (log terms and self-consistency).}
+\paragraph{Secular-rate harmonics (log correction).}
 For harmonics with a nonzero secular rate
 ($\langle a_{v,m} \rangle_M \neq 0$), the mean subtraction adds
 a contribution to $N(F)$ at $F^1$ that does \emph{not} vanish at
@@ -1206,40 +1215,23 @@ E_1 + \alpha = 0.
 \label{eq:periodicity_condition}
 \end{equation}
 This is verified identically in $(q,Q)$ for all secular-rate harmonics
-at $n = 2,3$.  The combination $E_1[\log F - \log(F+q)] = E_1 \log(F/(F+q))$
-is single-valued on $|F|=1$.  The remaining term $\beta\log(1+qF)/q$
-is also single-valued ($|1+qF| > 0$ on $|F|=1$ for $q<1$) but
-\emph{nonzero}: the periodicity requirement cannot force $\beta = 0$,
-and direct evaluation confirms $\beta \neq 0$.
+at $n = 2,3$.  Combined with the identity $E_1 = \beta$ (also verified
+symbolically), the three log contributions on $|F| = 1$ reduce to
+the single-valued smooth function $C_{\log}\,\varphi(K)$ appearing
+in~\eqref{eq:antiderivative_assembly}.  The function $\varphi$ has the
+Fourier expansion $\varphi(f) = \sum_{n \ge 1} (-1)^{n+1} q^n \sin(nf)/n$,
+so the leading correction is $O(q)$.
 
-\emph{Self-consistency of the rational-only antiderivative.}
-Equation~\eqref{eq:antiderivative_assembly} retains only the rational part,
-dropping all three log contributions.  This is valid because the same
-rational-only expressions are used in both the forward map
-(mean $\to$ osculating) and its inverse (osculating $\to$ mean).  The
-dropped log terms are absorbed into the mean-element definition: the
-``mean state'' computed by the rational-only inverse map differs from the
-true orbit average by $O(\varepsilon)$ in $\Psi$ and $\Omega$, but this
-bias cancels in the round-trip reconstruction to $O(\varepsilon^2)$.
-Specifically, pointwise zonal-scaling tests at both low eccentricity
-($e = 0.05$) and high eccentricity ($e = 0.65$) confirm a log-log
-slope of $2.0$ for the position error as a function of $\varepsilon$,
-consistent with $O(\varepsilon^2)$ accuracy.
-
-The rational-only choice defines a specific near-identity transformation---a
-canonical ``GEqOE mean''---that is distinct from the orbit average but
-equally valid for perturbation theory.  This is analogous to the classical
-distinction between Brouwer mean elements and Kozai mean elements, which
-use different generating functions yet both yield $O(\varepsilon^2)$
-osculating reconstruction.
-
-\emph{Remark}: if a second-order theory is constructed, the log terms
-in $\bm u_1$ affect the
-cross-coupling $\langle (\partial\bm f_1/\partial\bm z)\,\bm u_1\rangle_M$
-and should be included to obtain correct $O(\varepsilon^2)$ secular rates.
-On the unit circle, the complete log correction evaluates to a smooth periodic
-function $E_1 \cdot 2\arctan(q\sin K/(1+q\cos K))$, which is available in
-closed form.
+The implementation includes this log correction: the $C_{\log}$
+coefficients are precomputed alongside the rational short-period
+expressions, and $\varphi$ is evaluated as a single $\mathrm{atan2}$
+call per epoch.  The antiderivative~\eqref{eq:antiderivative_assembly}
+is therefore the \emph{complete} first-order solution of the homological
+equation, and the resulting mean elements coincide with the true orbit
+average to $O(\varepsilon^2)$.  Pointwise zonal-scaling tests at both
+low eccentricity ($e = 0.05$) and high eccentricity ($e = 0.65$)
+confirm a log-log slope of~$2.0$ for the round-trip position error as a
+function of $\varepsilon$, consistent with $O(\varepsilon^2)$ accuracy.
 
 \paragraph{Step 5: Zero-mean gauge.}
 The constant $C$ is computed from the condition

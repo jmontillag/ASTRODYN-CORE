@@ -260,16 +260,16 @@ The first-order theory exploits three structural facts:
 in $F = e^{if}$ for each $w$-harmonic.
 \item[(S2)] The Jacobian $dM/dF$ has the fixed denominator
 $(F+q)^2(1+qF)^2$.
-\item[(S3)] The first-order short-period correction $\bm u_1$ is a
-\emph{quasi-rational} function of $F$: for zero-mean harmonics (no secular
-rate), $\bm u_1$ is purely rational (polynomial + poles at $F = -q$,
-$F = -1/q$, and $F = 0$).  For the two secular-rate harmonics per degree
-($\Psi$\,\texttt{m=0} and $\Omega$\,\texttt{m=0} at $n=2$; varies for
-$n \ge 3$), the complete first-order antiderivative also contains a
-$\log(1+qF)$ term.  In the implementation, the rational-only part is
-retained, which defines a self-consistent near-identity transformation
-accurate to $O(\eps^2)$ in the round-trip (see the master note for
-details).
+\item[(S3)] The first-order short-period correction $\bm u_1$ is the
+complete antiderivative of the homological equation: for zero-mean
+harmonics (no secular rate), $\bm u_1$ is purely rational
+(polynomial + poles at $F = -q$, $F = -1/q$, and $F = 0$).  For
+secular-rate harmonics ($\Psi$\,\texttt{m=0} and $\Omega$\,\texttt{m=0}
+at $n=2$; varies for $n \ge 3$), $\bm u_1$ includes a smooth
+$\log(1+qF)$ correction $C_{\log}\,\varphi(K)$ where
+$\varphi = \arctan(q\sin f/(1+q\cos f))$ and $C_{\log}$ is a rational
+function of $(q,Q)$.  Both the rational and log parts are included in
+the implementation.
 \end{enumerate}
 
 At second order, every term in $\bm F_2$ is built from:
@@ -338,14 +338,10 @@ $F = -1/q$ that does not vanish, producing logarithmic terms in the
 antiderivative.  As at first order, these can be dropped in favour of
 the rational-only antiderivative, which defines a self-consistent
 near-identity transformation to $O(\eps^3)$ in the round-trip.
-However, the second-order \emph{secular rates} $\bar{\bm f}_2$
-are sensitive to the first-order log terms through the cross-coupling
-$\langle (\partial\bm f_1/\partial\bm z)\,\bm u_{1,\text{log}} \rangle_M$.
-If the log terms are dropped from $\bm u_1$, this coupling is lost,
-introducing an $O(\eps^2)$ error in the long-period rates.  At second
-order it is therefore advisable to include the $\log(1+qF)$ correction
-in $\bm u_1$ for the secular-rate harmonics, or equivalently to
-add a compensating constant to $\bar{\bm f}_2$.
+Since $\bm u_1$ now includes the complete log correction
+$C_{\log}\,\varphi(K)$, the second-order cross-coupling
+$\langle (\partial\bm f_1/\partial\bm z)\,\bm u_1 \rangle_M$
+is exact at $O(\eps^2)$.
 \end{enumerate}
 
 \subsection{New structural mean formulas needed}
