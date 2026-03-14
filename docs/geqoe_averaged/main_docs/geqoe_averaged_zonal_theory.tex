@@ -2483,13 +2483,11 @@ become very long near $i = 63.4^\circ$.
 
 \paragraph{Comparison fairness.}
 Note that Brouwer--Lyddane is a purely analytical theory whose reported
-errors combine both secular drift and short-period reconstruction; no
-``mean-only'' output mode is available. The DSST mean-drift decomposition
-(Table~\ref{tab:dsst_mean_drift}) shows that short-period reconstruction
-dominates the total error budget, and the same is expected for Brouwer.
-The 4--335$\times$ improvement therefore primarily reflects GEqOE's superior
+errors combine both secular drift and short-period reconstruction.
+The improvement therefore primarily reflects GEqOE's superior
 short-period reconstruction, not a secular-drift advantage (GEqOE is
-first-order while Brouwer includes the $J_2^2$ secular correction).
+first-order while both DSST and Brouwer include the $J_2^2$ secular
+correction).
 
 \paragraph{Radial errors.}
 The radial component of the reconstruction error is consistently much smaller
@@ -2626,29 +2624,19 @@ at high eccentricity.
 \]
 with the caveat that for high-eccentricity orbits the eccentricity truncation
 in DSST may partially close or reverse the gap in short-period
-reconstruction, while the $J_2^2$ secular correction always favors DSST
-for mean-drift accuracy over long arcs. As the data will show, this
-prediction is not confirmed: the GEqOE theory's superior short-period
-reconstruction more than compensates for the missing $J_2^2$ secular
-correction.
+reconstruction. As the data will show, this prediction is not confirmed:
+the GEqOE theory's superior short-period reconstruction more than
+compensates for DSST's second-order secular advantage.
 
 \subsection{Numerical setup}
 
 All propagation methods use the same 12-case orbit grid
 (Table~\ref{tab:ext_orbits}), with the Cowell (heyoka) Cartesian
-integration as the common truth reference. Three DSST configurations are
-tested:
-
-\begin{enumerate}
-\item \textbf{DSST osculating}: internal mean-element propagation with
-full short-period reconstruction (\texttt{dsst\_state\_type=OSCULATING}).
-This is the primary comparison against GEqOE mean+SP and Brouwer--Lyddane.
-\item \textbf{DSST mean-only}: mean-element output without short-period
-corrections (\texttt{dsst\_state\_type=MEAN}), compared against GEqOE
-mean-only (mean elements converted to Cartesian without applying the
-short-period map). This isolates the secular/long-period accuracy from
-the short-period reconstruction.
-\end{enumerate}
+integration as the common truth reference. The DSST is run in
+osculating mode (\texttt{dsst\_state\_type=OSCULATING}): internal
+mean-element propagation with full short-period reconstruction.
+This is the primary comparison against GEqOE mean+SP and
+Brouwer--Lyddane.
 
 All DSST runs use a custom gravity provider that returns the same
 $J_2$--$J_5$ constants used by the GEqOE theory and the Cowell truth,
@@ -2720,50 +2708,14 @@ case: GEqOE mean+SP (blue), DSST osculating (orange), Brouwer--Lyddane
 \label{fig:dsst_bar}
 \end{figure}
 
-\subsection{Mean-drift decomposition}
-\label{sec:dsst_mean_drift_decomp}
-
-\input{dsst_mean_drift_table}
-
-Table~\ref{tab:dsst_mean_drift} compares the mean-only position error
-(no short-period reconstruction) for GEqOE and DSST. Both methods propagate
-mean elements and convert directly to Cartesian without applying any
-short-period map. The resulting errors are large in absolute terms (hundreds
-to thousands of km) because the mean trajectory omits the ${\sim}\,10$--50~km
-short-period oscillations present in the osculating orbit. The diagnostic
-value is in the \emph{ratio}: it isolates the secular/long-period accuracy
-from the short-period reconstruction.
-
-DSST mean-only is systematically more accurate, with ratios ranging from
-$1.2\times$ (SSO, polar) to $347\times$ (near-equatorial). This confirms
-that DSST's $J_2^2$ secular correction and its numerical mean-element
-integration yield better secular drift accuracy than GEqOE's first-order
-analytical mean-state propagation. The extreme near-equatorial ratio
-($347\times$) arises because the $J_2^2$ correction to $\dot{\bar M}$
-involves terms proportional to $(3\cos^2 i - 1)^2$ and related even
-powers of $\cos i$; at $i = 5^\circ$ these terms are near their maximum
-and add constructively, so the second-order correction captured by DSST
-is disproportionately large. A similar but less extreme effect explains
-the Molniya ratio ($267\times$), where DSST's numerical mean-element
-integration captures long-period cross-zonal interactions that the
-first-order GEqOE analytical mean flow omits.
-
-The key insight is that this mean-drift advantage is \emph{overwhelmed by
-the short-period reconstruction}: when the short-period maps are applied
-(Table~\ref{tab:dsst_osculating}), GEqOE's closed-form rational expressions
-produce osculating trajectories that are 1.7--55$\times$ more accurate than
-DSST's truncated eccentricity-power Fourier series, despite GEqOE's worse
-mean-drift accuracy.
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\textwidth]{../figures/mean_drift_comparison.png}
-\caption{Mean-drift comparison: position error from mean-element propagation
-only (no short-period reconstruction). GEqOE mean (solid) vs.\ DSST mean
-(dotted) for selected cases. The divergence is dominated by the $J_2^2$
-secular terms absent from the GEqOE first-order theory.}
-\label{fig:mean_drift}
-\end{figure}
+% Mean-drift decomposition removed: the comparison of mean-only positions
+% is not meaningful because GEqOE and DSST define "mean" differently.
+% GEqOE preserves nu_mean = nu_osc (zero SP correction on the mean motion),
+% so the mean orbit stays in phase with the osculating orbit by construction.
+% DSST averages the semi-major axis, creating an O(J2) mean-motion mismatch
+% that causes rapid along-track drift when mean elements are converted to
+% Cartesian without SP reconstruction.  The osculating comparison
+% (Table~\ref{tab:dsst_osculating}) is the appropriate metric for theory quality.
 
 \subsection{Cost--accuracy tradeoff}
 
@@ -2836,12 +2788,12 @@ speedup over the lambdified complex-arithmetic path.
 \subsection{Discussion}
 
 \paragraph{Short-period reconstruction dominates.}
-The central finding is that the short-period reconstruction accuracy,
-not the mean-drift accuracy, determines the overall osculating error.
-DSST has better mean-drift accuracy (Table~\ref{tab:dsst_mean_drift}),
-but its truncated eccentricity-power Fourier series introduces
+The central finding is that the short-period reconstruction accuracy
+determines the overall osculating error.
+Although DSST includes a second-order $J_2^2$ secular correction,
+its truncated eccentricity-power Fourier series introduces
 short-period errors that exceed GEqOE's first-order secular drift deficit.
-The closed-form rational expressions of the GEqOE theory---exact in
+The closed-form expressions of the GEqOE theory---exact in
 eccentricity and free of series truncation---provide a decisive advantage.
 
 \paragraph{Where GEqOE's advantage is largest.}
@@ -2856,9 +2808,9 @@ to the dramatically better result.
 \paragraph{Where the advantage is smallest.}
 The ratio is smallest for LEO circular ($1.7\times$) and Molniya
 ($1.8\times$). In LEO the perturbation parameter $\varepsilon$ is large,
-so the $J_2^2$ secular correction matters most. For Molniya the DSST
-mean-drift accuracy is notably better (Table~\ref{tab:dsst_mean_drift}),
-partially offsetting the short-period truncation error.
+so the $J_2^2$ secular correction matters most. For Molniya, DSST's
+second-order secular accuracy partially offsets the short-period
+truncation error.
 
 \paragraph{Matched-constant comparison.}
 All five methods use the same hardcoded $J_2$--$J_5$ values, implemented
@@ -2872,7 +2824,7 @@ correction, giving DSST the benefit of its second-order secular accuracy.
 
 \paragraph{Path forward.}
 A second-order $J_2^2$ secular correction within the GEqOE framework would
-close the mean-drift gap. The present results already demonstrate
+close the remaining secular-rate gap. The present results already demonstrate
 that the GEqOE theory achieves superior osculating accuracy over DSST for
 zonal-only propagation, and the compiled evaluation confirms that the
 theoretical cost advantage translates to practice, placing GEqOE in the
