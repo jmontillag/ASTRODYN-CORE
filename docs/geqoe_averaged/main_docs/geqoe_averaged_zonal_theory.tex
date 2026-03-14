@@ -2708,14 +2708,39 @@ case: GEqOE mean+SP (blue), DSST osculating (orange), Brouwer--Lyddane
 \label{fig:dsst_bar}
 \end{figure}
 
-% Mean-drift decomposition removed: the comparison of mean-only positions
-% is not meaningful because GEqOE and DSST define "mean" differently.
-% GEqOE preserves nu_mean = nu_osc (zero SP correction on the mean motion),
-% so the mean orbit stays in phase with the osculating orbit by construction.
-% DSST averages the semi-major axis, creating an O(J2) mean-motion mismatch
-% that causes rapid along-track drift when mean elements are converted to
-% Cartesian without SP reconstruction.  The osculating comparison
-% (Table~\ref{tab:dsst_osculating}) is the appropriate metric for theory quality.
+\subsection{Secular rate accuracy}
+\label{sec:secular_rate_comparison}
+
+\input{secular_rate_table}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{../figures/secular_rate_comparison.png}
+\caption{Secular element drift from orbit-averaged Cowell truth.
+Each panel shows the deviation of $\Psi(t)$ or $\Omega(t)$ from the
+truth linear trend: GEqOE mean (solid blue) and DSST mean (dashed orange).
+The truth (gray dots) is the trapezoidal orbit average of the osculating
+Keplerian angles, independent of either theory's short-period map.}
+\label{fig:secular_rates}
+\end{figure}
+
+Table~\ref{tab:secular_rates} compares the secular rates
+$\dot\Psi$ and $\dot\Omega$ from both theories against a
+theory-independent reference: the Cowell osculating trajectory
+orbit-averaged over each revolution via trapezoidal quadrature.  This
+avoids the bias inherent in extracting ``truth'' mean elements through
+either theory's short-period map.
+
+DSST's $J_2^2$ correction provides a clear advantage for $\dot\Omega$
+at near-equatorial inclination (ratio~$51$), where the second-order
+terms proportional to $(3\cos^2 i - 1)^2$ are largest.  However, in
+all other cases GEqOE's first-order rates are 2--10$\times$ closer to
+the orbit-averaged truth than DSST's, despite lacking second-order
+secular corrections.  The most striking case is LEO circular
+($e = 0.001$), where DSST's $\dot\Psi$ error is an order of magnitude
+larger than GEqOE's---likely a consequence of eccentricity-power
+truncation affecting the mean-element equations at near-circular
+eccentricities.
 
 \subsection{Cost--accuracy tradeoff}
 
