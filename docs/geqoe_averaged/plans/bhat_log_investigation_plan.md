@@ -190,10 +190,10 @@ For secular-rate harmonics (Ψ m=0, Ω m=0 for n=2; varies for higher n):
 - This is the standard perturbation theory property: any invertible near-identity
   map gives O(ε²) accuracy, regardless of its specific form
 
-### No code changes needed:
-The code is correct as-is. The rational-only SP gives O(ε²) position accuracy.
-The "missing" log terms are a matter of definition (which near-identity map to use),
-not an error.
+### Implementation COMPLETE (2026-03-14):
+The log terms have been implemented. The complete first-order antiderivative
+now includes C_log · arctan2(q·Im(F), 1+q·Re(F)) for secular-rate harmonics.
+See `log_term_implementation_plan.md` for the full implementation details.
 
 ---
 
