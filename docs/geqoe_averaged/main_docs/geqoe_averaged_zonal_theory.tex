@@ -2660,6 +2660,19 @@ the \texttt{DSSTJ2SquaredClosedForm} (Zeis model) second-order $J_2^2$
 correction in addition to the first-order \texttt{DSSTZonal}
 contribution.
 
+\emph{Frame convention.}
+The \texttt{DSSTZonal} force model is initialized with
+\texttt{bodyFixedFrame\,=\,orbit frame} (EME2000), which means the
+zonal symmetry axis coincides with the J2000 celestial pole rather
+than the instantaneous Earth spin axis.  This is deliberate: the GEqOE
+and Cowell models also compute the zonal potential using the EME2000
+$z$-axis (the position component $z/r$ enters the Legendre
+polynomials directly), so all four methods share the same gravity model
+and the comparison is controlled.  For an operational application one
+would set \texttt{bodyFixedFrame\,=\,ITRF} (or TOD as a trade-off),
+but doing so only for DSST would introduce a model mismatch and
+bias the comparison.
+
 \subsection{Results: osculating comparison}
 
 \input{dsst_osculating_table}
