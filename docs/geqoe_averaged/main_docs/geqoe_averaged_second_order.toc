@@ -1,0 +1,24 @@
+\contentsline {section}{\numberline {1}Motivation}{1}{section.1}%
+\contentsline {section}{\numberline {2}Second-Order Near-Identity Framework}{1}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Setup}{1}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Second-order forward map}{2}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Second-order mean drift}{2}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Second-order inverse map}{2}{subsection.2.4}%
+\contentsline {section}{\numberline {3}Second-Order Homological Equation}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Derivation}{3}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Identification of terms}{3}{subsection.3.2}%
+\contentsline {section}{\numberline {4}Why the Algebraic Structure Survives}{3}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Rational structure in $F$}{3}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Consequences for the direct residue decomposition}{4}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}New structural mean formulas needed}{5}{subsection.4.3}%
+\contentsline {section}{\numberline {5}Cross-Zonal Products and Harmonic Content}{5}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Origin of cross-zonal terms}{5}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Harmonic content of the second-order mean drift}{5}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}The $J_2^2$ secular correction}{5}{subsection.5.3}%
+\contentsline {section}{\numberline {6}Computational Feasibility}{6}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Expression complexity}{6}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Mitigation strategies}{6}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Validation strategy}{6}{subsection.6.3}%
+\contentsline {section}{\numberline {7}Expected Accuracy Improvement}{7}{section.7}%
+\contentsline {section}{\numberline {8}Outline of Implementation Steps}{7}{section.8}%
+\contentsline {section}{\numberline {9}Conclusion}{7}{section.9}%

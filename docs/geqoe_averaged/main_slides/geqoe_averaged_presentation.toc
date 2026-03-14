@@ -1,0 +1,6 @@
+\beamer@sectionintoc {1}{Setup: GEqOE and the Averaging Idea}{3}{0}{1}
+\beamer@sectionintoc {2}{The Near-Identity Transformation}{7}{0}{2}
+\beamer@sectionintoc {3}{The Key Insight: Complex True Anomaly}{10}{0}{3}
+\beamer@sectionintoc {4}{The Direct Residue Decomposition}{14}{0}{4}
+\beamer@sectionintoc {5}{The Complete Analytical Theory}{19}{0}{5}
+\beamer@sectionintoc {6}{The Big Picture}{24}{0}{6}
