@@ -2607,12 +2607,14 @@ linearly with time. For high-altitude orbits where
 $\varepsilon \propto (R_e/a)^2$ is small, this gap narrows.
 
 \item \textbf{Eccentricity truncation.} DSST truncates its short-period
-Fourier series at eccentricity power $\leq 4$ by default (configurable via
-\texttt{maxEccPowShortPeriodics}). The GEqOE theory is exact in eccentricity:
-the short-period corrections are rational functions of $q = e/(1+\beta)$ with
-no truncation. For high-eccentricity orbits (Molniya, GTO), this closed-form
-approach may produce more accurate short-period reconstruction than DSST's
-truncated series.
+Fourier series at eccentricity power $\leq 4$ (the Orekit implementation
+constrains this parameter to at most \texttt{maxDegree}$-1$, which
+equals~4 for a degree-5 gravity field). The GEqOE theory is exact in
+eccentricity: the short-period corrections are rational functions of
+$q = e/(1+\beta)$ with no truncation. As the results below confirm,
+this closed-form approach produces substantially more accurate
+short-period reconstruction than DSST's truncated series, particularly
+at high eccentricity.
 \end{enumerate}
 
 \subsection{Expected accuracy hierarchy}
@@ -2646,11 +2648,6 @@ corrections (\texttt{dsst\_state\_type=MEAN}), compared against GEqOE
 mean-only (mean elements converted to Cartesian without applying the
 short-period map). This isolates the secular/long-period accuracy from
 the short-period reconstruction.
-\item \textbf{DSST high-eccentricity-power}: for cases with $e \geq 0.35$
-(Molniya, GTO, HEO), the \texttt{maxEccPowShortPeriodics} parameter is
-increased from its default of~4 to~6 and~8, testing whether higher-order
-eccentricity terms improve DSST's short-period accuracy and whether the
-GEqOE closed-form expressions retain an advantage.
 \end{enumerate}
 
 All DSST runs use a custom gravity provider that returns the same
@@ -2766,38 +2763,6 @@ only (no short-period reconstruction). GEqOE mean (solid) vs.\ DSST mean
 (dotted) for selected cases. The divergence is dominated by the $J_2^2$
 secular terms absent from the GEqOE first-order theory.}
 \label{fig:mean_drift}
-\end{figure}
-
-\subsection{Effect of eccentricity power truncation}
-
-\input{dsst_ecc_power_table}
-
-Table~\ref{tab:dsst_ecc_power} compares the default DSST eccentricity power
-(\texttt{maxEccPowShortPeriodics}$=4$) against GEqOE (exact in eccentricity)
-for the three high-eccentricity cases. Testing higher eccentricity powers
-($6$, $8$) was attempted but is blocked by an Orekit implementation
-constraint: \texttt{maxEccPowShortPeriodics} must satisfy
-$\leq \texttt{maxDegreeShortPeriodics} - 1$ (enforced by a range check in
-\texttt{DSSTZonal.initialize()}), which for degree~5 limits
-the range to $[0, 4]$. The convergence study thus reduces to a comparison
-of GEqOE's exact expressions against DSST's default truncation.
-
-At the default ecc$=4$, GEqOE outperforms DSST by $2\times$ (Molniya,
-HEO) to $7.5\times$ (GTO). The GTO result is particularly striking:
-DSST's truncated Fourier series at $e = 0.73$ produces 56~km position error,
-comparable to Brouwer--Lyddane (61~km), while GEqOE achieves 7.5~km.
-This demonstrates that the closed-form rational-function approach to
-short-period corrections provides a concrete accuracy advantage over
-truncated eccentricity series for high-eccentricity orbits.
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.7\textwidth]{../figures/ecc_power_convergence.png}
-\caption{Position RMS error for high-eccentricity cases: GEqOE (exact in
-eccentricity) vs.\ DSST at the default eccentricity power of~4. Higher
-eccentricity powers could not be tested due to Orekit's constraint
-\texttt{maxEccPow} $\leq$ \texttt{maxDegree}$-1$.}
-\label{fig:ecc_power}
 \end{figure}
 
 \subsection{Cost--accuracy tradeoff}
