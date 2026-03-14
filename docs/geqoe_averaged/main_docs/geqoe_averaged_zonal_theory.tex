@@ -76,7 +76,8 @@ Journal}.  Brouwer~\cite{brouwer1959} applied the Von~Zeipel method to
 Delaunay canonical variables $(\ell, g, h, L, G, H)$, averaging over the
 mean anomaly~$\ell$ to eliminate short-period terms.  The theory treats
 $J_2$ at first order for periodic terms and second order for secular terms,
-with $J_3$ through $J_5$ at first order, achieving results that are
+with $J_3$ through $J_5$ entering at $O(J_2^2)$ in Brouwer's ordering
+and treated to their leading perturbative order, achieving results that are
 closed-form in eccentricity with no power-series truncation.
 Kozai~\cite{kozai1959} independently solved the same problem using
 non-canonical Keplerian elements and the Lagrange planetary equations,
@@ -87,7 +88,7 @@ $i = 0$ (node undefined), and the critical inclination
 $i \approx 63.4^\circ$ where the long-period divisor $(1 - 5\cos^2 i)$
 vanishes.  Lyddane~\cite{lyddane1963} removed the circular-orbit and
 equatorial singularities by reformulating Brouwer's solution in
-Poincar\'e canonical variables, whose momentum components are
+Poincar\'e canonical variables, whose components are
 proportional to $e\cos(\omega+\Omega)$, $e\sin(\omega+\Omega)$,
 $\sin(i/2)\cos\Omega$, and $\sin(i/2)\sin\Omega$ at small $e$ and $i$,
 while the critical-inclination singularity---an
@@ -100,14 +101,16 @@ Surveillance Network.
 
 %%% Lie-transform revolution %%%
 The perturbation methodology was transformed by Deprit~\cite{deprit1969},
-who introduced the Lie-transform method that superseded Von~Zeipel's
-mixed-variable generating function approach.  Deprit's algorithm produces
+who introduced the Lie-transform method as an alternative that remedies
+the shortcomings of Von~Zeipel's mixed-variable generating function
+approach.  Deprit's algorithm produces
 both the direct and inverse canonical transformations explicitly through
 recursive Poisson bracket chains (the ``Deprit triangle''), eliminating the
 laborious inversion step required by Von~Zeipel.  Hori~\cite{hori1966} had
 independently introduced a Lie series perturbation method three years
-earlier; Campbell and Jefferys~\cite{campbell1970} proved formal equivalence
-of the two formulations to all orders.  Hori~\cite{hori1971} subsequently
+earlier; Campbell and Jefferys~\cite{campbell1970} established equivalence
+of the two formulations through explicit calculation to sixth order and a
+general argument extending to all orders.  Hori~\cite{hori1971} subsequently
 extended the Lie series approach to non-canonical systems by replacing the
 Poisson bracket with Lie derivatives of vector fields, establishing the
 theoretical foundation for orbit averaging in arbitrary (non-Hamiltonian)
@@ -147,11 +150,11 @@ non-canonical---without recomputation from first principles.  This last
 result is of particular conceptual significance: it implies that the exact
 separation of purely short-period effects at second order requires a
 non-canonical transformation, pointing to inherent advantages of
-non-canonical approaches for short-period correction purity.  All of Lara's
-work uses Lie--Deprit transforms with Delaunay variables as the canonical
-foundation (results expressed in polar or semi-equinoctial variables),
-averaging over mean anomaly, and closed-form eccentricity treatment.  No
-complex variable techniques appear in his published corpus.
+non-canonical approaches for short-period correction purity.  Throughout this body of work, the perturbation theory is built on
+Lie--Deprit transforms in Delaunay canonical variables, with results
+reformulated in polar or semi-equinoctial variables as needed.  Averaging
+is over the mean anomaly, eccentricity treatment is closed-form, and no
+complex variable techniques are employed.
 
 %%% Generic zonal theories %%%
 Two works address the generic zonal problem at first order.
@@ -194,7 +197,7 @@ space surveillance cataloging with two-line element sets.
 %%% DSST eccentricity limitation and fixes %%%
 Several approaches have been developed to address the eccentricity
 limitation of truncated Fourier--Hansen expansions.  San-Juan, L\'opez, and
-Cefola~\cite{sanjuan2022} produced the first second-order closed-form $J_2$
+Cefola~\cite{sanjuan2022} produced a second-order closed-form $J_2$
 model consistent with DSST, using an extension of the Lie--Deprit method in
 Delaunay variables, replacing the earlier eccentricity-truncated
 approximation of Zeis with exact closed-form expressions.  Lion and
