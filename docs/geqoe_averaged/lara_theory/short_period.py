@@ -1,7 +1,8 @@
 """First-order short-period corrections for the Lara-Brouwer theory.
 
 J2 corrections use the Lyddane/SGP4-style polar-nodal form (robust at e~0).
-J3-J5 corrections use numerical short-period extraction.
+J3-J5 corrections add radial and along-track perturbations from the
+instantaneous minus orbit-averaged zonal disturbing function.
 """
 
 from __future__ import annotations
@@ -16,6 +17,43 @@ from .coordinates import (
     polar_to_cartesian,
     solve_kepler,
 )
+
+
+# ---------------------------------------------------------------------------
+#  Pre-computation of orbit-averaged <R_n> for J3-J5 SP corrections
+# ---------------------------------------------------------------------------
+
+def precompute_orbit_averages(a, e, inc, omega, mu, Re, j_coeffs, n_quad=128):
+    """Compute orbit-averaged <R_n> for n in {3,4,5} using Gauss-Legendre.
+
+    Returns a dict {n_deg: <R_n>} for each active Jn coefficient.
+    """
+    nodes, weights = np.polynomial.legendre.leggauss(n_quad)
+    M_pts = np.pi * (nodes + 1.0)  # Map [-1,1] to [0, 2*pi]
+    w_pts = np.pi * weights
+
+    E_pts = solve_kepler(M_pts, e)
+    f_pts = eccentric_to_true(E_pts, e)
+    p = a * (1.0 - e**2)
+
+    averages = {}
+    for n_deg in [3, 4, 5]:
+        Jn = j_coeffs.get(n_deg, 0.0)
+        if Jn == 0.0:
+            continue
+
+        Rn_vals = np.empty(len(f_pts))
+        for k, fk in enumerate(f_pts):
+            r = p / (1.0 + e * np.cos(fk))
+            sin_phi = np.sin(inc) * np.sin(omega + fk)
+            coeffs = np.zeros(n_deg + 1)
+            coeffs[n_deg] = 1.0
+            Pn = legval(sin_phi, coeffs)
+            Rn_vals[k] = -(mu / r) * Jn * (Re / r) ** n_deg * Pn
+
+        averages[n_deg] = np.sum(w_pts * Rn_vals) / (2.0 * np.pi)
+
+    return averages
 
 
 # ---------------------------------------------------------------------------
@@ -106,6 +144,102 @@ def j2_sp_polar_batch(a, e, inc, Omega, omega, M, mu, Re, J2):
     inc_osc = inc + dinc
     rdot_osc = rdot + drdot
     rfdot_osc = rfdot + drfdot
+
+    return r_osc, rdot_osc, u_osc, rfdot_osc, Omega_osc, inc_osc
+
+
+# ---------------------------------------------------------------------------
+#  Brouwer SP corrections: J2 (polar-nodal) + J3-J5 (radial + along-track)
+# ---------------------------------------------------------------------------
+
+def _eval_Rn_pointwise(r, sin_phi, mu, Re, Jn, n_deg):
+    """Evaluate R_n at a single point (vectorized over arrays)."""
+    coeffs = np.zeros(n_deg + 1)
+    coeffs[n_deg] = 1.0
+    Pn = legval(sin_phi, coeffs)
+    return -(mu / r) * Jn * (Re / r) ** n_deg * Pn
+
+
+def _eval_dRn_dr(r, sin_phi, mu, Re, Jn, n_deg):
+    """Evaluate dR_n/dr for the radial force (vectorized).
+
+    dR_n/dr = (mu/r²) * Jn * (Re/r)^n * Pn * (n+1)
+    """
+    coeffs = np.zeros(n_deg + 1)
+    coeffs[n_deg] = 1.0
+    Pn = legval(sin_phi, coeffs)
+    return (mu / r**2) * Jn * (Re / r) ** n_deg * Pn * (n_deg + 1)
+
+
+def brouwer_sp_polar(a, e, inc, Omega, omega, M, mu, Re, J2, j_coeffs=None,
+                     orbit_averages=None):
+    """Brouwer SP corrections: J2 polar-nodal + J3-J5 radial perturbation.
+
+    Given MEAN Keplerian elements, returns osculating polar-nodal quantities
+    (r_osc, rdot_osc, u_osc, rfdot_osc, Omega_osc, inc_osc).
+    """
+    # Start with J2 SP corrections
+    r_osc, rdot_osc, u_osc, rfdot_osc, Omega_osc, inc_osc = j2_sp_polar(
+        a, e, inc, Omega, omega, M, mu, Re, J2)
+
+    # Add J3-J5 radial SP corrections
+    if j_coeffs is not None and orbit_averages is not None:
+        E = solve_kepler(M, e)
+        f = eccentric_to_true(E, e)
+        p = a * (1.0 - e**2)
+        r_mean = p / (1.0 + e * np.cos(f))
+        u_mean = omega + f
+        sin_phi = np.sin(inc) * np.sin(u_mean)
+
+        for n_deg in [3, 4, 5]:
+            Jn = j_coeffs.get(n_deg, 0.0)
+            if Jn == 0.0 or n_deg not in orbit_averages:
+                continue
+
+            Rn_inst = _eval_Rn_pointwise(r_mean, sin_phi, mu, Re, Jn, n_deg)
+            Rn_avg = orbit_averages[n_deg]
+
+            # Radial SP correction: delta_r = (2*a²/mu) * (R_n - <R_n>)
+            delta_r = (2.0 * a**2 / mu) * (Rn_inst - Rn_avg)
+            r_osc = r_osc + delta_r
+
+    return r_osc, rdot_osc, u_osc, rfdot_osc, Omega_osc, inc_osc
+
+
+def brouwer_sp_polar_batch(a, e, inc, Omega, omega, M, mu, Re, J2,
+                           j_coeffs=None, orbit_averages=None):
+    """Vectorized Brouwer SP: J2 polar-nodal + J3-J5 radial perturbation."""
+    a = np.asarray(a, dtype=float)
+    e = np.asarray(e, dtype=float)
+    inc = np.asarray(inc, dtype=float)
+    Omega = np.asarray(Omega, dtype=float)
+    omega = np.asarray(omega, dtype=float)
+    M = np.asarray(M, dtype=float)
+
+    # Start with J2 SP corrections
+    r_osc, rdot_osc, u_osc, rfdot_osc, Omega_osc, inc_osc = j2_sp_polar_batch(
+        a, e, inc, Omega, omega, M, mu, Re, J2)
+
+    # Add J3-J5 radial SP corrections
+    if j_coeffs is not None and orbit_averages is not None:
+        E = solve_kepler(M, e)
+        f = eccentric_to_true(E, e)
+        p = a * (1.0 - e**2)
+        r_mean = p / (1.0 + e * np.cos(f))
+        u_mean = omega + f
+        sin_phi = np.sin(inc) * np.sin(u_mean)
+
+        for n_deg in [3, 4, 5]:
+            Jn = j_coeffs.get(n_deg, 0.0)
+            if Jn == 0.0 or n_deg not in orbit_averages:
+                continue
+
+            Rn_inst = _eval_Rn_pointwise(r_mean, sin_phi, mu, Re, Jn, n_deg)
+            Rn_avg = orbit_averages[n_deg]
+
+            # Radial SP correction: delta_r = (2*a²/mu) * (R_n - <R_n>)
+            delta_r = (2.0 * a**2 / mu) * (Rn_inst - Rn_avg)
+            r_osc = r_osc + delta_r
 
     return r_osc, rdot_osc, u_osc, rfdot_osc, Omega_osc, inc_osc
 
