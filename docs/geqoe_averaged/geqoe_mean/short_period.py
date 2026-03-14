@@ -956,23 +956,46 @@ def osculating_to_mean_state_equinoctial(
     re_val: float = RE,
     mu_val: float = MU,
 ) -> np.ndarray:
-    """Osculating -> mean using equinoctial SP (singularity-free at g=0, Q=0)."""
+    """Osculating -> mean using equinoctial SP (singularity-free at g=0, Q=0).
+
+    Slow variables use equinoctial corrections. Fast phase (M) uses polar
+    dPsi+dM to avoid ill-conditioned atan2 at g -> 0.
+    """
     nu_val, p1_val, p2_val, K_val, q1_val, q2_val = map(float, state_osc)
     g_val = float(np.hypot(p1_val, p2_val))
+    Q_val = float(np.hypot(q1_val, q2_val))
     Psi_val = float(np.arctan2(p1_val, p2_val))
+    Omega_val = float(np.arctan2(q1_val, q2_val))
+    omega_val = Psi_val - Omega_val
     M_val = float(K_to_L(K_val, p1_val, p2_val) - Psi_val)
     G_val = float(K_val - Psi_val)
 
-    corr = evaluate_equinoctial_short_period(
+    # Equinoctial corrections for slow variables
+    corr_eq = evaluate_equinoctial_short_period(
         nu_val, p1_val, p2_val, q1_val, q2_val, G_val,
         j_coeffs, re_val, mu_val,
     )
+    p1_mean = p1_val - corr_eq["dp1"]
+    p2_mean = p2_val - corr_eq["dp2"]
+    q1_mean = q1_val - corr_eq["dq1"]
+    q2_mean = q2_val - corr_eq["dq2"]
 
-    p1_mean = p1_val - corr["dp1"]
-    p2_mean = p2_val - corr["dp2"]
-    q1_mean = q1_val - corr["dq1"]
-    q2_mean = q2_val - corr["dq2"]
-    M_mean = M_val - corr["dM"]
+    # Polar corrections for fast phase
+    corr_polar = evaluate_truncated_short_period(
+        nu_val, g_val, Q_val, G_val, omega_val,
+        j_coeffs, re_val, mu_val,
+    )
+    M_mean = M_val - corr_polar["dPsi"] - corr_polar["dM"]
+    # M_mean = L_mean - Psi_mean. Since L_osc = L_mean + dPsi + dM,
+    # we have L_mean = L_osc - dPsi - dM = (Psi + M) - dPsi - dM.
+    # So M_mean (as stored) = L_mean - Psi_mean_from_p1p2.
+    # But we define M_mean = (Psi_osc + M_osc) - (dPsi + dM) - Psi_mean,
+    # where Psi_mean = atan2(p1_mean, p2_mean). This introduces the atan2
+    # extraction we're trying to avoid. Instead, store M_mean consistently:
+    Psi_mean = float(np.arctan2(p1_mean, p2_mean))
+    L_osc = Psi_val + M_val
+    L_mean = L_osc - corr_polar["dPsi"] - corr_polar["dM"]
+    M_mean = L_mean - Psi_mean
 
     return np.array([nu_val, p1_mean, p2_mean, M_mean, q1_mean, q2_mean], dtype=float)
 
@@ -983,26 +1006,38 @@ def mean_to_osculating_state_equinoctial(
     re_val: float = RE,
     mu_val: float = MU,
 ) -> np.ndarray:
-    """Mean -> osculating using equinoctial SP (singularity-free at g=0, Q=0)."""
+    """Mean -> osculating using equinoctial SP (singularity-free at g=0, Q=0).
+
+    Slow variables (p1,p2,q1,q2) use equinoctial corrections (no polar
+    singularity). Fast phase L uses polar dPsi+dM (avoids ill-conditioned
+    atan2 extraction from small p1,p2).
+    """
     nu_val, p1_val, p2_val, M_val, q1_val, q2_val = map(float, state_mean)
+    g_val = float(np.hypot(p1_val, p2_val))
+    Q_val = float(np.hypot(q1_val, q2_val))
     Psi_val = float(np.arctan2(p1_val, p2_val))
+    Omega_val = float(np.arctan2(q1_val, q2_val))
+    omega_val = Psi_val - Omega_val
     L_mean = Psi_val + M_val
     K_mean = float(solve_kepler_gen(L_mean, p1_val, p2_val))
     G_mean = float(K_mean - Psi_val)
 
-    corr = evaluate_equinoctial_short_period(
+    # Equinoctial corrections for slow variables
+    corr_eq = evaluate_equinoctial_short_period(
         nu_val, p1_val, p2_val, q1_val, q2_val, G_mean,
         j_coeffs, re_val, mu_val,
     )
+    p1_osc = p1_val + corr_eq["dp1"]
+    p2_osc = p2_val + corr_eq["dp2"]
+    q1_osc = q1_val + corr_eq["dq1"]
+    q2_osc = q2_val + corr_eq["dq2"]
 
-    p1_osc = p1_val + corr["dp1"]
-    p2_osc = p2_val + corr["dp2"]
-    q1_osc = q1_val + corr["dq1"]
-    q2_osc = q2_val + corr["dq2"]
-    M_osc = M_val + corr["dM"]
-
-    Psi_osc = np.arctan2(p1_osc, p2_osc)
-    L_osc = Psi_osc + M_osc
+    # Polar corrections for fast phase (dPsi + dM -> L_osc)
+    corr_polar = evaluate_truncated_short_period(
+        nu_val, g_val, Q_val, G_mean, omega_val,
+        j_coeffs, re_val, mu_val,
+    )
+    L_osc = L_mean + corr_polar["dPsi"] + corr_polar["dM"]
     K_osc = float(solve_kepler_gen(L_osc, p1_osc, p2_osc))
 
     return np.array([nu_val, p1_osc, p2_osc, K_osc, q1_osc, q2_osc], dtype=float)
@@ -1104,14 +1139,17 @@ def mean_to_osculating_state_equinoctial_batch(
             dM_c += c_log_func(q_arr, Q_arr) * phi_arr * (w_arr ** m_val)
         dM += scale_arr * np.real(dM_c)
 
+    # Slow variables from equinoctial corrections
     p1_osc = p1_arr + dp1
     p2_osc = p2_arr + dp2
     q1_osc = q1_arr + dq1
     q2_osc = q2_arr + dq2
-    M_osc = M_arr + dM
 
-    Psi_osc = np.arctan2(p1_osc, p2_osc)
-    L_osc = Psi_osc + M_osc
+    # Fast phase L from polar dPsi + dM (avoids ill-conditioned atan2 at g->0)
+    omega_arr = Psi_arr - np.arctan2(q1_arr, q2_arr)
+    polar_corr = evaluate_truncated_short_period_batch(
+        nu_arr, g_arr, Q_arr, G_mean, omega_arr, j_coeffs, re_val, mu_val)
+    L_osc = L_mean + polar_corr["dPsi"] + polar_corr["dM"]
     K_osc = solve_kepler_gen(L_osc, p1_osc, p2_osc)
 
     return np.column_stack([nu_arr, p1_osc, p2_osc, K_osc, q1_osc, q2_osc])
