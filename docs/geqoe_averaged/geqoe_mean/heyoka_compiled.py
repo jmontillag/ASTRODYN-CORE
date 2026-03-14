@@ -829,3 +829,256 @@ def get_sp_cfunc():
     _CACHED_SP_CFUNC = cf
     _CACHED_SP_CFUNC_INFO = info
     return cf, info
+
+
+# ---------------------------------------------------------------------------
+#  Equinoctial short-period cfunc (Stage C.3)
+# ---------------------------------------------------------------------------
+
+def _load_eqnoc_short_data() -> dict:
+    """Load EQNOC_SHORT_DATA from generated_coefficients.py via AST."""
+    data_file = Path(__file__).resolve().parent / "generated_coefficients.py"
+    tree = ast.parse(data_file.read_text())
+    for node in tree.body:
+        if (isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id == "EQNOC_SHORT_DATA"):
+            return ast.literal_eval(node.value)
+    raise RuntimeError("EQNOC_SHORT_DATA not found")
+
+
+def _load_eqnoc_log_data() -> dict:
+    """Load EQNOC_LOG_DATA from generated_coefficients.py via AST.
+
+    Returns empty dict if EQNOC_LOG_DATA is not present.
+    """
+    data_file = Path(__file__).resolve().parent / "generated_coefficients.py"
+    tree = ast.parse(data_file.read_text())
+    for node in tree.body:
+        if (isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id == "EQNOC_LOG_DATA"):
+            return ast.literal_eval(node.value)
+    return {}
+
+
+_CACHED_EQNOC_SP_CFUNC = None
+_CACHED_EQNOC_SP_CFUNC_INFO = None
+
+
+def build_eqnoc_sp_cfunc():
+    """Build a heyoka cfunc for equinoctial short-period corrections.
+
+    The cfunc takes:
+        vars:  [cos_f, sin_f, q, Q, cos_omega, sin_omega, cos_Omega, sin_Omega]
+        pars:  [s2, s3, s4, s5]   (scale factors Jn*(Re/a)^n)
+
+    and returns:
+        [dp1, dp2, dq1, dq2]   (equinoctial SP corrections)
+
+    Returns (cfunc, info_dict).
+    """
+    import heyoka as hy
+
+    t_start = time.time()
+    eqnoc_short = _load_eqnoc_short_data()
+
+    # heyoka variables
+    cos_f, sin_f, q_var, Q_var = hy.make_vars("cos_f", "sin_f", "q", "Q")
+    cos_omega, sin_omega = hy.make_vars("cos_omega", "sin_omega")
+    cos_Omega, sin_Omega = hy.make_vars("cos_Omega", "sin_Omega")
+
+    # Parameters: s2=par[0], s3=par[1], s4=par[2], s5=par[3]
+    s_hy = {2: hy.par[0], 3: hy.par[1], 4: hy.par[2], 5: hy.par[3]}
+
+    # --- Chebyshev tables for cos(k*f), sin(k*f) ---
+    max_k = 12
+    cos_f_tab = {0: hy.expression(1.0), 1: cos_f}
+    sin_f_tab = {0: hy.expression(0.0), 1: sin_f}
+    for k in range(2, max_k + 1):
+        cos_f_tab[k] = 2.0 * cos_f * cos_f_tab[k - 1] - cos_f_tab[k - 2]
+        sin_f_tab[k] = 2.0 * cos_f * sin_f_tab[k - 1] - sin_f_tab[k - 2]
+
+    # --- Chebyshev tables for cos(m*omega), sin(m*omega) ---
+    max_m = 6
+    cos_m_tab = {0: hy.expression(1.0), 1: cos_omega}
+    sin_m_tab = {0: hy.expression(0.0), 1: sin_omega}
+    for m in range(2, max_m + 1):
+        cos_m_tab[m] = 2.0 * cos_omega * cos_m_tab[m - 1] - cos_m_tab[m - 2]
+        sin_m_tab[m] = 2.0 * cos_omega * sin_m_tab[m - 1] - sin_m_tab[m - 2]
+
+    # --- SymPy parsing locals ---
+    _sympify_locals = {
+        "q": sp.Symbol("q", real=True, positive=True),
+        "Q": sp.Symbol("Q", real=True, positive=True),
+        "F": sp.Symbol("F"),
+        "I": sp.I,
+    }
+    var_map = {"q": q_var, "Q": Q_var}
+
+    # --- Accumulators: Re/Im for zeta and eta reduced (before Omega rotation) ---
+    dzeta_re = hy.expression(0.0)
+    dzeta_im = hy.expression(0.0)
+    deta_re = hy.expression(0.0)
+    deta_im = hy.expression(0.0)
+
+    n_terms = 0
+    for n_key in sorted(eqnoc_short.keys(), key=int):
+        n = int(n_key)
+        channels = eqnoc_short[n_key]
+
+        for channel in ("zeta", "eta"):
+            coeffs = channels.get(channel, {})
+            for m_str, expr_str in coeffs.items():
+                if expr_str == '0':
+                    continue
+                m = int(m_str)
+                c_sp = sp.sympify(expr_str, locals=_sympify_locals)
+                if c_sp == 0:
+                    continue
+
+                # Convert to heyoka (re, im) pair — handles F as exp(if)
+                c_re, c_im = _sympy_to_heyoka_complex(
+                    c_sp, var_map, cos_f_tab, sin_f_tab)
+
+                # Accumulate Re and Im of sum_m(c_m * w^m) separately
+                # Re[c * w^m] = Re[c]*cos(m*w) - Im[c]*sin(m*w)
+                # Im[c * w^m] = Re[c]*sin(m*w) + Im[c]*cos(m*w)
+                abs_m = abs(m)
+                cos_mw = cos_m_tab[abs_m]
+                sin_mw = sin_m_tab[abs_m]
+                if m < 0 and abs_m > 0:
+                    sin_mw = -1.0 * sin_mw
+
+                re_contrib = None
+                im_contrib = None
+                if c_re is not None:
+                    re_contrib = c_re * cos_mw
+                    im_contrib = c_re * sin_mw
+                if c_im is not None:
+                    sub_re = c_im * sin_mw
+                    add_im = c_im * cos_mw
+                    re_contrib = (re_contrib - sub_re) if re_contrib is not None else (-1.0 * sub_re)
+                    im_contrib = (im_contrib + add_im) if im_contrib is not None else add_im
+
+                if channel == "zeta":
+                    if re_contrib is not None:
+                        dzeta_re = dzeta_re + s_hy[n] * re_contrib
+                    if im_contrib is not None:
+                        dzeta_im = dzeta_im + s_hy[n] * im_contrib
+                else:
+                    if re_contrib is not None:
+                        deta_re = deta_re + s_hy[n] * re_contrib
+                    if im_contrib is not None:
+                        deta_im = deta_im + s_hy[n] * im_contrib
+
+                n_terms += 1
+
+    # --- Log term contributions ---
+    eqnoc_log = _load_eqnoc_log_data()
+    n_log_terms = 0
+    if eqnoc_log:
+        phi_hy = hy.atan2(q_var * sin_f_tab[1], 1.0 + q_var * cos_f_tab[1])
+
+        for n_key in sorted(eqnoc_log.keys(), key=int):
+            n = int(n_key)
+            channels = eqnoc_log[n_key]
+
+            for channel in ("zeta", "eta"):
+                coeffs = channels.get(channel, {})
+                for m_str, expr_str in coeffs.items():
+                    m = int(m_str)
+                    c_sp = sp.sympify(expr_str, locals=_sympify_locals)
+                    if c_sp == 0:
+                        continue
+
+                    # Log coefficients are functions of (q, Q) only — no F.
+                    # They may contain I (imaginary unit).
+                    c_re_sp = sp.re(c_sp)
+                    c_im_sp = sp.im(c_sp)
+
+                    c_re_hy = (_sympy_to_heyoka(c_re_sp, var_map)
+                               if c_re_sp != 0 else None)
+                    c_im_hy = (_sympy_to_heyoka(c_im_sp, var_map)
+                               if c_im_sp != 0 else None)
+
+                    abs_m = abs(m)
+                    cos_mw = cos_m_tab[abs_m]
+                    sin_mw = sin_m_tab[abs_m]
+                    if m < 0 and abs_m > 0:
+                        sin_mw = -1.0 * sin_mw
+
+                    # Re[C_log * phi * w^m] and Im[C_log * phi * w^m]
+                    re_contrib = None
+                    im_contrib = None
+                    if c_re_hy is not None:
+                        re_contrib = c_re_hy * cos_mw
+                        im_contrib = c_re_hy * sin_mw
+                    if c_im_hy is not None:
+                        sub_re = c_im_hy * sin_mw
+                        add_im = c_im_hy * cos_mw
+                        re_contrib = (re_contrib - sub_re) if re_contrib is not None else (-1.0 * sub_re)
+                        im_contrib = (im_contrib + add_im) if im_contrib is not None else add_im
+
+                    if channel == "zeta":
+                        if re_contrib is not None:
+                            dzeta_re = dzeta_re + s_hy[n] * re_contrib * phi_hy
+                        if im_contrib is not None:
+                            dzeta_im = dzeta_im + s_hy[n] * im_contrib * phi_hy
+                    else:
+                        if re_contrib is not None:
+                            deta_re = deta_re + s_hy[n] * re_contrib * phi_hy
+                        if im_contrib is not None:
+                            deta_im = deta_im + s_hy[n] * im_contrib * phi_hy
+
+                    n_log_terms += 1
+
+        if n_log_terms > 0:
+            print(f"  Eqnoc SP cfunc: added {n_log_terms} log terms")
+
+    # --- Apply exp(iΩ) rotation ---
+    # zeta = dzeta_red * exp(iΩ) = (dzeta_re + i*dzeta_im) * (cos_Ω + i*sin_Ω)
+    # dp2 = Re(zeta) = dzeta_re * cos_Ω - dzeta_im * sin_Ω
+    # dp1 = Im(zeta) = dzeta_re * sin_Ω + dzeta_im * cos_Ω
+    dp2_expr = dzeta_re * cos_Omega - dzeta_im * sin_Omega
+    dp1_expr = dzeta_re * sin_Omega + dzeta_im * cos_Omega
+
+    # eta = deta_red * exp(iΩ) = (deta_re + i*deta_im) * (cos_Ω + i*sin_Ω)
+    # dq2 = Re(eta) = deta_re * cos_Ω - deta_im * sin_Ω
+    # dq1 = Im(eta) = deta_re * sin_Ω + deta_im * cos_Ω
+    dq2_expr = deta_re * cos_Omega - deta_im * sin_Omega
+    dq1_expr = deta_re * sin_Omega + deta_im * cos_Omega
+
+    t_build = time.time() - t_start
+    print(f"  Eqnoc SP cfunc: built {n_terms}+{n_log_terms} terms in {t_build:.1f}s, compiling...")
+
+    # --- Compile ---
+    t_compile_start = time.time()
+    cf = hy.cfunc(
+        [dp1_expr, dp2_expr, dq1_expr, dq2_expr],
+        vars=[cos_f, sin_f, q_var, Q_var, cos_omega, sin_omega,
+              cos_Omega, sin_Omega],
+        compact_mode=True,
+    )
+    t_compile = time.time() - t_compile_start
+    print(f"  Eqnoc SP cfunc: compiled in {t_compile:.1f}s")
+
+    info = {
+        "n_terms": n_terms,
+        "n_log_terms": n_log_terms,
+        "build_time": t_build,
+        "compile_time": t_compile,
+    }
+    return cf, info
+
+
+def get_eqnoc_sp_cfunc():
+    """Lazy-build and cache the equinoctial short-period cfunc."""
+    global _CACHED_EQNOC_SP_CFUNC, _CACHED_EQNOC_SP_CFUNC_INFO
+    if _CACHED_EQNOC_SP_CFUNC is not None:
+        return _CACHED_EQNOC_SP_CFUNC, _CACHED_EQNOC_SP_CFUNC_INFO
+    print("  Building equinoctial SP cfunc (first call, one-time cost)...")
+    cf, info = build_eqnoc_sp_cfunc()
+    _CACHED_EQNOC_SP_CFUNC = cf
+    _CACHED_EQNOC_SP_CFUNC_INFO = info
+    return cf, info

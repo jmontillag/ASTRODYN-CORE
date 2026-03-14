@@ -83,6 +83,13 @@ try:
 except ImportError:
     _HAS_SP_CFUNC = False
 
+# Stage C.3: equinoctial short-period cfunc
+try:
+    from .heyoka_compiled import get_eqnoc_sp_cfunc as _get_eqnoc_sp_cfunc
+    _HAS_EQNOC_SP_CFUNC = True
+except ImportError:
+    _HAS_EQNOC_SP_CFUNC = False
+
 
 q, Q, F, w, z = sp.symbols("q Q F w z", positive=True, real=True)
 I = sp.I
@@ -1080,6 +1087,64 @@ def mean_to_osculating_state_equinoctial_batch(
     F_arr = _complex_f_from_g_arr(g_arr, G_mean)
     a_arr = (mu_val / (nu_arr * nu_arr)) ** (1.0 / 3.0)
 
+    # --- Equinoctial cfunc fast path ---
+    if _HAS_EQNOC_SP_CFUNC and set(j_coeffs.keys()) == {2, 3, 4, 5}:
+        cos_f_arr = np.real(F_arr)
+        sin_f_arr = np.imag(F_arr)
+
+        # cos/sin(Omega) from Cartesian: cos(Ω) = q2/Q, sin(Ω) = q1/Q
+        Q_safe = np.where(Q_arr > 0, Q_arr, 1.0)
+        cos_Omega_arr = np.where(Q_arr > 0, q2_arr / Q_safe, 1.0)
+        sin_Omega_arr = np.where(Q_arr > 0, q1_arr / Q_safe, 0.0)
+
+        # cos/sin(omega) from Cartesian components
+        g_safe = np.where(g_arr > 0, g_arr, 1.0)
+        gQ = g_safe * Q_safe
+        cos_omega_arr = np.where(
+            (g_arr > 0) & (Q_arr > 0),
+            (p2_arr * q2_arr + p1_arr * q1_arr) / gQ,
+            1.0)
+        sin_omega_arr = np.where(
+            (g_arr > 0) & (Q_arr > 0),
+            (p1_arr * q2_arr - p2_arr * q1_arr) / gQ,
+            0.0)
+
+        nu_val = float(nu_arr[0])
+        a_val = (mu_val / (nu_val * nu_val)) ** (1.0 / 3.0)
+        ra = re_val / a_val
+        ra2 = ra * ra
+        s2 = j_coeffs[2] * ra2
+        s3 = j_coeffs[3] * ra2 * ra
+        s4 = j_coeffs[4] * ra2 * ra2
+        s5 = j_coeffs[5] * ra2 * ra2 * ra
+
+        eqnoc_corr = _evaluate_eqnoc_sp_batch_cfunc(
+            N, cos_f_arr, sin_f_arr, q_arr, Q_arr,
+            cos_omega_arr, sin_omega_arr,
+            cos_Omega_arr, sin_Omega_arr,
+            s2, s3, s4, s5)
+
+        dp1 = eqnoc_corr["dp1"]
+        dp2 = eqnoc_corr["dp2"]
+        dq1 = eqnoc_corr["dq1"]
+        dq2 = eqnoc_corr["dq2"]
+
+        p1_osc = p1_arr + dp1
+        p2_osc = p2_arr + dp2
+        q1_osc = q1_arr + dq1
+        q2_osc = q2_arr + dq2
+
+        # L reconstruction via polar cfunc for dPsi + dM
+        omega_arr = Psi_arr - np.arctan2(q1_arr, q2_arr)
+        polar_corr = evaluate_truncated_short_period_batch(
+            nu_arr, g_arr, Q_arr, G_mean, omega_arr, j_coeffs, re_val, mu_val)
+        L_osc = L_mean + polar_corr["dPsi"] + polar_corr["dM"]
+        K_osc = solve_kepler_gen(L_osc, p1_osc, p2_osc)
+
+        return np.column_stack([nu_arr, p1_osc, p2_osc, K_osc, q1_osc, q2_osc])
+
+    # --- Lambdified fallback ---
+
     # Compute exp(i*Omega) and w from Cartesian components (no atan2)
     Q_safe = np.where(Q_arr > 0, Q_arr, 1.0)
     exp_iOmega = (q2_arr + 1j * q1_arr) / Q_safe
@@ -1196,6 +1261,36 @@ def _evaluate_sp_batch_cfunc(
 
     return {"dg": out[0], "dQ": out[1], "dPsi": out[2],
             "dOmega": out[3], "dM": out[4]}
+
+
+def _evaluate_eqnoc_sp_batch_cfunc(
+    N: int,
+    cos_f_arr: np.ndarray,
+    sin_f_arr: np.ndarray,
+    q_arr: np.ndarray,
+    Q_arr: np.ndarray,
+    cos_omega_arr: np.ndarray,
+    sin_omega_arr: np.ndarray,
+    cos_Omega_arr: np.ndarray,
+    sin_Omega_arr: np.ndarray,
+    s2: float, s3: float, s4: float, s5: float,
+) -> dict[str, np.ndarray]:
+    """Evaluate equinoctial SP corrections via heyoka cfunc (SIMD batch mode).
+
+    Returns dict with keys 'dp1', 'dp2', 'dq1', 'dq2'.
+    """
+    cf, _ = _get_eqnoc_sp_cfunc()
+
+    # heyoka batch: inputs (n_vars, N), pars (n_pars, N), outputs (n_outputs, N)
+    inp = np.vstack([cos_f_arr, sin_f_arr, q_arr, Q_arr,
+                     cos_omega_arr, sin_omega_arr,
+                     cos_Omega_arr, sin_Omega_arr])  # (8, N)
+    pars = np.tile(np.array([[s2], [s3], [s4], [s5]]), (1, N))  # (4, N)
+    out = np.empty((4, N))
+
+    cf(inp, pars=pars, outputs=out)
+
+    return {"dp1": out[0], "dp2": out[1], "dq1": out[2], "dq2": out[3]}
 
 
 def evaluate_truncated_short_period_batch(
