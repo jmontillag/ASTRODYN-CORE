@@ -26,6 +26,8 @@ from .short_period import (
     _series_by_m,
     _mean_of_f_expression,
     isolated_short_period_expressions_for,
+    zeta_reduced_series,
+    eta_reduced_series,
     LaurentPoly, HarmonicExpr,
 )
 
@@ -485,6 +487,38 @@ def _compare_expressions(label: str, new_expr: sp.Expr, ref_expr: sp.Expr) -> bo
     status = "OK" if ok else f"MISMATCH (diff = {diff})"
     print(f"  {label}: {status}")
     return ok
+
+
+def compute_equinoctial_short_period_direct(
+    channel: str, n: int
+) -> tuple[HarmonicExpr, dict[int, sp.Expr]]:
+    """Compute equinoctial SP expressions for one channel using the direct method.
+
+    channel: "zeta" (eccentricity) or "eta" (inclination)
+
+    Returns (rational_exprs, log_coeffs) — same format as compute_short_period_direct.
+    """
+    if channel == "zeta":
+        raw = zeta_reduced_series(n)
+    elif channel == "eta":
+        raw = eta_reduced_series(n)
+    else:
+        raise ValueError(f"Unknown channel: {channel}")
+    mean_coeffs = _mean_rate_from_raw_series(raw)
+    solved: HarmonicExpr = {}
+    log_data: dict[int, sp.Expr] = {}
+    for m_val, raw_by_k in _series_by_m(raw).items():
+        t0 = time.time()
+        rational, c_log = integrate_harmonic_residue(
+            raw_by_k, mean_coeffs.get(m_val, sp.Integer(0))
+        )
+        solved[m_val] = rational
+        if c_log is not None:
+            log_data[m_val] = c_log
+        dt = time.time() - t0
+        print(f"    harmonic m={m_val:+d}: {dt:.2f}s", flush=True)
+    rational_out = {m_val: expr for m_val, expr in solved.items() if expr != 0}
+    return rational_out, log_data
 
 
 def validate_j2_against_cache() -> bool:

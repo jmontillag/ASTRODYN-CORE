@@ -66,6 +66,16 @@ try:
 except ImportError:
     _LOG_DATA_STR = {}
 
+try:
+    from .generated_coefficients import EQNOC_SHORT_DATA as _EQNOC_SHORT_DATA_STR
+except ImportError:
+    _EQNOC_SHORT_DATA_STR = {}
+
+try:
+    from .generated_coefficients import EQNOC_LOG_DATA as _EQNOC_LOG_DATA_STR
+except ImportError:
+    _EQNOC_LOG_DATA_STR = {}
+
 # Stage C.2: heyoka cfunc fast path for short-period corrections
 try:
     from .heyoka_compiled import get_sp_cfunc as _get_sp_cfunc
@@ -260,6 +270,33 @@ def _dimensionless_rate_series(variable: str, n: int) -> LaurentPoly:
 @lru_cache(maxsize=None)
 def dimensionless_rate_series(variable: str, n: int) -> LaurentPoly:
     return _prune(_dimensionless_rate_series(variable, n))
+
+
+# ---------------------------------------------------------------------------
+# Equinoctial (complex) reduced rate series
+# ---------------------------------------------------------------------------
+
+_W_SHIFT: LaurentPoly = {(1, 0): sp.Integer(1)}
+
+
+@lru_cache(maxsize=None)
+def zeta_reduced_series(n: int) -> LaurentPoly:
+    """zeta_dot_red/(nu*lambda_n) = [g_dot + i*g*Psi_dot] * w.
+
+    The g*(1/g) cancellation in the Psi term makes this regular at g -> 0.
+    """
+    g_s = dimensionless_rate_series("g", n)
+    psi_s = dimensionless_rate_series("Psi", n)
+    combined = _poly_add(g_s, _poly_scale(psi_s, I * g))
+    return _prune(_poly_mul(combined, _W_SHIFT))
+
+
+@lru_cache(maxsize=None)
+def eta_reduced_series(n: int) -> LaurentPoly:
+    """eta_dot_red/(nu*lambda_n) = Q_dot + i*Q*Omega_dot."""
+    Q_s = dimensionless_rate_series("Q", n)
+    omega_s = dimensionless_rate_series("Omega", n)
+    return _prune(_poly_add(Q_s, _poly_scale(omega_s, I * Q)))
 
 
 @lru_cache(maxsize=None)
@@ -490,10 +527,133 @@ def _lambdified_log_coefficients(n: int) -> dict[str, dict[int, object]]:
     return out
 
 
+@lru_cache(maxsize=None)
+def _lambdified_equinoctial_expressions(n: int) -> dict[str, dict[int, object]] | None:
+    """Parse and lambdify equinoctial SP expressions from EQNOC_SHORT_DATA."""
+    raw_n = _EQNOC_SHORT_DATA_STR.get(n)
+    if raw_n is None:
+        return None
+    out: dict[str, dict[int, object]] = {}
+    for channel in ("zeta", "eta"):
+        raw_ch = raw_n.get(channel, {})
+        if not raw_ch:
+            continue
+        funcs = {}
+        for m_str, expr_str in raw_ch.items():
+            sp_expr = sp.sympify(expr_str, locals=_SYMPIFY_LOCALS)
+            if sp_expr != 0:
+                funcs[int(m_str)] = sp.lambdify((q, Q, F), sp_expr, "numpy")
+        if funcs:
+            out[channel] = funcs
+    return out if out else None
+
+
+@lru_cache(maxsize=None)
+def _lambdified_equinoctial_log_coefficients(n: int) -> dict[str, dict[int, object]]:
+    """Parse and lambdify equinoctial log coefficients from EQNOC_LOG_DATA."""
+    raw_n = _EQNOC_LOG_DATA_STR.get(n)
+    if raw_n is None:
+        return {}
+    out: dict[str, dict[int, object]] = {}
+    for channel in ("zeta", "eta"):
+        raw_ch = raw_n.get(channel, {})
+        if not raw_ch:
+            continue
+        funcs = {}
+        for m_str, expr_str in raw_ch.items():
+            c_sp = sp.sympify(expr_str, locals=_SYMPIFY_LOCALS)
+            if c_sp != 0:
+                funcs[int(m_str)] = sp.lambdify((q, Q), c_sp, "numpy")
+        if funcs:
+            out[channel] = funcs
+    return out
+
+
 def _complex_f_from_g(g_val: float, G_val: float) -> complex:
     q_val = q_from_g(g_val)
     z_val = np.exp(1j * G_val)
     return (z_val - q_val) / (1.0 - q_val * z_val)
+
+
+def evaluate_equinoctial_short_period(
+    nu_val: float,
+    p1_val: float,
+    p2_val: float,
+    q1_val: float,
+    q2_val: float,
+    G_val: float,
+    j_coeffs: dict[int, float],
+    re_val: float = RE,
+    mu_val: float = MU,
+) -> dict[str, float]:
+    """Evaluate SP corrections directly in equinoctial components.
+
+    Returns {dp1, dp2, dq1, dq2, dM} — no polar (g, Psi, Q, Omega) round-trip.
+    """
+    g_val = float(np.hypot(p1_val, p2_val))
+    Q_val = float(np.hypot(q1_val, q2_val))
+    q_val = q_from_g(g_val)
+    F_val = _complex_f_from_g(g_val, G_val)
+    a_val = (mu_val / (nu_val * nu_val)) ** (1.0 / 3.0)
+
+    # Compute exp(i*Omega) and w = exp(i*omega) from Cartesian components
+    # (no atan2 needed — numerically stable at Q -> 0 and g -> 0)
+    if Q_val > 0:
+        exp_iOmega = (q2_val + 1j * q1_val) / Q_val
+    else:
+        exp_iOmega = 1.0 + 0j
+    if g_val > 0:
+        zeta_mean = p2_val + 1j * p1_val  # g * exp(i*Psi)
+        w_val = zeta_mean / (g_val * exp_iOmega)  # exp(i*omega)
+    else:
+        w_val = 1.0 + 0j
+
+    phi = np.arctan2(q_val * F_val.imag, 1.0 + q_val * F_val.real)
+
+    dp1 = dp2 = dq1 = dq2 = dM_total = 0.0
+
+    for n, jn_val in sorted(j_coeffs.items()):
+        scale = jn_val * (re_val / a_val) ** n
+
+        eqnoc = _lambdified_equinoctial_expressions(n)
+        eqnoc_log = _lambdified_equinoctial_log_coefficients(n)
+
+        if eqnoc is not None:
+            # Zeta channel -> dp1, dp2
+            if "zeta" in eqnoc:
+                dzeta_red = 0.0j
+                for m_val, func in eqnoc["zeta"].items():
+                    dzeta_red += complex(func(q_val, Q_val, F_val)) * (w_val ** m_val)
+                if "zeta" in eqnoc_log:
+                    for m_val, c_log_func in eqnoc_log["zeta"].items():
+                        dzeta_red += complex(c_log_func(q_val, Q_val)) * phi * (w_val ** m_val)
+                dzeta = scale * dzeta_red * exp_iOmega
+                dp1 += dzeta.imag
+                dp2 += dzeta.real
+
+            # Eta channel -> dq1, dq2
+            if "eta" in eqnoc:
+                deta_red = 0.0j
+                for m_val, func in eqnoc["eta"].items():
+                    deta_red += complex(func(q_val, Q_val, F_val)) * (w_val ** m_val)
+                if "eta" in eqnoc_log:
+                    for m_val, c_log_func in eqnoc_log["eta"].items():
+                        deta_red += complex(c_log_func(q_val, Q_val)) * phi * (w_val ** m_val)
+                deta = scale * deta_red * exp_iOmega
+                dq1 += deta.imag
+                dq2 += deta.real
+
+        # M channel: reuse polar route (no polar singularity in M)
+        polar_M = _lambdified_short_period_expressions(n).get("M", {})
+        polar_M_log = _lambdified_log_coefficients(n).get("M", {})
+        dM_contrib = 0.0j
+        for m_val, func in polar_M.items():
+            dM_contrib += complex(func(q_val, Q_val, F_val)) * (w_val ** m_val)
+        for m_val, c_log_func in polar_M_log.items():
+            dM_contrib += complex(c_log_func(q_val, Q_val)) * phi * (w_val ** m_val)
+        dM_total += scale * float(dM_contrib.real)
+
+    return {"dp1": dp1, "dp2": dp2, "dq1": dq1, "dq2": dq2, "dM": dM_total}
 
 
 def evaluate_isolated_degree_mean_rates(
@@ -784,6 +944,177 @@ def mean_to_osculating_state(
     K_osc = float(solve_kepler_gen(L_osc, p1_osc, p2_osc))
 
     return np.array([nu_val, p1_osc, p2_osc, K_osc, q1_osc, q2_osc], dtype=float)
+
+
+# --------------------------------------------------------------------------- #
+#  Equinoctial (singularity-free) mean <-> osculating transformations
+# --------------------------------------------------------------------------- #
+
+def osculating_to_mean_state_equinoctial(
+    state_osc: np.ndarray,
+    j_coeffs: dict[int, float],
+    re_val: float = RE,
+    mu_val: float = MU,
+) -> np.ndarray:
+    """Osculating -> mean using equinoctial SP (singularity-free at g=0, Q=0)."""
+    nu_val, p1_val, p2_val, K_val, q1_val, q2_val = map(float, state_osc)
+    g_val = float(np.hypot(p1_val, p2_val))
+    Psi_val = float(np.arctan2(p1_val, p2_val))
+    M_val = float(K_to_L(K_val, p1_val, p2_val) - Psi_val)
+    G_val = float(K_val - Psi_val)
+
+    corr = evaluate_equinoctial_short_period(
+        nu_val, p1_val, p2_val, q1_val, q2_val, G_val,
+        j_coeffs, re_val, mu_val,
+    )
+
+    p1_mean = p1_val - corr["dp1"]
+    p2_mean = p2_val - corr["dp2"]
+    q1_mean = q1_val - corr["dq1"]
+    q2_mean = q2_val - corr["dq2"]
+    M_mean = M_val - corr["dM"]
+
+    return np.array([nu_val, p1_mean, p2_mean, M_mean, q1_mean, q2_mean], dtype=float)
+
+
+def mean_to_osculating_state_equinoctial(
+    state_mean: np.ndarray,
+    j_coeffs: dict[int, float],
+    re_val: float = RE,
+    mu_val: float = MU,
+) -> np.ndarray:
+    """Mean -> osculating using equinoctial SP (singularity-free at g=0, Q=0)."""
+    nu_val, p1_val, p2_val, M_val, q1_val, q2_val = map(float, state_mean)
+    Psi_val = float(np.arctan2(p1_val, p2_val))
+    L_mean = Psi_val + M_val
+    K_mean = float(solve_kepler_gen(L_mean, p1_val, p2_val))
+    G_mean = float(K_mean - Psi_val)
+
+    corr = evaluate_equinoctial_short_period(
+        nu_val, p1_val, p2_val, q1_val, q2_val, G_mean,
+        j_coeffs, re_val, mu_val,
+    )
+
+    p1_osc = p1_val + corr["dp1"]
+    p2_osc = p2_val + corr["dp2"]
+    q1_osc = q1_val + corr["dq1"]
+    q2_osc = q2_val + corr["dq2"]
+    M_osc = M_val + corr["dM"]
+
+    Psi_osc = np.arctan2(p1_osc, p2_osc)
+    L_osc = Psi_osc + M_osc
+    K_osc = float(solve_kepler_gen(L_osc, p1_osc, p2_osc))
+
+    return np.array([nu_val, p1_osc, p2_osc, K_osc, q1_osc, q2_osc], dtype=float)
+
+
+def mean_to_osculating_state_equinoctial_batch(
+    mean_states: np.ndarray,
+    j_coeffs: dict[int, float],
+    re_val: float = RE,
+    mu_val: float = MU,
+) -> np.ndarray:
+    """Vectorized mean -> osculating using equinoctial SP.
+
+    Parameters
+    ----------
+    mean_states : (N, 6) array of [nu, p1, p2, M, q1, q2]
+    j_coeffs : {degree: Jn_value}
+
+    Returns
+    -------
+    (N, 6) array of osculating [nu, p1, p2, K, q1, q2]
+    """
+    N = len(mean_states)
+    nu_arr = mean_states[:, 0]
+    p1_arr = mean_states[:, 1]
+    p2_arr = mean_states[:, 2]
+    M_arr = mean_states[:, 3]
+    q1_arr = mean_states[:, 4]
+    q2_arr = mean_states[:, 5]
+
+    g_arr = np.hypot(p1_arr, p2_arr)
+    Q_arr = np.hypot(q1_arr, q2_arr)
+    Psi_arr = np.arctan2(p1_arr, p2_arr)
+
+    L_mean = Psi_arr + M_arr
+    K_mean = solve_kepler_gen(L_mean, p1_arr, p2_arr)
+    G_mean = K_mean - Psi_arr
+
+    q_arr = _q_from_g_arr(g_arr)
+    F_arr = _complex_f_from_g_arr(g_arr, G_mean)
+    a_arr = (mu_val / (nu_arr * nu_arr)) ** (1.0 / 3.0)
+
+    # Compute exp(i*Omega) and w from Cartesian components (no atan2)
+    Q_safe = np.where(Q_arr > 0, Q_arr, 1.0)
+    exp_iOmega = (q2_arr + 1j * q1_arr) / Q_safe
+    g_safe = np.where(g_arr > 0, g_arr, 1.0)
+    zeta_mean = p2_arr + 1j * p1_arr
+    w_arr = zeta_mean / (g_safe * exp_iOmega)
+    # Fix degenerate cases
+    w_arr = np.where(g_arr > 0, w_arr, 1.0 + 0j)
+    exp_iOmega = np.where(Q_arr > 0, exp_iOmega, 1.0 + 0j)
+
+    phi_arr = np.arctan2(q_arr * np.imag(F_arr), 1.0 + q_arr * np.real(F_arr))
+
+    dp1 = np.zeros(N)
+    dp2 = np.zeros(N)
+    dq1 = np.zeros(N)
+    dq2 = np.zeros(N)
+    dM = np.zeros(N)
+
+    for n, jn_val in sorted(j_coeffs.items()):
+        scale_arr = jn_val * (re_val / a_arr) ** n
+
+        eqnoc = _lambdified_equinoctial_expressions(n)
+        eqnoc_log = _lambdified_equinoctial_log_coefficients(n)
+
+        if eqnoc is not None:
+            # Zeta channel
+            if "zeta" in eqnoc:
+                dzeta_red = np.zeros(N, dtype=complex)
+                for m_val, func in eqnoc["zeta"].items():
+                    dzeta_red += func(q_arr, Q_arr, F_arr) * (w_arr ** m_val)
+                if "zeta" in eqnoc_log:
+                    for m_val, c_log_func in eqnoc_log["zeta"].items():
+                        dzeta_red += c_log_func(q_arr, Q_arr) * phi_arr * (w_arr ** m_val)
+                dzeta = scale_arr * dzeta_red * exp_iOmega
+                dp1 += np.imag(dzeta)
+                dp2 += np.real(dzeta)
+
+            # Eta channel
+            if "eta" in eqnoc:
+                deta_red = np.zeros(N, dtype=complex)
+                for m_val, func in eqnoc["eta"].items():
+                    deta_red += func(q_arr, Q_arr, F_arr) * (w_arr ** m_val)
+                if "eta" in eqnoc_log:
+                    for m_val, c_log_func in eqnoc_log["eta"].items():
+                        deta_red += c_log_func(q_arr, Q_arr) * phi_arr * (w_arr ** m_val)
+                deta = scale_arr * deta_red * exp_iOmega
+                dq1 += np.imag(deta)
+                dq2 += np.real(deta)
+
+        # M channel: polar route
+        polar_M = _lambdified_short_period_expressions(n).get("M", {})
+        polar_M_log = _lambdified_log_coefficients(n).get("M", {})
+        dM_c = np.zeros(N, dtype=complex)
+        for m_val, func in polar_M.items():
+            dM_c += func(q_arr, Q_arr, F_arr) * (w_arr ** m_val)
+        for m_val, c_log_func in polar_M_log.items():
+            dM_c += c_log_func(q_arr, Q_arr) * phi_arr * (w_arr ** m_val)
+        dM += scale_arr * np.real(dM_c)
+
+    p1_osc = p1_arr + dp1
+    p2_osc = p2_arr + dp2
+    q1_osc = q1_arr + dq1
+    q2_osc = q2_arr + dq2
+    M_osc = M_arr + dM
+
+    Psi_osc = np.arctan2(p1_osc, p2_osc)
+    L_osc = Psi_osc + M_osc
+    K_osc = solve_kepler_gen(L_osc, p1_osc, p2_osc)
+
+    return np.column_stack([nu_arr, p1_osc, p2_osc, K_osc, q1_osc, q2_osc])
 
 
 # --------------------------------------------------------------------------- #
