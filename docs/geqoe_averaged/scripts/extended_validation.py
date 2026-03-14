@@ -159,12 +159,13 @@ def _init_orekit():
     try:
         import orekit
         orekit.initVM()
-        from orekit.pyhelpers import setup_orekit_curdir
-        import os
-        orig = os.getcwd()
-        os.chdir(str(REPO_ROOT))
-        setup_orekit_curdir()
-        os.chdir(orig)
+        from org.orekit.data import DataContext, ZipJarCrawler
+        import java
+        zip_path = REPO_ROOT / "orekit-data.zip"
+        if not zip_path.exists():
+            raise FileNotFoundError(f"orekit-data.zip not found at {zip_path}")
+        crawler = ZipJarCrawler(java.io.File(str(zip_path)))
+        DataContext.getDefault().getDataProvidersManager().addProvider(crawler)
         _OREKIT_AVAILABLE = True
     except Exception as exc:
         print(f"  [WARN] Orekit not available: {exc}")
@@ -911,7 +912,11 @@ def create_figures(results):
         ax.set_xticks(x)
         ax.set_xticklabels(names, rotation=45, ha="right", fontsize=8)
         ax.set_ylabel("Position RMS error [km]")
-        ax.set_yscale("log")
+        # Only use log scale if there are positive values to display
+        all_vals = [v for v in geqoe_vals + dsst_vals + brouwer_vals
+                    if np.isfinite(v) and v > 0]
+        if all_vals:
+            ax.set_yscale("log")
         ax.legend()
         ax.grid(True, alpha=0.3, which="both")
         fig.tight_layout()
@@ -946,8 +951,12 @@ def create_figures(results):
         ax.scatter([], [], marker=m, color=c, s=40, label=label)
     ax.set_xlabel("Wall-clock time [s]")
     ax.set_ylabel("Position RMS error [km]")
-    ax.set_xscale("log")
-    ax.set_yscale("log")
+    # Guard against empty data (all DSST/Brouwer failed)
+    try:
+        ax.set_xscale("log")
+        ax.set_yscale("log")
+    except ValueError:
+        pass  # no positive data to log-scale
     ax.legend()
     ax.grid(True, alpha=0.3, which="both")
     ax.set_title("Cost-accuracy Pareto frontier")
@@ -1016,7 +1025,10 @@ def create_figures(results):
         ax.set_xticks(x)
         ax.set_xticklabels(x_labels, fontsize=9)
         ax.set_ylabel("Position RMS error [km]")
-        ax.set_yscale("log")
+        all_bar = [v for vs in bar_data.values() for v in vs
+                   if np.isfinite(v) and v > 0]
+        if all_bar:
+            ax.set_yscale("log")
         ax.legend()
         ax.grid(True, alpha=0.3, which="both")
         ax.set_title("Eccentricity power convergence (high-e cases)")
