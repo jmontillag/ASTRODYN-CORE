@@ -450,6 +450,21 @@ def _load_short_data() -> dict:
     raise RuntimeError("SHORT_DATA not found")
 
 
+def _load_log_data() -> dict:
+    """Load LOG_DATA from generated_coefficients.py via AST.
+
+    Returns empty dict if LOG_DATA is not present.
+    """
+    data_file = Path(__file__).resolve().parent / "generated_coefficients.py"
+    tree = ast.parse(data_file.read_text())
+    for node in tree.body:
+        if (isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id == "LOG_DATA"):
+            return ast.literal_eval(node.value)
+    return {}
+
+
 def _complex_mul(a_re, a_im, b_re, b_im):
     """Complex multiply (a_re + i*a_im) * (b_re + i*b_im).
 
@@ -731,8 +746,60 @@ def build_sp_cfunc():
                     print(f"    SP cfunc: n={n}, {variable:6s}, m={m:+2d}: "
                           f"{dt:.1f}s [{n_terms}/{n_total}]")
 
+    # --- Log term contributions ---
+    log_data = _load_log_data()
+    n_log_terms = 0
+    if log_data:
+        # φ = arctan2(q * sin(f), 1 + q * cos(f))
+        phi_hy = hy.atan2(q_var * sin_f_tab[1], 1.0 + q_var * cos_f_tab[1])
+
+        for n_key in sorted(log_data.keys(), key=int):
+            n = int(n_key)
+            var_map_n = log_data[n_key]
+
+            for variable in ("g", "Q", "Psi", "Omega", "M"):
+                coeffs = var_map_n.get(variable, {})
+                rate_key = "Q_rate" if variable == "Q" else variable
+
+                for m_str, expr_str in coeffs.items():
+                    m = int(m_str)
+                    c_sp = sp.sympify(expr_str, locals=_sympify_locals)
+                    if c_sp == 0:
+                        continue
+
+                    # C_log is a function of (q, Q) only — no F dependence.
+                    # Split into real and imaginary parts.
+                    c_re_sp = sp.re(c_sp)
+                    c_im_sp = sp.im(c_sp)
+
+                    c_re_hy = (_sympy_to_heyoka(c_re_sp, var_map)
+                               if c_re_sp != 0 else None)
+                    c_im_hy = (_sympy_to_heyoka(c_im_sp, var_map)
+                               if c_im_sp != 0 else None)
+
+                    # Re[C_log * phi * w^m]
+                    abs_m = abs(m)
+                    cos_mw = cos_m_tab[abs_m]
+                    sin_mw = sin_m_tab[abs_m]
+                    if m < 0 and abs_m > 0:
+                        sin_mw = -1.0 * sin_mw
+
+                    contrib = None
+                    if c_re_hy is not None:
+                        contrib = c_re_hy * cos_mw
+                    if c_im_hy is not None:
+                        sub = c_im_hy * sin_mw
+                        contrib = (contrib - sub) if contrib is not None else (-1.0 * sub)
+
+                    if contrib is not None:
+                        rates[rate_key] = rates[rate_key] + s_hy[n] * contrib * phi_hy
+                        n_log_terms += 1
+
+        if n_log_terms > 0:
+            print(f"  SP cfunc: added {n_log_terms} log terms")
+
     t_build = time.time() - t_start
-    print(f"  SP cfunc: built {n_terms} terms in {t_build:.1f}s, compiling...")
+    print(f"  SP cfunc: built {n_terms}+{n_log_terms} terms in {t_build:.1f}s, compiling...")
 
     # --- Compile ---
     t_compile_start = time.time()

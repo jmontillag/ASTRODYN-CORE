@@ -89,7 +89,7 @@ def evaluate_log_and_rational_sp(var, n, m_val, q_val, Q_val, K_grid):
     mean_coeff = mc.get(m_val, sp.Integer(0))
 
     # Rational SP (what the code computes)
-    u1_expr = integrate_harmonic_residue(raw_by_k, mean_coeff)
+    u1_expr, _c_log = integrate_harmonic_residue(raw_by_k, mean_coeff)
 
     # E1 for the log correction
     E1_expr = compute_E1(var, n, m_val)

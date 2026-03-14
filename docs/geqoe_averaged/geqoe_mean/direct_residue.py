@@ -197,7 +197,7 @@ def _mean_of_structural_result(
 
 def integrate_harmonic_residue(
     raw_by_k: dict[int, sp.Expr], mean_coeff: sp.Expr
-) -> sp.Expr:
+) -> tuple[sp.Expr, sp.Expr | None]:
     """Solve the homological equation for one w-harmonic by direct residues.
 
     The integrand is:
@@ -209,15 +209,17 @@ def integrate_harmonic_residue(
     - Poles at F=0:  E_j from Taylor of χ = N_rem/[(F+q)^2(1+qF)^2]
     - Polynomial part from long division
 
-    The periodic antiderivative (dropping all log terms which cancel) is:
-        Q_int(F) - B/(F+q) - D/(q(1+qF)) - Σ_{j≥2} E_j/((j-1)F^{j-1})
+    Returns (u1_rational, C_log) where:
+    - u1_rational: the rational periodic antiderivative
+    - C_log: coefficient such that u1_full = u1_rational + C_log * arctan2(q*Im(F), 1+q*Re(F)),
+             or None if the harmonic has no log contribution (zero-mean harmonics).
     """
     if not raw_by_k:
-        return sp.Integer(0)
+        return sp.Integer(0), None
 
     N_poly, shift = _build_combined_numerator(raw_by_k, mean_coeff)
     if N_poly == 0:
-        return sp.Integer(0)
+        return sp.Integer(0), None
 
     scale = -I * (1 - q**2) ** 3 / (1 + q**2)
 
@@ -262,15 +264,16 @@ def integrate_harmonic_residue(
     m1q_pq_sq = ((-sp.Integer(1) / q) + q) ** 2  # = ((q^2-1)/q)^2
     D = _fast_cancel(N_rem_at_m1q / (m1q_s * m1q_pq_sq))
 
-    # --- Step 4: Residues at F = 0 (for shift >= 2) ---
+    # --- Step 4: Residues at F = 0 (for shift >= 1) ---
     # χ(F) = N_rem / [(F+q)^2 * (1+qF)^2]
     # E_j = χ^{(s-j)}(0) / (s-j)!  for j = 1, ..., s
-    # We only need j >= 2 (j=1 gives log(F), which cancels)
+    # j=1 gives E₁ (log coefficient); j≥2 give the periodic pole terms
     chi_numer = N_rem
     chi_denom = sp.expand((F + q) ** 2 * (1 + q * F) ** 2)
     E_periodic = {}  # j -> E_j for j >= 2
+    E1 = sp.Integer(0)
 
-    if shift >= 2:
+    if shift >= 1:
         # We need Taylor coefficients of χ(F) = chi_numer/chi_denom at F=0
         # χ(F) = Σ c_k F^k, and E_j = c_{s-j}
         # Compute via repeated differentiation
@@ -285,13 +288,13 @@ def integrate_harmonic_residue(
         # So E_j = χ^{(s-j)}(0) / (s-j)!
         #
         # For efficiency, compute the Taylor series of χ(F) = chi_numer/chi_denom
-        # up to order s-2 (since we need E_2, ..., E_s, i.e., derivatives 0, ..., s-2).
+        # up to order s-1 (for E₁ at j=1, plus E_2, ..., E_s).
         #
         # Use: if χ = P/Q, then P = Q * χ, so Taylor coefficients of χ can be
         # computed by solving P_k = Σ_{j=0}^{k} Q_j χ_{k-j} for each k.
 
-        # Get Taylor coefficients of P and Q up to order s-2
-        max_order = shift - 2  # highest derivative order needed (for j=2: order s-2)
+        # Get Taylor coefficients of P and Q up to order s-1
+        max_order = shift - 1  # highest order needed (for j=1: order s-1)
 
         # Taylor coefficients of chi_numer (it's a polynomial)
         P_coeffs = {}
@@ -317,11 +320,22 @@ def integrate_harmonic_residue(
                     val -= qj * chi_taylor[k - j]
             chi_taylor[k] = _fast_cancel(val * Q_0_inv)
 
-        # E_j = χ^{(s-j)}(0) / (s-j)! = chi_taylor[s-j]  (Taylor coeff = deriv/factorial)
+        # E₁ = chi_taylor[s-1] (log coefficient at F=0)
+        E1_raw = chi_taylor.get(shift - 1, sp.Integer(0))
+        if E1_raw != 0:
+            E1 = _fast_cancel(E1_raw)
+
+        # E_j for j >= 2 (periodic pole terms)
         for j in range(2, shift + 1):
             order = shift - j
             if order in chi_taylor and chi_taylor[order] != 0:
                 E_periodic[j] = chi_taylor[order]
+
+    # --- Log coefficient ---
+    # C_log = 2(1-q²)³/(1+q²) · E₁, the coefficient of arctan2(q·Im(F), 1+q·Re(F))
+    C_log = None
+    if mean_coeff != 0 and E1 != 0:
+        C_log = _fast_cancel(2 * (1 - q**2)**3 / (1 + q**2) * E1)
 
     # --- Step 5: Assemble the periodic antiderivative ---
     # P_per(F) = scale * [Q_int(F) - B/(F+q) - D/(q(1+qF)) - Σ E_j/((j-1)F^{j-1})]
@@ -366,26 +380,98 @@ def integrate_harmonic_residue(
     numer_scaled = _scale_polynomial_coeffwise(numer, scale)
 
     # Build canonical denominator (also with scale absorbed where needed)
-    return numer_scaled / cd
+    return numer_scaled / cd, C_log
 
 
-def compute_short_period_direct(variable: str, n: int) -> HarmonicExpr:
-    """Compute isolated-degree short-period expressions using the direct method."""
+def compute_log_coefficient(
+    raw_by_k: dict[int, sp.Expr], mean_coeff: sp.Expr
+) -> sp.Expr | None:
+    """Compute just the log-term coefficient C_log for one harmonic.
+
+    Lighter than integrate_harmonic_residue: only computes the Taylor
+    recurrence for E₁ without assembling the full rational antiderivative.
+
+    Returns C_log such that:
+        u1_full = u1_rational + C_log * arctan2(q*Im(F), 1+q*Re(F))
+    Returns None if the harmonic has no log contribution.
+    """
+    if not raw_by_k or mean_coeff == 0:
+        return None
+
+    N_poly, shift = _build_combined_numerator(raw_by_k, mean_coeff)
+    if N_poly == 0 or shift < 1:
+        return None
+
+    # Polynomial long division to get N_rem
+    denom_expr = sp.expand(F ** shift * (F + q) ** 2 * (1 + q * F) ** 2)
+    N_sp = sp.Poly(N_poly, F)
+    denom_sp = sp.Poly(denom_expr, F)
+
+    if N_sp.degree() >= denom_sp.degree():
+        _, N_rem_poly = sp.div(N_sp, denom_sp)
+        N_rem = sp.expand(N_rem_poly.as_expr())
+    else:
+        N_rem = sp.expand(N_poly)
+
+    # Taylor coefficients of χ(F) = N_rem / [(F+q)^2 * (1+qF)^2]
+    chi_denom = sp.expand((F + q) ** 2 * (1 + q * F) ** 2)
+
+    chi_numer_poly = (sp.Poly(N_rem, F) if N_rem.has(F)
+                      else sp.Poly(N_rem, F, domain="ZZ(q,Q)"))
+    P_coeffs = {power: coeff for (power,), coeff in chi_numer_poly.terms()}
+
+    chi_denom_poly = sp.Poly(chi_denom, F)
+    Q_coeffs = {power: coeff for (power,), coeff in chi_denom_poly.terms()}
+
+    Q_0 = Q_coeffs.get(0, sp.Integer(0))
+    Q_0_inv = sp.Rational(1, 1) / Q_0
+
+    max_order = shift - 1
+    chi_taylor: dict[int, sp.Expr] = {}
+    for k in range(max_order + 1):
+        val = P_coeffs.get(k, sp.Integer(0))
+        for j in range(1, k + 1):
+            qj = Q_coeffs.get(j, sp.Integer(0))
+            if qj != 0 and (k - j) in chi_taylor:
+                val -= qj * chi_taylor[k - j]
+        chi_taylor[k] = _fast_cancel(val * Q_0_inv)
+
+    E1 = chi_taylor.get(shift - 1, sp.Integer(0))
+    if E1 == 0:
+        return None
+
+    return _fast_cancel(2 * (1 - q**2)**3 / (1 + q**2) * E1)
+
+
+def compute_short_period_direct(
+    variable: str, n: int
+) -> tuple[HarmonicExpr, dict[int, sp.Expr]]:
+    """Compute isolated-degree short-period expressions using the direct method.
+
+    Returns (rational_exprs, log_coeffs) where:
+    - rational_exprs: dict mapping m -> rational SP expression
+    - log_coeffs: dict mapping m -> C_log coefficient (only for secular-rate harmonics)
+    """
     raw = dimensionless_rate_series(variable, n)
     mean_coeffs = _mean_rate_from_raw_series(raw)
     solved: HarmonicExpr = {}
+    log_data: dict[int, sp.Expr] = {}
     for m_val, raw_by_k in _series_by_m(raw).items():
         t0 = time.time()
-        solved[m_val] = integrate_harmonic_residue(
+        rational, c_log = integrate_harmonic_residue(
             raw_by_k, mean_coeffs.get(m_val, sp.Integer(0))
         )
+        solved[m_val] = rational
+        if c_log is not None:
+            log_data[m_val] = c_log
         dt = time.time() - t0
         print(f"    harmonic m={m_val:+d}: {dt:.2f}s", flush=True)
     # Do NOT call _clean here: integrate_harmonic_residue already simplifies each
     # structural term individually.  Calling _clean (sp.together + sp.cancel) would
     # try to combine all terms over a common denominator, which is catastrophically
     # slow for higher zonal degrees.
-    return {m_val: expr for m_val, expr in solved.items() if expr != 0}
+    rational_out = {m_val: expr for m_val, expr in solved.items() if expr != 0}
+    return rational_out, log_data
 
 
 # ---------------------------------------------------------------------------
@@ -417,7 +503,7 @@ def validate_j2_against_cache() -> bool:
             continue
 
         t0 = time.time()
-        direct = compute_short_period_direct(variable, 2)
+        direct, _ = compute_short_period_direct(variable, 2)
         dt = time.time() - t0
         print(f"  Total: {dt:.3f} s")
 
@@ -438,22 +524,30 @@ def generate_all_degrees() -> None:
     print("=" * 70)
 
     results: dict[int, dict[str, HarmonicExpr]] = {}
+    log_results: dict[int, dict[str, dict[int, sp.Expr]]] = {}
 
     for n in (2, 3, 4, 5):
         results[n] = {}
+        log_results[n] = {}
         for variable in ("g", "Q", "Psi", "Omega", "M"):
             print(f"\n  n={n} {variable}:", flush=True)
             t0 = time.time()
-            expr = compute_short_period_direct(variable, n)
+            expr, log_data = compute_short_period_direct(variable, n)
             dt = time.time() - t0
             results[n][variable] = expr
+            if log_data:
+                log_results[n][variable] = log_data
             n_harmonics = len(expr)
-            print(f"  => {dt:.2f}s total  ({n_harmonics} harmonics)")
+            n_log = len(log_data)
+            print(f"  => {dt:.2f}s total  ({n_harmonics} harmonics, {n_log} log terms)")
 
-    return results
+    return results, log_results
 
 
-def write_generated_data(results: dict[int, dict[str, HarmonicExpr]]) -> None:
+def write_generated_data(
+    results: dict[int, dict[str, HarmonicExpr]],
+    log_results: dict[int, dict[str, dict[int, sp.Expr]]] | None = None,
+) -> None:
     """Write the generated short-period data to the cache file."""
     from .short_period import (
         _compute_isolated_mean_laurent_coefficients,
@@ -461,7 +555,7 @@ def write_generated_data(results: dict[int, dict[str, HarmonicExpr]]) -> None:
         _persist_generated_tables,
     )
 
-    mean_data, short_data = _load_generated_tables()
+    mean_data, short_data, log_data = _load_generated_tables()
 
     for n, var_exprs in results.items():
         if n not in mean_data or not mean_data[n]:
@@ -480,7 +574,16 @@ def write_generated_data(results: dict[int, dict[str, HarmonicExpr]]) -> None:
                 m_val: str(_clean(expr)) for m_val, expr in sorted(exprs.items())
             }
 
-    _persist_generated_tables(mean_data, short_data)
+    if log_results:
+        for n, var_logs in log_results.items():
+            if n not in log_data:
+                log_data[n] = {}
+            for variable, logs in var_logs.items():
+                log_data[n][variable] = {
+                    m_val: str(expr) for m_val, expr in sorted(logs.items())
+                }
+
+    _persist_generated_tables(mean_data, short_data, log_data)
     print(f"  Wrote generated data")
 
 
@@ -510,7 +613,7 @@ def numerical_spot_check() -> None:
     scale_num = J2 * (RE / a_val) ** 2
 
     for variable in ("g", "Q", "Psi", "Omega", "M"):
-        direct_exprs = compute_short_period_direct(variable, 2)
+        direct_exprs, _ = compute_short_period_direct(variable, 2)
         total = 0.0j
         for m_val, expr in direct_exprs.items():
             func = sp.lambdify((q, Q, F), expr, "numpy")
@@ -541,8 +644,8 @@ def main() -> None:
         return
 
     if args.generate:
-        results = generate_all_degrees()
-        write_generated_data(results)
+        results, log_results = generate_all_degrees()
+        write_generated_data(results, log_results)
         return
 
     # Default: validate then spot-check

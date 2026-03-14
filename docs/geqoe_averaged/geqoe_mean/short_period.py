@@ -61,6 +61,11 @@ except ImportError:
     _MEAN_DATA_STR = {}
     _SHORT_DATA_STR = {}
 
+try:
+    from .generated_coefficients import LOG_DATA as _LOG_DATA_STR
+except ImportError:
+    _LOG_DATA_STR = {}
+
 # Stage C.2: heyoka cfunc fast path for short-period corrections
 try:
     from .heyoka_compiled import get_sp_cfunc as _get_sp_cfunc
@@ -289,14 +294,15 @@ def _compute_isolated_short_period_expressions(variable: str, n: int) -> Harmoni
     # Use the direct residue method which avoids log-term crashes and
     # expression swell from the term-by-term ratint approach.
     try:
-        from short_period_direct import integrate_harmonic_residue
+        from .direct_residue import integrate_harmonic_residue
         raw = dimensionless_rate_series(variable, n)
         mean_coeffs = _mean_rate_from_raw_series(raw)
         solved: HarmonicExpr = {}
         for m_val, raw_by_k in _series_by_m(raw).items():
-            solved[m_val] = integrate_harmonic_residue(
+            rational, _c_log = integrate_harmonic_residue(
                 raw_by_k, mean_coeffs.get(m_val, sp.Integer(0))
             )
+            solved[m_val] = rational
         # Skip _clean: integrate_harmonic_residue already simplifies each term.
         # Calling _clean (sp.together + sp.cancel) would combine all structural
         # terms over a common denominator, which is catastrophically slow for
@@ -463,6 +469,27 @@ def _lambdified_short_period_expressions(n: int) -> dict[str, dict[int, object]]
     }
 
 
+@lru_cache(maxsize=None)
+def _lambdified_log_coefficients(n: int) -> dict[str, dict[int, object]]:
+    """Parse and lambdify log coefficients from LOG_DATA for degree n."""
+    raw_n = _LOG_DATA_STR.get(n)
+    if raw_n is None:
+        return {}
+    out: dict[str, dict[int, object]] = {}
+    for variable in ("g", "Q", "Psi", "Omega", "M"):
+        raw_var = raw_n.get(variable)
+        if not raw_var:
+            continue
+        funcs = {}
+        for m_str, expr_str in raw_var.items():
+            c_sp = sp.sympify(expr_str, locals=_SYMPIFY_LOCALS)
+            if c_sp != 0:
+                funcs[int(m_str)] = sp.lambdify((q, Q), c_sp, "numpy")
+        if funcs:
+            out[variable] = funcs
+    return out
+
+
 def _complex_f_from_g(g_val: float, G_val: float) -> complex:
     q_val = q_from_g(g_val)
     z_val = np.exp(1j * G_val)
@@ -508,12 +535,20 @@ def evaluate_isolated_degree_short_period(
     F_val = _complex_f_from_g(g_val, G_val)
     w_val = np.exp(1j * omega_val)
     coeffs = _lambdified_short_period_expressions(n)
+    log_coeffs = _lambdified_log_coefficients(n)
+
+    # φ = arctan2(q·Im(F), 1 + q·Re(F)) — shared by all log contributions
+    phi = np.arctan2(q_val * F_val.imag, 1.0 + q_val * F_val.real)
 
     out = {}
     for variable in ("g", "Q", "Psi", "Omega", "M"):
         total = 0.0j
         for m_val, func in coeffs[variable].items():
             total += complex(func(q_val, Q_val, F_val)) * (w_val**m_val)
+        # Add log contributions
+        if variable in log_coeffs:
+            for m_val, c_log_func in log_coeffs[variable].items():
+                total += complex(c_log_func(q_val, Q_val)) * phi * (w_val ** m_val)
         out[f"d{variable}"] = float((scale * total).real)
     return out
 
@@ -842,14 +877,22 @@ def evaluate_truncated_short_period_batch(
     w_arr = np.exp(1j * omega_arr)
     a_arr = (mu_val / (nu_arr * nu_arr)) ** (1.0 / 3.0)
 
+    # φ for log terms (shared across all degrees)
+    phi_arr = np.arctan2(q_arr * np.imag(F_arr), 1.0 + q_arr * np.real(F_arr))
+
     for n, jn_val in sorted(j_coeffs.items()):
         scale_arr = jn_val * (re_val / a_arr) ** n
         coeffs = _lambdified_short_period_expressions(n)
+        log_coeffs = _lambdified_log_coefficients(n)
 
         for variable in ("g", "Q", "Psi", "Omega", "M"):
             total = np.zeros(N, dtype=complex)
             for m_val, func in coeffs[variable].items():
                 total += func(q_arr, Q_arr, F_arr) * (w_arr ** m_val)
+            # Add log contributions
+            if variable in log_coeffs:
+                for m_val, c_log_func in log_coeffs[variable].items():
+                    total += c_log_func(q_arr, Q_arr) * phi_arr * (w_arr ** m_val)
             results[f"d{variable}"] += scale_arr * total.real
 
     return results
@@ -921,6 +964,7 @@ def _sorted_degree_keys(data: dict[int, object]) -> list[int]:
 def _serialize_generated_file(
     mean_data: dict[int, dict[str, dict[int, str]]],
     short_data: dict[int, dict[str, dict[int, str]]],
+    log_data: dict[int, dict[str, dict[int, str]]] | None = None,
 ) -> str:
     lines = ['"""Generated exact mixed-zonal short-period coefficients."""', "", "MEAN_DATA = {"]
     for n in _sorted_degree_keys(mean_data):
@@ -943,6 +987,20 @@ def _serialize_generated_file(
             lines.append("        },")
         lines.append("    },")
     lines.extend(["}", ""])
+    if log_data:
+        lines.append("LOG_DATA = {")
+        for n in _sorted_degree_keys(log_data):
+            lines.append(f"    {n}: {{")
+            for variable in ("g", "Q", "Psi", "Omega", "M"):
+                coeffs = log_data[n].get(variable, {})
+                if not coeffs:
+                    continue
+                lines.append(f'        "{variable}": {{')
+                for m_val in sorted(int(key) for key in coeffs):
+                    lines.append(f'            "{m_val}": {coeffs[m_val]!r},')
+                lines.append("        },")
+            lines.append("    },")
+        lines.extend(["}", ""])
     return "\n".join(lines)
 
 
@@ -956,29 +1014,37 @@ def _copy_generated_table(table: dict[int, dict[str, dict[str, str]]]) -> dict[i
     return out
 
 
-def _load_generated_tables() -> tuple[dict[int, dict[str, dict[int, str]]], dict[int, dict[str, dict[int, str]]]]:
+def _load_generated_tables() -> tuple[
+    dict[int, dict[str, dict[int, str]]],
+    dict[int, dict[str, dict[int, str]]],
+    dict[int, dict[str, dict[int, str]]],
+]:
     mean_data = _copy_generated_table(_MEAN_DATA_STR)
     short_data = _copy_generated_table(_SHORT_DATA_STR)
+    log_data = _copy_generated_table(_LOG_DATA_STR)
     if GENERATED_DATA.exists():
         module_ast = ast.parse(GENERATED_DATA.read_text())
         namespace: dict[str, object] = {}
         for node in module_ast.body:
             if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
                 name = node.targets[0].id
-                if name in {"MEAN_DATA", "SHORT_DATA"}:
+                if name in {"MEAN_DATA", "SHORT_DATA", "LOG_DATA"}:
                     namespace[name] = ast.literal_eval(node.value)
         if "MEAN_DATA" in namespace:
             mean_data = _copy_generated_table(namespace["MEAN_DATA"])
         if "SHORT_DATA" in namespace:
             short_data = _copy_generated_table(namespace["SHORT_DATA"])
-    return mean_data, short_data
+        if "LOG_DATA" in namespace:
+            log_data = _copy_generated_table(namespace["LOG_DATA"])
+    return mean_data, short_data, log_data
 
 
 def _persist_generated_tables(
     mean_data: dict[int, dict[str, dict[int, str]]],
     short_data: dict[int, dict[str, dict[int, str]]],
+    log_data: dict[int, dict[str, dict[int, str]]] | None = None,
 ) -> None:
-    GENERATED_DATA.write_text(_serialize_generated_file(mean_data, short_data))
+    GENERATED_DATA.write_text(_serialize_generated_file(mean_data, short_data, log_data))
 
 
 def write_generated_data(
@@ -986,7 +1052,7 @@ def write_generated_data(
     variables: tuple[str, ...] = ("g", "Q", "Psi", "Omega", "M"),
     resume: bool = True,
 ) -> None:
-    mean_data, short_data = _load_generated_tables() if resume else ({}, {})
+    mean_data, short_data, log_data = _load_generated_tables() if resume else ({}, {}, {})
     selected_variables = tuple(variable for variable in ("g", "Q", "Psi", "Omega", "M") if variable in variables)
 
     for n in degrees:
@@ -1002,7 +1068,7 @@ def write_generated_data(
                 variable: {m_val: str(_clean(expr)) for m_val, expr in sorted(coeffs.items())}
                 for variable, coeffs in mean_coeffs.items()
             }
-            _persist_generated_tables(mean_data, short_data)
+            _persist_generated_tables(mean_data, short_data, log_data)
 
         for variable in selected_variables:
             if resume and short_data[n].get(variable):
@@ -1011,7 +1077,7 @@ def write_generated_data(
             print(f"[generated] short degree {n} variable {variable}", flush=True)
             coeffs = _compute_isolated_short_period_expressions(variable, n)
             short_data[n][variable] = {m_val: str(expr) for m_val, expr in sorted(coeffs.items())}
-            _persist_generated_tables(mean_data, short_data)
+            _persist_generated_tables(mean_data, short_data, log_data)
 
     print(f"Wrote {GENERATED_DATA}")
 

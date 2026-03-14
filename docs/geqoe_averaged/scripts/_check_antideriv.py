@@ -36,7 +36,7 @@ for var, m_val in [('g', 0), ('g', 2), ('Psi', 2), ('Psi', 0), ('Omega', 0), ('M
         continue
     raw_by_k = by_m[m_val]
     mean_coeff = mc.get(m_val, sp.Integer(0))
-    u1 = integrate_harmonic_residue(raw_by_k, mean_coeff)
+    u1, _c_log = integrate_harmonic_residue(raw_by_k, mean_coeff)
     N_poly, shift = _build_combined_numerator(raw_by_k, mean_coeff)
     scale = -sp.I * (1 - q**2)**3 / (1 + q**2)
     integrand = scale * N_poly / (F**shift * (F + q)**2 * (1 + q*F)**2)

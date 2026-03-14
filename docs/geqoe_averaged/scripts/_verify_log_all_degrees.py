@@ -183,7 +183,7 @@ def main():
 
                 # Derivative verification
                 scale = -sp.I * (1 - q**2)**3 / (1 + q**2)
-                u1 = integrate_harmonic_residue(info['raw_by_k'], info['mean_coeff'])
+                u1, _c_log = integrate_harmonic_residue(info['raw_by_k'], info['mean_coeff'])
                 N_poly, shift = _build_combined_numerator(info['raw_by_k'], info['mean_coeff'])
                 integrand = scale * N_poly / (F**shift * (F + q)**2 * (1 + q*F)**2)
                 du1_dF = sp.diff(u1, F)

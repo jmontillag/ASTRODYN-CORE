@@ -113,7 +113,7 @@ def verify_correction(var, n, m_val, test_points):
     mean_coeff = info['mean_coeff']
 
     # Compute u1 (code's rational antiderivative)
-    u1 = integrate_harmonic_residue(raw_by_k, mean_coeff)
+    u1, _c_log = integrate_harmonic_residue(raw_by_k, mean_coeff)
 
     # Build exact integrand
     N_poly, shift = _build_combined_numerator(raw_by_k, mean_coeff)
