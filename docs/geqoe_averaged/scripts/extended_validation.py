@@ -59,6 +59,8 @@ from geqoe_mean.short_period import (
     mean_to_osculating_state,
     mean_to_osculating_state_batch,
     osculating_to_mean_state,
+    osculating_to_mean_state_equinoctial,
+    mean_to_osculating_state_equinoctial_batch,
 )
 from geqoe_mean.batch_conversions import geqoe2cart_zonal_batch
 from geqoe_mean.validation import (
@@ -532,6 +534,24 @@ def run_single_case(case):
         result["geqoe_meansp"] = None
         result["geqoe_mean_only"] = None
 
+    # --- 3c. GEqOE equinoctial mean + SP ---
+    try:
+        _ensure_symbolic_cache(J_COEFFS)
+        state0_osc_eq = cart2geqoe(r0, v0, MU, pert)
+        mean0_eq = osculating_to_mean_state_equinoctial(state0_osc_eq, J_COEFFS, re_val=RE, mu_val=MU)
+        mean_hist_eq = rk4_integrate_mean(mean0_eq, t_grid, J_COEFFS, substeps=case.rk4_substeps)
+        osc_rec_eq = mean_to_osculating_state_equinoctial_batch(mean_hist_eq, J_COEFFS, re_val=RE, mu_val=MU)
+        eqnoc_cart, _ = geqoe2cart_zonal_batch(osc_rec_eq, MU, pert)
+        err_eqnoc = compute_errors(truth_cart, eqnoc_cart, "GEqOE-eqnoc+SP")
+        result["geqoe_eqnoc"] = err_eqnoc
+        print(f"  GEqOE-eqnoc:   "
+              f"pos RMS = {err_eqnoc['pos_rms_km']:.4f} km  "
+              f"rad RMS = {err_eqnoc['rad_rms_km']:.4f} km")
+    except Exception as exc:
+        print(f"  GEqOE-eqnoc FAILED: {exc}")
+        traceback.print_exc()
+        result["geqoe_eqnoc"] = None
+
     # Build Orekit orbit once for Brouwer + DSST
     orekit_orbit, epoch_ok, frame_ok = _build_orekit_orbit(case)
 
@@ -641,29 +661,31 @@ def run_single_case(case):
 # --------------------------------------------------------------------------- #
 
 def write_osculating_table(results, out_path):
-    """Table A: osculating comparison — GEqOE mean+SP vs DSST-osc vs Brouwer."""
+    """Table A: osculating comparison — GEqOE polar vs eqnoc vs DSST vs Brouwer."""
     lines = []
     lines.append(r"\begin{table}[ht]")
     lines.append(r"\centering")
     lines.append(r"\caption{Osculating position RMS error [km] against Cowell truth")
     lines.append(r"($J_2$--$J_5$ zonal, identical constants for all methods).")
-    lines.append(r"``pos'': 3D position; ``rad'': radial.}")
+    lines.append(r"``polar'': polar SP map; ``eqnoc'': equinoctial (singularity-free) SP map.}")
     lines.append(r"\label{tab:dsst_osculating}")
     lines.append(r"\small")
-    lines.append(r"\begin{tabular}{@{}lrrrr" + "rr" * 3 + r"@{}}")
+    lines.append(r"\begin{tabular}{@{}lrrrr" + "rr" * 4 + r"@{}}")
     lines.append(r"\toprule")
     lines.append(r"Case & $a$ & $e$ & $i$ & Days"
-                 r" & \multicolumn{2}{c}{GEqOE mean+SP}"
+                 r" & \multicolumn{2}{c}{GEqOE polar}"
+                 r" & \multicolumn{2}{c}{GEqOE eqnoc}"
                  r" & \multicolumn{2}{c}{DSST osc.}"
                  r" & \multicolumn{2}{c}{Brouwer--Lyddane} \\")
     lines.append(r" & [km] & & [deg] & "
-                 r" & pos & rad & pos & rad & pos & rad \\")
+                 r" & pos & rad & pos & rad & pos & rad & pos & rad \\")
     lines.append(r"\midrule")
 
     for r in results:
         if not r.get("cowell_ok"):
             continue
         ms = r.get("geqoe_meansp")
+        eq = r.get("geqoe_eqnoc")
         do = r.get("dsst_osc")
         br = r.get("brouwer")
         case = next(c for c in CASES if c.name == r["case_name"])
@@ -680,6 +702,7 @@ def write_osculating_table(results, out_path):
             f"{case.label} & {r['a_km']:.0f} & {r['e']:.3f} & "
             f"{r['inc_deg']:.1f} & {r['t_final_days']:.1f} & "
             f"{_fmt(ms, 'pos_rms_km')} & {_fmt(ms, 'rad_rms_km')} & "
+            f"{_fmt(eq, 'pos_rms_km')} & {_fmt(eq, 'rad_rms_km')} & "
             f"{_fmt(do, 'pos_rms_km')} & {_fmt(do, 'rad_rms_km')} & "
             f"{_fmt(br, 'pos_rms_km')} & {_fmt(br, 'rad_rms_km')} \\\\"
         )
@@ -1097,21 +1120,23 @@ def main():
     print("\n" + "=" * 70)
     print("  SUMMARY")
     print("=" * 70)
-    fmt = "{:<14s} {:>6s} {:>6s} {:>10s} {:>10s} {:>10s}"
-    print(fmt.format("Case", "e", "i", "GEqOE RMS", "DSST RMS", "Brouwer"))
-    print("-" * 62)
+    fmt = "{:<14s} {:>6s} {:>6s} {:>10s} {:>10s} {:>10s} {:>10s}"
+    print(fmt.format("Case", "e", "i", "GEqOE RMS", "Eqnoc RMS", "DSST RMS", "Brouwer"))
+    print("-" * 75)
     for r in all_results:
         ms = r.get("geqoe_meansp")
+        eq = r.get("geqoe_eqnoc")
         do = r.get("dsst_osc")
         br = r.get("brouwer")
         ms_s = f"{ms['pos_rms_km']:.4f}" if ms else "FAIL"
+        eq_s = f"{eq['pos_rms_km']:.4f}" if eq else "FAIL"
         do_s = f"{do['pos_rms_km']:.4f}" if do else "FAIL"
         br_s = f"{br['pos_rms_km']:.4f}" if br else "FAIL"
         print(fmt.format(
             r["case_name"],
             f"{r.get('e', '?')}",
             f"{r.get('inc_deg', '?')}",
-            ms_s, do_s, br_s))
+            ms_s, eq_s, do_s, br_s))
 
     # Write LaTeX tables
     table_dir = DOC_DIR / "main_docs"
