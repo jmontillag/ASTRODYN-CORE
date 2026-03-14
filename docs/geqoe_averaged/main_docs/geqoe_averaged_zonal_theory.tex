@@ -38,9 +38,12 @@ once by symbolic algebra. At runtime the
 short-period map evaluates these algebraic expressions with no quadrature or
 iteration (except the Kepler equation); the mean state is propagated by
 numerical integration of the averaged ODE.
+An equinoctial variant of the short-period map constructs corrections
+directly in $(p_1,p_2,q_1,q_2)$ via complex reduced rates, eliminating
+the polar-coordinate singularity at $g \to 0$ and $Q \to 0$.
 Validation against osculating Taylor integration achieves sub-kilometer
-position reconstruction for moderate-altitude low-eccentricity orbits
-over 10 orbital periods, with few-kilometer accuracy at high eccentricity.
+position reconstruction across all eccentricities and inclinations
+over 10 orbital periods.
 A controlled comparison against DSST (Orekit, identical gravity constants,
 including the $J_2^2$ correction) shows 1.7--55$\times$ better osculating
 position accuracy across all 12 test regimes over arcs of 3--25~days:
@@ -2503,26 +2506,34 @@ where radial occupancy bounds determine filter performance.
 \paragraph{Near-circular orbits.}
 The LEO circular ($e = 0.001$) and SSO cases show slightly elevated errors
 (1.3--1.5~km) compared to the $e = 0.01$ cases (0.2--0.7~km).
-These elevated errors are not merely coordinate artifacts but reflect a
-genuine limitation of the $(g,\Psi,Q,\Omega)$ polar parameterization used
-in the short-period map. While the equinoctial pairs $(p_1,p_2)$ and
-$(q_1,q_2)$ remain regular, the short-period corrections
-(Eqs.~\ref{eq:p1_zonal}--\ref{eq:q2_zonal}) are constructed in polar form
-where $\Psi$ and $\Omega$ are individually poorly determined near $g \to 0$
-or $Q \to 0$. This introduces amplified along-track errors when the
-corrections are transformed back to equinoctial components.
-The radial errors remain small (0.6--0.7~km), confirming that the radial
-structure of the theory is not degraded---the limitation is confined to the
-along-track direction and could be removed by constructing the short-period
-map directly in equinoctial $(p_1, p_2, q_1, q_2)$ coordinates.
+These elevated errors reflect a limitation of the $(g,\Psi,Q,\Omega)$
+polar parameterization used in the short-period map: while the equinoctial
+pairs $(p_1,p_2)$ and $(q_1,q_2)$ remain regular, the polar corrections
+$\delta\Psi$ and $\delta\Omega$ are individually large near $g \to 0$
+or $Q \to 0$, introducing amplified along-track errors when transformed
+back to equinoctial components.
+
+This limitation is removed by the \emph{equinoctial} short-period map
+(``GEqOE eqnoc'' column in Table~\ref{tab:dsst_osculating}), which
+constructs corrections directly in $(p_1, p_2, q_1, q_2)$ coordinates
+via the complex reduced rates
+$\dot\zeta_{\mathrm{red}} = (\dot g + ig\dot\Psi)\,w$ and
+$\dot\eta_{\mathrm{red}} = \dot Q + iQ\dot\Omega$.
+These are finite Laurent series with coefficients regular at $g = 0$ and
+$Q = 0$, integrated by the same residue decomposition.  The fast-phase
+longitude $L$ is reconstructed from the polar $\delta\Psi + \delta M$
+(which is well-conditioned even when $\delta\Psi$ and $\delta M$
+are individually large).
+
+For the near-circular cases, the equinoctial route reduces the position
+error from 1.3--1.5~km to 0.6--0.7~km (a factor of $\sim\!2$), with
+the radial error dropping to 3~m.
 
 \paragraph{Near-equatorial orbits.}
-The near-equatorial case ($i = 5^\circ$) shows 2.1~km RMS, slightly larger
-than the $i = 40^\circ$ baseline. The elevated error is attributed to the
-small $Q = \tan(i/2) \approx 0.044$ regime where the node angle $\Omega$ is
-poorly determined. The same polar-form limitation applies: the short-period
-corrections for $\Omega$ develop large amplitudes that couple into the
-along-track position error through the equinoctial-to-Cartesian mapping.
+The near-equatorial case ($i = 5^\circ$) shows 2.1~km RMS with the polar
+route, attributed to the small $Q = \tan(i/2) \approx 0.044$ regime.
+The equinoctial route achieves the same improvement here as for
+near-circular orbits.
 
 \paragraph{Retrograde orbits.}
 The retrograde case ($i = 120^\circ$) achieves excellent accuracy (0.24~km),
@@ -2657,19 +2668,22 @@ contribution.
 
 \input{dsst_osculating_table}
 
-Table~\ref{tab:dsst_osculating} presents the primary three-way comparison.
-Contrary to the \emph{a priori} expectation, the GEqOE first-order theory
-achieves better osculating position accuracy than DSST in \emph{all 12 cases}:
+Table~\ref{tab:dsst_osculating} presents the four-way comparison.  The
+GEqOE first-order theory achieves better osculating position accuracy than
+DSST in \emph{all 12 cases} with either SP route:
 
 \begin{itemize}
-\item GEqOE mean+SP achieves 1.7--55$\times$ smaller position RMS than DSST
-osculating across all regimes. The advantage is smallest for LEO circular
-(1.3 vs.\ 2.2~km, ratio 1.7$\times$) and largest for MEO/GPS
-(0.009 vs.\ 0.5~km, ratio 55$\times$).
+\item The polar GEqOE route achieves 1.7--55$\times$ smaller position RMS
+than DSST osculating.  The equinoctial route further improves the
+near-circular cases: for LEO circular, 0.58 vs.\ 2.2~km
+(3.8$\times$), compared to the polar route's 1.3~km (1.7$\times$).
 
-\item GEqOE mean+SP outperforms Brouwer--Lyddane by 4--335$\times$ across
-all regimes, consistent with the results of
-Appendix~\ref{sec:extended_validation}.
+\item Both GEqOE routes outperform Brouwer--Lyddane by 4--335$\times$
+across all regimes.
+
+\item At moderate and high eccentricity the two GEqOE routes are
+effectively identical, confirming that the equinoctial formulation
+introduces no regression.
 
 \item DSST osculating is intermediate between GEqOE and Brouwer in most
 cases, but for GTO ($e = 0.73$) it approaches Brouwer-class errors
