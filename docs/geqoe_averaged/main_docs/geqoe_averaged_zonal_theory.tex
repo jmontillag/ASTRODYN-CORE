@@ -26,28 +26,37 @@
 \begin{abstract}
 This paper presents a complete analytical first-order theory for the
 Generalized Equinoctial Orbital Elements (GEqOE) under autonomous Earth
-zonal harmonics through $J_5$.
-The GEqOE state vector admits exact first-order orbit averaging in the
-generalized eccentric longitude $K$, yielding a finite Fourier-harmonic
-mean-element system in the single slow angle $\omega = \Psi - \Omega$.
-A direct residue decomposition exploiting the fixed pole structure of the
-$dM/dF$ Jacobian ($F = e^{if}$) produces the short-period kernels as
-closed-form functions of $(q,Q,F)$---verified through $J_5$ and
-conjectured for all zonal degrees---exact in eccentricity and precomputed
-once by symbolic algebra.
-An equinoctial variant of the short-period map constructs corrections
-directly in $(p_1,p_2,q_1,q_2)$ via complex reduced rates, eliminating
-the polar-coordinate singularity at $g \to 0$ and $Q \to 0$.
-At runtime the short-period map evaluates algebraic expressions with no
-quadrature or iteration (except the Kepler equation), at a per-epoch cost
-comparable to Brouwer--Lyddane.
-Validation against osculating Taylor integration achieves sub-kilometer
-position reconstruction across all eccentricities and inclinations
-over multi-day arcs.
-A controlled comparison against DSST and Brouwer--Lyddane
-(identical gravity model) shows that the GEqOE first-order theory
-consistently outperforms both references in osculating position accuracy
-across all test regimes, despite lacking second-order secular corrections.
+zonal harmonics through~$J_5$.
+%
+Orbit averaging in the generalized eccentric longitude~$K$ yields a
+finite Fourier-harmonic mean-element system in a single slow angle.
+%
+A direct residue decomposition in the complex true anomaly
+exponential~$F = e^{if}$, exploiting the fixed pole structure of the
+Kepler-equation Jacobian, produces the short-period corrections as
+closed-form rational functions of the eccentricity and inclination
+parameters---exact in eccentricity, with no series truncation, and
+precomputed once by symbolic algebra.
+%
+An equinoctial variant of the short-period map eliminates the
+polar-coordinate singularity present at zero eccentricity and zero
+inclination.
+%
+At runtime the theory evaluates algebraic expressions with no quadrature
+or iteration (except the Kepler equation), at a per-epoch cost comparable
+to Brouwer--Lyddane.
+%
+Validation against high-fidelity Cartesian numerical integration across
+twelve orbital regimes---from near-circular LEO through GTO and Molniya
+orbits---achieves sub-kilometer osculating position reconstruction over
+multi-day arcs.
+%
+A controlled comparison against the Draper Semi-analytical Satellite
+Theory (DSST) and Brouwer--Lyddane, using identical gravity constants,
+shows that the GEqOE first-order theory consistently outperforms both
+references in osculating position accuracy by factors of
+$1.7$--$55\times$ and $4$--$335\times$ respectively, despite lacking
+second-order secular corrections.
 \end{abstract}
 
 \section{Introduction}
