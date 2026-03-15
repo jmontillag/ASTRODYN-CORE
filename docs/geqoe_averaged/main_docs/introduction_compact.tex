@@ -12,8 +12,9 @@ ingredients not previously assembled: element definitions that absorb
 zonal perturbative effects into the reference orbit, averaging in a
 generalized eccentric longitude that produces finite-harmonic mean-element
 systems, and a direct residue decomposition in the complex true anomaly
-exponential $F = e^{if}$ that yields closed-form short-period corrections
-exact in eccentricity.
+exponential $F = e^{if}$ that yields closed-form short-period corrections exact in
+eccentricity---purely rational for zero-mean harmonics, with a smooth
+logarithmic correction for the few harmonics carrying secular rates.
 
 %%% Classical and Lie-transform foundations %%%
 The modern theory begins with two landmark papers in the same 1959 issue of
@@ -183,9 +184,12 @@ Second, the short-period kernels are constructed by residue decomposition
 in $F = e^{if}$, exploiting the fact that the Jacobian $dM/dF$ has fixed
 poles at $F = -q$ and $F = -1/q$ (where $q = (1-\beta)/e$) independent of
 the zonal degree.  This universal pole structure yields the short-period
-corrections as closed-form rational functions of~$q$---exact in
-eccentricity, with no series truncation, no integral-table lookup, and no
-recurrence relation.
+corrections as closed-form expressions in the eccentricity parameter~$q$:
+purely rational for the vast majority of harmonics (those with zero
+secular rate), and rational plus a smooth single-valued logarithmic
+correction $C_{\log}\,\varphi(K)$ for the few harmonics carrying
+secular rates---exact in eccentricity in both cases, with no series
+truncation.
 Third, an equinoctial variant constructs corrections directly in
 $(p_1,p_2,q_1,q_2)$, eliminating the polar-coordinate singularity at
 $g \to 0$ and $Q \to 0$.

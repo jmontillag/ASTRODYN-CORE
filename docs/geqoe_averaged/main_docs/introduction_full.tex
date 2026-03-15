@@ -14,8 +14,9 @@ previously assembled: element definitions that absorb zonal perturbative
 effects into the reference orbit, averaging in a generalized eccentric
 longitude that produces finite-harmonic mean-element systems, and a direct
 residue decomposition in the complex true anomaly exponential $F = e^{if}$
-that yields the short-period corrections as closed-form rational expressions
-exact in eccentricity.
+that yields the short-period corrections as closed-form expressions exact
+in eccentricity---purely rational for the majority of harmonics, with a
+smooth logarithmic correction for the few harmonics carrying secular rates.
 
 %%% Classical foundations %%%
 The modern theory of artificial satellite orbit propagation begins with two
@@ -272,9 +273,11 @@ and $F = -1/q$ (where $q = (1-\beta)/e$) that are independent of the zonal
 degree.  This universal pole structure ensures that all zonal averaging
 integrals share the same denominator factorization, enabling a unified
 partial-fraction algorithm that yields the short-period corrections as
-closed-form rational functions of the eccentricity parameter~$q$---exact in
-eccentricity, with no series truncation, no integral-table lookup, and no
-recurrence relation.
+closed-form expressions in the eccentricity parameter~$q$: purely rational
+for the vast majority of harmonics (those with zero secular rate), and
+rational plus a smooth single-valued logarithmic correction for the few
+harmonics carrying secular rates---exact in eccentricity in both cases,
+with no series truncation.
 Third, an equinoctial variant of the short-period map constructs corrections
 directly in $(p_1, p_2, q_1, q_2)$ via complex reduced rates, eliminating
 the polar-coordinate singularity at $g \to 0$ and $Q \to 0$ that arises in
