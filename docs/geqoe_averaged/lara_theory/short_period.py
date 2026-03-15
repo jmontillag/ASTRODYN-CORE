@@ -746,6 +746,56 @@ def osculating_to_mean_w1(osc_kep, mu, Re, J2, max_iter=20, tol=1e-12):
     return (m_a, m_e, m_I, m_Om, m_om, m_M)
 
 
+def osculating_to_mean_w1_polar(osc_kep, mu, Re, J2, max_iter=20, tol=1e-12):
+    """Osculating Keplerian -> mean Keplerian via polar-nodal W₁ forward map.
+
+    Iterates in Cartesian space using the polar-nodal forward map for
+    consistency with ``mean_to_cartesian_heyoka_polar``.
+    """
+    E_osc = solve_kepler(osc_kep[5], osc_kep[1])
+    f_osc = eccentric_to_true(E_osc, osc_kep[1])
+    r_target, v_target = keplerian_to_cartesian(*osc_kep[:5], f_osc, mu)
+    r_target = np.asarray(r_target, dtype=float).ravel()
+    v_target = np.asarray(v_target, dtype=float).ravel()
+
+    mean_kep = np.array(osc_kep, dtype=float)
+
+    for _ in range(max_iter):
+        a_m, e_m, i_m, Om_m, om_m, M_m = mean_kep
+
+        # Mean (unperturbed) Cartesian
+        E_m = solve_kepler(M_m, e_m)
+        f_m = eccentric_to_true(E_m, e_m)
+        r_unpert, v_unpert = keplerian_to_cartesian(
+            a_m, e_m, i_m, Om_m, om_m, f_m, mu)
+        r_unpert = np.asarray(r_unpert, dtype=float).ravel()
+        v_unpert = np.asarray(v_unpert, dtype=float).ravel()
+
+        # Osculating Cartesian via polar-nodal W₁ SP
+        r_fwd, v_fwd = mean_to_cartesian_heyoka_polar(
+            a_m, e_m, i_m, Om_m, om_m, M_m, mu, Re, J2)
+        r_fwd = np.asarray(r_fwd, dtype=float).ravel()
+        v_fwd = np.asarray(v_fwd, dtype=float).ravel()
+
+        # SP displacement and corrected mean Cartesian
+        r_mean = r_target - (r_fwd - r_unpert)
+        v_mean = v_target - (v_fwd - v_unpert)
+
+        new_kep = np.array(cartesian_to_keplerian(r_mean, v_mean, mu))
+
+        da = abs(new_kep[0] - mean_kep[0])
+        de = abs(new_kep[1] - mean_kep[1])
+        mean_kep = new_kep
+
+        mean_kep[0] = max(mean_kep[0], 100.0)
+        mean_kep[1] = np.clip(mean_kep[1], 1e-10, 0.9999)
+
+        if da < tol and de < tol:
+            break
+
+    return tuple(mean_kep)
+
+
 # ---------------------------------------------------------------------------
 #  Heyoka AD-based non-singular SP corrections (Lyddane variables)
 # ---------------------------------------------------------------------------
@@ -1069,3 +1119,223 @@ def mean_to_cartesian_heyoka_batch(a, e, inc, Om, om, M, mu, Re, J2):
     E_osc = solve_kepler(osc_M, osc_e)
     f_osc = eccentric_to_true(E_osc, osc_e)
     return keplerian_to_cartesian_batch(osc_a, osc_e, osc_i, osc_Om, osc_om, f_osc, mu)
+
+
+# ---------------------------------------------------------------------------
+#  Polar-nodal SP corrections via heyoka AD of W₁ Poisson brackets
+# ---------------------------------------------------------------------------
+
+_SP_POLAR_CFUNC = None
+_SP_POLAR_PARAMS = None
+
+
+def _build_sp_polar_heyoka_cfunc(mu, Re, J2):
+    r"""Build heyoka cfunc for J₂ SP corrections in polar-nodal variables.
+
+    Computes {ξ, W₁} for ξ ∈ {r, ṙ, u, rf̊, Ω, I} using exact symbolic
+    differentiation of the full W₁ (Lara 2021 Eq. 6 + C₁ from Eq. 13).
+
+    The Poisson bracket for a function ξ(E, g, L, G, H) with W₁ is:
+
+        {ξ, W₁} = (ξ_E W₁_L - ξ_L W₁_E) / Δ
+                 + ξ_g W₁_G - ξ_G W₁_g
+                 + σ_G (ξ_g W₁_E - ξ_E W₁_g)
+
+    where Δ = 1-e cosE, σ_G = (de/dG) sinE / Δ, and all subscripts
+    denote partial derivatives at fixed E (heyoka variables).
+
+    Output: [δr, δṙ, δu, δ(rf̊), δΩ, δI]
+    Input:  [E, g, L, G, H]
+    """
+    import heyoka as hy
+
+    E_s, g_s, L_s, G_s, H_s = hy.make_vars("E", "g", "L", "G", "H")
+
+    # --- Derived quantities ---
+    e_s = hy.sqrt(1.0 - (G_s / L_s) ** 2)
+    eta_s = G_s / L_s
+    p_s = G_s ** 2 / mu
+    s2_s = 1.0 - (H_s / G_s) ** 2
+
+    B0_s = 1.0 - 1.5 * s2_s
+    B1_s = 0.75 * s2_s
+
+    sinE_s = hy.sin(E_s)
+    cosE_s = hy.cos(E_s)
+
+    f_s = hy.atan2(eta_s * sinE_s, cosE_s - e_s)
+
+    ell_s = E_s - e_s * sinE_s
+    sin_phi = hy.sin(f_s) * hy.cos(ell_s) - hy.cos(f_s) * hy.sin(ell_s)
+    cos_phi = hy.cos(f_s) * hy.cos(ell_s) + hy.sin(f_s) * hy.sin(ell_s)
+    phi_s = hy.atan2(sin_phi, cos_phi)
+
+    # --- W₁ (Lara 2021 Eq. 6 + C₁) ---
+    W1_terms = (
+        B0_s * phi_s
+        + B0_s * e_s * hy.sin(f_s)
+        + B1_s * e_s * hy.sin(f_s + 2.0 * g_s)
+        + B1_s * hy.sin(2.0 * f_s + 2.0 * g_s)
+        + B1_s * (e_s / 3.0) * hy.sin(3.0 * f_s + 2.0 * g_s)
+    )
+    W1_main = -(G_s * Re ** 2 / (2.0 * p_s ** 2)) * W1_terms
+
+    denom_c1 = 5.0 * s2_s - 4.0
+    C1_s = (
+        (G_s * Re ** 2 / p_s ** 2)
+        * (15.0 * s2_s - 14.0)
+        / (32.0 * denom_c1)
+        * s2_s
+        * e_s ** 2
+        * hy.sin(2.0 * g_s)
+    )
+    W1_s = W1_main + C1_s
+
+    # --- W₁ partial derivatives (at fixed E) ---
+    dW1_dE = hy.diff(W1_s, E_s)
+    dW1_dg = hy.diff(W1_s, g_s)
+    dW1_dL_E = hy.diff(W1_s, L_s)
+    dW1_dG_E = hy.diff(W1_s, G_s)
+    dW1_dH = hy.diff(W1_s, H_s)
+
+    Delta = 1.0 - e_s * cosE_s
+    de_dG = hy.diff(e_s, G_s)          # = -G/(eL²)
+    sigma_G = de_dG * sinE_s / Delta
+
+    # --- Polar-nodal variables ---
+    r_s = L_s ** 2 * Delta / mu                    # r = a(1-e cosE)
+    rdot_s = mu * e_s * sinE_s / (L_s * Delta)     # ṙ = μe sinE/(LΔ)
+    u_s = g_s + f_s                                 # u = g + f
+    rfdot_s = G_s * mu / (L_s ** 2 * Delta)        # rf̊ = G/r
+
+    # --- Poisson bracket helper ---
+    def poisson(xi):
+        xi_E = hy.diff(xi, E_s)
+        xi_g = hy.diff(xi, g_s)
+        xi_L = hy.diff(xi, L_s)
+        xi_G = hy.diff(xi, G_s)
+        return (
+            (xi_E * dW1_dL_E - xi_L * dW1_dE) / Delta
+            + xi_g * dW1_dG_E - xi_G * dW1_dg
+            + sigma_G * (xi_g * dW1_dE - xi_E * dW1_dg)
+        )
+
+    dr_expr = J2 * poisson(r_s)
+    drdot_expr = J2 * poisson(rdot_s)
+    du_expr = J2 * poisson(u_s)
+    drfdot_expr = J2 * poisson(rfdot_s)
+    dOm_expr = J2 * dW1_dH
+    c_s = H_s / G_s
+    si_s = hy.sqrt(s2_s)
+    dI_expr = J2 * (-(c_s / (G_s * si_s)) * dW1_dg)
+
+    return hy.cfunc(
+        [dr_expr, drdot_expr, du_expr, drfdot_expr, dOm_expr, dI_expr],
+        vars=[E_s, g_s, L_s, G_s, H_s],
+    )
+
+
+def _get_sp_polar_heyoka_cfunc(mu, Re, J2):
+    """Lazy-build and cache the polar-nodal SP cfunc."""
+    global _SP_POLAR_CFUNC, _SP_POLAR_PARAMS
+    key = (mu, Re, J2)
+    if _SP_POLAR_CFUNC is None or _SP_POLAR_PARAMS != key:
+        _SP_POLAR_CFUNC = _build_sp_polar_heyoka_cfunc(mu, Re, J2)
+        _SP_POLAR_PARAMS = key
+    return _SP_POLAR_CFUNC
+
+
+def mean_to_cartesian_heyoka_polar(a, e, inc, Om, om, M, mu, Re, J2):
+    """Mean Keplerian -> osculating Cartesian via polar-nodal W₁ SP corrections.
+
+    Computes {ξ, W₁} for polar-nodal variables (r, ṙ, u, rf̊, Ω, I)
+    and converts directly to Cartesian via rotation matrices.  Avoids
+    the Kepler equation and atan2 recovery steps of the Lyddane path.
+
+    Returns (r_vec, v_vec) as 3-element arrays.
+    """
+    cf = _get_sp_polar_heyoka_cfunc(mu, Re, J2)
+
+    L = np.sqrt(mu * a)
+    G = L * np.sqrt(1.0 - e ** 2)
+    H = G * np.cos(inc)
+    E = solve_kepler(M, e)
+
+    # Mean polar-nodal state
+    f = eccentric_to_true(E, e)
+    p = a * (1.0 - e ** 2)
+    r_mean = p / (1.0 + e * np.cos(f))
+    u_mean = om + f
+    rdot_mean = np.sqrt(mu / p) * e * np.sin(f)
+    rfdot_mean = np.sqrt(mu * p) / r_mean
+
+    # SP corrections
+    result = cf([E, om, L, G, H])
+
+    return polar_to_cartesian(
+        r_mean + float(result[0]),
+        rdot_mean + float(result[1]),
+        u_mean + float(result[2]),
+        rfdot_mean + float(result[3]),
+        Om + float(result[4]),
+        inc + float(result[5]),
+    )
+
+
+def mean_to_cartesian_heyoka_polar_batch(a, e, inc, Om, om, M, mu, Re, J2):
+    """Vectorised mean -> osculating Cartesian via polar-nodal W₁ corrections.
+
+    Returns (N,3) positions, (N,3) velocities.
+    """
+    cf = _get_sp_polar_heyoka_cfunc(mu, Re, J2)
+
+    a = np.asarray(a, dtype=float)
+    e = np.asarray(e, dtype=float)
+    inc = np.asarray(inc, dtype=float)
+    Om = np.asarray(Om, dtype=float)
+    om = np.asarray(om, dtype=float)
+    M = np.asarray(M, dtype=float)
+
+    L = np.sqrt(mu * a)
+    G = L * np.sqrt(np.maximum(1.0 - e ** 2, 0.0))
+    H = G * np.cos(inc)
+    E_arr = solve_kepler(M, e)
+    f_arr = eccentric_to_true(E_arr, e)
+
+    p = a * (1.0 - e ** 2)
+    r_mean = p / (1.0 + e * np.cos(f_arr))
+    u_mean = om + f_arr
+    rdot_mean = np.sqrt(mu / p) * e * np.sin(f_arr)
+    rfdot_mean = np.sqrt(mu * p) / r_mean
+
+    N = len(a) if a.ndim > 0 else 1
+    dr = np.empty(N)
+    drdot = np.empty(N)
+    du = np.empty(N)
+    drfdot = np.empty(N)
+    dOm_arr = np.empty(N)
+    dI = np.empty(N)
+
+    E_flat = np.atleast_1d(E_arr)
+    om_flat = np.atleast_1d(om)
+    L_flat = np.atleast_1d(L)
+    G_flat = np.atleast_1d(G)
+    H_flat = np.atleast_1d(H)
+
+    for k in range(N):
+        res = cf([E_flat[k], om_flat[k], L_flat[k], G_flat[k], H_flat[k]])
+        dr[k] = float(res[0])
+        drdot[k] = float(res[1])
+        du[k] = float(res[2])
+        drfdot[k] = float(res[3])
+        dOm_arr[k] = float(res[4])
+        dI[k] = float(res[5])
+
+    return polar_to_cartesian(
+        np.atleast_1d(r_mean) + dr,
+        np.atleast_1d(rdot_mean) + drdot,
+        np.atleast_1d(u_mean) + du,
+        np.atleast_1d(rfdot_mean) + drfdot,
+        np.atleast_1d(Om) + dOm_arr,
+        np.atleast_1d(inc) + dI,
+    )

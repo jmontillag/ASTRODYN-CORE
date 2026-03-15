@@ -578,11 +578,20 @@ class TestHeyokaShortPeriod:
                 f"M={M_deg}: |d(M+w)|={abs(dMpw):.4e} rad is not O(J2)")
 
     def test_heyoka_topex_30day_w1_mode(self):
-        """Topex 30-day with use_w1_sp=True should match use_w1_sp=False."""
+        """Topex 30-day: W₁ polar-nodal mode should achieve < 15 m RSS.
+
+        Lara (2021) reports {1+:2:1} gives ~20 m at 30 days.  Our
+        polar-nodal W₁ forward map achieves ~11 m.
+        """
         from lara_theory.propagator import LaraBrouwerPropagator
         from lara_theory.coordinates import (
             keplerian_to_cartesian, solve_kepler, eccentric_to_true,
         )
+        from astrodyn_core.geqoe_taylor import ZonalPerturbation
+        from astrodyn_core.geqoe_taylor.cowell import (
+            _build_cowell_heyoka_general_system, _build_par_values,
+        )
+        import heyoka as hy
 
         a = 7707.270
         e = 0.0001
@@ -600,16 +609,28 @@ class TestHeyokaShortPeriod:
         prop_w1 = LaraBrouwerPropagator(MU, RE, j_coeffs_j2, use_w1_sp=True)
         prop_w1.initialize(r0, v0, 0.0)
 
-        prop_pn = LaraBrouwerPropagator(MU, RE, j_coeffs_j2, use_w1_sp=False)
-        prop_pn.initialize(r0, v0, 0.0)
+        # J2-only Cowell truth
+        pert_j2 = ZonalPerturbation(j_coeffs_j2, mu=MU, re=RE)
+        sys_cow, _, pm = _build_cowell_heyoka_general_system(
+            pert_j2, mu_val=MU, use_par=True, time_origin=0.0)
+        ta = hy.taylor_adaptive(
+            sys_cow, list(r0) + list(v0), tol=1e-15,
+            compact_mode=True, pars=_build_par_values(pert_j2, pm))
 
-        t_grid = np.linspace(0, 30 * 86400, 100)
+        t_grid = np.linspace(0, 30 * 86400, 500)
+
+        truth = np.empty((len(t_grid), 3))
+        for i, t in enumerate(t_grid):
+            ta.propagate_until(t)
+            truth[i] = ta.state[:3]
 
         w1_pos, _ = prop_w1.propagate(t_grid)
-        pn_pos, _ = prop_pn.propagate(t_grid)
 
-        # W₁ mode uses exact Lyddane SP corrections, PN uses SGP4 polar-nodal.
-        # They differ by O(J₂²) ~ tens of meters.  Both should be < 100 m.
-        diff = np.linalg.norm(w1_pos - pn_pos, axis=1)
-        assert np.max(diff) < 0.2, (  # 200 m
-            f"W1 and PN modes differ too much, max = {np.max(diff)*1000:.1f} m")
+        err = np.linalg.norm(w1_pos - truth, axis=1)
+        rss_30d = err[-1] * 1000  # meters
+
+        print(f"W1 polar-nodal Topex 30-day: RSS={rss_30d:.1f} m")
+
+        assert rss_30d < 15.0, (
+            f"W1 polar-nodal Topex 30-day RSS should be < 15 m, "
+            f"got {rss_30d:.1f} m")

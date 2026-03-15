@@ -56,9 +56,9 @@ class LaraBrouwerPropagator:
 
         # 2. Osculating -> mean (iterative first-order inverse)
         #    Use W₁-consistent inversion when W₁ SP is enabled.
-        from .short_period import osculating_to_mean_w1
+        from .short_period import osculating_to_mean_w1_polar
         if self.use_w1_sp:
-            self.mean_kep_0 = osculating_to_mean_w1(
+            self.mean_kep_0 = osculating_to_mean_w1_polar(
                 osc_kep, self.mu, self.Re, self.j_coeffs[2])
         else:
             self.mean_kep_0 = osculating_to_mean(
@@ -162,10 +162,10 @@ class LaraBrouwerPropagator:
 
         if self.use_w1_sp:
             # Exact W₁ Poisson bracket SP corrections via heyoka AD.
-            # Uses Lyddane non-singular variables (ecosω, esinω, M+ω)
-            # → reconstruct osculating Keplerian → Cartesian.
-            from .short_period import mean_to_cartesian_heyoka_batch
-            positions, velocities = mean_to_cartesian_heyoka_batch(
+            # Uses polar-nodal variables (r, ṙ, u, rf̊, Ω, I) to avoid
+            # the Kepler-equation and atan2 steps of the Lyddane path.
+            from .short_period import mean_to_cartesian_heyoka_polar_batch
+            positions, velocities = mean_to_cartesian_heyoka_polar_batch(
                 a_arr, e_arr, inc_arr, Om_arr, om_arr, M_arr,
                 self.mu, self.Re, J2,
             )
