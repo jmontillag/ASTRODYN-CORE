@@ -29,9 +29,10 @@ Both formulations are closed-form in eccentricity but suffer from
 singularities at $e = 0$, $i = 0$, and the critical inclination
 $i \approx 63.4^\circ$ where the long-period divisor $(1 - 5\cos^2 i)$
 vanishes.  Lyddane~\cite{lyddane1963} removed the circular-orbit and
-equatorial singularities through Poincar\'e canonical variables, while the
-critical-inclination singularity persists in all formulations retaining
-the argument of perigee.  The Brouwer--Lyddane theory underlies operational
+equatorial singularities through Poincar\'e canonical variables; the
+critical-inclination singularity, however, persists in all formulations
+retaining the argument of perigee~\cite{brouwer1959}.
+The Brouwer--Lyddane theory underlies operational
 propagation including SGP4~\cite{spacetrack1980,vallado2006}.
 
 The perturbation methodology was transformed by Deprit~\cite{deprit1969},
@@ -77,10 +78,11 @@ exact second-order short-period separation requires a non-canonical
 transformation---pointing to inherent advantages of non-canonical
 approaches for short-period correction purity.
 Throughout this body of work, the perturbation theory is built on
-Lie--Deprit transforms in Delaunay canonical variables, with results
-reformulated in polar or semi-equinoctial variables as needed.  Averaging
-is over the mean anomaly, eccentricity treatment is closed-form, and no
-complex variable techniques are employed.
+Lie--Deprit transforms in Delaunay canonical variables; results are
+evaluated in polar variables for computational efficiency, with
+Lara~\cite{lara2025} additionally reformulating in semi-equinoctial
+variables.  Averaging is over the mean anomaly, eccentricity treatment
+is closed-form, and no complex variable techniques are employed.
 
 %%% Generic zonal theories %%%
 De~Saedeleer~\cite{desaedeleer2005} produced a generic first-order
@@ -105,14 +107,19 @@ in eccentricity that must be truncated, either by coefficient magnitude or
 at a fixed eccentricity power.  This truncation is the theory's principal
 accuracy limitation at high eccentricity.
 San-Juan et al.~\cite{sanjuan2022} addressed this with a second-order
-closed-form $J_2$ model, Lion and M\'etris~\cite{lion2013} showed that
-eccentric-anomaly Hansen coefficients are finite polynomials requiring no
-truncation, and Kaufman and Dasenbrock~\cite{kaufman1973} had earlier used
+closed-form $J_2$ model consistent with DSST, replacing the earlier
+eccentricity-truncated approximation of Zeis.  Lion and
+M\'etris~\cite{lion2013} developed Hansen-like coefficients with respect
+to the eccentric anomaly, showing that for the third-body case
+($0 \leq |m| \leq n$, $n > 0$) these reduce to finite polynomials in
+the auxiliary parameter $b = e/(1+\sqrt{1-e^2})$, requiring no
+truncation.  Kaufman and Dasenbrock~\cite{kaufman1973} had earlier used
 the eccentric anomaly as integration variable.  All achieve
 exact-in-eccentricity results through real-variable algebra.
 At the simplified operational end of the spectrum, the SGP4/SDP4
 propagator~\cite{spacetrack1980,vallado2006} achieves approximately~1~km
-accuracy at epoch with 1--3~km/day growth.
+accuracy at epoch, degrading rapidly
+thereafter~\cite{vallado2006}.
 
 %%% GEqOE lineage %%%
 A separate line of development absorbs perturbative effects into element
@@ -149,7 +156,7 @@ coefficients $X_s^{n,m}(e)$, whose evaluation reduces to a contour
 integral when the eccentric anomaly exponential $z = e^{iE}$ is
 introduced~\cite{giacaglia1976}.  An extensive computational literature
 treats these coefficients via recurrence relations, hypergeometric series,
-or the finite-polynomial eccentric-anomaly variants of Lion and
+or the closed-form eccentric-anomaly variants of Lion and
 M\'etris~\cite{lion2013}, but the contour integral representation is used
 exclusively as a tool for deriving recurrence relations and convergence
 bounds---it is never exploited for short-period kernel construction.

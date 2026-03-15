@@ -161,18 +161,13 @@ class LaraBrouwerPropagator:
         J2 = self.j_coeffs[2]
 
         if self.use_w1_sp:
-            # Use polar-nodal SP corrections (non-singular, Hoots/SGP4)
-            # The W₁ heyoka corrections are used only for initialization;
-            # the forward map always uses the polar-nodal form which maps
-            # directly to (r, rdot, u, rfdot, Om, i) without going through
-            # the nonlinear Keplerian -> true anomaly conversion.
-            r_osc, rdot_osc, u_osc, rfdot_osc, Om_osc, inc_osc = \
-                j2_sp_polar_batch(
-                    a_arr, e_arr, inc_arr, Om_arr, om_arr, M_arr,
-                    self.mu, self.Re, J2,
-                )
-            positions, velocities = polar_to_cartesian(
-                r_osc, rdot_osc, u_osc, rfdot_osc, Om_osc, inc_osc,
+            # Exact W₁ Poisson bracket SP corrections via heyoka AD.
+            # Uses Lyddane non-singular variables (ecosω, esinω, M+ω)
+            # → reconstruct osculating Keplerian → Cartesian.
+            from .short_period import mean_to_cartesian_heyoka_batch
+            positions, velocities = mean_to_cartesian_heyoka_batch(
+                a_arr, e_arr, inc_arr, Om_arr, om_arr, M_arr,
+                self.mu, self.Re, J2,
             )
         else:
             # Legacy polar-nodal SP corrections (SGP4-style)

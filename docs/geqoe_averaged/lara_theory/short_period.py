@@ -670,10 +670,8 @@ def mean_to_cartesian_w1_batch(a, e, inc, Om, om, M, mu, Re, J2):
 def osculating_to_mean_w1(osc_kep, mu, Re, J2, max_iter=20, tol=1e-12):
     """Osculating Keplerian -> mean Keplerian via W₁ SP (Cartesian-space iteration).
 
-    Uses the polar-nodal J2 SP forward map (non-singular at all eccentricities)
-    for the Cartesian-space iteration.  The polar-nodal form maps directly to
-    (r, rdot, u, rfdot, Om, i) without going through the Keplerian -> true
-    anomaly nonlinear conversion, giving optimal numerical accuracy.
+    Uses the heyoka Lyddane forward map for consistency with the W₁
+    propagation pipeline.
     """
     # Target osculating Cartesian
     E_osc = solve_kepler(osc_kep[5], osc_kep[1])
@@ -690,8 +688,8 @@ def osculating_to_mean_w1(osc_kep, mu, Re, J2, max_iter=20, tol=1e-12):
         f_m = eccentric_to_true(E_m, e_m)
         r_unpert, v_unpert = keplerian_to_cartesian(a_m, e_m, i_m, Om_m, om_m, f_m, mu)
 
-        # Osculating Cartesian via polar-nodal SP (non-singular)
-        r_fwd, v_fwd = mean_to_cartesian(
+        # Osculating Cartesian via heyoka Lyddane SP
+        r_fwd, v_fwd = mean_to_cartesian_heyoka(
             a_m, e_m, i_m, Om_m, om_m, M_m, mu, Re, J2)
 
         # SP displacement
@@ -764,8 +762,14 @@ def _build_sp_heyoka_cfunc(mu, Re, J2):
     # True anomaly from eccentric anomaly
     f_s = hy.atan2(eta_s * sinE_s, cosE_s - e_s)
 
-    # Equation of center: phi = f - ell, where ell = E - e*sinE
-    phi_s = f_s - (E_s - e_s * sinE_s)
+    # Equation of center: phi = f - ell, where ell = E - e*sinE.
+    # Use atan2(sin(phi), cos(phi)) to make phi manifestly 2π-periodic
+    # in E, avoiding the branch-cut discontinuity that occurs when
+    # phi_s = atan2(...) - E + e*sinE and E crosses 2π.
+    ell_s = E_s - e_s * sinE_s
+    sin_phi = hy.sin(f_s) * hy.cos(ell_s) - hy.cos(f_s) * hy.sin(ell_s)
+    cos_phi = hy.cos(f_s) * hy.cos(ell_s) + hy.sin(f_s) * hy.sin(ell_s)
+    phi_s = hy.atan2(sin_phi, cos_phi)
 
     # --- W1 (Lara 2021 Eq. 6 + C1 from Eq. 13) ---
     W1_terms = (

@@ -3,6 +3,18 @@
 All claims are numbered sequentially as they appear in the introduction.
 Verdicts: **CONFIRMED** | **NEEDS CORRECTION** | **UNVERIFIED**
 
+## Round 3 corrections applied (2026-03-15)
+
+Four corrections based on third-round independent review:
+
+1. **Lara output variables** (Claim 24): Narrowed "reformulated in polar or semi-equinoctial variables as needed" → "evaluated in polar variables for computational efficiency, with Lara (2025) additionally reformulating in semi-equinoctial variables." Reason: only Lara 2025 does semi-equinoctial reformulation; 2021 and 2024 use polar variables.
+
+2. **Lion & Métris** (Claim 35): Fixed "geopotential case" → "third-body case (0 ≤ |m| ≤ n, n > 0)"; "finite polynomials in eccentricity" → "finite polynomials in the auxiliary parameter b = e/(1+√(1−e²))". Also changed "finite-polynomial" to "closed-form" in Hansen paragraph reference.
+
+3. **Lyddane critical inclination** (Claim 8): Separated critical-inclination persistence from Lyddane's contribution; cited Brouwer (1959) instead. Lyddane (1963) never mentions critical inclination.
+
+4. **SGP4 accuracy** (Claim 37): Removed unsupported "1–3 km/day growth" rate. Vallado says "quickly degrades" (attributed to Hartman 1993); no specific rate is given. Changed to "approximately 1 km accuracy at epoch, degrading rapidly thereafter."
+
 ---
 
 ## Verdict Table

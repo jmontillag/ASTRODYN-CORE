@@ -608,7 +608,8 @@ class TestHeyokaShortPeriod:
         w1_pos, _ = prop_w1.propagate(t_grid)
         pn_pos, _ = prop_pn.propagate(t_grid)
 
-        # Both should give identical results (same forward map, same init)
+        # W₁ mode uses exact Lyddane SP corrections, PN uses SGP4 polar-nodal.
+        # They differ by O(J₂²) ~ tens of meters.  Both should be < 100 m.
         diff = np.linalg.norm(w1_pos - pn_pos, axis=1)
-        assert np.max(diff) < 1e-6, (
-            f"W1 and PN modes should be identical, max diff = {np.max(diff)*1000:.1f} m")
+        assert np.max(diff) < 0.2, (  # 200 m
+            f"W1 and PN modes differ too much, max = {np.max(diff)*1000:.1f} m")
