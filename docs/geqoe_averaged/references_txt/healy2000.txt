@@ -1,0 +1,2724 @@
+       THE MAIN PROBLEM IN SATELLITE THEORY REVISITED
+
+
+                                        LIAM M. HEALY
+           Naval Research Laboratory, Code 8233, Washington, DC 20375-5355 U.S.A.,
+                               e-mail: liam.healy@nrl.navy.mil
+
+
+                      (Received: 20 November 1998; accepted: 4 April 2000)
+
+
+Abstract. Using the elimination of the parallax followed by the Delaunay normalization, we present
+a procedure for calculating a normal form of the main problem (J2 perturbation only) in satellite
+theory. This procedure is outlined in such a way that an object-oriented automatic symbolic manip-
+ulator based on a hierarchy of algebras can perform this computation. The Hamiltonian after the
+Delaunay normalization is presented to order six explicitly in closed form, that is, in which there
+is no expansion in the eccentricity. The corresponding generating function and transformation of
+coordinates, too lengthy to present here to the same order; the generator is given through order four.
+
+Keywords: Lie transformation, normal form, closed form, computer algebra.
+
+
+
+
+                                        1. Introduction
+
+The techniques astronomers use to handle perturbations to Keplerian behavior has
+changed over time with discoveries of new methods and the availability of com-
+puter technology. Before Brouwer, the Hamiltonian was expressed in Cartesian
+coordinates and velocities. These in turn can be expressed in terms of osculating
+elements. However, when we do this, the Hamiltonian will no longer be a function
+of the mean anomaly `. This in turn requires a solution to Kepler’s equation, which
+could not be solved in closed form, but rather must be expressed as a power series in
+the eccentricity e. Thus, astronomers would resort to the artifice of introducing the
+coordinates and velocities expressed as a Fourier series in `, with their coefficients
+being power series in e. First the perturbation was expanded, then a Poincaré-
+von Zeipel transformation used to eliminate the short-period term `. This was the
+approach of Delaunay in the lunar theory (1846, 1855), Poincaré (1905), Tisserand
+(1888), and Smart (1953).
+    Brouwer (1959) gave up the explicit representation of the Hamiltonian as a
+Fourier series in `, and settled for an implicit representation. He obtained ex-
+pressions that were 1/r 2 times a Fourier series in the true anomaly f , √   with the
+coefficients of this Fourier series being rational functions of e and η = 1 − e2 .
+The success of this method in carrying the Delaunay normalization in closed form
+for the main problem in satellite theory was shown by Brouwer himself, who
+presented results to order one, Aksnes (1965a, b), who presented results to order
+
+      Celestial Mechanics and Dynamical Astronomy 76: 79–120, 2000.
+      c 2000 Kluwer Academic Publishers. Printed in the Netherlands.
+80                                  LIAM M. HEALY
+
+two, Deprit and Coffey (1982) who presented results to order three and four, and
+the present paper, with results at order five and six.
+    There are two critical factors that make the normalization to sixth order possible
+in closed form. First, the preparatory calculation of the elimination of the parallax,
+introduced by (Deprit, 1981), that simplifies considerably the ensuing Delaunay
+normalization. This was used by Deprit and Coffey (1982) to successfully calcu-
+late the third and fourth order terms. Second, the capability of doing algebra by
+machine; specifically, an object-oriented hierarchical algebraic processor. Through
+this hierarchy we are able to localize the levels at which we apply the simplifica-
+tion rules. This has two advantages: it limits the number of operations, and helps
+in defining and making systematic the simplification rules. Because of the object
+orientation, we may attach the simplification rules to objects; we conceive of the
+solution as one of applying simplification rules to particular instances of an algebra,
+not of programs executed with data representing the expression.
+    Of course, in the satellite problem it does not make sense to expand the main
+problem to order six. This is not the point; rather, it is to indicate the power
+of these new techniques: they open an avenue towards simplifying a number of
+problems in celestial mechanics. The mechanism described here represents a for-
+mulation of rules for simplification and substitution that when combined allow
+for the algorithmic computation of Lie simplifications (Deprit and Miller, 1989).
+Furthermore, these rules, like the canonical representation of ellipse parameters
+given in Section 6, when applied independently, will prove useful in their own
+right for other celestial mechanics and astrodynamics problems.
+
+
+     2. Structuring the Problem for Automatic Symbolic Manipulation
+
+The process of performing a Delaunay normalization involves copious amounts
+of algebra. Even with the elimination of the parallax, an example of what Deprit
+and Ferrer (1989) later called simplification; that is, approaching the normalization
+through a succession of stages, the calculation quickly exceeds the capacity of even
+the most patient mathematician as the perturbation order increases, requiring the
+use of computer-based symbolic algebra codes. However, not all such codes will
+do; the commonly available general purpose symbolic manipulation codes have
+the wrong model: while able to do a multitude of operations from all branches of
+mathematics on a wide range of small to medium size expressions, they do not
+efficiently handle simple algebra on a restricted class of large expressions, on the
+order of tens of thousands of terms.
+    We require a system that allows us to incorporate knowledge of the structure
+of the expressions in our problem, such that their representation, both internal and
+external, is efficient. The program PMAO (Portable Mechanized Algebraic Oper-
+ations), a derivative of MAO (Miller and Deprit, 1986), reflects such a hierarchy
+of algebras. For a particular problem, one declares the variables and algebras (e.g.,
+                  THE MAIN PROBLEM IN SATELLITE THEORY REVISITED                     81
+
+polynomial or Fourier) and their relationships as a hierarchy of algebras over a do-
+main of coefficients which are themselves algebras. Thereafter, all expressions are
+stored in compact form because variables are known in advance, and computations
+are performed in the context of and with the appropriate organization. There is no
+need to coerce the computer into showing the desired form, or to frequently pass
+back and forth between different representations.
+   For example, consider the hierarchy
+
+     F [f, g]  P [e, η, β]  P [s 2 ]  Q.                                         (1)
+
+In this notation, each algebra has a triangle ‘’ pointing to its algebra of coeffi-
+cients, P designates a polynomial algebra in the variable(s) indicated, F designates
+a Fourier algebra, and Q is the field of rationals. We mean by this that the Fourier
+algebra in f and g has coefficients that are polynomials of e, η and β, which in turn
+have coefficients that are polynomials in s 2 , which finally has rational coefficients.
+For example,
+                                                                               
+         45 6     21 4 15 2         3                      135 6 27 4 21 2
+  e2        s +      s − s +             cos 2f + η2           s − s + s −
+        256      128       32      16                      128       16      32
+                                
+         135 6 27 4 21 2
+      −      s + s − s cos(2f + 2g)                                                  (2)
+         128      16       32
+is in this algebra. The effect of the hierarchy is to show us how the expression
+is to be factored among any number of equivalent representations of the same
+expression.
+    With the algebraic organization reflected in object-oriented code, we may target
+algebraic simplifications at the appropriate algebra, ignoring the others. Then, as
+we pass an expression to the function that performs our algebraic simplifications,
+the simplification takes place at the appropriate algebra, with further simplifications
+being called recursively on the domain of coefficients. This greatly reduces the
+amount of computation over a free-form representation or an algorithmic approach
+to simplification. We employ this simplification strategy in the Delaunay normal-
+ization to handle expressions of e, η, and β (Section 6) and cos jf and sin jf
+(Section 7). Given a known algebraic structure, the conversion from one form
+to another, as occurs in algebraic simplification, is designed so that it happens a
+minimal number of times and only at strategically chosen places so that expressions
+are kept in a canonical form of compact size.
+    The choice of an algebraic structure, derivatives, and algebraic simplification
+strategy are not at all obvious in many problems. The goals one strive for are first,
+of course, correctness; next, literate code, in the sense of (Knuth, 1992): “Instead
+of imagining that our main task is to instruct the computer what to do, let us con-
+centrate rather on explaining to human beings what we want a computer to do;”
+and finally efficiency, that the computation completes in a tolerable amount of time
+on a readily accessible machine. Deprit (1982) following Jeffreys (1971) discusses
+82                                 LIAM M. HEALY
+
+the problem areas of simplification and closure, the former meaning conversion
+of an expression from one representation to an equivalent one at each step of the
+calculation, the latter meaning the finding of the generator in closed form from its
+image. In the present discussion, we view these as part of the issue of structure.
+Structure means finding the appropriate algebraic hierarchy to solve the problem,
+including the right canonical form for each algebra and the procedures required to
+put arbitrary expressions into that canonical form. The canonical algebraic form
+is a unique way of representing an expression in the algebra. Since we are now
+assuming that there will be no expansion in the eccentricity, the issue of closure is
+really one of inversion of the Lie operator. Inversion means finding the generator
+whose image under the Lie operator is the term we need to eliminate. This includes
+finding the right set of variables such that the operator can be inverted, an issue
+discussed in the next section, and structuring the overall problem such that no terms
+that can’t be inverted ever occur.
+    In practice, this is a matter of trial-and-error, sometimes requiring recompu-
+tation hundreds of times. It happens often that one can find an organization that
+produces the correct answer in a satisfactory time to a given order, but going to
+the next order results in the appearance of terms that cannot be handled or that
+there are unacceptable computation delays. In the present problem, this is mostly
+the case with the Delaunay normalization. Of course, this is true independent of
+whether automatic symbolic computation is employed. Here is where the use of
+computers is a great advantage; after all, if we wish merely to solve only one
+problem and none related, we could with patience do it by hand to low order.
+Repeatedly tackling the same problem, each time modifying the strategy to find
+the best would be unbearably tedious without a computer.
+    The organization presented here is, the author feels, fairly efficient, being both
+in a form that is reasonably literate for someone reading the code who knows LISP
+and PMAO, and efficient (about 8 min on a Silicon Graphics 175 MHz R10000,
+computing to sixth order). It is also correct in that, through fourth order, it has
+been checked against previous results, and at all orders, passes internal checks;
+primarily, that the generator computed does generate the transformation and that
+there are no unwanted terms left in the new Hamiltonian. Nevertheless, it is entirely
+possible that the reader may discover an organization that is easier to understand,
+more efficient to compute, or both. If so, he or she is encouraged to contact the
+author.
+    As part of its natural representation of mathematics to the user, PMAO prints
+out expressions in a customary form; Greek letters are drawn properly, numer-
+ical fractions are written with one integer atop another, and exponents are true
+superscripts. For PMAO expressions of greater significance, the equivalent LATEX
+(Lamport, 1994) expression can, through a built-in mechanism, be inserted directly
+into an editor buffer. Thus expressions put into a paper or a report will be free of
+transcription error. Expressions from PMAO in this paper have been generated in
+this fashion. Readers interested in this software should contact the author.
+                 THE MAIN PROBLEM IN SATELLITE THEORY REVISITED                   83
+
+    The descriptions below for the elimination of the parallax and the Delaunay
+normalization are idealized versions of how they are actually coded. Sometimes, it
+is necessary to introduce intermediate variables for a particular stage of the compu-
+tation that are not needed elsewhere; they have been deleted for clarity. Moreover,
+all algebra hierarchies presented here are in actuality merged together in one large
+one.
+
+
+                      3. The Lie Transformation Method
+
+Deprit (1969) gives a method for performing canonical transformations based on a
+small parameter; this Lie transformation method has been widely used for comput-
+ing the normal form (or, more generally, Lie simplification) of various dynamical
+systems, especially perturbed Keplerian systems. This method has the advantage,
+among other things, that it is suited for automatic symbolic computation. PMAO
+has a mathematically equivalent but more efficient procedure due to Miller built-
+in. The user solving a particular problem need only supply a few things; obviously,
+the algebra hierarchy and variables is of paramount importance before even any
+expression can be given to the computer. Beyond this, there are basically three
+other things: the initial Hamiltonian (which may come from a previous calculation
+as in the case of the Delaunay normalization), separators and integrators for each
+stage, and any needed algebraic simplifiers used en route. Because LISP is incre-
+mentally linked and treats functions and their environments as data objects, we
+merely write the declarations and functions for the specific problem in a separate
+file, then compile them and call the appropriate function to compute the whole
+thing.
+    Each Lie simplification involves a strategy or choice on what canonical trans-
+formation is performed. Deprit shows how the general mechanism works; with
+Hn0 the terms in the expansion of the original Hamiltonian and H0n the terms of
+the transformed, the quantities in the Lie triangle are computed by
+                             q  
+                            X    q
+      Hq,p+1 = Hq+1,p +              (Hq−m,p ; Wm+1 ).                          (3)
+                            m=0
+                                 m
+This must be solved recursively; the term Hq+1,p in the right-hand side is solved
+by the same formula, repetitively until the last step p = 0 and q = n − 1. At this
+point, we need to solve for Hn−1,1 ,
+  Hn−1,1 = Hn0 + (Hn−1,0 ; W1 ) + · · · + (n − 1)(H10 ; Wn−1 ) + (H00 ; Wn ).     (4)
+The provisional element H̃0n is the entire recursively calculated H0n , but with the
+last term missing, H̃0n ≡ −(H00 ; Wn ). Then we may write the final Hamiltonian
+H0n in terms of the provisional element and an unknown term which is the image
+of the generator at order n, Wn
+     H0n = H̃0n + (H00 ; Wn ) = H̃0n + L0 (Wn ).                                  (5)
+84                                 LIAM M. HEALY
+
+At each order n, one obtains a provisional Hamiltonian. From this point, however,
+we must choose the Wn in order to effect some desirable property in the trans-
+formed Hamiltonian. This choice is dependent on the given problem, for example,
+eliminate the terms periodic in an angle θ. This dictates the image of the gener-
+ator L0 (Wn ) under the Lie operator L0 ≡ ( · ; H0 ), where H0 is the unperturbed
+Hamiltonian. We next face the inversion problem: finding the pre-image Wn . This
+could be quite difficult if we are not clever. As we shall see, the only effective
+solution to this problem is to change the variables so that the Lie operator becomes
+proportional to a simple partial derivative. Once we have a strategy for choosing
+this image term and finding the appropriate generator, a general method may pro-
+ceed to calculate the next order provisional element, and the new Hamiltonian and
+generator at the current order n. What we wish to leave in the final Hamiltonian is
+a member of the kernel of the Lie operator in the case of a normalization (such as
+the Delaunay normalization); this need not be the case in a general simplification
+(such as the elimination of the parallax).
+    PMAO controls perturbation series, including the Lie simplification, by lazy
+series. Given the perturbation parameter, say δ, one gives instructions what the
+lowest order is and how to calculate the next order, perhaps basing it on another
+lazy series. A particular order is calculated only if required, either by direct re-
+quest or indirectly, because some other lazy series needs this calculation. For Lie
+simplifications, the interrelationships are built-in, one needs only to specify the
+initial Hamiltonian, the separator which identifies terms to be kept in the new
+Hamiltonian and the terms in the image of the Lie operator that will be eliminated,
+and the integrator, which finds the generator from its image that the separator pro-
+duced. The separator and integrator are functions. Thus, for the problem described
+here, the initial Hamiltonian to the Delaunay normalization is essentially the final
+Hamiltonian of the parallax elimination, which is passed as the value of a variable;
+therefore, any order requested of the Delaunay-normalized Hamiltonian results in
+the computation of the parallax elimination to the appropriate order without the
+user being aware of it.
+    In the sections that follow, I describe the two stages of computation of the
+main problem in satellite theory, the parallax elimination and the Delaunay nor-
+malization, in the context of the discussion above. The next section deals with
+the elimination of the parallax, a relatively simple task, and Sections 5–7 deal
+with the Delaunay normalization, the latter sections being discussions of algebraic
+simplifications needed to make the calculations proceed expeditiously.
+
+
+                         4. Elimination of the Parallax
+
+The Hamiltonian for the main problem in satellite theory is
+                                                          
+           1         22      µ      J2  α 2
+    H =        R + 2 −
+                2
+                                1−             (3s sin θ − 1) .
+                                                   2   2
+                                                                                 (6)
+           2         r       r      2 r
+                   THE MAIN PROBLEM IN SATELLITE THEORY REVISITED                   85
+
+where r, θ, R, 2 is the phase space in Whittaker (polar) variables, α is the radius
+of the earth, µ is the Keplerian constant, and s = sin I , the sine of the inclination.
+The goal of the elimination of the parallax is to find a near-identity transformation
+which does not have explicit θ, a technique developed by Deprit (1981).
+    Jumping a little ahead, we shall anticipate what the best algebraic hierarchy for
+the final Hamiltonian of the elimination of the parallax, consider the variables
+     C = e cos g,      S = e sin g,                                                (7)
+and the semi-latus rectum of the ellipse, p = 22 /µ. We consider a polynomial
+algebra in these variables (allowing negative powers of p) over coefficients in
+polynomials of s. On the other side, we make this algebra the coefficient domain of
+a Fourier algebra in the satellite’s polar angle θ, which, in turn, is a coefficient of
+the polynomials in the conjugate momentum 2, then each term of the perturbation
+Hamiltonian is in the algebraic hierarchy
+                                                      
+             1                                       1
+     AP = 2 P [2, α, J2 ]  F [θ]  P S, C, p,            P [s 2 ]  Q.            (8)
+            r                                        p
+    The computation of the provisional Hamiltonian requires Poisson brackets which
+involve the derivatives
+      ∂S           P            ∂C       P
+            = − sin θ,               = − cos θ,
+       ∂r          r             ∂r       r
+      ∂S           rP             ∂C        rP
+            = −       cos θ,           =−       sin θ,
+      ∂R           2              ∂R        2
+      ∂S         1                             ∂C      1
+            =      [S + (1 + P ) sin θ],           = [C + (1 + P ) cos θ]
+      ∂2         2                            ∂2      2
+      ∂s 2       2                ∂p     2p
+            =      (1 − s 2 ),         =     ,
+      ∂2         2                ∂2     2
+with P ≡ p/r = 1+C cos θ +S sin θ. All other derivatives (except sin θ and cos θ,
+of course) are zero. The actions of the Lie operator on the variables is of special
+interest. It is possible to show (Deprit, 1981) that the Lie operator acting on these
+variables are all zero
+     L0 (p) = L0 (S) = L0 (C) = 0                                                  (9)
+except
+                2
+     L0 (θ) =      .                                                              (10)
+                r2
+The quantities L0 (s 2 ) and L0 (2) are also zero. We have thus solved the inversion
+problem for the elimination of the parallax, by reducing the Lie operator to a
+multiple of a simple partial derivative. In the algebra AP , the Lie operator is
+            2 ∂
+     L0 =          ,                                                              (11)
+            r 2 ∂θ
+86                                  LIAM M. HEALY
+
+so its inverse is
+                    Z
+              r2
+     L−1
+      0 =               dθ.                                                       (12)
+              2
+   Using p/r = 1 + e cos f , where f is the true anomaly f = θ − g, we find that
+1/r can be expressed in AP ,
+     1  1
+       = (1 + C cos θ + S sin θ).                                                 (13)
+     r  p
+With R = (2/p)e sin f , the original Hamiltonian (6) is
+           1 1
+     H = − η 2 2 22 +
+           2 p
+                                                                 
+             22 α 2    3 2 1          3 2 1                  9 2 1
+         + δ 2 2 J2 s − + C             s −      cos θ + S     s −     sin θ−
+              r p      4     2        8     2                8     2
+                                                    
+            3            3              3
+         − s 2 cos 2θ − s 2 C cos 3θ − s 2 S sin 3θ                       (14)
+            4            8              8
+expressing the Hamiltonian in AP .
+    The strategy of the elimination of the parallax is to remove the θ-dependence.
+This is not a complete short-period elimination like the Delaunay normalization,
+because we leave behind the factor of 1/r 2 . We merely remove explicit θ depend-
+encies of (14). The coefficient algebra of F [θ], P [S, C, p, 1/p], is in the kernel
+of L0 , as shown above. We call this the ‘background algebra’. We view 1/r as a
+Fourier series in θ with the coefficients in the background algebra. Consider terms
+of the type F /r 2 , for F ∈ AP ; call it B ⊂ AP . The elimination of parallax gives
+an element of C = 1/r 2 ker L0 , C ⊂ B. Mathematically, the elimination of the
+parallax consists in reducing any element of B to an element of C.
+    The Hamiltonian and the generator after the elimination of the parallax are
+shown in the appendix. The generator may be used to calculate the transformation
+(and its inverse) of any quantity. In particular, propagation under the Hamiltonian is
+computed by transforming the desired coordinates with the generator, propagating
+under the normalized Hamiltonian, then transforming back to the original coordin-
+ates with the inverse generator.
+
+
+                              5. Delaunay Normalization
+
+The goal of the Delaunay normalization is, from the Hamiltonian HP produced by
+the parallax simplification, normalize such that the last of the short-period factors,
+1/r 2 , is removed, that is, to put the final perturbation Hamiltonian in the algebra
+                "  #
+                   α 2
+      AD = P             J2  F [g]  P [e, η, β]  P [s 2 ]  Q.                  (15)
+                   p
+                     THE MAIN PROBLEM IN SATELLITE THEORY REVISITED                        87
+
+The initial Hamiltonian perturbation, after the minor conversion from the elimin-
+ation of the parallax to substitute µ = 22 /p, R = (2/p)e sin f , C = e cos g,
+S = e sin g, is in the algebra
+         22
+             AD ,                                                                       (16)
+         r2
+i.e., 22 /r 2 times elements of AD . This initial Hamiltonian is presented in the
+appendix to sixth order. The generator will be in the algebra
+              "  #
+                 α 2
+      2P             J2  P [φ]  F [f, g]  P [e, η, β]  P [s 2 ]  Q,    (17)
+                 p
+
+with φ = f − l the equation of the center.
+    The zero order (unperturbed) Hamiltonian is nL where n = µ2 /L3 is the mean
+motion. Therefore, the Lie operator for the Delaunay normalization is L0 = n∂/∂`.
+Except for actual computations of the generator, we avoid introducing n into any
+of the Poisson brackets.
+    We first classify all terms that we expect to encounter in the Delaunay normaliz-
+ation, and then show how we intend to treat them. The method presented here was
+inspired by a treatment of the satellite theory for an earlier incarnation of PMAO
+by Shannon Coffey and Bruce Miller.
+
+5.1.     CLASSIFICATION OF TERMS
+
+From the given Hamiltonian, we must anticipate what sorts of terms will come in
+the provisional Hamiltonian in the process of doing the normalization. We concern
+ourselves with short-period variables, that is, those that are dependent on the mean
+anomaly `. In the Delaunay variables, these are the true anomaly f , the radial
+distance r, and the equation of center φ. The form of the provisional Hamiltonian
+is
+      X X φk X
+                      (Cj km cos jf + Sj km sin jf ),                            (18)
+               rm
+     m=0,2   k⩾0      j⩾0
+
+where Cj km , Sj km are in the kernel of L0 , that is, they are not dependent on `.
+The justification of this form is given presently. We shall consider the different
+types of terms, distinguished by how they are integrated. The essential features for
+integration are whether each of the coefficient of f , the exponent of φ, and the
+negative exponent of r, are nonzero or zero. A nonzero coefficient or exponent is
+indicated by the superscript +. Thus, for example, Cj + k+ 0 represents coefficients
+of terms that have a dependence on φ and a cosine of f and are independent of r.
+The symbol∗ X in place of C or S will be user to mean either sine or cosine, e.g.
+  ∗ When j = 0, there is no f dependence and thus no sine terms, so C
+                                                                        0km is synonymous with
+X0km .
+88                                    LIAM M. HEALY
+
+Xj + k+ 0 means Cj + k+ 0 and Sj + k+ 0 . Sometimes these symbols Sj km , Cj km , Xj km will
+be used to represent the whole term instead of just the coefficient, when there is no
+danger of confusion.
+
+5.2.   DERIVATIVES
+
+
+We choose our method of doing Poisson brackets such that the explicit exponent of
+r is preserved, that is, if A and B are independent of r, then (r m A; r n B) = r m+n C,
+where C is independent of r. We compute our generator in such a way that it will
+always be independent of explicit r terms. The exponent of r may be preserved by
+careful choice of the form used to express the derivatives of the quantities used, p,
+r, φ, f , e, η, β, s, with respect to the Delaunay variables (`, g, h, L, G, H ) in the
+Poisson bracket.
+                                                              
+       ∂r       erP                 ∂r     rη         P
+            =          sin f,           =        2 − cos f ,
+       ∂`        η3                ∂L      Ge         e
+       ∂r                 ∂r      rP
+            = 0,               =      cos f,
+       ∂g                 ∂G      Ge
+                                                              
+       ∂φ       P2               ∂φ                2 + e cos f
+            = 3 − 1,                 = η sin f                   ,
+       ∂`       η                ∂L                    Ge
+                                                        
+       ∂φ                 ∂φ                 2 + e cos f
+            = 0,               = − sin f                   ,
+       ∂g                 ∂G                     Ge
+      ∂p        2p
+            =       ,
+      ∂G         G
+                                                         
+       ∂f       P2          ∂f                2 + e cos f
+            = 3,                 = η sin f                   ,
+       ∂`       η           ∂L                    Ge
+                                                        
+       ∂f                 ∂f                 2 + e cos f
+            = 0,               = − sin f                   ,
+       ∂g                 ∂G                     Ge
+       ∂e        η3          ∂e        η2
+            =        ,           =− ,
+      ∂L        Ge          ∂G         Ge
+                     2
+       ∂η         η           ∂η      η
+            = − ,                  = ,
+      ∂L           G          ∂G     G
+       ∂β       β 2 η2         ∂β      β2η
+            =          ,           =       ,
+      ∂L          G           ∂G        G
+       ∂s       1/s − s
+            =             .
+      ∂G            G
+
+Using
+
+             p
+       P ≡     = (1 + e cos f ),                                                       (19)
+             r
+                  THE MAIN PROBLEM IN SATELLITE THEORY REVISITED                    89
+
+we have insured that r derivatives have an explicit factor of r on the right-hand side,
+and no other derivatives do; thus the exponent of r is maintained in the Poisson
+bracket.
+    Noting the method of the computation of the provisional element we see that
+by our choice of expressing the derivative, each term in each element H̃n,p+1 is
+either independent of r or proportional to 1/r 2 . We know each generator Wk is
+independent of r, each original Hamiltonian Hn0 (from the parallax computation,
+HP ) is proportional to 1/r 2 for n ⩾ 1 and independent of r for H00 , and each
+final Hamiltonian H0n should be independent of r. Because of the selection of
+the method for computing the Poisson bracket, the end result is that terms in the
+provisional Hamiltonian are independent of r or proportional to 1/r 2 ; thus we have
+only terms of the type Xj k0 and Xj k2 .
+    Knowing that the initial Hamiltonian from the parallax elimination has been
+put in the form (16), that all generators at previous orders are in the algebra (17),
+the new Hamiltonian at previous orders is in the algebra AD , and that the Poisson
+bracket preserves the power of r, we have the r-dependence in the form (18) for
+the short-period dependence of terms in the provisional Hamiltonian.
+
+5.3. C000 AND C002
+
+We proceed now with the treatment of specific terms. We start with C000 and C002
+because it involves images we will need for other terms as well. The constant term
+C000 is clearly in the kernel. C002 is split between kernel and image. With the Lie
+operator L0 = n∂/∂`, the equation of the center φ = f − `, and ∂f/∂` = G/(nr 2 )
+and the product rule for derivatives,
+                G
+     L0 (φ) =      − n.                                                           (20)
+                r2
+If the generator is proportional to φ, terms of the type C000 and C002 will be in the
+image in the proportion −n/G. Thus, to treat the terms C002 /r 2 + C000 , use the
+generator C002φ/G. Under the Lie operator,
+                   
+           1             1          n
+      L0     C002φ = 2 C002 − C002 .                                             (21)
+           G             r          G
+Thus, the constant term is modified to become
+      0              n
+     C000 = C000 −     C002                                                       (22)
+                     G
+which is in the kernel.
+90                                  LIAM M. HEALY
+
+5.4. φ- DEPENDENT TERMS
+
+The most difficult terms are those that are dependent on φ. In the algorithm, these
+are computed first, as we shall see. They are eliminated recursively: the term that
+generates a particular exponent of φ also generates lesser exponents of φ which, in
+turn, may be eliminated by the same method.
+    The φ-dependence of (18) may be understood as follows. Because the image
+term to be eliminated at first order H10 − H01 has a factor G/r 2 − n, the generator
+at that order, W1 , will have a factor of φ from (20). At successive orders k > 1, the
+presence of Wm for m < k in Poisson brackets leads to terms in the image of the
+form
+                          
+        G                            π
+           −  n   φ k−1
+                        cos  jf  + i                                             (23)
+        r2                           2
+
+which will necessitate the appearance of a φ k term in the generator Wk ; applying
+the Lie operator to such a term, we see the desired image plus another term:
+        h                                  
+                         π i         G                        π
+     L0 φ cos jf + i
+           k
+                               = k 2 − n φ k−1 cos jf + i           −
+                         2            r                         2
+                                         G            π
+                                  − j φ k 2 sin jf + i     .                  (24)
+                                         r             2
+    As we can see from this Lie derivative, f -dependent terms are quite a bit more
+complicated than the f -independent terms. Consider a generator made out of sums
+of the previous generator:
+
+              1 X k!
+                 k                             h                πi
+     Wj k = −                j −(i+1) φ k−i cos jf + (i + i 0 )    ,             (25)
+              G i=0 (k − i)!                                    2
+
+where i 0 is an arbitrary integer. Using the rule (24), the image is
+
+                    1 X k!
+                          k
+     L0 (Wj k ) = −                 j −(i+1) ×
+                    G i=0 (k − i)!
+                                                     h
+                                G                              πi
+                  × (k − i) 2 − n φ k−i−1 cos jf + (i + i 0 )     −
+                                r                              2
+                      G k−i       h                   i
+                                                 0 π
+                  − j 2 φ sin jf + (i + i )               −
+                      r                             2
+                       ( k                                 
+                    1 X k!              −(i+1)            G
+                = −                   j        (k − i) 2 − n ×
+                    G i=0 (k − i)!                        r
+                               h                 π  i
+                  × φ k−i−1 cos jf + (i + i 0 )       −
+                                                  2
+                     THE MAIN PROBLEM IN SATELLITE THEORY REVISITED                                91
+                                                                                               )
+                           X
+                           k−1
+                                 k!              G             h                πi
+                       −                 j −(i+1) 2 φ k−i−1 cos jf + (i + i 0 )
+                       i=−1
+                            (k − i − 1)!         r                              2
+                    φk             π
+                  = 2 sin jf + i 0     +
+                   |r        {z     2}
+                           desired image term
+
+                             n X k!
+                                k                         h                πi
+                           +                j −i φ k−i sin jf + (i + i 0 )     .                (26)
+                             G i=1 (k − i)!                                2
+                           |                       {z                        }
+                                                  entourage
+
+
+The first term is interpreted as (φ k /r 2 ) sin jf or (φ k /r 2 ) cos jf depending on
+whether i 0 = 0 or 1, and is the term of type Xj + k2 we aim to eliminate. The
+other terms, of type Xj + q0 for q < k, are what we may call the ‘entourage’ –
+they come along with the desired term in the image. The algorithm for treating φ k
+terms is recursive (Figure 1), starting with the highest exponent k of φ; call these
+terms P . We know of only one way that such a term can be in the image of the
+Lie operator, and that is with the generator (25) whose image is (26). These terms
+are accumulated into the generator we are calculating. Before doing this however,
+we add the entourage terms to the Hamiltonian as they appear in (26), call them
+Ei , and subtract them in canonical form, terms of the type Xpq0 for p ⩽ j − 2
+and C0k0 , C1k0 , S1k0 and S2k0 (Section 7) call them Ec , thus effectively adding zero:
+P = P + Ei − Ec . The image under (26) is P + Ei , so we have replaced the term P
+in the provisional Hamiltonian with −Ec . These terms are Xpq2 for q < k, and the
+
+
+
+
+Figure 1. The handling of terms in the provisional Hamiltonian. For final state, ‘I’ represents an
+image term, ‘I ∝’ is an image term if the coefficients have the proper proportionality, ‘K’ represents
+a kernel term, ‘cancel’ means that the terms must cancel out and not be in the final image. Boxes
+below the top line represent terms converted to other forms.
+92                                  LIAM M. HEALY
+
+two terms of the type C0k0 and C1k0 if X is cosine or S1k0 and S2k0 if it is sine, and
+are added to the remaining terms (if any) already present in the Hamiltonian. The
+Xpq2 , is the ‘trigger’ for the recursion; it is treated as the original Xj + k2 but now
+the new highest exponent of φ is lower than before. At the end of the recursion,
+there will be no terms with φ. The remaining terms are handled as described above
+and below, once all Xj + k2 terms are gone.
+
+5.5.   OTHER TERMS
+
+After the Xj + k2 has been iteratively reduced, we are left with a linear combination
+of terms of the type C0k0, C1k0 , S1k0 , and S2k0 .
+    The terms C000 and C002 have been treated in Section 5.3. In contrast, the ana-
+logous terms dependent on φ, C0k + 0 and C0k + 2 must be proportional in the ratio
+−n/G in order to integrate, because C0k + 0 is not in the kernel as C000 is. From (20)
+we propose a generator for these two terms,
+          k+1                   
+           φ                G
+      L0            =φ  k
+                               −n .                                               (27)
+           k+1              r2
+As is easy to see, if the two terms have this proportionality, the generator will be
+               C0k0    C0k2
+       W =−         =       .                                                  (28)
+                n       G
+This proportionality indeed prevails after the iteration, in computations through
+order six.
+    Finally, the integrals of C1k0 , S1k0 and S2k0 may be expressed in terms of the
+eccentric anomaly (Kelly, 1989; Tables I and II for k = 0). As it happens, how-
+ever, terms of these types present in the provisional Hamiltonian, together with
+those produced by the iteration, cancel off entirely through sixth order, making
+integration unnecessary.
+
+              6. Canonical Form for e , η , β , and the Mean Motion
+
+A frequent problem in algebraic manipulation is the standard representation of
+terms that have some algebraic relation between them. Here, we find that in the
+computation of the provisional Hamiltonian of the Delaunay
+                                                        √        normalization we
+obtain an abundance of terms involving e and η = 1 − e2 . The problem of
+reduction to a standard, or Gröbner, basis for polynomials is well-studied in the
+field of computer algebra, having been initiated by Buchberger (Davenport et al.,
+1988). Here, however, our expressions are not confined to polynomials; negative
+powers of e and η are possible.
+    In order to simplify some of the computations, we introduce the variable β =
+1/(1 + η), we can write any term eh ηi β j for h, i, and j integers in an algebraic
+canonical form. With numbers K and M whose choice will be explained later, this
+                      THE MAIN PROBLEM IN SATELLITE THEORY REVISITED                           93
+
+monomial is a linear combination of eK ηM times nonnegative powers of η and β
+times e with exponent no higher than 1.∗
+   Using the definitions e2 + η2 = 1 and β = 1/(1 + η), we have the five relations
+
+      ηβ = 1 − β,                                                                           (29a)
+
+      β  1
+        = − β,                                                                              (29b)
+      η  η
+
+      η = 1 − e2 β,                                                                         (29c)
+
+      1   e2
+        =    + η,                                                                           (29d)
+      η   η
+
+         1
+      β = (1 + e2 β 2 ).                                                                    (29e)
+         2
+
+We first use substitution e2 → 1 − η2 to remove all terms whose e exponent is
+greater than K + 1. Then, the rules (29a) and (29b) may be applied repetitively
+to all terms to insure that η and β never occur together in a product or quotient (a
+negative power of β should never occur but is easily reduced using 1/β = 1 + η
+anyway). Finally, we eliminate ek for k < K; to eliminate ek ηm for m > M,
+use (29c); to eliminate it for m < M use (29d), and to eliminate ek β n use (29e).
+Note that the actual individual substitutions must be applied repetitively; not only
+individual rules must be reapplied, but the application of later rules will sometimes
+produce terms that necessitate the reapplication of earlier rules.
+    While heuristic and recursive (or iterative) simplifiers are easy to implement in
+PMAO, as opposed to its predecessor Poisson series processors (Deprit, 1982), it is
+wise to forgo the compact elegance of recursion in favor of the alacrity of explicit
+forms of monomials of e, η, and β. These forms are
+
+                     X
+                     κ−1                       µ−κ 
+                                                 X             
+          −2κ 2µ               µ 2(i−κ)               µ − i − 1 2i
+      e     η      =     (−1) i
+                                  e     + (−1) κ
+                                                                η ,                         (30a)
+                     i=0
+                               i                 i=0
+                                                        κ −1
+
+                      Xκ                    µ            
+          −2κ −2µ          µ + κ − i − 1 −2i X µ + κ − i − 1 −2i
+      e     η       =                    e +                  η ,                           (30b)
+                      i=1
+                               κ −i          i=1
+                                                  κ −1
+
+   ∗ Without the introduction of β, it is possible to have another canonical form which is a linear
+combination of terms ηm , eηm , ek , ek η each multiplied by eK ηM for k < 0 and m ⩾ 0. If we have
+a term ek ηm with k > K + 1, we make the substitution e2 → 1 − η2 enough times to reduce it. If,
+on the other hand, k < K and m > M + 1, we use the substitution η2 → 1 − e2 . If k < K and
+m < M, use (29d). The formulæ (30) apply, except that (30c) and (30d) have e2(i−κ) η replacing
+e2(i−κ) (1 − e2 β), and e−2i η replacing e−2i (1 − e2 β), respectively.
+94                                       LIAM M. HEALY
+
+                        X          
+       −2κ 2µ+1
+                        κ−1
+                                     µ                              
+      e η          =        (−1)  i
+                                          e2(i−κ) − e2(i−κ+1) β +
+                        i=0
+                                     i
+                                  µ−κ 
+                                  X                    
+                                         µ − i − 1 2i+1
+                        + (−1)κ                           η    ,                              (30c)
+                                  i=0
+                                            κ  −   1
+                          Xκ                      
+       −2κ −2µ+1                µ+κ −i−1                                 
+      e η            =                                 e−2i − e−2i+2 β +
+                          i=1
+                                     κ −i
+                             X µ + κ − i − 1
+                              µ 
+                          +                               η−2i+1 ,                            (30d)
+                             i=1
+                                        κ −    1
+              X m                                 
+      βn                  m−i n + m − i − 1 1
+           =       (−1)                                   +
+      ηm       i=1
+                                     m  −  i          η i
+
+                           Xn                       
+                                 n+m−i−1 i
+              + (−1)    m
+                                                       β,                                     (30e)
+                           i=1
+                                       m−1
+                                      X     n                        
+                        m+n m − 1                                  m
+      η β = (−1)
+       m n
+                                         +       (−1)    m+n−i
+                                                                          βi +
+                               n−1           i=1
+                                                                 n −  i
+                     X
+                     m−n                              
+                               m+n−i m − i − 1
+                 +        (−1)                            ηi ,                                 (30f)
+                      i=1
+                                           n   −  1
+                  X κ                                                               
+       −2κ n                1         n + 2κ − 2i − 1              n + 2κ − 2i − 1
+      e β =                                                    −                            e−2i +
+                   i=1
+                        2 n+2κ−2i             κ −   i                   κ −  i  −  1
+                        X
+                       n+κ−1                                     
+                                   1            n + 2κ − i − 2
+                   +                                                −
+                        i=1
+                              2n+2κ−i−1               κ −1
+                                          
+                         n + 2κ − i − 2
+                    −                            β i+1 ,                                      (30g)
+                            κ −i−1
+                                                                         
+                                                                          a
+where κ, m, µ and n are all positive, a binomial coefficient                   is zero if b ⩽ 0 and
+                                                                          b
+       Pb
+a sum a is zero if b < a. The factor eK ηM on both sides of the equation has been
+removed for clarity. Such formulæ are very difficult to discover, but straightforward
+if tedious to prove by induction once known. These proofs are left to the reader as
+an exercise.
+    Generally, the K specified will be even and is governed by a generalization of
+the D’Alembert characteristic: each term of sin(kf + qg) or cos(kf + qg) should
+have a factor of e|k−q| multiplying it. This is based on the observation that the Lie
+algebra is really built on the variables e cos g, e sin g, cos(f + g), and sin(f + g),
+so that any difference from equal coefficients should be accompanied by a factor of
+                   THE MAIN PROBLEM IN SATELLITE THEORY REVISITED                95
+
+e. Of course, in the final Hamiltonian after the Delaunay normalization, there will
+be no dependence on f , so we merely use the absolute value of the coefficient of
+g. We should expect that all exponents of e that are not |k − q| will cancel off.
+   We wish to express the final Hamiltonian in terms of the mean motion n, where
+           µ2     2η3
+      n=        =      .                                                     (31)
+           L3      p2
+When we present the final Delaunay Hamiltonian, we wish to identify all factors of
+the mean motion. Other times, as when PMAO computes the provisional element,
+it is preferable to keep the mean motion out of the expressions in order to keep
+computations simple. In the former case, we need to identify factors of η3 for
+substitution of n, and thus choose M = 3 in the canonical form of e, η and β.
+In the latter, we substitute for any n using (31).
+
+                  7. Canonical Form of r 0 cos(jf ) and r 0 sin(jf )
+
+In this section, we discuss how to express Xj k0 terms in a canonical form. This
+canonical form consists of terms of the type Xik2 for i ⩽ j − 2 and terms of the
+type C0k0 and C1k0 for Cj k0 or S1k0 and S2k0 for Sj k0 , and holds for e 6 = 0. The
+conversion to canonical form uses p/r expressed in terms of the true anomaly
+(19),
+     p2         e2               e2
+         =  1 +    + 2e cos f +     cos 2f,                                    (32)
+     r2         2                 2
+and the trigonometric product relations
+      cos nf cos mf = 12 cos(n + m)f + 12 cos(n − m)f                         (33a)
+and
+      sin nf cos mf = 12 sin(n + m)f + 12 sin(n − m)f.                        (33b)
+It is possible to write a canonical form for cos jf and sin jf which has only 1/r 2
+terms and constants, cos f , sin f , and sin 2f terms:
+                                          j            
+                                     p2 X          1
+      cos jf = Cj 0 + Cj 1 cos f + 2          1 − δj −1 X1 cos(j − 1)f, (34a)
+                                      r 1=2        2
+
+                                                  p2 X
+                                                       j
+      sin jf = Sj 1 sin f + Sj 2 sin 2f +                 X1 sin(j − 1)f,     (34b)
+                                                  r 2 1=2
+where δi is 1, if i = 0, and 0 otherwise, and the power series in e are
+      Cj 0 = (−1)j/2 (1 − j mod 2) +
+                     j −1
+                     X                               j +m−1 
+                                      j+m−1                       n −m−1
+              +        2       (−1)     2     m
+                                              2 j       2
+                                                                     e   ,    (35a)
+                  m=1−j mod2
+                                                       m         n+1
+96                                          LIAM M. HEALY
+
+                 j −1
+                 X                               j +m−1 
+                                    j+m−1
+     Cj 1 =            2    (−1)      2     2 jm     2    e−m ,                 (35b)
+              m=1−j mod2
+                                                     m
+                 j −1
+                 X                                     j +m−1 
+                                    j+m+1
+     Sj 1 =            2    (−1)      2     2 (m − 1)
+                                               m           2    e−m ,           (35c)
+              m=3−j mod2
+                                                           m
+                j −2
+                X                                      j +m 
+                                  j+m
+     Sj 2 =       2        (−1)    2 −1   2 (m + 1)
+                                           m             2        e−m ,         (35d)
+              m=j mod2
+                                                       m+1
+                  X
+                  1                                    1+m   
+                                    1+m                    − 1 −m
+     X1 =              2     (−1)    2    2 (m − 1)
+                                            m            2      e .             (35e)
+              m=2+1mod2
+                                                         m−1
+
+                   P
+ The summation 2 bm=a means sum over every other term, i.e., m = a, a + 2,
+a + 4, . . . , b.
+    By substituting (32) into these formulæ and applying (33), one can check they
+indeed reduce to the left-hand sides. This is a time-consuming activity and not
+recommended for those in a hurry. With a symbolic manipulation code, it is easy
+to try specific values of j and then substitute.
+
+                                      Acknowledgements
+
+Shannon Coffey and André Deprit were tremendously helpful in guiding this work.
+Bruce Miller provided extensively assistance with the original MAO. The code
+added for computation of this problem originated in work of Shannon Coffey and
+Bruce Miller. Carol Williams made many helpful suggestions.
+
+
+
+                                   Appendix A. Expressions
+
+This appendix gives the normalized Hamiltonian after the elimination of the paral-
+lax and after the Delaunay transformation through sixth order. The corresponding
+generating functions, coordinate transformations and inverse coordinate transform-
+ations are given, but only to second order for space considerations. The full expres-
+sions are available electronically from the author; the full expressions at even fifth
+order makes this paper several thousand pages long. The expressions are given so
+that someone attempting to reproduce the results presented in this paper can check
+agreement as the calculation progresses from the contents of this paper alone.
+    In these expressions, the symbol δ is used to keep track of the order of the
+perturbation, but can otherwise be considered to be one. For expressions that are
+given as a table, the final expression is the sum of all the subexpressions given in
+the table. The subexpressions are numbered for convenience.
+                    THE MAIN PROBLEM IN SATELLITE THEORY REVISITED                         97
+
+A.1.    THE NEW HAMILTONIAN AFTER THE ELIMINATION OF THE PARALLAX
+
+                                                
+        1 2 1 2           22 α 2      3 2 1
+       − η 2 2 + δ 2 2 J2               s −        +
+        2 p               r p         4        2
+                 2 4                                  
+            22 α            2 105 4         15 2      3
+        + δ 2 4 J2 S   2
+                                     s − s −              +
+               r p               128        32       16
+                                                                    
+                     75 4 27 2            3       21 4 21 2 5
+        +C − 2
+                         s + s −                − s + s −                +
+                    128        32        16       32       16       8
+                 2 6                                                 
+            32 α            2 6285 6          2427 4 273 2 29
+        + δ 2 6 J2 S   3
+                                      s −          s +        s −         +
+               r p               1024          256       64         32
+                                                       
+                  4575 6 2115 4 285 2 29
+        + C2           s −          s +         s −        +
+                  1024        256           64       32
+                                                 
+           105 6 987 4 189 2 13
+        +        s −       s +        s −          +
+            32         128         32          8
+                 2 8      
+            42 α                   156015 8 111267 6 68283 4
+        + δ 2 8 J2 S 4 −
+                       4
+                                            s +            s −           s +
+               r p                 131072          16384          8192
+                               
+           6147 2         261
+        +          s −            +
+           2048          1024
+                                                                                    
+                      1362555 8 177795 6 108387 4 4635 2 261
+        +S C −
+            2 2
+                                 s +             s −            s +         s −        +
+                        65536            4096           4096          1024       512
+                                                                                 
+            2 2438835 8           1314221 6 207853 4 5541 2 1211
+        +S                 s −               s +            s −         s −          +
+                   32768            8192            2048          512         256
+                                                                                
+                    519255 8 144873 6 48195 4 3123 2                         261
+        + C4 −              s +              s −         s +          s −          +
+                    131072          16384          8192         2048        1024
+                                                                                  
+                    707985 8 656573 6 192847 4 21489 2 1211
+        +C − 2
+                            s +              s −           s +           s −          −
+                    32768            8192           2048           512         256
+                                                                     
+           4605 8 16683 6 43719 4 6303 2 167
+        −         s +           s −            s +        s −          +
+            512           512          1024          256         32
+                 2 10      
+            52 α                  29137563 10 7858677 8 6745003 6
+        + δ 2 10 J2 S 4 5
+                                              s −              s +             s −
+               r p                 262144             32768            40960
+                                                 
+           1406151 4 42831 2 3429
+        −             s +           s −             +
+             32768           4096          1024
+                  
+                    13254489 10 19975239 8 10553465 6
+        +S 2 C 2                s −                s +               s −
+                      65536               32768            16384
+                                                 
+           4521261 4 23175 2 3429
+        −             s +           s −             +
+             16384            512           512
+98                            LIAM M. HEALY
+            
+             48801939 10 81636667 8 124355759 6
+     + S2               s −              s +              s −
+               262144            131072          163840
+                                             
+        3530111 4 274689 2 12859
+     −            s +            s −           +
+           8192           2048         512
+            
+          4 697113 10        758787 8 8777699 6
+     +C              s −             s +           s −
+              262144          16384        81920
+                                           
+        3165587 4 142569 2 3429
+     −            s +            s −          +
+          32768           4096        1024
+           
+         2 133993809 10          183200081 8 236938061 6
+     +C                   s −               s +             s −
+               262144              131072          163840
+                                             
+        6038521 4 410139 2 12859
+     −            s +            s −           +
+           8192           2048         512
+       404259 10 411735 8 332763 6 542895 4
+     +           s −            s +          s −          s +
+         8192            2048
+                                     1024          2048
+        56391 2 599
+     +          s −       +
+          512         32
+             2 12     
+         62 α                  7236966195 12 96799787355 10
+     + δ 2 12 J2 S 6 −
+                   6
+                                           s +                 s −
+           r p                  67108864           234881024
+       8239746849 8 9636567 6 28720581 4
+     −               s +             s −             s +
+        14680064             28672
+                                          327680
+        398949 2 11343
+     +           s −            +
+         40960         16384
+              
+                  48059257095 12 538583765931 10
+     + S4C2 −                     s +                  s −
+                    67108864             234881024
+       195133337523 8 12407852817 6 38108511 4
+     −                  s +                  s −            s +
+           73400320             9175040           131072
+        1993329 2 34029
+     +            s −             +
+          81920         16384
+           
+             55634100807 12 214996266099 10 241083403999 8
+     +S 4                   s −                   s +                s −
+               29360128              36700160             36700160
+                                                                     
+       346585066749 6 243122949 4 62422131 2 32277
+     −                  s +               s +            s −        + +
+          114688000              819200          409600        1024
+              
+                  10898388405 12 153118795509 10 69449015151 8
+     + S2C4 −                     s +                  s −              s +
+                    67108864             234881024            73400320
+                                                               
+        2912367393 6 31651641 4 398241 2 34029
+     +                s −              s +          s −          +
+           4587520            163840         20480       16384
+              
+                  58758813387 12 920787392109 10
+     + S2C2 −                     s +                  s −
+                    14680064              73400320
+                 THE MAIN PROBLEM IN SATELLITE THEORY REVISITED               99
+          1400921947657 8 11934593383 6 455013213 4
+        −                 s +               s −              s +
+             91750400           1310720           163840
+          7375341 2 32277
+        +          s −           +
+           16384         512
+             
+           2 767302869 12       19058965801 10 630082669 8
+        +S                s −                s +              s −
+                2097152           5242880            81920
+                                                                  
+          25212883601 6 647379881 4 2236305 2 34147
+        −              s +              s +           s −            +
+             4096000           409600          8192          256
+             
+               2018417535 12 26491912827 10 11455322847 8
+        + C6               s −                s +                 s −
+                67108864          234881024            73400320
+                                                            
+          796935831 6 6494829 4 397533 2 11343
+        −            s +           s +          s −           +
+           9175040          655360       81920       16384
+             
+                 1619759139 12 25957745127 10 558916431277 8
+        + C4 −               s +                 s −                    s +
+                   4194304           14680064            183500800
+                                                                     
+          604078775023 6 251664041 4 60980697 2 32277
+        +                s −             s +             s −             +
+            229376000           204800          204800         1024
+             
+               3628920303 12 40431331979 10 4359896319 8
+        + C2               s −                s +                s +
+                 1048576           5242880             1310720
+                                                                  
+          4137242069 6 890157553 4 11314407 2 34147
+        +             s −              s +            s −            −
+            1024000           204800          8192           256
+          25074573 12 32672199 10 174246807 8
+        −           s +             s −             s +
+           131072           32768           81920          
+          9816903 6 12390699 4 1042323 2 2293
+        +          s −            s +           s −          + O(δ 7 ).
+            4096           8192          2048         32
+
+
+
+
+A.2.   THE GENERATOR FOR THE ELIMINATION OF THE PARALLAX
+
+
+Parallax generator at order 4
+ No.    Expression
+                           
+          α2       3 2 1
+ 1      2 2 J2 C     s −      sin θ
+          p        8      2
+          3 α2
+ 2      − 2 2 J2 s 2 sin 2θ
+          8 p
+          1 α2
+ 3      − 2 2 J2 s 2 C sin 3θ
+          8 p
+100                                   LIAM M. HEALY
+
+Parallax generator at order 4 (continued)
+ No.   Expression
+                                 
+          α2          9         1
+ 4     2 2 J2 S − s 2 +              cos θ
+          p           8         2
+       1 α2
+ 5       2 J2 s 2 S cos 3θ
+       8 p2
+                                                 
+           α4 2          195 4 131 2
+ 6     δ2 4 J2 C −            s +         s − 2 sin θ
+           p              32          16
+                                         
+           α4 2 2         39 4         3
+ 7     δ2 4 J2 S −             s +          sin 2θ
+           p             256          16
+                                                 
+           α4 2 2           9 4 3 2             3
+ 8     δ2 4 J2 C −              s + s −              sin 2θ
+           p              256          8       16
+                                     
+           α4         21          5
+ 9     δ2 4 J22 − s 4 + s 2 sin 2θ
+           p          16          4
+             4                         
+           α 2        29 4         5 2
+ 10    δ2 4 J2 C          s − s sin 3θ
+           p          64          16
+             4                             
+           α 2 2          81 4 15 2
+ 11    δ2 4 J2 S −             s + s sin 4θ
+           p             256          64
+             4                           
+           α 2 2 75 4 15 2
+ 12    δ2 4 J2 C             s − s sin 4θ
+           p            256          64
+        3      α4 2 4
+ 13        δ2 4 J2 s sin 4θ
+       64      p
+        3      α4
+ 14        δ2 4 J22 s 4 C sin 5θ
+       64      p
+           3      α4
+ 15    −       δ2 4 J22 s 4 S 2 sin 6θ
+          256     p
+                  4
+         3      α
+ 16         δ2 4 J22 s 4 C 2 sin 6θ
+       256      p
+             4                                 
+           α            141 4 23 2
+ 17    δ2 4 J22 S −           s + s + 2 cos θ
+           p             32          16
+             4                                   
+           α 2              45 4 3 2 3
+ 18    δ2 4 J2 SC −              s − s +            cos 2θ
+           p               128         8       8
+                                        
+           α4 2         35 4         5 2
+ 19    δ2 4 J2 S − s + s cos 3θ
+           p            64          16
+                  THE MAIN PROBLEM IN SATELLITE THEORY REVISITED                       101
+
+Parallax generator at order 4 (continued)
+ No.   Expression
+                                           
+             α4 2          39 4 15 2
+ 20    δ2       J SC     −     s  +      s    cos 4θ
+            p4 2           64         32
+            3     α4
+ 21    − δ2 4 J22 s 4 S cos 5θ
+           64     p
+            3      α4
+ 22    −        δ2 4 J22 s 4 SC cos 6θ
+           128     p
+                6                                                       
+         2 α               6153 6 58593 4 4275 2 69
+ 23               3 2
+       δ 2 6 J2 S C               s −            s +           s −          sin θ
+              p              512          2048          256           64
+                6                                                       
+         2 α      3 3 18411 6            35565 4 2247 2 69
+ 24    δ 2 6 J2 C                 s −            s +          s −          sin θ
+              p           2048           2048           256           64
+                                                                      
+              α6        20067 6 5683 4 1235 2 69
+ 25    δ 2 2 6 J23 C             s −          s +           s −          sin θ
+              p          2048           256            64           8
+                6                                                         
+         2 α                56529 6 58495 4 3917 2 75
+ 26    δ 2 6 J2 S −
+                  3 2
+                                    s +            s −           s +          sin 2θ
+              p              4096          2048            256          64
+                6                                                        
+         2 α                31455 6 21329 4 469 2 75
+ 27    δ 2 6 J2 C −
+                  3 2
+                                    s +            s −         s −          sin 2θ
+              p              4096           2048          256          64
+                6                                      
+         2 α            3069 6 311 4 61 2
+ 28    δ 2 6 J2 − 3
+                               s +         s − s sin 2θ
+              p          256           16          8
+                6                                                       
+              α               2853         3411          255 2 15
+ 29    δ 2 2 6 J23 S 2 C −           s6 +         s4 −        s +          sin 3θ
+              p               4096         2048          256          64
+                6                                                   
+         2 α      3 3 1185 6            661 4         49 2        5
+ 30    δ 2 6 J2 C                s −         s +          s −          sin 3θ
+              p          4096          2048          256         64
+                6                                           
+         2 α              43657 6 257 4 683 2
+ 31    δ 2 6 J2 C −
+                  3
+                                   s +         s −         s sin 3θ
+              p             2048           8           64
+                6                                            
+         2 α                2781 6 2411 4 401 2
+ 32    δ 2 6 J2 S −
+                  3 2
+                                  s −           s +         s sin 4θ
+              p             2048         1024          128
+                                                                
+              α6            11121 6 9115 4 401 2
+ 33    δ 2 2 6 J23 C 2 −            s +           s −        s sin 4θ
+              p              2048          1024         128
+                6                        
+              α        69 6 233 4
+ 34    δ 2 2 6 J23         s −         s sin 4θ
+              p       128         512
+                6                                                 
+         2 α                   873 6        2097 4 189 2
+ 35    δ 2 6 J2 S C −
+                  3 2
+                                     s −            s +         s sin 5θ
+              p               4096         10240           640
+102                                   LIAM M. HEALY
+
+Parallax generator at order 4 (continued)
+ No.   Expression
+                                                           
+             α 6 3 3 693 6               207 4        63 2
+ 36    δ22       J   C           s  +         s   −       s   sin 5θ
+             p6 2          4096         10240        640
+               6                             
+         2 α              3699 6 1967 4
+ 37    δ 2 6 J2 C  3
+                                s −         s sin 5θ
+             p            2048         1280
+               6                                
+         2 α                 3609 6 1699 4
+ 38    δ 2 6 J2 S −3 2
+                                   s +         s sin 6θ
+             p               4096        2048
+               6                               
+         2 α       3 2 4017 6           1699 4
+ 39    δ 2 6 J2 C                s −         s sin 6θ
+             p             4096         2048
+        15 2 α 6 3 6
+ 40          δ 2 6 J2 s sin 6θ
+       256         p
+               6                                      
+         2 α                   21951 6       5049 4
+ 41    δ 2 6 J2 S C −
+                   3 2
+                                       s +          s sin 7θ
+             p                 57344        14336
+               6                                  
+         2 α                8073 6        1683 4
+ 42    δ 2 6 J2 C  3 3
+                                   s −          s sin 7θ
+             p             57344         14336
+        135 2 α 6 3 6
+ 43           δ 2 6 J2 s C sin 7θ
+       2048          p
+            207 2 α 6 3 6 2
+ 44    −         δ 2 6 J2 s S sin 8θ
+           8192        p
+        207 2 α 6 3 6 2
+ 45           δ 2 6 J2 s C sin 8θ
+       8192          p
+            81 2 α 6 3 6 2
+ 46    −         δ 2 6 J2 s S C sin 9θ
+           8192        p
+                       6
+         27 2 α 3 6 3
+ 47           δ 2 6 J2 s C sin 9θ
+       8192          p
+               6                                                   
+         2 α                 2307 6 8829 4 249 2 69
+ 48    δ 2 6 J2 S −3 3
+                                   s +         s −        s +         cos θ
+             p                512        2048        256         64
+                                                                       
+             α6              26097 6 42447 4 1779 2 69
+ 49    δ 2 2 6 J23 SC 2             s −           s +         s +         cos θ
+             p                2048         2048          256         64
+               6                                                       
+         2 α                168117 6 33491 4 3797 2 69
+ 50    δ 2 6 J2 S −3
+                                     s +          s −         s +          cos θ
+             p               2048           256           64          8
+               6                                                       
+         2 α                  80103 6 49809 4 431 2 75
+ 51    δ 2 6 J2 SC −
+                   3
+                                      s +          s −       s +          cos 2θ
+             p                 2048         1024          32        32
+               6                                                 
+         2 α               549 6        997 4 103 2            5
+ 52    δ 2 6 J2 S  3 3
+                                 s −         s +        s −         cos 3θ
+             p             4096        2048        256        64
+                     THE MAIN PROBLEM IN SATELLITE THEORY REVISITED                 103
+
+Parallax generator at order 4 (continued)
+ No.       Expression
+                                                                        
+                 α6 3 2            4101 6 3075 4 201 2 15
+ 53        δ22       J   SC      −       s  +         s  −       s  +      cos 3θ
+                 p6 2              4096         2048        256       64
+                   6                                         
+             2 α                1079 6 47 4 683 2
+ 54        δ 2 6 J2 S −3
+                                      s − s +              s cos 3θ
+                 p              2048         4         64
+                   6                                           
+             2 α                2067 6 5763 4 401 2
+ 55        δ 2 6 J2 SC 3
+                                      s −          s +        s cos 4θ
+                 p               512         512          64
+                   6                                          
+             2 α                63 6        189 4        63 2
+ 56        δ 2 6 J2 S  3 3
+                                     s +          s −        s cos 5θ
+                 p             4096        2048         640
+                   6                                               
+             2 α                   1503 6        1359 4 189 2
+ 57        δ 2 6 J2 SC −
+                       3     2
+                                         s −            s +        s cos 5θ
+                 p                 4096         10240         640
+                                                     
+                 α6             3429 6 1967 4
+ 58        δ 2 2 6 J23 S −            s +          s cos 5θ
+                 p              2048        1280
+                   6                                   
+             2 α                  3813 6 1699 4
+ 59        δ 2 6 J2 SC −
+                       3
+                                        s +          s cos 6θ
+                 p                2048         1024
+                   6                                  
+             2 α               6939 6        1683 4
+ 60        δ 2 6 J2 S  3 3
+                                      s −            s cos 7θ
+                 p             57344         14336
+                   6                                       
+             2 α                   23085 6         5049 4
+ 61        δ 2 6 J2 SC −
+                       3     2
+                                           s +           s cos 7θ
+                 p                 57344          14336
+                135 2 α 6 3 6
+ 62        −         δ 2 6 J2 s S cos 7θ
+               2048        p
+                207 2 α 6 3 6
+ 63        −         δ 2 6 J2 s SC cos 8θ
+               4096        p
+                           6
+             27 2 α 3 6 3
+ 64               δ 2 6 J2 s S cos 9θ
+           8192          p
+                81 2 α 6 3 6 2
+ 65        −         δ 2 6 J2 s SC cos 9θ
+               8192        p
+
+A.3.      THE NEW HAMILTONIAN AFTER THE DELAUNAY SIMPLIFICATION
+
+
+                                    
+          11          α2     3 2 1
+      −      2n + δ2n 2 J2     s −      +
+          2η          p      4     2
+                                            
+                 α4 2 2       15 4     3 2 3
+          + δ 2n 4 J2 η −
+             2
+                                 s − s +        +
+                p            128      16   16
+104                                  LIAM M. HEALY
+                                
+              27 4 9 2 3            105 4 15 2 15
+      +η −       s + s −         −      s + s −         +
+              32      8     8       128       8      16
+                                   
+               45 4 21 2
+      + e − s + s cos 2g +
+         2
+               64      32
+                                                      
+              α 6 3 3 225 6 105 4 75 2 15
+      + δ 2n 6 J2 η
+         3
+                              s +       s − s +           +
+              p           512       256      64      32
+                                                
+               2193 6 1881 4 237 2 27
+      +η −
+         2
+                    s +        s −       s +       +
+                512       256        64       32
+                                            
+            945 6 1395 4 315 2 45
+      +η        s −       s +       s −        +
+            512       256        64       32
+        4575 6 4773 4 807 2 105
+      +        s −         s +        s −         +
+         512           256        64         32
+                                                                                
+                  675 6 135 4 105 2                         135 6 27 4 21 2
+      + e η 2
+                       s −       s +        s +e β    2
+                                                                s − s + s +
+                  256        32         64                  128       16       32
+                                                 
+                225 6 69 4 3 2
+      + e2            s − s + s              cos 2g +
+               1024        64       4
+                                                                                  
+                α8 4 5         29925 8 5985 6 2961 4                   63 2      63
+      + δ 2n 8 J2 η −
+          4
+                                       s +          s −         s +        s −        +
+                p              32768          4096         4096       256       512
+                                                                            
+                 774765 8 95445 6 23337 4                    909 2       405
+      + η4 −              s +          s −            s −        s +            +
+                 131072         8192          4096          2048        1024
+                                                                         
+          3 314415 8         47685 6 85275 4 4575 2 885
+      +η                s −          s +           s −         s +          +
+               16384          1024          2048           256       256
+                                                                             
+                 741165 8 28131 6 19245 4 21207 2 2745
+      +η −2
+                          s +          s +            s −         s +            +
+                  65536         4096          1024           1024         512
+                                                                              
+                704025 8 248463 6 263133 4 4041 2 3195
+      +η −               s +           s −              s +        s −           −
+                32768          4096            4096           128         512
+        782265 8 436125 6 394479 4 133347 2 15015
+      −            s +           s −             s +            s −           +
+        131072
+                        8192           4096            2048         1024
+                      4725 8 1575 6 1827 4 441 2
+      + e2 η3 −            s −         s +          s −        s +
+                      8192       4096         1024         512
+                                                                       
+                    157095 8 200817 6 21465 4 1449 2
+      +e η −
+          2 2
+                            s +            s −            s +        s +
+                     32768         16384          2048          512
+                                                                   
+                  31725 8 56385 6 14793 4 2409 2
+      + e2 η −            s +          s −            s +        s +
+                   8192         4096          1024           512
+                                                        
+                1485 8       63 6 375 4 3 2
+      + e2 β           s +        s −        s + s +
+                2048        1024        256         4
+           THE MAIN PROBLEM IN SATELLITE THEORY REVISITED                             105
+                                                                       
+            1760835 8 2204209 6 223987 4 15159 2
++ e2 −                 s +              s −             s +         s        cos 2g
+              32768           16384              2048          512
+                                                  
+               14175 8 6615 6 3087 4
++ e η −4
+                       s +          s −           s +
+               16384         4096          4096
+                                                
+              2025 8      945 6        441 4
++e β −
+   4
+                    s +         s −           s +
+              4096        1024        1024
+                                                         
+     4 103815 8          11385 6 9891 4
++e                 s −           s +           s     cos 4g +
+          65536           4096          8192
+                    
+           α 10 5 6 89775 10 101745 8 20853 6
++ δ 2n 10 J2 η
+    5
+                                  s −               s +         s −
+          p               16384             8192          2048
+                                 
+   4473 4 441 2              63
+−         s +         s −           +
+   1024           256       128
+      
+    5 12534165 10           21744135 8
++η                    s −                 s +
+           524288             262144
+                                                      
+   26019 6 221445 4 6741 2 3465
++           s −            s +           s −             +
+     256            4096           512          2048
+      
+    4 16370829 10           19761687 8
++η                    s −                 s +
+           524288             262144
+                                                       
+   102221 6 93711 4 23463 2 4599
++             s +          s −             s +            +
+     2048           32768          2048           2048
+      
+         4474575 10 8836755 8
++ η3                s +               s +
+          262144            131072
+                                                              
+   2123295 6 1174035 4 138135 2 24525
+−              s +              s −              s +            +
+      8192              4096             1024          1024
+      
+            121807785 10 178174443 8
++ η2 −                   s +                    s +
+              262144               131072
+                                                              
+  24530515 6 13177569 4 60339 2 37305
+−               s +                s −             s +           +
+     16384               16384              256          1024
+     
+        19274085 10 60045255 8
++η                   s −                s +
+         524288              262144
+                                                             
+   3783015 6 867915 4 189009 2 63945
++               s −            s +              s −            +
+       8192             2048           1024           2048
+  253613325 10 409922679 8
++                 s −                  s +
+      524288               262144
+  32588595 6 42514209 4 942555 2 153153
++                s −               s +              s −           +
+      16384              32768              2048           2048
+106                                 LIAM M. HEALY
+                                                                     
+                   14175 10 12537 6 1575 4 441 2
+      + e η  2 4
+                            s −            s +          s −          s +
+                     4096           1024           128         128
+               
+                    169155 10 1546839 8 1142883 6
+      + e2 η3 −               s +               s −               s +
+                      8192             32768            32768
+                                          
+         42651 4 945 2                 2 2 14986485 10             8222841 8
+      +          s −          s +e η                       s −              s +
+          4096           512                    262144              65536
+                                                      
+         6906261 6 189385 4 14499 2
+      +              s −             s −            s +
+           81920             16384          4096
+              
+                14289435 10 22920081 8 27152705 6 1778897 4
+      + e2 η                 s −                 s +                 s −          s +
+                  65536                32768              32768             4096
+                               
+         10983 2                  2722455 10 2175333 8 2568485 6
+      +          s + e2 β                   s −                s +             s −
+           128                     32768               8192             8192
+                                        
+        83683 4 4089 2                  2 29253495 10            85122473 8
+      −          s +           s +e                     s −                 s +
+          512            128                  131072               131072
+                                                             
+         119439379 6 6449157 4 359493 2
+      +                  s −             s +              s cos 2g +
+             163840              16384            4096
+                                                                      
+            4 2 42525 10          53865 8 22491 6 3087 4
+      + e η                s −           s +             s −          s +
+                   8192            4096           2048         1024
+                                                                               
+                   2038365 10 2225475 8 384867 6 41013 4
+      +e η −
+          4
+                               s +               s −              s +         s +
+                    262144             131072           32768           16384
+                                                                  
+                 6075 10 7695 8 3213 6                     441 4
+      + e4 β 2          s −           s +          s −          s +
+                 8192           4096        2048          1024
+                                                                             
+                    534195 10 625725 8 119241 6 14679 4
+      + e4 β −                s +              s −            s +           s +
+                     65536            32768            8192           4096
+                                                                                       
+                  2629395 10 4806609 8 693951 6 255547 4
+      + e4 −                 s +                s −             s +           s    cos 4g +
+                  262144             131072            16384           16384
+                            
+                α 12               2784375 12         30375 10 625725 8
+      + δ 6 2n 12 J26 η8 −                    s +              s +            s −
+                p                  2097152            131072           131072
+                                                                   
+        22275 6 15795 4 1215 2                       405                 336925575 12
+      −          s +            s −          s +             +η − 7
+                                                                                   s +
+         4096            8192          4096         4096                 16777216
+        107747415 10 86572719 8 1958985 6 267705 4 33453 2
+      +                s −                 s +               s +            s +         s −
+          2097152               2097152            262144            131072      32768
+                          
+         9639                269944785 12 557103975 10 4027787889 8
+      −             + η6                  s +                   s −                 s +
+        16384                 16777216             14680064              18350080
+                                                                              
+        1352789301 6 114281511 4 8422869 2 116025
+      +                   s −                 s +              s −              +
+            4587520               655360             163840            16384
+          THE MAIN PROBLEM IN SATELLITE THEORY REVISITED                 107
+    
+           9673330077 12 2071925325 10 5592426501 8
++ η5 −                  s +                   s −                 s +
+            16777216              1048576              2097152
+                                                               
+  479346353 6 91782579 4 5257161 2 346353
++              s −               s +             s −             +
+     262144           131072            32768           16384
+     
+           51208294995 12 41893358289 10 12691702939 8
++η −
+   4
+                          s +                    s −                 s +
+            117440512               29360128              7340032
+                                                               
+  8638684127 6 60869169 4 1572981 2 79335
++                s −               s −            s +            +
+     9175040            327680            81920          16384
+     
+   3 36588668175 12           16710042705 10 24859748631 8
++η                    s −                    s +                   s −
+         16777216               2097152                2097152
+  2470794973 6 579800283 4 40397793 2
+−                s +                s −              s +
+      262144             131072             32768
+                   
+  2719575                 54607489635 12 1105303905 10
++              + η2 −                     s +                 s +
+    16384                   117440512              7340032
+  55427623831 8 6804687627 6 3068410629 4 281270643 2
++                 s −                  s +                 s −            s +
+     18350080              1146880              655360            163840
+                  
+  4160085                21147194475 12 1321752339 10
++              +η −                      s +                 s −
+    16384                   16777216              262144
+  17631518211 8 2004074883 6 536802993 4 40875435 2
+−                 s +                 s −                s +            s −
+     2097152               262144             131072            32768
+             
+  2778111         2240757369 12 65543049645 10 58308931017 8
+−              −                s +                    s −                s +
+    16384          117440512              29360128              7340032
+  104441906927 6 265657671 4 29443221 2 6789783
++                  s −                 s +              s −           +
+       9175040               32768             10240           16384
+        
+              2278125 12 1306125 10 2265975 8 674325 6
++ e2 η6 −               s +               s −              s +         s −
+               524288           131072           262144         131072
+                                  
+  52245 4 8505 2                        2399625 12 104279805 10
+−         s +        s +e η −  2 5
+                                                  s +               s −
+  16384         8192                      65536           1048576
+                                                             
+  81864027 8 1664469 6 101493 4 214893 2
+−             s −             s +            s −            s +
+   1048576          524288            4096          32768
+        
+          7492881375 12 12623427423 10 5102318259 8
++ e2 η4                s −                    s +                 s −
+           33554432              16777216              5242880
+                                                     
+  3197569581 6 252001611 4 436401 2
+−                s +                s −           s +
+     5242880            1310720            16384
+        
+             355108635 12 89491353 10 160447299 8
++ e2 η3 −                 s +               s −                s −
+              1048576             131072             1310720
+108                                LIAM M. HEALY
+                                                          
+        47726637 6 15233741 4 2149623 2
+      −             s +               s −             s +
+           81920           32768              20480
+              
+         2 2 42113478375 12            44216148123 10 13504228239 8
+      +e η                     s −                     s +                  s −
+                 117440512               41943040                13107200
+                                                                 
+        74050396073 6 143122349 4 24161397 2
+      −                 s −                 s +                s +
+          229376000             3276800             819200
+             
+                  623585115 12 4709840055 10 36207501401 8
+      +e η −
+         2
+                              s +                    s −                  s +
+                    524288              1048576                 5242880
+                                                                 
+        14327968801 6 366358159 4 61794177 2
+      +                 s −                 s +                s +
+            2621440              163840             163840
+              
+                   10935 12 5103 10 9477 8 14013 6
+      +e β −
+         2 2
+                          s +           s −          s +           s −
+                    2048           256          320           640
+                                    
+        5157 4 189 2                       179977545 12 154349211 10
+      −        s +       s +e β − 2
+                                                         s +               s −
+         640         160                      524288              131072
+                                                                          
+        1085827807 8 40262417 6 20022493 4 170679 2
+      −                s +               s −               s +           s +
+            655360            32768               40960            2048
+           
+                8797408143 12 334363458337 10 294048503303 8
+      +e −
+         2
+                              s +                       s −                   s +
+                 234881024               83886080                 26214400
+                                                                        
+        10889097472391 6 36235796613 4 778394433 2
+      +                     s −                    s +                s +
+             917504000                6553600               819200
+           
+        e2       156735 12 73143 10 135837 8 200853 6
+      +       −          s +             s −             s +           s −
+         η        65536           8192           10240          20480
+                                                 
+        73917 4 2709 2                                    1366875 12
+      −         s +        s       cos 2g + e4 η4 −                 s +
+        20480         5120                                1048576
+                                                                 
+         91125 10 1269675 8 93555 6 59535 4
+      +          s +               s −           s +           s +
+        262144           262144           16384        32768
+              
+                   102734325 12 51040935 10 74121561 8
+      + e4 η3 −                 s +                s −               s +
+                    8388608             1048576             1048576
+                                                
+        2892915 6 1298997 4                           765924525 12
+      +            s −              s +e η − 4 2
+                                                                   s +
+          65536          131072                       33554432
+                                                                             
+        97017129 10 280228743 8 220214061 6 5227137 4
+      +             s −                  s +                 s −          s +
+         1048576            2097152              2621440           262144
+             
+                  453166515 12 75168171 10 133137195 8
+      +e η −
+         4
+                              s +                 s −                 s +
+                   8388608              524288             1048576
+                THE MAIN PROBLEM IN SATELLITE THEORY REVISITED             109
+                                           
+         26892729 6 2012521 4                  1080135 12 709155 10
+       +           s −           s + e4 β 2              s −            s +
+           655360       655360                  262144           65536
+                                                
+         647001 8 7155 6 2709 4                       52439535 12
+       +        s −        s +        s +e β −
+                                             4
+                                                                  s +
+          65536      2048       8192                   1048576
+                                                                   
+         35028441 10 16005747 8 7003449 6 167719 4
+       +           s −              s +           s −            s +
+           262144         131072         163840          40960
+           
+          4 24663212709 12      11713291761 10 133396066419 8
+       +e                s −                  s +                     s −
+              33554432             5242880              52428800
+                                                        
+         849756711 6 332976431 4                                 1366875 12
+       −            s +              s    cos 4g + e η −
+                                                       6 2
+                                                                         s +
+           655360         1310720                                1048576
+                                                       
+         1913625 10 893025 8 138915 6                     42045075 12
+       +          s −          s +          s +e η   6
+                                                                     s −
+          524288       262144        131072                8388608
+                                                              
+         56508435 10 12612915 8 1869399 6                            91125 12
+       −           s +              s −           s +e β − 6 2
+                                                                           s +
+          4194304        1048576         524288                     262144
+                                                   
+         127575 10 59535 8         9261 6             19118025 12
+       +        s −          s +        s +e β   6
+                                                                  s −
+         131072       65536       32768                4194304
+                                                         
+         25980345 10 5871285 8 882441 6                        811490805 12
+       −           s +            s −          s +e −   6
+                                                                          s +
+          2097152        524288        262144                   67108864
+                                                               
+         1094010705 10 7657173 8 9119871 6
+       +             s −             s +           s      cos 6g + O(δ 7 ).
+           33554432         262144        1048576
+
+A.4.   THE GENERATOR FOR THE DELAUNAY SIMPLIFICATION
+
+Delaunay generator at order 4
+ No.    Expression
+                          
+          α2       3 2 1
+ 1      2 2 J2 φ s −
+          p        4     2
+             4                                             
+           α 2             15 4 3 2 3           105 4 15 2 15
+ 2      δ2 4 J2 φ η − s − s +
+                     2
+                                             −     s + s −
+           p               64     8      8      64    4     8
+             4                     
+           α            45      21
+ 3      δ2 4 J22 φe2 − s 4 + s 2 cos 2g
+           p            32      16
+             4                       
+           α 2         9 4 3 2 1
+ 4      δ2 4 J2 eβ − s + s −            sin f
+           p           8      2     2
+                                        
+           α4 2 2        9 4 3 2 1
+ 5      δ2 4 J2 e β − s + s −              sin 2f
+           p            32      8      8
+110                                  LIAM M. HEALY
+
+Delaunay generator at order 4 (continued)
+ No.   Expression
+                                                          
+             α 6 3 2 2 675 6 585 4 63 2
+ 6     δ22       J   φ  e         s   −       s  +      s     sin 2g
+             p6 2            256         128        32
+               6                                                  
+         2 α                   45 6        21 4 15 2             3
+ 7     δ 2 6 J2 φ η3      3
+                                   s +         s − s +                +
+             p                256         128        32         16
+                                                                
+                       7965 6 6897 4 897 2 99                          13995 6 14193 4
+           + η2 −             s +          s −        s +           +        s −        s +
+                        512           256         64         32         512        256
+                                 
+             2331 2 297
+           +         s −
+               64            32
+               6                                                                    
+         2 α                    135 6 27 4 21 2                      135 6 27 4 21 2
+ 8                 3
+       δ 2 6 J2 φ e η     2
+                                     s − s + s +e β            2
+                                                                         s − s + s +
+             p                  128       16      32                 128     16     32
+                                                    
+                         405 6 99 4 51 2
+           + e2 −              s − s + s                  cos 2g
+                        1024          64        32
+               6                                           
+         2 α               45 6 21 4 15 2 3
+ 9     δ 2 6 J2 φe 3
+                              s + s − s +                     cos f
+             p             64         32        8         4
+               6                                          
+         2 α                  135 6 27 4 21 2
+ 10    δ 2 6 J2 φe −
+                   3
+                                    s + s − s cos(f + 2g)
+             p                  32         4         8
+               6                                                 
+             α               45 6        21 4 15 2             3
+ 11    δ 2 2 6 J23 φe2           s +         s − s +                cos 2f
+             p              256         128        32         16
+               6                                        
+         2 α              2 135 6         27 4 21 2              135 6
+ 12    δ 2 6 J2 φ η3
+                                   s − s + s −                        s +
+             p                128         16       32            128
+                               
+             27          21
+           + s 4 − s 2 cos(2f + 2g)
+             16          32
+               6                                       
+         2 α                405 6 81 4 63 2
+ 13    δ 2 6 J2 e β3 3
+                                 s − s + s sin(f − 2g)
+             p              256         32        64
+                                                                       
+             α6             135 6        63 4 45 2             9            81 6 387 4
+ 14    δ 2 2 6 J23 eη            s +         s − s +                 + eβ      s −     s +
+             p              256         128        32         16            16      32
+                                                                             
+             153 2 5                      405 6 189 4 135 2 27
+           +       s −         +e −            s −         s +         s −       +
+              16          2               256        128           32       16
+                                                          
+             e         81 6 81 4 27 2                   3
+           +      −         s + s − s +                        sin f
+             η         128         64        32        16
+                 THE MAIN PROBLEM IN SATELLITE THEORY REVISITED              111
+
+Delaunay generator at order 4 (continued)
+ No.   Expression
+                                                          
+             α6                405 6 81 4 63 2
+ 15    δ 2 2 6 J23 eη −             s + s − s +
+             p                 256         32        64
+                                                  
+                  2025 6 405 4 315 2
+           +e            s −        s +          s     sin(f + 2g)
+                  256           32          64
+                                                           
+             α6              405 6       81 4        63 2
+ 16    δ 2 2 6 J23 e4 β           s −         s +         s sin(2f − 2g)
+             p              1024        128         256
+                                                                  
+             α6               135 6        63 4        45 2       9
+ 17    δ 2 2 6 J23 e2 η            s +         s −         s +        +
+             p               1024         512         128        64
+                                                      
+               2 2 27 6         27 4       9 2 1
+           +e β           s − s + s −                    +
+                       64       32        16         8
+                                                          
+                     405 6 117 4 45 2 23
+           +e β2
+                           s −        s + s −                +
+                     256          32         16        32
+                                                           
+                       135 6       63 4 45 2              9
+           +e −2
+                            s −        s + s −                +
+                       512         256         64        32
+                                                             
+             e2         297 6 297 4              99 2 11
+           +        −        s +        s −         s +           sin 2f
+              η         512        256          128        64
+               6                                          
+         2 α                 405 6       81 4        63 2
+ 18    δ 2 6 J2 η  3    3
+                                  s −         s +         s +
+             p              1024        128         256
+                                                       
+                        1215 6 243 4 189 2
+           +η −2
+                              s +        s −         s +
+                        1024        128          256
+                                                      
+                       405 6        81 4        63 2
+           +η −              s +        s −         s +
+                      1024         128         256
+                                               
+             1215 6 243 4 189 2
+           +         s −         s +        s sin(2f + 2g)
+             1024           128        256
+               6                                               
+         2 α                   27 6 27 4             9 2       1
+ 19    δ 2 6 J2 e β3    3 2
+                                   s − s + s −                      +
+             p                128         64        32        16
+                                                        
+                      27 6 27 4             9 2       1
+           +e β3
+                           s − s + s −                     +
+                     128         64        32        16
+                                                           
+             e3          27 6 27 4             9 2       1
+           +        −        s + s − s +                       sin 3f
+              η         128        64         32        16
+               6                                                     
+         2 α                    27 6        27 4         9 2        1
+ 20    δ 2 6 J2 e β3    4 2
+                                     s −          s +        s −         +
+             p                1024         512         256        128
+112                                   LIAM M. HEALY
+
+Delaunay generator at order 4 (continued)
+ No.   Expression
+                                                             
+                      27 6         27 4        9 2        1
+           + e4 β           s −         s +        s −          +
+                     1024         512        256         128
+                                                                
+             e4          27 6         27 4        9 2        1
+           +        −          s +        s −        s +            sin 4f
+              η        1024          512        256        128
+                                                                       
+             α8              3375 8 4275 6 225 4 63 2
+ 21    δ 3 2 8 J24 φ 3 e2          s −          s +        s − s cos 2g
+             p                512          256         16         16
+                                                                            
+             α8                     2025 8 1215 6 963 4 63 2
+ 22    δ 3 2 8 J24 φ 2 e2 η −             s +          s −        s + s +
+             p                       512         128         128         32
+                                                                   
+                         2025 8 1215 6 963 4 63 2
+           + e2 β −             s +         s −         s + s +
+                          512          128         128        32
+                                                                 
+                    675 8 2385 6 2133 4 225 2
+           +e  2
+                          s +          s −          s +        s      sin 2g
+                   2048          512         256           64
+               8                                                      
+         3 α               2025 8 1215 6 963 4 63 2
+ 23    δ 2 8 J2 φ e4 2
+                                  s −         s +         s − s sin(f + 2g)
+             p               256          64          64         16
+               8                                                           
+         3 α                      2025 8 1215 6 963 4 63 2
+ 24    δ 2 8 J2 φ η −
+                   4 2     2
+                                         s +         s −         s + s +
+             p                    1024          256         256         64
+                                                          
+             2025 8 1215 6 963 4 63 2
+           +         s −          s +        s − s sin(2f + 2g)
+             1024            256         256        64
+               8                                                                
+         3 α                     4275 8 855 6 423 4                  9 2       9
+ 25    δ 2 8 J2 φ η −
+                   4     5
+                                        s +        s −        s + s −              +
+             p                   4096        512         512        32        64
+                                                                                    
+                       628065 8 95895 6 18117 4 4779 2 297
+           +η −4
+                                 s +           s −           s +           s −        +
+                       32768             2048          512           512         256
+                                                                           
+               3 34785 8          10347 6 2313 4 513 2 53
+           +η               s −           s +          s −        s +         +
+                    4096            512           128         64         32
+                                                                                    
+                       780405 8 4785 6 3195 4 25593 2 3189
+           +η −2
+                                 s +         s +          s −            s +          +
+                       16384             256          32           256          128
+                                                                        
+                      1215 8           81 6 999 4 27 2 27                      387915 8
+           +η −              s +−          s +        s − s +               +          s +
+                      2048            512        512        16        64        32768
+                                                                       
+             259221 6 158193 4 117111 2 13521
+           +            s −              s +            s −
+               2048              512             512            256
+               8                                                           
+         3 α                         675 8 225 6 261 4 63 2
+ 26    δ 2 8 J2 φ e η −
+                   4     2 3
+                                          s −        s +         s − s +
+             p                      1024         512        128         64
+                 THE MAIN PROBLEM IN SATELLITE THEORY REVISITED                          113
+
+Delaunay generator at order 4 (continued)
+ No.   Expression
+                                                                    
+                   40005 8 18603 6 1467 4 63 2
+         + e2 η2             s −           s −          s + s +
+                    8192            4096          512          32
+                                                                     
+                      3645 8 6507 6 1725 4 285 2
+         + e2 η −             s +         s −          s +          s +
+                      2048           1024        256          128
+                                                                     
+                      10935 8 14769 6 51 4 237 2
+         + e2 β −               s +           s − s +               s +
+                       2048            1024          4         64
+                                                                                
+                    1639065 8 2045107 6 103457 4 27909 2
+         + e2 −                  s +             s −              s +          s     cos 2g
+                      8192               4096             256             256
+             8                                                 
+        3 α                      2025 8 945 6 441 4
+ 27    δ 2 8 J2 φ e η −
+                 4     4
+                                        s +       s −         s +
+           p                     2048         512        512
+                                                      
+                      2025 8 945 6 441 4
+         +e β −
+             4
+                              s +        s −         s +
+                      2048           512       512
+                                                     
+          4 111915 8           6165 6 10773 4
+       +e             s −            s +           s      cos 4g
+              16384            512          2048
+             8                                                           
+        3 α                        405 8 459 6 171 4 21 2
+ 28    δ 2 8 J2 φ e β −
+                 4     3 2
+                                        s +       s −         s + s +
+           p                       512        256        128         64
+                                                                    
+                      1215 8 2889 6 567 4 147 2
+         + e3 β −             s +         s −         s +         s +
+                       256            256        64           64
+                                                                  
+                     675 8          225 6 261 4             63 2
+         +e −3
+                            s −          s +        s −         s      cos(f − 2g)
+                    2048           1024        256         128
+             8                                                                 
+        3 α                      4275 8 855 6 423 4                   9 2      9
+ 29    δ 2 8 J2 φ eη −
+                 4       2
+                                        s +       s −         s + s −             +
+           p                     2048         256        256         16       32
+                                                                    
+                     405 8         27 6 333 4 9 2                 9
+         + eη −            s −         s +       s − s +               +
+                     512          128        128        4        16
+                                                                           
+               97515 8 7371 6 26031 4 1353 2 249
+         +e            s −            s +          s −           s +           cos f
+                2048             64          256           32           32
+             8                                                          
+        3 α              2 2025 8         675 6 783 4 189 2
+ 30              4
+       δ 2 8 J2 φ eη                s +         s −         s +         s +
+           p                  2048        1024         256         128
+                                                                                    
+                 135 6 27 4 21 2                     405 8 459 6 171 4 21 2
+         + eη         s − s + s +eβ                       s −        s +      s − s +
+                 256         32       64             256        128        64     32
+                                                                    
+                   11475 8 2439 6 1737 4 513 2
+         +e −               s +          s +          s −         s      cos(f + 2g)
+                    2048           1024         256          128
+114                                    LIAM M. HEALY
+
+Delaunay generator at order 4 (continued)
+ No.   Expression
+                                                               
+             α 8 4 3 2025 8 945 6 441 4
+ 31    δ32       J   φe            s   −        s   +        s    cos(f + 4g)
+             p8 2           1024           256         256
+                                                                                  
+             α8                       405 8          459 6 171 4               21 2
+ 32    δ 3 2 8 J24 φ e4 β 2 −                s +           s −        s +         s +
+             p                        2048          1024          512         256
+                                                                         
+                          1215 8 2889 6 567 4 147 2
+           + e4 β −             s +            s −          s +        s +
+                          1024          1024          256          256
+                                                                         
+                        675 8          225 6         261 4         63 2
+           + e4 −             s −            s +            s −       s       cos(2f − 2g)
+                       8192           4096          1024          512
+               8                                                                         
+         3 α                         4275 8          855 6         423 4        9 2     9
+ 33    δ 2 8 J2 φ e η −
+                   4      2 2
+                                             s +           s −          s + s −              +
+             p                       8192           1024          1024         64      128
+                                                                              
+                          405 8          27 6 333 4               9 2       9
+           +e η −
+               2
+                                s −           s +         s − s +               +
+                         2048           512         512          16        64
+                                                                                  
+               2 97515 8           7371 6 26031 4 1353 2 249
+           +e               s −            s +             s −         s +            cos 2f
+                    8192            256            1024           128          128
+               8                                                                 
+         3 α                      2025 8          675 6         783 4 189 2
+ 34    δ 2 8 J2 φ η −
+                   4      4
+                                          s −           s +          s −         s +
+             p                    8192           4096          1024         512
+                                                          
+                        135 6          27 4         21 2
+           +η −3
+                              s +           s −         s +
+                       1024           128          256
+                                                                   
+                    135 8 3501 6 711 4 561 2
+           +η  2
+                           s +           s −          s +         s +
+                   2048          1024           128          256
+                                                                      
+                       405 8 1053 6 225 4                        63 2         21195 8
+           +η −              s +            s −          s +        s −             s +
+                      1024           1024          256          256           8192
+                                                     
+             12375 6           117 4 345 2
+           +          s +            s −          s cos(2f + 2g)
+              4096            1024           512
+               8                                                         
+         3 α                         2025 8          945 6         441 4
+ 35    δ 2 8 J2 φ e η −
+                   4      2 2
+                                             s +           s −          s +
+             p                       4096           1024          1024
+                                                         
+               2 2025 8           945 6          441 4
+           +e              s −           s +           s       cos(2f + 4g)
+                   4096          1024           1024
+               8                                                          
+         3 α                  405 8 459 6 171 4 21 2
+ 36    δ 2 8 J2 φe −
+                   4
+                                    s +          s −          s + s cos(3f + 2g)
+             p                256           128           64        32
+               8                                                               
+         3 α                     405 8          459 6 171 4               21 2
+ 37    δ 2 8 J2 φe −
+                   4    2
+                                       s +            s −         s +         s cos(4f + 2g)
+             p                  2048           1024          512         256
+                  THE MAIN PROBLEM IN SATELLITE THEORY REVISITED                           115
+
+Delaunay generator at order 4 (continued)
+ No.   Expression
+                                                                   
+             α8 4 5              2025 8       945 6         441 4
+ 38    δ32       J   e  β    −        s   +        s   −         s    sin(f − 4g)
+             p8 2                4096        1024          1024
+                                                                            
+             α8                    675 8       225 6 261 4              63 2
+ 39    δ 3 2 8 J24 e3 η −               s −          s +         s −        s +
+             p                    2048        1024          256         128
+                                                                   
+                           405 8 459 6 171 4 21 2
+           + e3 β 2 −            s +        s −         s + s +
+                           512        256         128         64
+                                                                      
+                          135 8 2097 6 2289 4 381 2
+           + e3 β −            s +          s −           s +        s +
+                           64         256          256          128
+                                                                  
+                    405 8 2511 6 1125 4 231 2
+           +e  3
+                           s +          s −          s +         s +
+                   2048           1024         256          128
+                                                                  
+             e3 1215 8 1377 6 513 4                         63 2
+           +                s −          s +       s −          s     sin(f − 2g)
+              η 1024               512         256         128
+               8                                                                 
+         3 α                      4275 8 855 6 423 4                   9 2      9
+ 40    δ 2 8 J2 eη −
+                   4      3
+                                        s +        s −         s + s −               +
+             p                    4096        512          512        32       64
+                                                                           
+                 2 20295 8          4311 6 2559 4 69 2 57
+           + eη               s −          s +           s − s +             +
+                      4096           512          512          32        64
+                                                                                 
+                    129915 8 38913 6 34083 4 441 2 325
+           + eη               s −            s +            s −        s +          +
+                      4096            512            512           16         64
+                                                                                   
+                        16119 8 12849 6 15147 4 249 2 199
+           + eβ −                s +           s −            s +         s −         +
+                          512            128            128           4         16
+                                                                                     
+                       384255 8 118917 6 108867 4                               1149
+           +e −                  s +            s −              s + 93s − 2
+                                                                                       +
+                        4096              512             512                     64
+                                                                        
+              e 6723 8 729 6 909 4 489 2 193
+           +              s −        s +         s −         s +           +
+             η 2048               64         64           64        128
+                                                                           
+              e          729 8 243 6 243 4 27 2                          9
+           + 3 −                s +        s −         s + s −                 sin f
+             η          2048         256         256         64        128
+               8                                                         
+         3 α                   675 8        225 6 261 4              63 2
+ 41    δ 2 8 J2 eη 4      3
+                                    s +          s −         s +         s +
+             p                2048         1024          256        128
+                                                                        
+                         3105 8 3411 6 2169 4 483 2
+           + eη −2
+                                 s −         s +           s −        s +
+                         2048         1024          256           128
+                                                                   
+                    1215 8 5859 6 2037 4 381 2
+           + eη             s −          s +          s −         s +
+                    2048           1024         256          128
+116                                     LIAM M. HEALY
+
+Delaunay generator at order 4 (continued)
+ No.   Expression
+                                                                    
+                        405 8 459 6 171 4 21 2
+           + eβ −            s +          s −           s + s +
+                        128          64            32         16
+                                                                            
+                  94095 8 90891 6 13611 4 1203 2
+           +e              s −             s +             s −           s +
+                  2048            1024              256            128
+                                                                    
+              e 1215 8 1377 6 513 4                          63 2
+           +              s −           s +           s −         s       sin(f + 2g)
+             η 1024               512           256          128
+                                                                   
+             α8              2025 8          945 6          441 4
+ 42    δ 3 2 8 J24 e3 η             s −             s +           s +
+             p               4096           1024           1024
+                                                               
+                        18225 8 8505 6 3969 4
+           +e −3
+                                s +            s −           s       sin(f + 4g)
+                        4096           1024            1024
+               8                                                        
+         3 α                     2025 8           945 6         441 4
+ 43    δ 2 8 J2 e β −
+                   4 6
+                                         s +             s −          s sin(2f − 4g)
+             p                  16384            4096          4096
+               8                                                                  
+         3 α                      675 8           225 6        261 4           63 2
+ 44    δ 2 8 J2 e η −
+                   4    4
+                                        s −             s +           s −         s +
+             p                   8192           4096           1024           512
+                                                                            
+                           2025 8 2295 6 855 4 105 2
+           +e β −
+               4 2
+                                 s +             s −         s +          s +
+                           2048          1024            512         256
+                                                                              
+                          675 8 3933 6 3657 4                         549 2
+           +e β −
+               4
+                              s +            s −            s ++           s +
+                          512        1024            1024             512
+                                                                     
+                        135 8 1143 6 27 4 21 2
+           +e −4
+                              s +            s − s + s +
+                        4096         2048            32        64
+               4                                                      
+             e 4455 8 5049 6 1881 4 231 2
+           +               s −           s +             s −         s       sin(2f − 2g)
+              η 4096              2048           1024          512
+               8                                                                            
+         3 α                        4275 8           855 6         423 4          9 2      9
+ 45    δ 2 8 J2 e η −
+                   4    2 3
+                                            s +            s −           s +        s −        +
+             p                     16384            2048          2048          128       256
+                                                                                   
+               2 2 11745 8            2601 6 1713 4                  51 2        39
+           +e η                s −            s +           s −          s +          +
+                       16384          2048           2048           128         256
+                                                                                      
+                     130995 8 38877 6 33639 4 429 2 313
+           +e η2
+                               s −              s +             s −          s +         +
+                      16384            2048              2048           64         256
+                                                                            
+                           351 8 531 6 75 4 75 2 7
+           +e β −
+               2 2
+                                s +          s − s + s −                       +
+                           128          64            8        16          8
+                                                                                       
+                          5103 8 16089 6 18801 4 153 2 483
+           +e β −
+               2
+                                s +              s −             s +          s −         +
+                           512           512              512             8         128
+                 THE MAIN PROBLEM IN SATELLITE THEORY REVISITED                       117
+
+Delaunay generator at order 4 (continued)
+ No.   Expression
+                                                                            
+                      259785 8 78825 6 70365 4 1869 2 707
+           + e2 −              s +         s −          s +        s −        +
+                       16384         2048        2048          128       256
+                                                                         
+             e2 52839 8 22563 6 27843 4 3717 2 1459
+           +              s −          s +          s −         s +         +
+              η 16384            2048         2048         512       1024
+                                                                         
+              e2        7047 8 2349 6 2349 4 261 2                    87
+           + 3 −              s +        s −         s +       s −           sin 2f
+             η         16384        2048       2048        512       1024
+                                                                    
+             α8               675 8      225 6       261 4       63 2
+ 46    δ 3 2 8 J24 η5 −            s −        s +         s −       s +
+             p               8192       4096        1024        512
+                                                        
+                    135 8 171 6 693 4 147 2
+           + η4          s +       s −       s +       s +
+                   1024        256      512       256
+                                                        
+                    675 8       603 6 807 4 45 2
+           +η  3
+                         s +        s −       s + s +
+                   2048        1024       512       64
+                                                             
+                      4995 8 801 6 2277 4 765 2
+           +η −2
+                           s +        s +        s −        s +
+                      2048        512       1024       512
+                                                               
+                     17415 8 15255 6 237 4                51 2
+           +η −             s +          s −       s +       s +
+                      8192         4096        128       256
+             19305 8 9405 6 11421 4 1041 2
+          +           s −        s +         s −        s +
+              2048          512        1024       512
+                                                          
+             1 4455 8 5049 6 1881 4 231 2
+           +            s −         s +       s −       s     sin(2f + 2g)
+             η 4096           2048       1024      512
+                                                            
+             α8                 2025 8      945 6      441 4
+ 47    δ 3 2 8 J24 e2 η3 −            s +       s −         s +
+             p                 16384       4096       4096
+                                                   
+                     10125 8 4725 6 2205 4
+           + e2 η2          s −        s +       s +
+                     16384        4096      4096
+                                                 
+                     2025 8       945 6     441 4
+           + e2 η          s −        s +       s +
+                    16384        4096      4096
+                                                    
+                      10125 8 4725 6 2205 4
+           + e2 −            s +        s −       s      sin(2f + 4g)
+                      16384        4096      4096
+                                                                  
+             α8                 405 8 459 6 171 4              21 2
+ 48    δ 3 2 8 J24 e5 β 2 −          s +      s −       s +       s +
+             p                 1024       512       256       128
+                                                            
+                         405 8 459 6 171 4             21 2
+           + e5 β −          s +       s −      s +        s +
+                        1024       512      256       128
+118                                    LIAM M. HEALY
+
+Delaunay generator at order 4 (continued)
+ No.   Expression
+                                                            
+             e5 405 8 459 6 171 4                     21 2
+           +             s −       s +         s −        s        sin(3f − 2g)
+              η 1024           512        256        128
+                                                                            
+             α8                  27 8       9        9         1           1
+ 49    δ 3 2 8 J24 e3 β 3 −         s + s6 − s4 + s2 −                          +
+             p                  128        16       16         4          24
+                                                                           
+                         1647 8 153 6 681 4 21 2 31
+           +e β −
+               3 2
+                              s +        s −        s + s −                   +
+                         1024        32         128          8         64
+                                                                         
+                       1647 8 153 6 681 4 21 2 31
+           + e3 β −          s +        s −        s + s −                   +
+                       1024         32         128         8          64
+                                                                   
+             e3 189 8 1233 6 1473 4                            37
+           +           s −         s +          s − 3s + 2
+                                                                      +
+              η 128           256          256                 64
+                                                                            
+              e3      1107 8 369 6 369 4                  41 2          41
+           + 3 −            s +        s −        s +          s −               sin 3f
+             η        4096        512         512        128           768
+               8                                                           
+         3 α                 1215 8 1377 6 513 4                     63 2
+ 50    δ 2 8 J2 eη −
+                  4
+                                   s +          s −         s +          s +
+             p               1024          512        256           128
+                                                              
+                 3375 8 3825 6 1425 4 175 2
+           +e          s −         s +          s −         s +
+                 1024        512          256         128
+                                                           
+              e 405 8 459 6 171 4                    21 2
+           +            s −       s +         s −        s        sin(3f + 2g)
+             η 1024           512        256        128
+               8                                                                
+         3 α                     405 8        459 6       171 4           21 2
+ 51    δ 2 8 J2 e β −
+                  4   6 2
+                                     s +          s −            s +            s +
+             p                  8192         4096        2048            1024
+                                                                        
+                        405 8       459 6        171 4          21 2
+           +e β −
+               6
+                             s +          s −         s +             s +
+                       8192        4096         2048          1024
+                                                                   
+             e6 405 8           459 6        171 4        21 2
+           +             s −        s +          s −            s       sin(4f − 2g)
+              η 8192           4096         2048        1024
+               8                                                             
+         3 α                     81 8 27 6 27 4                  3 2         1
+ 52    δ 2 8 J2 e β −
+                  4   4 3
+                                    s + s − s + s −                              +
+             p                  512        64       64         16           32
+                                                                                
+                         1593 8 1125 6 597 4 141 2                          25
+           +e β −
+               4 2
+                              s +          s −        s +           s −           +
+                         4096       1024         512          256          256
+                                                                              
+                       1593 8 1125 6 597 4 141 2                           25
+           +e β −
+               4
+                             s +          s −        s +           s −           +
+                       4096        1024         512         256           256
+                  THE MAIN PROBLEM IN SATELLITE THEORY REVISITED                               119
+
+Delaunay generator at order 4 (continued)
+ No.   Expression
+                                                                              
+             e4 3051 8 2259 6 2499 4 153 2                                 7
+           +               s −         s +           s −          s +            +
+              η 8192            2048          2048         256            64
+                                                                                
+              e4         405 8 135 6 135 4                    15 2            5
+           + 3 −              s +         s −         s +          s −               sin 4f
+             η          4096        512          512         128           256
+                                                                                   
+             α8                 1215 8 1377 6               513 4             63 2
+ 53    δ 3 2 8 J24 e2 η −             s +           s −            s +             s +
+             p                  8192          4096         2048             1024
+                                                                   
+                   1215 8 1377 6              513 4         63 2
+           + e2           s −         s +           s −          s +
+                   4096         2048         1024          512
+                                                                      
+             e2 405 8            459 6         171 4         21 2
+           +               s −         s +           s −            s        sin(4f + 2g)
+              η 8192            4096          2048         1024
+               8                                                                       
+         3 α                      81 8          27 6        27 4           3 2        1
+ 54    δ 2 8 J2 e β −
+                   4    5 3
+                                        s +         s −          s + s −                   +
+             p                   2048          256         256            64         128
+                                                                                   
+                           243 8       81 6         81 4         9 2            3
+           +e β −
+               5 2
+                                s +         s −         s +           s −             +
+                          4096        512          512         128            256
+                                                                                 
+                          243 8       81 6         81 4         9 2            3
+           +e β −
+               5
+                               s +         s −         s +          s −             +
+                         4096        512          512         128            256
+                                                                            
+             e5 243 8            81 6        81 4         9 2            3
+           +               s −       s +          s −         s +              +
+              η 4096            512         512          128           256
+                                                                                
+              e5          81 8       27 6         27 4         3 2            1
+           + 3 −              s +         s −         s +          s −               sin 5f
+             η          4096        512          512         128           256
+               8                                                                            
+         3 α                      27 8            9 6           9 4             1 2        1
+ 55    δ 2 8 J2 e β −
+                   4    6 3
+                                        s +           s −            s +           s −          +
+             p                   8192          1024          1024             256        1536
+                                                                                        
+                             81 8         27 6          27 4            3 2          1
+           +e β −
+               6 2
+                                 s +           s −           s +            s −           +
+                          16384         2048          2048            512          1024
+                                                                                       
+                            81 8         27 6          27 4           3 2           1
+           +e β −
+               6
+                                s +           s −          s +            s −             +
+                         16384         2048          2048           512           1024
+                                                                                  
+             e6        81 8        27 6          27 4          3 2             1
+           +                s −         s +            s −          s +              +
+              η 16384            2048           2048         512            1024
+                                                                                      
+              e6           27 8         9 6           9 4           1 2            1
+           + 3 −               s +           s −          s +            s −              sin 6f
+             η          16384        2048           2048           512           3072
+120                                        LIAM M. HEALY
+
+                                             References
+
+Aksnes, K.: 1965a, ‘On the dynamical theory of a near-earth satellite, I’, Astrophys. Norv. 10, 69–77.
+Aksnes, K.: 1965b, ‘On the dynamical theory of a near-earth satellite, II’, Astrophys. Norv. 10,
+    149–169.
+Brouwer, D.: 1959, ‘Solution of the problem of artificial satellite theory without drag’, Astron. J. 64
+    (1274), 378–397.
+Davenport, J. H., Siret, Y. and Tournier, E.: 1988, Computer Algebra: Systems and Algorithms for
+    Algebraic Computation, Academic Press, London.
+Delauanay, C.: 1846, ‘Mémoire sur une nouvelle méthode pour la détermination du mouvement de
+    la Lune’, C.R. Acad. Sc. Paris 22, 32–36.
+Delaunay, C.: 1855, ‘Sur une méthode d’intégratin applicable au calcul de perturbations de planètes
+    et de laurs satellites’, C.R. Acad. Sc. Paris 40, 335–338.
+Deprit, A.: 1969, ‘Canonical transformations depending on a small parameter’, Celest. Mech. & Dyn.
+    Astr. 1, 12–30.
+Deprit, A.: 1981, ‘The elimination of the parallax in satellite theory’, Celest. Mech. & Dyn. Astr. 24,
+    111–153.
+Deprit, A.: 1982, ‘Delaunay normalisations’, Celest. Mech. & Dyn. Astr. 26, 9–21.
+Deprit, A. and Coffey, S. L.: 1982, ‘Third-order solution to the main problem in satellite theory’, J.
+    Guidance, Control and Dynamics 5, 366–371.
+Deprit, A. and Ferrer, S.: 1989, ‘Simplifications in the theory of artificial satellites’, J. Astro. Sci.
+    37(4), 451–463.
+Deprit, A. and Miller, B.: 1989, ‘Simplify or perish’, Celest. Mech. & Dyn. Astr. 45, 189–200.
+Jeffreys, W. H.: 1971, ‘Automated, closed form integration of formulas in elliptic motion’, Celest.
+    Mech. & Dyn. Astr. 3, 390–394.
+Kelly, T. J.: 1989, ‘A note on first-order normalizations of perturbed Keplerian systems’, Celest.
+    Mech. & Dyn. Astr. 46(1), 19–25.
+Knuth, D. E.: 1992, Literate programming, No. 27 in CSLI Lecture Notes, Center for the Study of
+    Language and Information, QA 76.6.K644.
+Lamport, L.: 1994, LATEX : A Document Preparation System, 2nd edn, Addison-Wesley.
+Miller, B. R. and Deprit, A.: 1986, ‘Experiments with LISP mechnies in non-linear dynamics’, Talk
+    presented at the conference on Computers and Mathematics.
+Poincaré, H.: 1905, Leçon de Méchanique Céleste, Gauthier-Villars, Paris.
+Smart, W. M.: 1953, Celestial Mechanics, Longmans, Green and Co., London.
+Tisserand, F.: 1888, Traité de Mécanique Céleste, Vol. 1. Gauthier-Villars, Paris.
+

@@ -1,0 +1,1447 @@
+64. . 37 8B
+
+
+
+
+              378                           THE        ASTRONOMICAL                           JOURNAL                              64, No. 1274
+1959AJ
+
+
+
+
+                              SOLUTION OF THE PROBLEM OF ARTIFICIAL SATELLITE
+                                           THEORY WITHOUT DRAG
+                                                                  By DIRK BROUWER
+                                                                Yale University Observatory
+                                                                 Received October 27, IQ5Q
+                Abstract. Sections 1-6 give the solution of the main problem for a spheroidal earth with the potential limited to the
+              principal term and the second harmonic which contains the small factor &2. The solution is developed in powers of ¿2 in
+              canonical variables by a method which is basically the same as that used in treating a different problem by von Zeipel
+              (1916). The periodic terms are divided in two classes: the short-period terms contain the mean anomaly in their argu-
+              ments ; the arguments of the long-period terms are multiples of the mean argument of the perigee.
+                The periodic terms, both of short and long period, are developed to 0(&2) ; the secular motions are obtained to 0(£22).
+              The results are obtained in closed form ; no series developments in eccentricity or inclination arise. The solution does not
+              apply to orbits near the critical inclination, 63 ?4, but is otherwise valid for any eccentricity < I and any inclination.
+                Section 7 gives the long-period terms and the additions to the secular motions caused by the fourth harmonic in the
+              potential ; section 8 gives the contributions by the third and fifth harmonics ; section 9 contains formulas for computation.
+
+              I. The equations of motion. The equations of                        ables are then
+              motion of a small mass attracted by a spheroid
+              are                                                                 L= (ua)*,               l = mean anomaly,
+                                                                                               2
+                                                                                  G = L(i—e )f            g = argument of the pericenter,
+                      d2x     dU      d2y       dU     d2z      dU
+                      dt2     dx ’    dt2       dy ’   dt2      dz ’              H^G cos /,              h — longitude of ascending node.
+              with                                                                With these variables the equations become
+
+              TT = -
+                   M +. -r
+                        ßkl (!
+                            /                                                                      dL   dF          dl       dF
+              U
+                   f     r6           3 sin2 ß)
+                                                                                                    dt  dl ’        dt       dU
+                                                                                                   dG   dF          dg       dF
+                                       IO sin2 ß +           sin4      + • • *.
+                                                                                                   It = 07'         ~~dt =
+                                                                                                                           ~ dG’              (i)
+
+
+              The equatorial plane of the spheroid is taken as                                     dH _dF           dh _ _dF
+              the xy plane; ß is the latitude, and if M is the                                     dt   dh’         dt       dH’
+              mass of the spheroid and k the Gaussian con-
+              stant, ¡X — k2M.                                                                                 i   3íí2w
+                                                                                          2 +        6           +
+                 The main problem of artificial satellite theory                       2L          £ IA        2   2 G2 / r3
+              may be considered the problem with k± — o. Let
+              I be the instantaneous inclination of the orbital                               + (f - !§¿)7¡cos (2g + 2/)]-                    (2>
+              plane with the equatorial plane, g the distance
+              of the pericenter from the ascending node, and /                      The parts of F not exhibited in terms of the
+              the true anomaly. Then                                              Delaunay variables may be expanded in Fourier
+                        sin ß = sin 7 sin {g + /),                                series as follows :
+                     2 sin2 ß = sin2 7 [1 — cos (2g + 2/)],                                         0-3     Lz       00
+                                                                                                                                      T/3
+                                                                                                          ~ ~QZ~^          COS jl =         Y Hly
+              and the disturbing function can be written
+                                                                                                       +00
+              R =           (- I + f cos 1) 2                                     -3
+                                                                                  '  COS (2g + 2/) =   E <2y COS (2g + jl) = 0-2.
+                                                                                                     j——O0
+                                              a*                                  The coefficients Py, Qj are power series in the
+                              + (f - f cos21) ^3 COS (2 g + 2 f)                  eccentricity e ; the lowest power of e is ej in Pj ;
+                                                                            ]     ¿ly-2! in Qy, j 4= o. Since e2 — 1 — G2!L2, the
+                Let a, e be the osculating semi-major axis and                    derivatives of a function ^{è) with respect to 7,
+              eccentricity, respectively. The Delaunay vari-                      or G may be obtained by
+
+
+
+
+                    © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 37 8B
+
+
+
+
+              1959 November                THE      ASTRONOMICAL                  JOURNAL                              379
+1959AJ
+
+
+
+
+                                       _ I fyÇP                                                  dS
+                                                                                           G              77 = ^
+                                                                                                          H
+                                dL       e de L?’                             ^     dl’          dg’             dh’
+                                                               (3)
+                                dif/         I di}/ G                                                            dS
+                                                                              1' = ^-                     h' =
+                                dG           e de Lr                               dL' ’          dG' ’          dH'
+              The functions \¡/ that will arise are functions of      the equations in the new variables will be
+              a/r and /. Well-known formulas of elliptic
+              motion are                                                                         dT _   dA*
+                                                                                   dt ~ dl' ’    dt ~ ~ dL' ’
+                                                                                  dG'   dF* dg'      dF*
+                                                                                  ~dt = dg7’ ~dt = - ~dGF’             (7)
+                                                                                              (W _    dF*
+                                                                                   dt   dh' ’ dt      dH' ’
+                Some important properties of the Hamiltonian          with
+              F may be noted :
+                                                                      F*{L', G', H', V, g', -)
+                 (a) the independent variable t is not explicitly
+                                                                                               = F(L, G, H, l, g,-)    (8)
+              present in F, hence the integral F = constant
+              exists ;                                                The dashes in the places for h' and h are used to
+                 (b) the variable h is not present in F\              indicate the absence of these variables.
+                 (c) the coefficient <2o in 0-2 is zero.                 The problem would be completely solved if a
+              The value of this coefficient is the constant term      determining function were found such that F*
+              of the expansion in terms of the mean anomaly           is a function of the variables L', G', H' only. The
+              of a3r~3 cos 2/: hence                                  differential equations (7) show that then Z/,
+                                                                      G', H' are constants, while        gf, V are linear
+                                   i rT a3                            functions of the time. Substitution of this solu-
+                              Qo = “ I —3 cos 2fdl.                   tion of the primed quantities into (6) then yields
+                                   7T Jo r
+                                                                      expressions from which the original variables
+              By making use of the integral of areas in the form      may be obtained in terms of L', G', H', V, g', h*
+                                                                      and therefore in terms of t and the constants of
+                                           L r2                       integration.
+              dl = Ga*df                                                 In the present problem it is more convenient to
+                                                                      choose the determining function S in such a
+              this may                                                manner that V is not present in T7*, while gr is
+                                                                      permitted to appear. If this is accomplished, L'
+                    ^    i L CT a                                     and Hr will be constants, and the system is
+                       =
+                    0°   „r     I 7V cos 2fdf
+                         7T Lr Jo                                     essentially reduced to one of one degree of
+                           I U CT                                     freedom :
+                         = “ £T3 Jo (1 + e cos /) cos 2fdf                         d(F _dF*      dg'     dF*
+                         = o.                                                       dt ~ dg"     dt ~ ~~ dG'
+
+              This derivation may be generalized to show that         in which L' and H' are present as constants.
+              the constant term of (ap/rp) cos qf (p and q            After this system is solved, h' are obtained by
+              positive integers), expanded in terms of the            quadratures from
+              mean anomaly, is zero ii q> p — 2 ^ o.
+                                                                                  dl'    dF*      dh'  _dF*
+              2. Outline of the method of solution. Consider a                    dt ~ ~ dLn      dt ~ ~~ dH"
+              transformation from the variables L, G, H, l, g, h
+              to new variables L', G'} H', l', g', h', with the aid   Preferably a canonical transformation by the
+              of a determining function 5(1/, G', ZT, /, g, h).       choice of a suitable determining function leads
+              Then, if                                                to an equivalent result.
+
+
+
+
+                 © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 37 8B
+
+
+
+
+              380                       THE      ASTRONOMICAL                   JOURNAL                             64, No. 1274
+1959AJ
+
+
+
+
+              3. First-order solution. The determining function    order 1,
+              is obtained by a method used by H. v. Zeipel
+                                                                                         dAodSi
+               (1916) in a qualitative study of the motions of                                                EC           (10)
+              minor planets. In this procedure a development                             dL' dl + tl
+              in powers of the small parameter &2 is introduced.   order 2,
+              If iq is written for R, the original Hamiltonian
+              is                                                   aEo as,  i cEE) / dSi V  a Ei aSi
+                                 F = F, + Fh                       SL' dl + 2 dL'2 \ dl ) + dL' dl
+
+              in which the subscript denotes the power of k2                             aEl aSi =             aEl* asj
+                                                                                         dG' dg           2
+                                                                                                                dg dGf ’   (ii)
+              present as a factor. Fo is a function of L only.
+              Let also                                             The expansion could be carried on indefinitely,
+                             S' = S'o + «Si T S2' • *,             but for current practical requirements considera-
+                                                                   tion of parts beyond the second order in k2 ap-
+                           /?* = F,* + AC + E2*- • •.
+                                                                   pears to be unnecessary. Put
+                   It will be convenient to choose                                         Ei — Eis + Eip,
+                              So = L'l + G'g + H'h.                in which Eis is the part independent of /, Eip the
+                                                                   part dependent on l. In the terminology of
+              If then the expressions for L, G, H,            h'   planetary theory Eis would be the secular part
+              given by (6) are substituted into
+                                                                   of the disturbing function, Eip the periodic part.
+               F(L, G, iL, /, £, —) = E*(L', G', H', —, g', —),    Hence, if for the sake of brevity the notation
+
+              there results                                                         1 .                R   ,3    3 H2
+                                                                       A                               5 - + Í - 5 5¡
+                                                                                    2   2 G2 ’                             (I2)
+
+                ( dS \ , ^ ( dS dS dS        \
+              Fo                                                   is used,
+                \~dï) + Fl\~dï’Jg''dh’l’ g’ ~)
+                                                                                       = Éh
+                     - Fo* + FS (l’, G', H', —
+                                                                                    F
+                                                                                    A*   LdG3A
+                                                                                             Â
+                                                                                               ’
+
+                                                                                    Fip =          (A^ + Ba2).
+                                 + f2*(l\
+                                                                   Now equation (10) is split up into two equations
+              Expanding everywhere by Taylor’s theorem to
+              the second power of k2, the result is                                 dSi     Ä ,        i o \
+                                                                                          = -jri (Acri + JSl72>’
+                          dFo dSi                                                                                          (13)
+              Eo(L') +
+                          JI’ In                                                     1             3
+                                                                                               /eg' ^ ’
+                             dFpdS,   i d2E0/    y
+                           +
+                             dL' dl + 2 aL'2\ dl )                 in which use is made of
+                          + Fi(L', G', H', l, g,—)                                            aEo     ix2
+                                                                                                  ,=
+                                                  dSi    dF\ dS\                              ~dL    ~Ur
+                                           +           +
+                                             âî' “öF     ÔG7 77    By integration Si may be obtained in the form
+                   = Fo* + F-fíL’, G', H\ —, g, —)                 of an infinite series as
+                           dFS dSi                                         u2k2 F    00
+                                                                                          2
+                                       F *(L', G’, IF,    g, —)•
+                         +
+                            dg dG' + 2
+                 Parts of corresponding order in k2 on both                                   BY. ~-Qj sin Í2g + jl)\.     (14)
+              sides yield :                                                                    —00 J                _l
+                                                                   No constants of integration are required, since
+              order o,
+                                                                   only partial derivatives of Si with respect to
+                               Eo(Z/) = Fo*(L') ;            (9)   Z/, G', ZT, /, g, h will be needed.
+
+
+
+
+                   © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 37 8B
+
+
+
+
+               1959 November               THE               ASTRONOMICAL                      JOURNAL                                381
+1959AJ
+
+
+
+
+                  For the following developments it will be ad-                    C             Çc
+                                                                                           =
+               vantageous to obtain a closed expression for Si.                   J             j ~rz COS
+               The method used at the end of Section 2 for
+               obtaining the integral of functions of the type                               U
+               apr-p cos qf can be used to obtain                                          ~ qz       sin (2g + 2/)
+
+                                              dl                                                  6                C
+                                                                                                + - sin (2g + /) + g sin (2g + 3/)
+                                                                                                                                        ]
+                          U
+                         = gi C/ “ ¿       e sin
+                                                       /]>                        Hence
+
+
+              G’s    =      |h(/ - / + e sin /) + 5 j^Lin (2g + 2/) + Lin (2g + /) + | sin (2g + 3/)J|, (15)
+
+               dSi   fj,m2&2
+                          k  r                                6              n
+                   = ~qí% B [cos (2& + 2/) + e cos (2g + /) + “ cos (2g + 3/)J.                                                       (x6)
+               ~dg
+              Introduce
+                                                                                 ß2k2
+                                                                          72 =
+                                                                                 L'* ;
+              then
+                                 dSi
+                     L = L,' +
+                                  dl
+
+                           Lf \ i +72                                    _^13\ , /3 _ 3^_2V ; COS (2g + 2/)
+                                         LV        2   +        /2
+                                                             2 g /v       g^J + v 2   2 g/2 y                                         (17)
+                                 dSi
+                     G = G'
+                                 dg’
+                                             O               3^\r
+                         = G'   I + 72                               COS (2g + 2f) + e COS (2g + /) + - COS (2g + 3/)J I          (18)
+                                         G'4 V 2             2 G'2 /11
+                     H = H'.                                                                                                      (19)
+                Si was obtained as a function of G', H, e, f, g. Hence L' is present through e and / only. To obtain
+              dSi/dL' it is convenient to obtain first
+              dSi p2ki                 3/
+              — =      U \(i + ec°S f) - + sin f cos (2g + 2/) (1 + e cos /) ^
+                                               L4
+
+                                                                                               + ~ sin (2g + /) + ^ sin (2g + 3/)
+                                                                                                                                      ]!■
+              in which use was made of
+                                          6                6
+                          COS (2g + 2/) + - COS (2g + /) + - COS (2g + 3/) = COS (2g + 2/) (l + 6 COS /).
+
+              With
+                                                         (1 + e cos /)                           sin /
+                                                                         de      \ r2 L2   r)
+              there results
+              dSr
+               de
+
+                                       + hB                                                                           sin (2g + 3/)
+                                              [{-^h--r + I)sin (2g + /) +(AZ7i+ r+ 3)                                                 ]|-
+
+
+
+
+                    © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 37 8B
+
+
+
+
+                                                                                                                         64, No. 1274
+                                               the           astronomical                      journal
+1959AJ
+
+
+
+
+              With the aid of the relations (3) there follows at once
+
+                            dSi
+              l = l’       dL'
+
+                  V         'll —
+                             e G
+                                        .            ^g - “ +("« + /) + ($?• u +1)sin t2g + 3/)JI'                                <20)
+
+
+
+
+                       dSi
+              g = s' - dG'
+
+                                                                                      y
+                              6         1 X     2         2 Or / v                                              'll
+                                   ^                                                  / „9. ^'2
+                                                              _ Î + ,) sin (S8 + /) + (S^ + f + Î) Sin (2S + 3/>JI
+                                         X
+                                              *- v                                  /       15 H2\
+                                                      +
+                            + ".f.|H                      TÍ)(/-' + ísi,'/) + U'^^
+
+                                                                 X [gin (2g + 2/) +f si" ("8 + « + !sin (28 + 3i)]l'                 (2I)
+
+
+
+                                  â5i
+               h =~ h'^           dll                                                                                       "1
+
+                                                                               128
+                   =. »• - 3,S |i[/ - ' + «                     /-5                  + 2/) - Ï ““ (28 + ^    ïsin (2£ + 3/)Ji?'      <22)
+
+
+
+
+                       the calculation of the coorCnates, l and £ are „0. needed separately bu, only the sunt:
+                                       2
+                                72/i/    t'M/ 1 + + ^ —V —+ - + iN) sin+ (4 _ f^72)
+                  l + g = l'+z'+Í{G>-G')\\-2
+                                       ¿
+                                                    zG-)\r>L>^r   )      \4   4   /
+                                 e \(j   tr / W *                      V           "11
+                                                                                     sin (28+3/>
+                                              X rA2!e_ü
+                                                L\ HZ/2 r
+                                                          + I)si„(2g4-/) + (7,gt+“+9
+                                                             J             x                     ji
+
+                                                      Lg             +           (/ - Z + esin/) + (2 “ ^ G72)
+                                                      G'4                2 U
+                                                                                                             +
+                                                                     X [í Sin (28 + 2/) + gi" (« +               Uin (28 + 3/) j r       (23
+
+
+
+
+                   Stnce (, - f)- - (1 - «'):>■» ^                                   ‘' th2 fct Pltt °f *he ““““ (' + 8> " ('' + ^ haS
+                   e as a lacroi
+                          factor emu
+                                 and not as a divisor.
+                                              -                                                                 • a.    „„t
+
+                      4.   The second-order ,erms. For use in the evaluation ol FV* it «ill t« couve",e".
+                                                                                                                                          (24)
+                                                     P2 _
+                                                        — Ü
+                                                          QI3 [cos (2g + 2/) + « COS (22 + /) + go, (22 + j/)].
+
+                       so that                                                   dSi __  Bpi
+                                                                                 H ' T'3
+
+
+
+
+                 © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 37 8B
+
+
+
+
+              1959 November             THE      ASRTONOMICAL                  JOURNAL                            383
+1959AJ
+
+
+
+
+              Also, define n, t2 by
+
+                           ri = “I T7
+                                   dai    3 ö4          L6
+                                        = 11Ï cos / - 3 G5’
+                                 I S(72   ifia4     a3L2l     ,  , rN , ifs^4 ,                                  (25)
+                           T2
+                                          eL7u
+                                                 _      2 cos(2g + /) +
+                                                     ^G J               7L7^ + 7i^Jcos (2g + 3/) i
+              which are easily obtained with the aid of the expressions (4) and (5). Then
+                                       <5 Rip
+                                                                                                                 (26)
+                                      dL / — ^77        6 (A a i + B&z) + Yr2 (An + 5r2)J,
+                                      dFlp
+                                      dG'         Z//7 I L,f ^' Qf Q'2 '>cri — 0'2)j.                            (27)
+              If the terms dependent on l are not needed to the second order in &2, the only part of interest in (11)
+              will be
+                                        T i ^Ro/ASA2       dFlpdSi dF!l^il
+                                                                         1
+                                                                                  =
+                                        [2 A£/2V dl ) + dL' dl + dG'           1
+              where the subscript s designates the parts independent of l. The contribution to the right-hand
+              member that has dF*/dg as a factor vanishes because FA is a function of L', G', H' only.
+               The following products are easily obtained :
+                            1 cAFo/ASiY = 3 M6F2
+                                                    (A<Tl + Fo-2)2
+                            2 ÖL'2 V dl )    2 L'10
+                                   dFip dSi   M6¿22
+                                              £'10     6(Acri + Btxz)2 +      (A<ti + B<T2)(Ati + 5r2)J
+                                   dL' dl
+                                   dFlp dSi ¡Fkl F Lf                              G'                   ~I
+                                   dG' dg      £'!0 3 ^7           V1P2 + &2P2) — J-, (ABT1P2 + B2T2p2)
+                                   dFA dSi tFkl
+                                  ~dG'~dg      £'!0
+              and hence,
+
+              A     k Lm        (-lai2 + haiTi)
+                                             [G'2                          G'         A'4 1
+                                             — 90-10-2 + (o-it2 + o-2ti) — jj np2 — 3 gTj /02
+
+                                             9        G'2        G' r
+                                     +[A2 (- - 0-22 + ^ 0-2T2     £? 2P2 J
+                                                                       *)
+
+                                                                 +5           (— 30-XP2 + 30-2P2) -          .   (28)
+
+              The parts independent of l may be found by evaluating integrals of the same type as those which
+              occurred in the preceding section. The only exceptions are the integrals
+
+
+
+
+                  © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 37 8B
+
+
+
+
+              384                       THE           ASTRONOMICAL                                      JOURNAL                 64, No. 1274
+1959AJ
+
+
+
+
+                The separate parts of E2* are as follows :
+              constant part :
+                                                                        27 L5   9 L6               1351/ _ 315^
+                                             — -^ o-p2 =                    ¡ +
+                                                                        i6G     2'Gq            i
+                                                                                                 ‘ 8 G7     16 G9
+                                             G2            15                                     ïos      315
+                                         +        VlTl = + 16                  - 3                       + l6
+                                                                                                    8
+
+                                                  Sum =                 3^!     , 3¿!                   IS ¿I
+                                                                        4G6    i
+                                                                                 " 2 G6         +
+                                                                                                        4 G7
+                                                  9     2               27I46 +i 135^47           315
+                                                                        32 G      16 G             32 G9
+                                             G2            15                  _i75             + 315
+                                          "T £2 ^2T2 — “l” 32                    16             ^ 32
+                                                                                   5
+                                              7 T2P2 — + 7
+                                              L                                    2
+                                                  Q     ,           7 T5 5
+                                                  Sum = +
+                                                                    7^_8G^
+                                        ,   ¿                                   , 57
+                                        + 3 ^ V2P2 =                         G6 ^ 2 G7
+              coefficient of cos 2g :
+                                                  — 9(71(72 =                9I4 ,       rV_63L?
+                                                                             4 G6 ^        7
+                                                                                            G  9
+                                                                                                         4 G
+                                      G2                                                                63
+                                    + ^ (c 1T2 + ô’2Ti)                  +             14           +
+
+                                                       ^       I U                     21                            A5
+                                                      Z Tlp2 = +1                                               +2
+                                                                                       4                             Gb L + G
+                                                        A4
+                                                      3 ^4 P2                      + I
+                                                                                       xi7
+                                                        Sum = + IZ!6
+                                                                4G                     4 G7
+                                                                   _ ,3i!_57!                                   ^  Li  I,
+                                                  3      ‘’’iP2      ' 2G
+                                                                        /C!56  /"U7
+                                                                              2G                                + 27^
+                                                                                                                    6
+                                                                                                                   G Z +G
+                                             U
+                                                      3 ^4 P2                      + i
+
+                                                        Sum = + 3ÍL6 _ 3il7
+                                                                2G     2G
+              coefficient of cos 4g :
+                                                              1
+                                                                  cr2
+                                                                        2 = _ AZ!6 +1 .AZI7 _ JLii9
+                                                                              64 G    32 G    64 G
+                                                        G2 cr2r2                            _7_
+                                                      + £2          64                                    +
+                                                                                            32               â
+                                                                     i                      _i_
+                                                      ”■ ^ T2P2 — +
+                                                                    16                      16
+                                                          Sum = o
+
+                                                       Z Q(J2p2 — O
+
+
+
+
+                     American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 37 8B
+
+
+
+
+              1959 November             THE      ASTRONOMICAL                JOURNAL                                385
+1959AJ
+
+
+
+
+                The terms with cos 4^ disappear, and the expression for E2* becomes, after substitution of the
+              appropriate expressions for A2f AB, B2 and BH2/G2,
+
+
+
+
+              in which g has been changed into g', which is permissible in a part that has hi as a factor.
+
+
+              5. Secular and long-period terms. The problem
+              is now reduced to the solution of the system of     To* + F,!* (l", G"
+              canonical equations with the Hamiltonian
+                                                                                         + F2* = Fo** + FS* + Fi
+                77* =            m4£2 /     i , 3 #2\
+                            2 +                                   This equation reduces to
+                         2U     Z/3G'3 V    2^ 2 G2)
+                                                                                           0      0**,
+              in which
+                                 E2* = T2s* + E2p*,                                       F*    Fx**,
+                                                                                      dFx* <9Si* ^ ^
+              the former being a function of A', G, H only, the                                                     (33)
+              latter depending also on gf.                                            äG77^y + F2p -°’
+                 Let 5* be a new determining function,                                     77 * — ^2
+                                                                                           ^28    77 ** •
+                                                                                                                    (34)
+              S* = L"l’ + G"g’ + H"h'                             Since
+                                    + Si*(L", G", H", g') ;
+                                                                             dFA _ 3 m4^2 / _ IP\
+              the equation T* = T** may then be written                      dG"   2 L'zG’A1 5
+                                                                                               G"2 )’
+
+
+              in which L' has been written for L”, H for H", equation (33) gives
+                          dSi*                                    ip         ip
+                                                                                                         COS 2g .
+                         dg’                                      G'2 '      (j'//4
+              Substituted into
+                                                                    djp*
+                                                        G’ = G" +
+                                                                     dg' ’
+              there results
+
+                                                                                                                    (35)
+
+
+
+
+                                                                                                                    (36)
+
+
+
+
+                 © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 37 8B
+
+
+
+
+               386                          THE      ASTRONOMICAL                            JOURNAL                        64, No. 1274
+1959AJ
+
+
+
+
+                             AV
+               g' = g"       dG"
+                                   [±I^( _                                     _ 55     \
+                 = g" + 72
+                                   L i6 G"2 V1 33
+                                                  G"2 )      i6 G"4 V1            3 G"2 /
+                                                  , /'„HS A2 , 35 A4^/ _ IP_Y
+                                                  +
+                                                    V   2 G"2"1" 2 G"4/G"4'/ 5
+                                                                               G"2/
+                                                                          / L'2          A'4 \H* (              H2 V21 .
+                                                                       23
+                                                                          VG''2          G"4/ G"6 \           5 g//2 y J sin 2g    (37)
+                              Ô5C
+                 = hh
+                              dH
+                                   /A'2 _ A'4 \
+                 =       + 72
+                                   \G"2   G"4/
+
+                                           X riii7, IO æi/"                                                          v2i sin
+                                                                                                                          • 2 „
+                                             |_ 8 G" ^ G"3 \               3
+                                                                               G" /  2           2
+                                                                                                  5 g|//6 ^   5 £//2 y J     g >   (38)
+
+              in which g' has been changed into g".
+                 The Hamiltonian F** is a function of A', G", H only. It is given by equations (32) and (34),
+
+                                               ^       M2 , ^2 (                l,3ÏP\
+                                               F
+                                                      2A'2 + L'3G”3 V           2 + 2 G"2 )
+
+              where the last term is the first part of the right hand member of equation (29). Let no be defined by
+
+
+                                                                  no           Z/3
+              Then:
+              dr _          $ F**
+              dt            ~dï7~
+                                        Z/3
+                     = Wo j I + 372
+                                        G"3 f-'-m
+                                            V 2 1 2
+                                          75 A'6 , 3 A'6    45 Ln       35y3_                               qsA^Xfi2
+                                     72' Í-
+                                          32 G"6 + 2 G"6    32 G" 7 +
+                                                                      (A16 G"6                        G"6 ' 16 G"7 / G"2
+                                         132
+                                                                                             6       0
+                                                                               +            _| 27L A' e 1 £—¿
+                                                                                                          3.15. A^\ ÍA II
+                                                                                                           )2 g,,7/g',4J1’         (39)
+                                                                                   V32 G"/6 -r 2 G"
+               çY           QF**
+              dt            äc77
+
+                       «0    3T2
+                                   G"4V    2 + 2G"2/
+                                       75 A'6   9 A/?      105 A'8   /             189 A'6             A^     135 A^\ iL2
+                             + 72:          6 +
+                                                                                    16 G"6                            1 2
+                                      L32G"     4G"7       32 G" s +
+                                                                     V                                 G" ' ' 16 G"8 /G"
+                                                                                                          7 t
+                                                                                                                       i
+                                                                      /135 A6    Ï35    , 1155 A8\ g41|
+                                                                       l    6 1       7+                                           (40)
+                                                                   " "\32 G" ' ' 4 G"      32 G"8 / G"4 J )’
+
+
+
+
+                    © American Astronomical Society • Provided by the NASA Astrophysics Data System
+oor"PQ
+oo
+KO
+         1959 November             THE       ASTRONOMICAL                    JOURNAL                               387
+
+         dhT_ _ _ dE**
+O'LO!     dt         dH
+                   i        A'4 H
+                no I    372 çffi ç//
+                                                   Tr   T'S \
+                  +      ,1727^!. , 2^1                                                                            (41)
+
+
+               TABLE I. FACTORS ARISING IN THE ARGUMENT            that for an orbit with moderately small ec-
+                    OF THE PERIGEE, EQUATION (36)                  centricity, no significant loss of accuracy occurs
+                               25 cos612 2         5 cos4 /        if the inclination is even as close as i?5 from the
+                               — 5 cos 1)        : — 5 cos21
+                                                                   critical inclination, 6$°26'. The second column
+                O                 I.562            -I.250
+               10                 I.539            — 1.222         in this table gives the value of the factor that
+               20                 I.476            — 1.142         contains (1—5 cos2 /)“2 as it appears in g',
+               SO                 I.395            -I.O23          multiplied by 72^(1 — e2)~2. In h' the coefficient
+               40                 1-350            — O.89O
+               SO                 I.552            — O.80I         is — V5 times that in gf. No term of this type
+               55                 2.140            -0.839          occurs in        The third column in the table
+               60                 6.250            — 1.202
+               61                10.58             -1-576          indicates the magnitude of the parts of the
+               62               25.72              -2.381          coefficients that contain (1 — 5 cos21)"1 as a
+               63              234.76              -6.956          factor. In /' and gf these numbers are multiplied
+               64              115.72              +4.716
+               65                12.45             + I.I20         by T72 times a factor that reduces to unity for
+               66                 3-790            + O.792         e = o ; in G' and hf the coefficients are diminished
+               70                 O.232            + O.165
+               80                 O.OOI            + O.OO5         by a function of e that contains e2 as a factor.
+               90                 0.000               0.000
+                                                                    6. Comparison with results obtained by HilVs
+           This completes the solution of the problem for           method. For e — o, the motions obtained in
+         orbits with inclinations sufficiently far from the         equations (39), (40), (41) may be compared with
+         critical inclination. In the vicinity of the critical      my results obtained by Hill’s method (Brouwer
+         inclincation the results may become illusory.              1958). With Lr/G" = I these expressions reduce
+            The data given in Table I will serve to show            to
+
+
+                  ^ = rco [1 + 72 (- f + f cos2 /") + V ( + Ü                       cos2 r, + 4LL cos
+                                                                                                       4
+                                                                                                           /")],
+
+                 ^ = «0 [           72 (- f + ^ COS21") + 723 (+ H                  cos21" + ^ cos4 /")],
+
+                dh'
+           cos I    = Wo £          72 ^       — 3 cos2         + 722 ^      +6 cos21"      — ^ cos4
+                 dt
+         d(l" + g")
+                    = no         + 72       3 + 12 cos2         + 722     ~ — 36 cos21" +           cos4           (42)
+              dt
+         The sidereal mean motion is
+                             d{r + g")         , dh"
+                      ns =             + cos V
+                                 dt               dt 1
+
+                      Ws = Wo |p + 72(— 3 + 9 COS21") + 722                 — 30 cos21" + —7^ cos41"
+                                                                                                           )]•
+         or
+
+                      «0 = Ms j^I + 72(+ 3 — 9 COS2 I") + 722                 24 COS2 I" + ^ COS4
+
+
+
+
+              © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 37 8B
+
+
+
+
+              388                               THE         ASTRONOMICAL                           JOURNAL                           64, No. 1274
+1959AJ
+
+
+
+
+              Thus
+
+                               _                    =
+                                     ¿Î ~               ”s l^1 +              3 cos21") + Y22       3 cos21" + I cos4 -A^|>
+
+                               COS I"               = Ws             T2 (     3 cos21") + 722       3 cos21" — I cos4                       (43)
+
+                In the Hill method applied to the artificial                           Now
+              satellite problem I found (Brouwer 1958, p. 435)                         sin2 ß = sin2 7 sin2 (g + /)
+              d{l" + g")                                                                      = sin2 7"[i + 372 cos21" cos {2g + 2/)]
+                         = ^sH          I + 372' COS2 /H
+                   dt                                                                                                    X sin2 (g + /).
+                                            2                    4                     This is a maximum for 2g + 2/ = 1800, when
+                           ,,'(f cos /h — 30 cos 7h                             (44)
+                                                                        )]•             sin2 ßmax = sin2 7h = sin2 7"[i — 372 cos2 7"],
+              the subscript H being used with ns, I.                                   from which
+                The expression in square brackets is equivalent
+              to the value of 1/(1 + T>) for 74 = o with 72                                     cos2 7h = cos2 7//[i + 372 sin21"~].        (46)
+              replaced by 72'. In order to compare with the                            The introduction of (45) and (46) into (44)
+              result obtained above it should be noted that
+                                                                                       yields
+              72', cos Ih and wsh differ from 72, H/G" and ns.
+                 In the present theory, if Lr =                                        d(l" + g")
+                                                                                                  = ^SH       I + 372 COS2 If>
+                                                             2                              dt
+                            fjdki &2                        M
+                       72 = zA = ao2’               Wo =
+                                                            Z7"3 = a7'                            + 722 ( cos21" — 3 cos4 L                 (47)
+                                                                                                       y                   ")]■
+              In the Hill theory
+                                                                                       Finally
+                                     ,  ¿2                                                             d{l" + g") ,
+                                   72 =                                                                                 T„dh"
+                                                                                                  Ma =
+                                                                                                       —It— + cosI “ZT’
+              Hence
+                                                                                                       d(l" + g") ,     T dh"
+                          72     a2                                                              WsH =
+                                                                                                            dt    + COS /h
+                                                                                                                           dt ’
+                          72     a02                                                   or
+                               = I + 472(1 - 3 cos2 Ih),                                                                   dh"
+                                                                                             nsji — ns = (cos 7h — cos I") —
+              from equations (42) and (44). Hence                                                                                  dh
+                                                                                                           3 72 sm
+                                                                                                         = -     - 22 7r// cos 7t" —7—"
+                                                2
+                        72 = 72 — 472 (i — 3 cos 7h).            2
+                                                                                (45)                       2                        dt
+                The inclination 7h in the Hill method was                                                = — ~ ns722 sin21" cos21".
+              defined as the maximum latitude. In the present
+              theory this does not apply to the inclination                            Introduction into (47) yields
+              obtained from cos 7" = H/G" in view of the
+                                                                                       d{l" + g")
+              presence of the term of the first order in 72 and                                   = ns[i + 372 cos2 7"
+              zero order in e'm G/Gf. For £ = o the relation is                             dt
+                                                                                                         + 722(3 cos21" + f cos4 7")],
+                      G = G'[i + §72 sin2 7 cos (2g + 2/)].
+                                                                                       in agreement with the expression (43) obtained
+              Then                                                                     previously.
+                                    2IP AG                                                In addition to establishing the agreement
+               A cos2 7                                                                between the results for e = o obtained by two
+                                    G'2 G'                                             different methods, the discussion serves as an
+                           = — 372 sin2 7 cos2 7 cos {2g + 2I)                         illustration of the caution necessary in the com-
+                                                                                       parison of results to the second power of 72
+              or
+                                                                                       obtained by different treatments of the same
+              sin2 7 = sin2 7//[i + 372 cos21" cos (2g + 2/)].                         problem.
+
+
+
+
+                    © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 37 8B
+
+
+
+
+              1959 November                 THE      ASTRONOMICAL                         JOURNAL                            389
+1959AJ
+
+
+
+
+              7. The fourth harmonic. The coefficients of these terms are so small that it is unnecessary to consider
+              the terms of short period. Hence the contributions to the Hamiltonian may be limited to the parts
+              independent of /, and only the first powers are needed.
+                The expression for U4 is
+
+                                                    U4 =            — 10 sin2 ß + ^ sin4 ß^.
+              Since
+                                           sin2 ß = - sin2 7 [T — cos (2g + 2/)],
+
+                                           sin4 0 = i sin4 7 [3 - 4 cos {2g + 2/) + cos (4g + 4/)],
+              this becomes
+
+                       m6&4 |Y 3           9 r i 35    ,                 5   20          3S        \ab
+              U,                      — cos2 7 + —- cos4 7r            _ 6 + 3“ COs2 7 ~ 6" COs4 7 j A C0S (2g +
+                        A10 l\ 8      4          0
+
+                                                                        + ( if _ ff COs2 7 + if cos4 7) A COS (4g + 4/)]'
+              The secular part is
+
+                      r/ 3                        —/                           5   20ÍÍ2         35^\/3
+                                        2
+                   UC l\ 8           4 G    '   8 G4 / \ 2 2Z,V + \            6 3G2
+                                                                                 +
+                                                                                                 6 G4 / \ 4
+              The part independent of g is added to T2s*,
+
+                                                    mWisT'7                              H2
+                                           A4As*                                         10Qr + 35^\
+                                                    L'10 \ 16 G,?     16 G'6                 2
+                                                                                                3 G'T
+              the part having cos 2g as a factor is added to F2p*,
+
+                                                     5Ä/T2 _ iA\/                        IP      IP \
+                                       AiAp*                                         8
+                                                                                         ^7i + 7 gTi ) cos 2g'.
+                                                     8 Lno \ G'7 G'b ) \
+              Now
+
+                        _0               2 L'ZG"A ( H2\~l
+                             A45i*
+                        <5í:           ~ 3 m4¿2 V~5G^) AiF2p*
+
+                                       5-H-ÏîC"( —4 -~\(i  _                      ,   iï4 \ / 1     H2 \-4
+                                       121/4 ¿2 VG"  G',2A                     G"2+ 7      H    - 5 gTTi J COS2g
+                                                                                4
+                                                         _ A3U 1 _ 3 T7!2 _88 h774 /i_5 æ
+                                                           4
+                                                                                           \-n
+                                                     VG"   G'^/L     G"      g V       g772/ |cos2s-
+              By integration,
+
+                                                   (IP
+                          AÆ*                                  ^UI_,77!-_8i^7                                     sin 2g'.
+                                      24L'*k2      VG"4        g"2 y p 3 q,,2 » p
+
+              If now
+                                                                         /X4&4
+                                                                    74 = ^,
+              so that
+                                                                    M2&4 _ 74
+                                                                    L’^ ~ y2’
+
+
+
+
+                   © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 37 8B
+
+
+
+
+              390                         THE        ASTRONOMICAL                    JOURNAL                    64, No. 1274
+1959AJ
+
+
+
+
+              it follows that the additions to the right-hand members of equations (35) to (38) are
+                                   /4
+                                :L     _                        IP       IP f _
+              a4g' = —  —  G" f                                                         COS 2g",
+                     12 72
+                                     4   2
+                              ViG" ~ G" )[■                      G"2   8 G"4 V~5 G"2 )1
+                        5 74 1/ T      H2                 n H* /           H2 \-1_| .
+               A4f - - i2 72 g» [ï - 3 G"2                8
+                                                           g"4VI       5
+                                                                           G"2/ Jsin2£-
+
+               .    ,                                             IP\     ( _^IP ^j.IPX
+                   42_
+                          72L8G"4V         5
+                                            G"2/     24G,,2V    9
+                                                                  G"2 y ^ V  3 G"4   3 G"2/
+                                               IP (        IP  1
+                                                                  , 50^        L' \ g6 /
+                                                                                 2
+                                                                                                          g2 !
+                                             X                               +                                    sm 2g ,
+                                                                                                              ) ]si
+                                               G"4 \       G"2/ + 3 V G"4      G"2/G,,6\                  G"2
+                    ,       5 74/ L'4      L'2\HV    16 H2 (                   H2 V1 , 40 if4 /        H2 yn .
+              Aih
+                        - + 4 72 \ G"4     G"2Jg"LI+ 3 G"2 \                 5
+                                                                               G"2) + 3 G"4V         5
+                                                                                                       G"2 / J sin 2g •
+              The additions to the secular motions are
+                    dl”             dF2*       45^_                     ^IP_
+              A4                  1 dL7- = W07416 \G" 6
+                                                        G" 7     10
+                                                                    G" 2 +
+                                                                           3 G"4 )]■
+                   dt                       [■               )(■
+                   dg'1         dFp         r_i5/
+              A4                     = Mo74
+                    dt        Ai
+                                 dC'        L 16 \3 G"6  7
+                                                           G"8/+8VG"6        I5
+                                                                                g,,8/G"2
+                                                                                      L'6                      L'8 \ IP
+                                                                               16 V ' G'                    55 G"8 / G"4
+                                                                                                                           ]•
+                 dh"    dF2*  r_5/ L^_ L^\( K_
+                                   3   6 5
+              Ai
+                 ^r= -Ai-m=n^ L 4 V G"     G"8 7 V3 G" 7
+                                                         G"3 yj
+              8. The third and fifth harmonics. Odd harmonics are to be considered only if symmetry of the earth
+              with respect to the equator does not exist. A study of the motion of 1958 ß2 led to the introduction
+              of these odd harmonics by O’Keefe, Eckels and Squires (1959)*
+                 The expression for Í/3 is
+                                                               ^3.0/5 sin
+                                                                        • 3 ß — - sin ß ,
+                                                          Uz = —^—
+                                                                r4 l\ “
+                                                                      2
+              With
+                                               sin3 ß = sin3 7 I ^ sin (g + /) — - sin (3g + 3/)
+                                                                .4
+                                                               [:                4               ]
+              this becomes
+                                     1¿A 3.01
+                             Uz              ^ - I sin 7 + y sin3 7^ sin (g + /) - | sin3 7 sin (3g + 3/) j.
+
+              For the sake of brevity, let e’ sin 7' stand for (1 — G’2/L'2)h{i — 772/G'2)4, e" sin I" for the same
+              expression with G' replaced by G". The secular part may then be written
+                                                               ¡PA 3.0        /3   15 H2\ .   ,
+                                                 A3F2P*                e sm 1
+                                                              Jpg'
+              There is no part independent of g'.
+                It follows that
+                                        d     „„      l ß Az.o L'2      ,,           ,
+                                         - As5i* = - 7 77i2 ~T~ TPi2 g e ' sm 7 sin g ,
+                                      dg'            4 T,' k2 G"
+                                                     i (i A3.0 L'2
+                                           AA*     + IJp-kJcr2 G"e" sin I" cos g'.
+
+
+
+
+                    © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 37 8B
+
+
+
+
+               1959 November            THE            ASTRONOMICAL                   JOURNAL                        391
+1959AJ
+
+
+
+
+               If
+                                                              ß3Ai.o
+                                                       73 =
+                                                               Z/6
+
+                                                     AsG' = — - — —— G"e" sin I" sin g".
+                                                              4 72 Ct
+               With
+                                                     ^       .       sin IG2
+                                                     —      sin I) = — —,
+
+                                                       d . . rN        sin / G   e H2
+                                                         {e sin I) = — —— —2 + —
+                                                     6G                  e L ^ sin I G3’
+                                                      d                  ^ H
+                                                     _ ^ sin /) = - -
+                                                     dH                sin / G2
+               the following results are easily obtained :
+
+                                            A 7/        i 73 sin I" G"
+                                            Ail =
+                                                       ~4V2^~17cosg ’
+                                            . f    , I 73 Ln ( sin I'            e" H IP2 \
+                                            Asg' = T T    Tv« (                             COS g
+                                                     4 72 G"2 \ U              sin I' G"i)
+                                            A
+                                            A h
+                                                    - +, I 73 Lf22 H e" C0S g
+                                                *        4 72 G" G" sin/"     •
+                    The fifth harmonic is
+                                                       ßA 5,0)fI5 •‘ /Q 35 sin
+                                                                            • 33 ß/D +I — sm* 5 ßj.
+                                                U5 =             sm ß — —                  ;in
+                                                              L^S1      4               o
+               With
+                                sin6 ß = sin6 / |^| sin (g + /) - ^ sin (3g + 3/) + ^ sin (5g + 5/)J
+
+               this becomes
+
+                       ßAs.o r/15          105 . J  . 315 . 55 rV6 .
+              U..    = —r~    I 77-
+                                 8 sin i — 16 sin / + —— sin / I —    si
+                         6
+                        a |_\                         64        Jr7i6 sin (g + /)
+                                           / 35 . 1                6                    6^      a6                «
+                                        + I — sin s* 1r — ~f sin 1) y6 sin (3g + 3/) + ^sin5/7isin (5g + 5/)|-
+                                           \ 16
+                        ß7A .0 . T\i$(           Ü2        II4 \ a66
+                U,          12          I - 14 —2 + 21 —4 ) - sm (g + /)
+                          L                                g y7
+                                             2        4
+                               _ 3^/      ii ,     iî \ a                             ZT   ZT \ a6
+                                       10    2 + 9    4
+                                                        )'  sin (3g + 3/) + ^(1 - 2 2 + 4         : sin (5g + 5/)
+                                 128 V     G       G4v/ r'                             G   G                      ]
+               The secular part is
+                            7
+                A C *
+                As^p       Mn AsG'
+                                6.09 , •
+                                    ^ ^^i
+
+                                                               J
+                                                                  H2        H*
+                                            X                   4 ^;/2 "h   ^*/4 ) (7 - 3 fr2 ) sin g'
+                                                    [^(■-
+                                                                               71/          ^ ,    W\(             ■   ,1
+                                                                                          IO
+                                                                               256V         G/2 + 9G,4JlI   L'2 J sm 3^ •
+
+
+
+
+                     © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 37 8B
+
+
+
+
+              392                     THE      ASTRONOMICAL                     JOURNAL                       64, No. 1274
+1959AJ
+
+
+
+
+              Hence
+
+                                        7477-0     6" sin I"
+                                   “5f9 '
+                                                           ip          Hi\i       G 2
+                                                                                          ■ g,
+                                                                                    " j\ sin
+                                                    I - H      2 + 21 ¿jTTï J - 3 777
+                                    xR(                     G"
+                                                                        35 /      iî2 ,      ií4
+                                                                    f 384 V1 ~ 10 G"2 + 9 G"4 )(i -f^sk^g'],
+                    AC* = 7777
+                    AsGj*
+                               L 6
+                          IlAm q^i
+                                ' g rn 6 n sin■ 1T"
+
+                                        G"2              iî2       H4     1
+                            X       7-3 Z72"             Q"2 - 247^777
+                                                                ^ Q'U         - 5             cos g
+                                               )N
+
+                                                   1152 V1      i^/L1          5
+                                                                                   G"2   16
+                                                                                              C'A1    5
+                                                                                                          G"2 J Jcos3^-
+              With the aid of
+                                                                 M6^5.0
+                                                           75     1/1°
+              the resulting long-period terms become :
+
+
+
+
+                    © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 37 8B
+
+
+
+
+              1959 November              THE       ASTRONOMICAL                      JOURNAL                                393
+1959AJ
+
+
+
+
+                            75 L/6 H e"
+                    A5^
+                            72 C"6 G" sin I"
+
+
+
+
+              9. Formulas for computation. For convenience of                It is customary to use for the second harmonic
+              computation the perturbations in the Keplerian               the coefficient J\ Jeffreys (1954) used for the
+              elements a, e, I are given instead of those in               fourth harmonic the coefficient D. The relations
+              L, G, H.                                                     between /, D and 72, 74 are
+                 The adopted force function is
+
+              u = -     ^ (1 - 3 sin2 ß)
+                   r ' r                                                       Strictly speaking, e" + hie, df = cos (/" + (hi),
+                      uki                                                  77' = [1 — (e" + ôi^)2]^ should be used in the
+                    ' rb ('   10 sin2 /? + — sin4 ß                        computation of the periodic terms, but since the
+                                           3        )
+                                                                           short-period terms are obtained to Oikf), it is of
+                      juA
+                          —     sin jö + ^ sin3 ß'j                        no consequence if contributions of Oikf) are
+                                                                           omitted in expressions that have 72 as a factor.
+                       .Mn.of 15 . „  35 . 3 „ , 63 . 6),\                 Similarly, l", g" might be used in computing fr
+                      +
+                        7^ V Tsin ^ _ 7sm ß + ~8 sm ß)’                    r' ; but since V} ¿ are available, their use does not
+                                                                           complicate the calculation.
+              in which &2 is a small quantity, and      A 3.0, ^4 5.0          The formulas are applicable for any eccentricity
+              are assumed to be of order &22.                              e < 1 and any inclination with the exception of
+                 The secular motions have been computed to                 inclinations near the critical inclination, for
+              0(&22), the coefficients of periodic terms to 0{kf).         which 1—5 cos21 appears as a small divisor.
+                 Basic constants :                                             The appearance of e" as a divisor in the short-
+                   an = semi-major axis constant                           period terms in e is apparent only. The expres-
+                   e" = eccentricity constant                              sions that are multiplied by en~l contain e" as
+                                                                           a factor, either implicitly or explicitly.
+                   I" = inclination constant                                   In the short-period terms in l and g a divisor
+                   no =         ^ 17*04337 {ao/R)~** rev./day              e" occurs also, but for the calculation of the
+                    R = equatorial radius                                  position only g + / + equation of the center is
+                                                                           needed. In g + / the divisor e" is not present.
+                Abbreviations :                                                Singularities in some of the elements also
+                            77= (1 — e//2)*   6 = cos I"                   occur for very small inclinations ; again, no
+                                                                           singularity is present in the coordinates. In such
+                   &2              ^4             A3.0     76= d.5.0
+                                                                  7i       cases it may be found convenient to modify the
+               T2=^7-2                                          7 "
+                                                                           formulas and obtain expressions for the per-
+              72'= 72í)-4   7/= 74»?_8        y%=y%T6      75'= 76i?_1<>   turbations in coordinates.
+                 Secular terms :
+               n
+               l = “mean” mean anomaly
+
+                   = not I I + -^
+                               2
+                                  72^(— I + 302) + ~  72/2^[— 15 +                + 25?72 + (3° — 96?7 — 9<V)02
+                          1                        32
+                                                      + (105 + 1441J + 25ij2)04] + -^1 74V"2[3 - 3°02 + 3504] I + ¿0"
+
+
+
+
+                   © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 37 8B
+
+
+
+
+                  394
+                  394                                 THE
+                                                                  ASTRONOMICAL                        journal                          64, No. 1274
+                        = mean argument of perigee
+1959AJ
+
+
+
+
+                            W J JTl (~ I + 5Ö2) + —72'S[- 3S + 247 + 25^2 + (90 _ I92g _
+
+                        + (3*5 + 350, + 45,.),.] +                                         + (_ 2?0 + l2brfw+            ^ _ ]8v)#<;|j +
+
+               h" - mean longitude of ascending node
+
+                            n
+                             ot I         3T20 + 8 T2'2[(        5 + !2»? + 9^)0 + (- 35 _ 36^ _ 5^2)03j
+
+
+                                                                                                           + ^ 7/(5 - S’lWs - 702) I + W‘
+                  Long-period terms :
+
+              5, = ji^WO -                                - 40»-(. - 5»-)-] -                         - 3#. - ^ _ 5„-.]l cosa8„
+                                    i j       /                     ^                                                              J
+                                +                 V SmI   +             sm                   2        2           4
+                                    ¡47/                      6Í 7¡V         I" (4 + 3e" )[i - 90 - 240 (i - 502)-i] J sin g"
+
+                                                                                 35 75/
+                                     e"ôie                                    ~ ¡8Í 77 e"V sin            Cl
+                                                                                                               ~ 502 - i604(i - 502)-!] sin 3gn
+              S1I = -
+                                 rj2 tan Ih
+
+               '' - Í" + j It.VD -                            - 408*(I - 5«*)-*] -                    - 3,. _ 8^(I _ 5„_,]J sin2g„
+
+                            i I           7/ ^ •      r/  5 7ö/ VS
+                              1         4 72' e" Sin 7 ~ 64 77 T7 Sin I"               +
+                                                                                           9e,,2)Ci - 902 - 2404(i - 502)-1] J cos g"
+
+                                                                             +
+                                                                                 S t7 n3e" Sin I" t1 - 502 - i604(i - s^-i] cos 3g,
+
+              ë
+                        ^           {      16 72 ^ (2 + e"2S) ~ 11(2 + 3e"2)02 - 40(2 + 5e"2)04(i — 502)-!
+
+                                400e 06(1 - 502)-2] + A 21 [-2 + g,/2 _ 3(2 + 3e/,2)02 _ g(2 + 5e„2)04(l _ ^4
+
+                                8oe ,206(i — 502) 2j| sjn 2^// _|_           Lll(sin J,/ _ ATiM , All
+                                                                             4 72' V e"    sin I" / + 64 7/
+                             K02 sin I"    e''d2 \
+                        X                                  2                      2
+                                  ë"    ~ sin I" ) (4 + 3e ) + e" sin I" (26 + 9e" )J [1 — 902 _ 2^04^ _ 502)-!^
+
+                            32 7/ e 02 sin            (4 + 3e"2)[3 + i602(i - 502)-i +                         _ 502)-2]| cos g,
+
+                    +
+                            I       1152 y/ \_e ’ sin I" (3 + 2e"2) - ¿777] Cl - 502 - i604(i - 502)-i]
+                                                               35 Tö^
+                                                          +                  sin /,,
+                                                              576 77                       + 32Ö2(I - 502)-1 + 8o04(i - 502)-2] cos 3g'
+
+
+
+
+                   © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 37 8B
+
+
+
+
+              1959 November                  THE     ASTRONOMICAL                   JOURNAL                          395
+1959AJ
+
+
+
+
+               if' = A" + I - -yze"26[ii + 8o02(i — 502)-1 + 2OO04(i — 502)-2]
+
+                          + —-^7e"20[3 + i602(i — 502)-1 + 4O04(i — 502)_2]f sin 2g"
+                            12 72                                          J
+
+
+
+                                        e d sin I
+                          +             "        " (4 + 3e"2)[3 + i602(i - 502)“1 + 4O04(i - S#2)-2]} cos g"
+                              32 72                                                                 J
+                                     35 Ts' e"30
+                          +                         [1 - 502 - i604(i - 502)-1]
+                                    1152 72' sin I"
+                                                     35 y± ,,3
+                                                           7 e 0 sin I" [5 + 3202(i — 502)-1 + 8o04(i — 502)-2] [ cos 3g
+                                                     576 72'
+
+                Short-period terms included :
+                                                    / a"3 \              7"3
+              •a = a" j i + 72      (— i + 302)             + 3(l - Ö2) -^7 cos (2g' + 2/0
+                                                    (^-’4                                '>])
+
+              6 — eN -f- die -J-            72 ^(- i + 3d2) (tt - 1?-3) + 3(1 - ñ (yr - ■r4) cos (2g' + 2/0J
+                                   2e
+
+                                                                 - 72'(! - 02)[3e" cos (2g' + /') + e" cos (2g' + 3/')]
+              1 = 1" + bj + |72'0(i — 02)i[3 cos (2g' + 2/') + 3e" cos (2g' + /') + e" cos (2g' + 3/')]
+                                      / a"2  a"    \
+              / = ¿'-¿77 72'M-I+ 302) (t^2 + 7- + i) sin /'
+
+
+                        + 3(1 - 02) [(- TF’?2 - 7- +                  (2g' + /') +         +
+                                                                                             7r + 3) sin ^ +
+
+                                                 ( a"2 2 a" \
+              g = g' +             ]2(- I + 3d2) {^V +V+i)smf
+
+
+                   + 3(1 - Ö2) [(- 7F >?2 -             + 1) sin (2g' + /') + (7F 92 + ^7 + ^) Sin (2g' + s/')]}
+
+                   + Í72'{6(- i + 502) (/' - /' + e" sin /)
+                                    + (3 - 5d2)[3 sin (2g' + 2/) + 3e" sin (2g' + /') + e" sin (2g' + 3/')]}
+              h = h' — h*'dl6(f -l' + e" sin f) - 3 sin (2g' + 2/')
+                                                                              - 3e" sin (2g' + /') - e" sin (2g' + 3/')].
+              /', r’ are to be computed from
+                                                              £' - e" sin £' = l'
+
+                                                         tan ^E'                sin /' = (1 — e"2Y2 sin E'
+                                                                      or
+                                        a      i + e" cos f                                   f
+                                                                             -77 cos f
+                                                                                     J = cos E — e'‘
+                                        V        i — e"                      a"
+
+                                                                                     = i — e" cos E'
+
+
+
+
+                 © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 37 8B
+
+
+
+
+              396                      THE        ASTRONOMICAL                         JOURNAL                         64, No. 1274
+1959AJ
+
+
+
+
+                 For the calculation of the coordinates at any              Az = a sin g sin 7
+              time the complete values of e and l should be                 Bz = a(i — e2)* cos g sin 7
+              used for the solution of Kepler’s equation,
+                                 E — e sin E = l                               Noted added in proof. The lack of uniformity in
+                                                                            notation of the coefficients of the second and
+              and subsequently r and /, which may then be                   fourth harmonics of the earth’s potential in
+              used i-n the formulas :                                       papers dealing with the motion of artificial satel-
+                                                                            lites calls for a comment on this subject.
+              x = r[cos (g + /) cos h — sin (g + /) sin h cos I]               The table below contains a listing of some of
+              y = r[cos (g + /) sin h + sin (g + /) cos h cos /]            the designations used and their relations to the
+              z = r sin (g + /) sin I                                       coefficients Bp in the expression of the force
+                                                                            function of a body with rotational symmetry,
+              A convenient alternative form is :
+                                                                                                        BpPp (sin ß)
+                          x = A* (cos E — e) A-         sin E                         ^ = 7 h + P£
+                                                                                                 ==
+                                                                                                    2       fP
+                          y = Ay (cos E — e) + By sin E
+                                                                            in which Pp are Legendre polynomials and ¡jl
+                          z = Az (cos E — e) A Bz sin E                      = GM. The expression is an adaptation of the
+                                                                            Laplacian expression given by Tisserand.
+              Ax = a [cos g cos k — sin g sin h cos                            In addition to the equivalents of    and B± the
+              Bx = — a(i — e2A [sin g cos h                                 table gives those of the ratio 7L/7L2, which is
+                                           + cos g sin h cos 7]             unity for the special case treated by Vinti (1959),
+                                                                            in which the terms with small divisors near the
+              Ay = a [sin g cos h cos I + cos g sin h~]                     critical inclination vanish. No effort has been
+              By = a(i — e2A [cos g cos h cos I — sin g sin 7]              made to make the tabulation complete.
+              Laplace                                                B,            b,/b22            Tisserand, Mée. Cél. II,
+                                                                                                       320, 1890
+              H. Struve                     --k                                   ï-1/k*             Suppl. /, Obs. Pulkovo 1888
+                                              3                                      2
+              W. de Sitter                  -2-jr>                -KR*              -K/J2            B. A. N. 2, 97, 1924
+                                              3                 15
+              D. Brouwer                    — 2&2                                    - k,/k22        A. 7. 51, 223, 1946
+                                                                                     3
+              H. Jeffreys                   --JR2                    DR*           ^D/J2             M. N. 14, 433, 1954
+                                              3                 35                 35
+                                                                8                  18
+              Y. Kozai                      --A2                — A,1 4                A 4/A 2
+                                              3                 35                 35
+              P. Herget and P. Musen        — 2&2                8 k4                2¿4/¿22         A. J. 63, 430, 1958
+              J. O’Keefe et al.             + A2tolix           + A 4 ofx          txA 4,0/A 2| 02   A. J. 64, 235, 1959
+              B. Garfinkel                  — 2k                                    - k'/k2          This issue
+                                                                                    4
+                                                    2
+              J. Vinti                      - J2R                    JaR*          J 4/ J22          J. of Res. Nat. Bureau
+                                                                                                        of Standards 62B, 105, 1959
+
+                In the table R represents the earth’s equatorial            foreseen the increase in interest in the subject
+              radius. Ignoring the presence of R2 and differ-               and the confusion to which I was contributing, I
+              ences in sign, essentially three different coeffici-          would have chosen the coefficients Bp or the
+              ents for the second harmonic have been used in                alternative form
+              recent papers. For the coefficients of the fourth
+              harmonic six different choices are listed. I now
+              regret that I introduced &2, &4 in my paper in
+              1946. The principal reason was that they give a
+              particularly simple form for the expression of the            which was used by Vinti (1959). I intend to revert
+              potential in the equatorial plane. If I could have            to this form and recommend this to other authors.
+
+
+
+
+                    © American Astronomical Society • Provided by the NASA Astrophysics Data System
+

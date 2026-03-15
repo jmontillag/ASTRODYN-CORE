@@ -1,0 +1,745 @@
+1966PASJ...18..287H
+Vol.
+18
+PUBLICATIONS
+1966
+No.
+4
+OF THE
+ASTRONOMICAL SOCIETY
+OF JAPAN
+Theory of General Perturbations with Unspecified
+Canonical Variables
+Gen-ichiro HORI
+Department of Astronomy, University of Tokyo, Tokyo
+(Received July 15, 1966; revised September 9, 1966)
+Abstract
+A theorem by Lie in canonical transformations
+is applied to the theory of
+general
+perturbations.
+In the present theory (a) all formulas are in the form of
+canonical invariance so that they are valid for any set of canonical variables,
+(b)
+the perturbations of any quantities,
+regardless of whether they are elements or
+coordinates, are given by a simple formula and in an
+explicit form, and
+(c) the
+theory is applicable to such cases where the undisturbed portion of Hamiltonian
+depends on an angular variable as well as momentum variables.
+The motion of
+an artificial satellite is discussed as an application of the general theory.
+1.
+A Theorem by Lie in Canonical Transformations.
+Let €,;, 7; be a set of 2n canonical variables and f(€,7),
+S(&,7) be arbitrary
+functions of €; and 7;
+Operators Ds” (n=0, 1,2, ---) are defined by
+DS f=f,
+Ds'f={f, 8},
+Ds"f=Ds"\(Ds'f),
+ (nZ2)
+(1)
+braces standing for the Poisson brackets.
+The following theorem is due to LIE (1888):
+A set of 27 canonical variables
+x;, y; defined by the equation
+cg
+is canonical if the series in the right-hand side of the equation converges,
+« being
+a small constant independent of €; and 7;.
+In fact introduce a parameter 7 by the
+system of differential equations
+di; 0S
+dn8
+8)
+dr
+On;
+’
+adr
+OE;
+’
+and let €<7c), 7,7) be a solution of (8).
+Equation (2) then leads to
+ge”
+qd”
+n!
+dr
+or
+|
+287
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1966PASJ...18..287H
+288
+G. Hor!
+[Vol. 18,
+wp=Eftte),
+Ys=nft+e).
+(4)
+Equations (4) show that «;, y; are the values of €<z), 7c) when the parameter
+c is augmented by «.
+Therefore x;, y; are a set of canonical variables
+if
+&,, 7;
+are
+So.
+The substitution f(¢,7)=&; and 7; in Equation (2) severally gives
+cog”
+OS
+=
+— )—) m-1_
+Wj Sit 24 ni
+Os
+ap?
+(5a)
+and
+ap
+nt 98,
+Yi= 3 pa n! Ds
+aE,
+.
+(5b)
+Suppose
+FE D=
+DTDs"fOD
+(6)
+defines another canonical transformation £,;, 7;—p,;,q; with a function S*=S*(, q).
+The composite transformation “;, y;—D;,qQ; is provided with
+F@, W= Dy
+(jn) Doe" Dsea,0" "FD,
+(7)
+Through the third order in
+¢«, we find
+2
+f@, N=S@, ODtelf, StS} +-F UF, S+S*}, S+$*)
+2
+3
++f, (8, SH+ (1, S+S*}, S+S4}, S+S4}
+3
+3
++ {UF 28+S8*}, (S, SH +4 (UF, (8, SH}, $4284)
+(8)
+in virtue of the commutation law of the operators Ds and Ds,
+Ds.Ds—DsD =D, S*}
+6!) )
+Equations (5) may be compared with a more familiar form of canonical trans-
+formation
+as
+as
+aE bea ;
+Ys= Ni
+8 Ge
+(10)
+where the determining function S is an arbitrary function of the mixed set of
+variables
+€; and y;.
+Equations (10) then give implicit relations between the new
+and the old variables.
+In Equations (10),
+¢ is not necessarily assumed small.
+If « is small, however,
+the implicit relations defined by (10) may be solved by a method of successive ap-
+proximations, so that x«,;, y; are expressed explicitly in terms of €;, 7;
+The result
+is given by Equations (5) if supposed that two functions S(é, 7) and S(&,7),
+that
+is [S(é, y)]y7 are related by the equation
+~
+aS
+as
+S=§——y)—-
+“2
+aS
+aS
+eS
+as aS
+eS
+dS aS
+@s
+——_.
+ee
+a —
+6)
+3
+.
++ 12 na 0€; OF% 07 j0%% +4 0€&; ON: 07 j0& x + On; ON OF;0&x FOC!)
+(11)
+© Astronomical Society of
+Japan « Provided by the NASA Astrophysics Data System
+1966PASJ...18..287H
+No. 4]
+General Perturbations with Unspecified Canonical Variables
+289
+We remark that Equation (2) provides with an expansion formula of an arbi-
+trary function /(@, y) at x;,=&; and y;=7; when a;, y; and £;, 7; are related by
+Equations (5).
+On the other hand, we have no such formula if a canonical trans-
+formation is specified by Equations (10).
+We thus see a marked advantage of (5)
+over (10).
+In what follows S(é, 7) is called the determining function of the canoni-
+cal transformation w;, y;—§&;, 7}.
+2.
+New Transformation Theory of Dynamics.
+Consider a dynamical system whose equations of motion are
+dx;
+oF
+dy;
+_OF
+dt
+Oy)’
+dt
+6x)’
+(12)
+with the Hamiltonian
+F(a, p=, Wt 21 Pika, Y),
+(13)
+where F', has <* as a factor.
+It is assumed that F' does not depend on the time
+explicitly and that the system is solvable if
+e« reduces to zero.
+Let S(é, 7) be the
+determining function of a canonical transformation x;, y;—&;,7;.
+SC, 7) is developed
+in powers of « in the form
+eS, MD= DSK, %),
+(14)
+where S; has «* as a factor.
+Since F’ is free from the time by the assumption we have the energy integral
+2) Fie, Y= Dd) Fe*E, 1) -
+(15)
+&=0
+k=0
+We apply the expansion formula (2) to the left-hand
+side of the equation and
+equate terms with equal powers of « in both sides, resulting in
+Order 0:
+Py=f
+or,
+(16)
+Order 1:
+{F), Sij4+hi=Fi'*,
+(17)
+1
+|
+1
+1
+1
+1
++3 th, Si}, Si} +e til ho, Si}, Si}, Sif +P3=L9* ,
+(19)
+1
+1
+1
+1
+1
+1
+1
+toh, Si}, Se} to Ul, Si}, Si} te tithe, S2}, Si}, Si}
+1
+1
++e ltt, Si}, Sef, Si +e {{{Po, Si}, Si}, So}
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1966PASJ...18..287H
+290
+G. Hor!
+[Vol. 18,
+1
+1
++S (Fi, Sid, Sd, Sb +57 (Fo Sib, Sid, Sub, Si
++h=F4F ,
+(20)
+and so on.
+If equations of the preceeding orders are substituted
+in turn,
+Equations (16)
+to (20) are equivalent to
+Order 0:
+Fo=F\*,
+(16’)
+Order 1:
+{Fo, Si} +F1=F'1* ,
+(17’)
+1
+Order 2:
+(Fo, Ss} + Sti tFi*, Sj +Pi=Fs*,
+(18’)
+1
+1
+1
+tag UB", Si}, Si} +F's3=F's* ,
+(197)
+1
+1
+1
+1
+1
+ty UR
+i", Si}, Se} T 75 {{P'1—£'1*, Se}, Si}
+1
++ yg UP
+2%, Si}, Si} +F=F'* ,
+(20’)
+and so on.
+It should be noted that these equations are in canonically invariant form in
+virtue of the canonical invariance of the Poisson brackets.
+F',* and S;, determined
+by these equations are then canonically invariant and, finally, any quantity f(a, y)
+given by (2) is canonically invariant.
+Therefore the present theory of perturbations
+is entirely independent of the particular set of canonical variables used.
+A new
+Hamitonian and the associated determining function obtained in terms of a certain
+set of canonical variables directly give the behaviors of any other set of variables
+or functions of them in virtue of the formula (2).
+Suppose that f(«, y) in Equation
+(2)
+is a component
+of the
+radius
+vector
+r(v,y) of the disturbed
+body.
+The canonical invariance of (2) ensures that the
+expression of r in terms of the Delaunay variables is exactly equivalent
+to that
+in terms
+of,
+say,
+the Poincaré
+variables even
+if the Delaunay variables have
+singularities in zero eccentricity and zero inclination orbits.
+In fact Equation (2)
+gives
+2
+r@, y=rG, nte{r, S}+ (lr, S}, S} +06),
+(21)
+or, since r and v are conjugate, (23) leads to
+2
+r(@, W=rE, N+PS+—> MoS, S} +O),
+(2)
+where V, stands for the gradient operator in respect to the velocity vector v(é, 7).
+LYDDANE (1963) showed that Brouwer’s theory on the motion of an
+artificial
+satellite had a marked deviation in the prediction of the position of the satellite
+© Astronomical Society of
+Japan « Provided by the NASA Astrophysics Data System
+1966PASJ...18..287H
+No. 4]
+General Perturbations with Unspecified Canonical Variables
+291
+from the result manipulated in terms of the Poincaré variables and also from the
+result furnished by numerical integrations when the eccentricity constant tends to
+zero.
+LYDDANE imagined that this deviation was due to the use of the Delaunay
+variables in Brouwer’s theory.
+We see however that
+it should not be
+so.
+The
+deviation found by the numerical example of LYDDANE may come from numerical
+manipulations rather than the theory itself.
+.
+Introduce a parameter t* by
+dé; OF,
+dn
+OFo
+di*
+07,’ dt
+08°
+(28)
+We then have
+dS,
+{F5, Si} _=— “dt*®. .
+(24)
+In what follows the mean value of a function A(t*) in respect of t* is denoted by
+A, if A(t*) has the mean value at all.
+A, then stands for the remaining part of
+A.
+Analytically we have
+.
+1
+(7?
+A;= lim r\ A(t*)dt* ,
+(459)
+and
+A,=A—A,.
+If A is periodic in ¢* and if 7, stands for its period, Equation (25) reduces to
+T
+A=z-| “ACEH dEt* .
+(25’)
+Ty
+Jo
+Suppose that we
+find such a canonical
+transformation
+that eliminates the
+parameter
+¢* from the
+associated new Hamiltonian
+F'*.
+The new equations of
+motion
+FF
+OH
+2
+dt
+oy’
+dt
+0%’
+28)
+then have a first integral
+F’o*(€, 7)= const
+(27)
+in addition to the energy integral
+F'*(€, 7”)= const.
+(28)
+In fact we see
+=“FH, N=(F*, F)=— (Fy FP} =—-Le, n=—- LPG, D
+dt*
+’
+,
+dt
+,
+dt
+,
+and Equation (27) follows immediately.
+We can thus reduce the order of the equations of motion (12) by one with the
+use of such a canonical transformation x;, y;—>§;,7;.
+The algorism for the deter-
+mination of #,* and S, is:
+Order 0:
+F)t¥=F>,
+(3))
+Order1:
+F,*=Fi.,
+|
+(30)
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1966PASJ...18..287H
+292
+G. Hor!
+[ Vol. 18,
+Order 2: Fyt=Pot SPAR, Si} ’
+(ey)
+1
+1
+Order 3:
+F'3* = F’3,+ 12 {{Fsy, Si}, Sisto thet hs%, Si};
+1tote, Sehs
+(84)
+1
+1
+S=| (Fort 35 (in Sid SG PtP, Si),
+1
+te lit i, So} ,)dt* ,
+(G35))
+and so on.
+The integration of Equation (28) may introduce 2n constants of integration,
+but one of them should be an additive constant of ¢* since Fy, the Hamiltonian of
+Equations (23), depends on ¢* only through &; and 7;.
+A solution of (28) is then
+E,=E(t* +1, Co, °° °, Con) ’
+nj;=7,(t* +¢1, Co, ***%y Con) ’
+(86)
+from which we may have
+Averaging process and integrations in ¢* are carried out with the use of (36) and,
+after these operations, their results are again represented as functions of
+€; and
+n; in virtue of (87).
+We can repeat the whole process stated so far starting with Equations (26).
+Let ¢;, 7;—p;, gq; be a canonical transformation with a determining function S*(p, q),
+and let a new Hamiltonian be F’**(p, gq).
+Equations (27) and (28) severally give
+Fo*(é, 1)=F'o**(p, Q) ,
+(38)
+and
+F*(E, )=F'**(p, q) .
+(39)
+Therefore, there results in
+In what follows the expansion formula (6) is applied to (40).
+F,*(é, n) plays
+the role of F(x, y) and may be considered
+as
+the undistubed
+portion
+of the
+Hamiltonian F',*+/F,*+---.
+Equations (23) are replaced by
+dp; _OF*(p,q)
+day _ OF :*(p, @)
+(A)
+dt**
+Op;
+°
+adt**
+Op;
+with a parameter ¢**.
+It has to be assumed that Equations (41) are solvable.
+The canonical transformation &;,7;—p,;, q; is required to eliminate ¢** from the
+new Hamiltonian f'\**+F,**+ ---.
+The mean value of A(é**) in respect of t** is
+denoted by A; and defined by
+—
+17 i ”
+aK
+**K
+A;= lim T \,4¢
+\dt**
+.
+(42)
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1966PASJ...18..287H
+No. 4]
+General Perturbations with Unspecified Canonical Variables
+293
+The remaining part of A is denoted by A,.
+The algorism of the determination
+of F,,** and S,* is given by Equations (29) to (35) by suitable changes of notations.
+We find
+Order 1:
+F',**=F;*,
+(48)
+Order 2:
+F,**=F;,,*,
+.
+(44)
+S+= | Faykat*
+(45)
+Order 3: Py PyA+ SF +f'2**, Si*}s,
+(46)
+Sta {(Fat, Si} p)ae**
+(47)
+Order 4: Feta Fu tao (Pos Si*}, Sit}. 45 Rot HF, S1*} 5
+1
++ LURE RM, S,,
+(48)
+1
+1
+S=|(Fit+35 {{F'2p*, Si*}, Si*}oto (st + Fs™*, S1*} p
++S(FA+
+Fat, Sot}
+)ate,
+(49)
+and so on.
+J/')**(p, g) is furnished by Equation (89).
+The new equations of motion are
+dp;  of**
+dq;
+oF **
+dt
+oq;
+’
+dt
+Op;
+(50)
+which now admit two first integrals
+F'\**(p, q)= const ,
+(51)
+F‘y**(p, g)= const ,
+(52)
+in addition to the energy integral
+F'**(p, qg)= const.
+(58)
+These processes can be repeated as many times as necessary.
+3.
+Application to the Motion of an Artificial Satellite.
+Consider the motion of an artificial
+satellite around an oblate spheroid.
+In
+terms of the Delaunay variables the Hamiltonian of the system is
+Let x,;, y; be a set of 6 canonical
+variables related to the Delaunay vari-
+ables by
+L’, G’, H',
+UV, 9’, h’ are introduced by
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1966PASJ...18..287H
+294
+G. HORI
+[ Vol. .18,
+and L", CG”, FH’,
+l”’, g”, h” by
+py=0(L", G", HU", 9”, h!), = 9(L", G", H",U", 9", hl).
+(57)
+The determining function of the transformation «,, y;—&;, 7; is denoted by S(é, 7)
+and
+that
+of the transformation €;,7,—;,q; by S*(p,q)
+as
+in the preceeding
+sections.
+Since Fy) is the Hamiltonian for an elliptic motion, Equations (23) define an
+elliptic motion but in terms of an artificial time ¢*.
+Therefore the parameter t*
+enters in &;,7; only through the mean anomaly
+l’, and the required canonical
+transformation w;, y;—§&;, 7; 18 such that eliminates
+l’ from the new Hamiltonian
+F'*(é, 7).
+[A(&,7)], is the constant part of A(é,7) in respect of
+l’ and Equation
+(26) leads to
+from which we have
+dF,
+\~-}
+,
+[A,de*=—(-S>*)
+| Ayal ,
+6)
+Thus the algorism given by Equations (29) to (85)
+is carried out most easily
+in
+terms of the Delaunay variables although it is not necessary that x;, y; themselves
+are the Delaunay variables.
+Because F'(x#, y) is independent of h, it immediately follows that F',*(é, 7) and
+Si(€, 7) are independent of h’.
+We then have
+Ha, y)=H'E, 7)= const .
+(60)
+The new Hamiltonian is
+Fe=Fo*(L)4+F
++L’, G’, A)4+F2*(L’, G’, H’, 9)+F3*(L’, G’, H’, 9’).
+(61)
+Equation (27) reduces to
+L'é, ”)= const .
+(62)
+We next consider the canonical transformation €;,7;—p,;,q;
+The integration
+of Equations (41) shows that L’(p, q), G’(p, g), and H’(»,q) are constant
+in t**
+while l’(p,@, 9’(p, @, h”(p, @ are linear combinations of ¢**.
+This simple result
+comes from that F';* is independent of any angular variable.
+The elimination of
+t** is equivalent to that of 1’, g”’, h” from a new Hamiltonian.
+But as
+F'*(é, 7)
+is already independent of l’ and h’, our S;,*(p, g) is independent of 1” and h”.
+Thus
+we have
+OF,* OS,*
+.
+dS,*
+*
+eK}
+|
+{F'*, S.*}
+IG”
+Og”
+dex®
+(68)
+and
+OF ,*
+\-1
+;
+[Andts*=—(Far-)
+|Ado”
+(64)
+A; defined by (42) is the constant part of A(¢t**) in ¢** and A, stands for the
+remaining part of A.
+The algorism, Equations (48) to (49), are carried out most easily in terms of
+the Delaunay variables.
+We
+finally have the equations of motion (50) with the
+Hamiltonian,
+|
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1966PASJ...18..287H
+No. 4]
+General Perturbations with Unspecified Canonical Variables
+295
+Pe* = Pott DL) +E
+*CL", G”, A"\+F.**(L", G”, A")+ F'3**(L”", G", H") ;
+(65)
+The integrals we have found are
+He, p=HE, )=H"(p, N=const ,
+(66)
+LE, )=L"(p, = const ,
+(67)
+Gp, = const ,
+(68)
+the last being equivalent to Equation (51) because of (66) and
+(67).
+From these
+there results in
+"(p,
+=(—OF **/OL/Nt+o
+,
+|
+(69)
+gp, N=(—OF **/0G’t +90,
+(70)
+h"(p, D=(—OF **/0H)t+ho.
+(71)
+In virtue of Equations (66) to (71), »; and q; are functions of the time and
+the six constants of integration L”, G’, H”,
+lo, 90, ho.
+Equations (57) provide
+with the formulas.
+Any function f(x, y) of the osculating variables x;, y; is ob-
+tained in terms of ,;, g; with the use of Equation (8) if there S and S* stand
+for >'S; and >!S;,* respectively:
+1
+1
+In current transformation theories,
+cannonical transformations
+are given in
+the form (10) with the use of S, a function of the mixed variables £, and y,, and
+in the form
+as*
+as*
+i= Pit ee ’ =U a ’
+(73)
+where S* is a function of the mixed variables p;, 7;
+Wethen remark that Ses
+S,.* are not canonically invariant
+if k=2.
+It happens that S,(é,y) depends on
+hé, y) even if F(x, y) does not depend on hw, y) when Hw, y)
+itself
+is not a
+member of the set x, y;.
+It is also possible that S.*(p, 7) depends on l’(p, 7) in
+spite of that l’ is eliminated from F’* when L(a, y) itself is not
+a member of the
+set Li, Yj.
+The fact that F,* depends on no angular variable makes the elimination of
+g” very easy.
+In the lunar theory,
+however,
+after the mean anomalies of the
+moon and the sun are eliminated, we have a Hamiltonian of the form
+F*e=Ff
+WL’, K)+F iL’, G’, H’, g)4+F2*WL’, G’, H’, g’; h')+ ane
+where K is the fourth momentum variable conjugate to the mean anomaly of the
+sun.
+The present transformation theory
+is
+still accessible to the elimination of
+angular variables in this case.
+We shall treat the problem in a separate
+article.
+The author thanks to Dr.
+S. Aoki of Tokyo Astronomical Observatory for
+discussions especially concerning the Lie’s theorem.
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1966PASJ...18..287H
+296
+,
+G. Horr
+[Vol. 18,
+References
+LIE, S., 1888, Theorie der Transformationgruppen I, Teubner, Leipzig, § 12.
+LYDDANE, R.H., 1963, A. J., 68, 555.
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System

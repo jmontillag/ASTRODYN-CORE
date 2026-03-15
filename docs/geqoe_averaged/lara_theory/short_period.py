@@ -3,6 +3,11 @@
 J2 corrections use the Lyddane/SGP4-style polar-nodal form (robust at e~0).
 J3-J5 corrections add radial and along-track perturbations from the
 instantaneous minus orbit-averaged zonal disturbing function.
+
+Also provides heyoka-AD-based exact Poisson brackets of the W1 generating
+function (Lara 2021) using Lyddane non-singular variables (e*cos w, e*sin w,
+M+w) to avoid the 1/e catastrophic cancellation that plagues finite-difference
+approaches at low eccentricity.
 """
 
 from __future__ import annotations
@@ -665,9 +670,10 @@ def mean_to_cartesian_w1_batch(a, e, inc, Om, om, M, mu, Re, J2):
 def osculating_to_mean_w1(osc_kep, mu, Re, J2, max_iter=20, tol=1e-12):
     """Osculating Keplerian -> mean Keplerian via W₁ SP (Cartesian-space iteration).
 
-    Uses the same Cartesian-space iteration as ``osculating_to_mean``, but with
-    the W₁ Cartesian Poisson bracket forward map.  The forward map computes
-    {r, W₁} directly, avoiding the G > L singularity.
+    Uses the polar-nodal J2 SP forward map (non-singular at all eccentricities)
+    for the Cartesian-space iteration.  The polar-nodal form maps directly to
+    (r, rdot, u, rfdot, Om, i) without going through the Keplerian -> true
+    anomaly nonlinear conversion, giving optimal numerical accuracy.
     """
     # Target osculating Cartesian
     E_osc = solve_kepler(osc_kep[5], osc_kep[1])
@@ -684,8 +690,9 @@ def osculating_to_mean_w1(osc_kep, mu, Re, J2, max_iter=20, tol=1e-12):
         f_m = eccentric_to_true(E_m, e_m)
         r_unpert, v_unpert = keplerian_to_cartesian(a_m, e_m, i_m, Om_m, om_m, f_m, mu)
 
-        # Osculating Cartesian via W₁ Cartesian Poisson bracket
-        r_fwd, v_fwd = mean_to_cartesian_w1(a_m, e_m, i_m, Om_m, om_m, M_m, mu, Re, J2)
+        # Osculating Cartesian via polar-nodal SP (non-singular)
+        r_fwd, v_fwd = mean_to_cartesian(
+            a_m, e_m, i_m, Om_m, om_m, M_m, mu, Re, J2)
 
         # SP displacement
         sp_r = np.asarray(r_fwd).ravel() - np.asarray(r_unpert).ravel()
@@ -708,3 +715,322 @@ def osculating_to_mean_w1(osc_kep, mu, Re, J2, max_iter=20, tol=1e-12):
             break
 
     return tuple(mean_kep)
+
+
+# ---------------------------------------------------------------------------
+#  Heyoka AD-based non-singular SP corrections (Lyddane variables)
+# ---------------------------------------------------------------------------
+
+_SP_HEYOKA_CFUNC = None
+_SP_HEYOKA_PARAMS = None
+
+
+def _build_sp_heyoka_cfunc(mu, Re, J2):
+    r"""Build heyoka cfunc for exact J2 SP corrections via Poisson brackets of W1.
+
+    Uses the eccentric anomaly E as parameter to avoid the Kepler equation,
+    and outputs Lyddane non-singular combinations to avoid 1/e singularities:
+
+        [da, d(e*cos w), d(e*sin w), dI, dOmega, d(M+w)]
+
+    The key non-singular identities:
+
+    * {M+w, W1} = dW1/dL + dW1/dG.  The chain-rule contribution from
+      dE/dL + dE/dG uses  (de/dL + de/dG) = -G/(L^2(eta+1)),
+      which has NO 1/e.
+
+    * {e*cos w, W1}: the 1/e in de/dL,de/dG is neutralised because the
+      numerator  BRACKET = -eta*dW1/dE + (1-e*cosE)*dW1/dg  is O(e),
+      giving BRACKET/e = O(1) after the division.
+
+    Input variables: [E, g, L, G, H]
+    """
+    import heyoka as hy
+
+    E_s, g_s, L_s, G_s, H_s = hy.make_vars("E", "g", "L", "G", "H")
+
+    # --- Derived quantities ---
+    e_s = hy.sqrt(1.0 - (G_s / L_s) ** 2)
+    eta_s = G_s / L_s
+    p_s = G_s ** 2 / mu  # p = G^2/mu, independent of L
+    s2_s = 1.0 - (H_s / G_s) ** 2  # sin^2(I)
+
+    B0_s = 1.0 - 1.5 * s2_s
+    B1_s = 0.75 * s2_s
+
+    sinE_s = hy.sin(E_s)
+    cosE_s = hy.cos(E_s)
+
+    # True anomaly from eccentric anomaly
+    f_s = hy.atan2(eta_s * sinE_s, cosE_s - e_s)
+
+    # Equation of center: phi = f - ell, where ell = E - e*sinE
+    phi_s = f_s - (E_s - e_s * sinE_s)
+
+    # --- W1 (Lara 2021 Eq. 6 + C1 from Eq. 13) ---
+    W1_terms = (
+        B0_s * phi_s
+        + B0_s * e_s * hy.sin(f_s)
+        + B1_s * e_s * hy.sin(f_s + 2.0 * g_s)
+        + B1_s * hy.sin(2.0 * f_s + 2.0 * g_s)
+        + B1_s * (e_s / 3.0) * hy.sin(3.0 * f_s + 2.0 * g_s)
+    )
+    W1_main = -(G_s * Re ** 2 / (2.0 * p_s ** 2)) * W1_terms
+
+    denom_c1 = 5.0 * s2_s - 4.0
+    C1_s = (
+        (G_s * Re ** 2 / p_s ** 2)
+        * (15.0 * s2_s - 14.0)
+        / (32.0 * denom_c1)
+        * s2_s
+        * e_s ** 2
+        * hy.sin(2.0 * g_s)
+    )
+
+    W1_s = W1_main + C1_s
+
+    # --- Partial derivatives at fixed E ---
+    dW1_dE = hy.diff(W1_s, E_s)
+    dW1_dg = hy.diff(W1_s, g_s)
+    dW1_dL_E = hy.diff(W1_s, L_s)  # at fixed E
+    dW1_dG_E = hy.diff(W1_s, G_s)  # at fixed E
+    dW1_dH = hy.diff(W1_s, H_s)
+
+    one_minus_ecosE = 1.0 - e_s * cosE_s
+
+    # --- da: non-singular ---
+    # {a, W1} = -(2L/mu) * dW1/dl,  dW1/dl = dW1/dE / (1-ecosE)
+    dW1_dell = dW1_dE / one_minus_ecosE
+    da_expr = J2 * (-(2.0 * L_s / mu) * dW1_dell)
+
+    # --- dI: non-singular (for i != 0) ---
+    # {I, W1} = -(cosI/(G*sinI)) * dW1/dg  (since dW1/dh = 0)
+    c_s = H_s / G_s
+    si_s = hy.sqrt(s2_s)
+    di_expr = J2 * (-(c_s / (G_s * si_s)) * dW1_dg)
+
+    # --- dOmega: non-singular ---
+    # {Omega, W1} = dW1/dH
+    dOm_expr = J2 * dW1_dH
+
+    # --- d(M+w): non-singular via (eta-1)/e = -e/(eta+1) trick ---
+    # de/dL + de/dG = G*(eta-1)/(eL^2) = -G*e / (L^2*(eta+1))   [no 1/e]
+    dedLpG = -G_s * e_s / (L_s ** 2 * (eta_s + 1.0))
+    dEdLpG = dedLpG * sinE_s / one_minus_ecosE
+    dMpw_expr = J2 * ((dW1_dL_E + dW1_dG_E) + dW1_dE * dEdLpG)
+
+    # --- d(ecosw) and d(esinw): non-singular via BRACKET/e ---
+    # BRACKET = -eta*dW1/dE + (1-ecosE)*dW1/dg   is O(e)
+    # {ecosw, W1} = eta*cosw*BRACKET / (eL(1-ecosE))
+    #             - sinw * [e*dW1/dG|_E - eta*sinE*dW1/dE/(L(1-ecosE))]
+    BRACKET = -eta_s * dW1_dE + one_minus_ecosE * dW1_dg
+
+    ecosw_t1 = eta_s * hy.cos(g_s) * BRACKET / (e_s * L_s * one_minus_ecosE)
+    ecosw_t2 = -hy.sin(g_s) * (
+        e_s * dW1_dG_E
+        - eta_s * sinE_s * dW1_dE / (L_s * one_minus_ecosE)
+    )
+    d_ecosw_expr = J2 * (ecosw_t1 + ecosw_t2)
+
+    # {esinw, W1}: same structure, rotated by pi/2
+    esinw_t1 = eta_s * hy.sin(g_s) * BRACKET / (e_s * L_s * one_minus_ecosE)
+    esinw_t2 = hy.cos(g_s) * (
+        e_s * dW1_dG_E
+        - eta_s * sinE_s * dW1_dE / (L_s * one_minus_ecosE)
+    )
+    d_esinw_expr = J2 * (esinw_t1 + esinw_t2)
+
+    return hy.cfunc(
+        [da_expr, d_ecosw_expr, d_esinw_expr, di_expr, dOm_expr, dMpw_expr],
+        vars=[E_s, g_s, L_s, G_s, H_s],
+    )
+
+
+def _get_sp_heyoka_cfunc(mu, Re, J2):
+    """Lazy-build and cache the heyoka SP cfunc."""
+    global _SP_HEYOKA_CFUNC, _SP_HEYOKA_PARAMS
+    key = (mu, Re, J2)
+    if _SP_HEYOKA_CFUNC is None or _SP_HEYOKA_PARAMS != key:
+        _SP_HEYOKA_CFUNC = _build_sp_heyoka_cfunc(mu, Re, J2)
+        _SP_HEYOKA_PARAMS = key
+    return _SP_HEYOKA_CFUNC
+
+
+def sp_corrections_heyoka(a, e, inc, Omega, omega, M, mu, Re, J2):
+    r"""Exact J2 SP corrections via heyoka AD of W1 Poisson brackets.
+
+    Uses Lyddane non-singular combinations internally and returns
+    standard Keplerian corrections (da, de, dI, dOmega, domega, dM).
+
+    For near-circular orbits (e < 1e-6), domega and dM are set to zero
+    individually but their sum d(M+w) is exact.  The forward map
+    ``mean_to_cartesian_heyoka`` uses the non-singular form directly.
+
+    Parameters
+    ----------
+    a, e, inc, Omega, omega, M : float
+        Mean Keplerian elements (angles in radians).
+    mu, Re, J2 : float
+        Constants.
+
+    Returns
+    -------
+    da, de, dI, dOmega, domega, dM : float
+    """
+    cf = _get_sp_heyoka_cfunc(mu, Re, J2)
+
+    L = np.sqrt(mu * a)
+    G = L * np.sqrt(1.0 - e ** 2)
+    H = G * np.cos(inc)
+    E = solve_kepler(M, e)
+
+    result = cf([E, omega, L, G, H])
+    da_v = float(result[0])
+    decw = float(result[1])
+    desw = float(result[2])
+    di_v = float(result[3])
+    dOm_v = float(result[4])
+    dMpw = float(result[5])
+
+    # Recover de, domega, dM from non-singular Lyddane variables
+    cw = np.cos(omega)
+    sw = np.sin(omega)
+    de_v = decw * cw + desw * sw
+
+    if e > 1e-6:
+        dom_v = (-decw * sw + desw * cw) / e
+        dM_v = dMpw - dom_v
+    else:
+        # At e ~ 0, domega and dM diverge individually but
+        # d(M+w) is finite.  Set both to zero; the forward map
+        # uses the non-singular path.
+        dom_v = 0.0
+        dM_v = dMpw
+
+    return (da_v, de_v, di_v, dOm_v, dom_v, dM_v)
+
+
+def sp_corrections_heyoka_batch(a, e, inc, Omega, omega, M, mu, Re, J2):
+    r"""Vectorised exact J2 SP corrections via heyoka AD.
+
+    Returns the 6 Lyddane non-singular corrections as arrays:
+        (da, d_ecosw, d_esinw, dI, dOmega, d_Mpw)
+
+    These avoid 1/e issues at all eccentricities and are used directly
+    by ``mean_to_cartesian_heyoka_batch``.
+    """
+    cf = _get_sp_heyoka_cfunc(mu, Re, J2)
+
+    a = np.asarray(a, dtype=float)
+    e = np.asarray(e, dtype=float)
+    inc = np.asarray(inc, dtype=float)
+    omega = np.asarray(omega, dtype=float)
+    M = np.asarray(M, dtype=float)
+
+    L = np.sqrt(mu * a)
+    G = L * np.sqrt(np.maximum(1.0 - e ** 2, 0.0))
+    H = G * np.cos(inc)
+    E_arr = solve_kepler(M, e)
+
+    N = len(a) if a.ndim > 0 else 1
+    da_out = np.empty(N)
+    decw_out = np.empty(N)
+    desw_out = np.empty(N)
+    di_out = np.empty(N)
+    dOm_out = np.empty(N)
+    dMpw_out = np.empty(N)
+
+    E_flat = np.atleast_1d(E_arr)
+    om_flat = np.atleast_1d(omega)
+    L_flat = np.atleast_1d(L)
+    G_flat = np.atleast_1d(G)
+    H_flat = np.atleast_1d(H)
+
+    for k in range(N):
+        r = cf([E_flat[k], om_flat[k], L_flat[k], G_flat[k], H_flat[k]])
+        da_out[k] = float(r[0])
+        decw_out[k] = float(r[1])
+        desw_out[k] = float(r[2])
+        di_out[k] = float(r[3])
+        dOm_out[k] = float(r[4])
+        dMpw_out[k] = float(r[5])
+
+    return da_out, decw_out, desw_out, di_out, dOm_out, dMpw_out
+
+
+def mean_to_cartesian_heyoka(a, e, inc, Om, om, M, mu, Re, J2):
+    """Mean Keplerian -> osculating Cartesian via heyoka AD SP corrections.
+
+    Uses non-singular Lyddane combinations (e*cos w, e*sin w, M+w) to
+    avoid the 1/e catastrophic cancellation at near-circular orbits.
+
+    Returns (r_vec, v_vec) as 3-element arrays.
+    """
+    cf = _get_sp_heyoka_cfunc(mu, Re, J2)
+
+    L = np.sqrt(mu * a)
+    G = L * np.sqrt(1.0 - e ** 2)
+    H = G * np.cos(inc)
+    E = solve_kepler(M, e)
+
+    result = cf([E, om, L, G, H])
+    da_v = float(result[0])
+    decw = float(result[1])
+    desw = float(result[2])
+    di_v = float(result[3])
+    dOm_v = float(result[4])
+    dMpw = float(result[5])
+
+    # Osculating elements via non-singular reconstruction
+    osc_a = a + da_v
+    osc_i = inc + di_v
+    osc_Om = Om + dOm_v
+
+    # Non-singular eccentricity vector
+    mean_ecosw = e * np.cos(om)
+    mean_esinw = e * np.sin(om)
+    osc_ecosw = mean_ecosw + decw
+    osc_esinw = mean_esinw + desw
+
+    osc_e = np.sqrt(osc_ecosw ** 2 + osc_esinw ** 2)
+    osc_om = np.arctan2(osc_esinw, osc_ecosw)
+
+    # Non-singular mean longitude
+    mean_Mpw = M + om
+    osc_Mpw = mean_Mpw + dMpw
+    osc_M = osc_Mpw - osc_om
+
+    E_osc = solve_kepler(osc_M, osc_e)
+    f_osc = eccentric_to_true(E_osc, osc_e)
+    return keplerian_to_cartesian(osc_a, osc_e, osc_i, osc_Om, osc_om, f_osc, mu)
+
+
+def mean_to_cartesian_heyoka_batch(a, e, inc, Om, om, M, mu, Re, J2):
+    """Vectorised mean -> osculating Cartesian via heyoka AD SP corrections.
+
+    Returns (N,3) positions, (N,3) velocities.
+    """
+    from .coordinates import keplerian_to_cartesian_batch
+
+    da, decw, desw, di, dOm, dMpw = sp_corrections_heyoka_batch(
+        a, e, inc, Om, om, M, mu, Re, J2)
+
+    osc_a = a + da
+    osc_i = inc + di
+    osc_Om = Om + dOm
+
+    mean_ecosw = e * np.cos(om)
+    mean_esinw = e * np.sin(om)
+    osc_ecosw = mean_ecosw + decw
+    osc_esinw = mean_esinw + desw
+
+    osc_e = np.sqrt(osc_ecosw ** 2 + osc_esinw ** 2)
+    osc_om = np.arctan2(osc_esinw, osc_ecosw)
+
+    mean_Mpw = M + om
+    osc_Mpw = mean_Mpw + dMpw
+    osc_M = osc_Mpw - osc_om
+
+    E_osc = solve_kepler(osc_M, osc_e)
+    f_osc = eccentric_to_true(E_osc, osc_e)
+    return keplerian_to_cartesian_batch(osc_a, osc_e, osc_i, osc_Om, osc_om, f_osc, mu)

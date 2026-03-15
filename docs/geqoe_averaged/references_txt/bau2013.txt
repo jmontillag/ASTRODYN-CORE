@@ -1,0 +1,1449 @@
+Abstract A formulation of the perturbed two-body problem that relies on a new set of
+orbital elements is presented. The proposed method represents a generalization of the special
+perturbation method published by Pelaez et al. (Celest Mech Dyn Astron 97(2): 131-150,
+2007) for the case of a perturbing force that is partially or totally derivable from a potential.
+We accomplish this result by employing a generalized Sundman time transformation in the
+framework of the projective decomposition, which is a known approach for transforming the
+two-body problem into a set of linear and regular differential equations of motion. Numerical
+tests, carried out with examples extensively used in the literature, show the remarkable
+improvement of the performance of the new method for different kinds of perturbations and
+eccentricities. In particular, one notable result is that the quadratic dependence of the position
+error on the time-like argument exhibited by Pelaez's method for near-circular motion under
+the J2 perturbation is transformed into linear. Moreover, the method reveals to be competitive
+with two very popular element methods derived from the Kustaanheimo-Stiefel and Sperling-
+Burdet regularizations.
+
+Keywords Perturbed two-body problem • Regularization • Generalized orbital elements •
+Orbit propagation • Linearization
+
+
+1 Introduction
+
+The most straightforward method for finding the solution of the perturbed two-body problem
+is known in Celestial Mechanics as Cowell's method (Battin 1999, p. 447), which consists
+
+
+
+
+G. Bail (ISI)
+CISAS "G. Colombo", University of Padova, Via Venezia 15, 35131 Padova, Italy
+e-mail: bagiugio@gmail.com
+
+C Bombardelli • J. Pelaez
+Space Dynamics Group, School of Aeronautics, Technical University of Madrid,
+Plaza Cardenal Cisneros 3, 28040 Madrid, Spain
+                                                                                        G. Bau et al.
+
+
+ of a direct integration of the Newtonian equations of motion in rectangular coordinates.
+ Unfortunately, these differential equations become singular when the distance between the
+ two bodies, regarded as point masses, becomes zero. Even if such a condition is unrealistic
+because bodies have a finite size, the numerical method suffers from loss of accuracy in
+ situations approaching the singular case.
+     The elimination of singularities occurring in the equations of motion by properly selected
+ variables is called regularization and leads to a set of regular differential equations (Szebehely
+ 1975). The first fundamental lines of research in this field were pursued by Levi-Civita (1924)
+ and Sundman (1907, 1912) on the regularization of the three-body problem.
+     A very desirable property that often accompanies regularization is linearization (Deprit
+ et al. 1994). When linearization is obtained the transformed equations of motion of the
+perturbed two-body problem take the form of perturbed harmonic oscillators with improved
+ stability properties, and, as a result, improved numerical propagation performance not only
+ for the case of near-collision orbits (like for instance highly eccentric ellipses), but in general
+ of any kind of motion (Arakida and Fukushima 2000). On the contrary, Cowell's equations
+ for the two-body problem are nonlinear and the solution is Lyapunov-unstable (Stiefel and
+ Scheifele 1971, Section 16; Bond 1982).
+     The natural way of obtaining regularization is to transform the independent and/or depen-
+ dent variables and to introduce integrals into the equations of motion (Bond and Allman 1996,
+ Chap. 9). The three most popular regularization schemes developed for the three-dimensional
+perturbed two-body problem are known as the Kustaanheimo-Stiefel (K-S) (Kustaanheimo
+ and Stiefel 1965), the Sperling-Burdet (S-B) (Sperling 1961; Burdet 1967), and the Burdet-
+ Ferrandiz (B-F) (Burdet 1969; Ferrandiz 1987/88) regularization.
+     As a first step towards regularization the above methods perform a change in the indepen-
+ dent variable from physical time to a different independent variable sometimes referred to as
+fictitious time. For the K-S and S-B methods the independent variable has the dimension of an
+ inverse velocity by virtue of a Sundman's time transformation, while the B-F method uses an
+ angular variable that coincides with the true anomaly in the unperturbed motion. Following
+ this change of variable, each of the schemes adopts its own approach towards full regular-
+ ization. The K-S regularization extends in a four-dimensional parametric space the planar
+ transformation of Levi-Civita (Stiefel and Scheifele 1971, Chap. 2). The S-B regularization
+ is achieved by embedding the Laplace vector and the Keplerian energy into the equations of
+ motion written with respect to the new independent variable (Bond and Allman 1996, Section
+ 9.3). The B-F regularization exploits a projective decomposition of the equations of motion
+ in which the dynamics of the orbital radius and the radial direction are considered separately
+ (Fukushima 2007a), an idea already known since the eighteenth century and codified by
+ Laplace (Deprit et al. 1994).
+    A new two-body regularization has been recently proposed by Fukushima (2007a) employ-
+ing only eight dependent variables. The Sundman's and Levi-Civita's time and space trans-
+formations respectively are combined to achieve regularization with respect to a coordinate
+triad representing the orbital plane. The orientation of this plane is given by integrals of the
+unperturbed motion, namely the components of the angular momentum vector in a fixed
+reference frame.
+    Following any of the the three regularization schemes described above a system of linear
+and regular second order differential equations is obtained (Fukushima 2007a). However, it is
+worth noting that only the B-F regularization relies on perturbed harmonic oscillators for any
+admissible value of the total energy (Chelnokov 1993) with the K-S and S-B regularizations
+exhibiting oscillator properties only in the case of total energy strictly smaller than zero.
+Perturbed two-body problem
+
+
+   A further improvement in numerical propagation performance can be obtained by
+applying the method of variation of parameters (VOP) (Vallado 2001, Section 9.3)
+whereby the dependent variables are transformed into orbital elements, which are held
+constant in the case of pure Keplerian motion. Because no discretization error affects
+the elements propagation in the unperturbed motion, methods that employ elements are
+especially suited to the propagation of celestial bodies as well as artificial satellites sub-
+ject to relatively weak perturbations. VOP formulations have been developed for the
+K-S, S-B and B-F regularizations. In the framework of the K-S regularization, the first
+set of elements was derived for perturbed elliptic motion by Stiefel in 1967 (Stiefel
+et al. 1967; Arakida and Fukushima 2001) and subsequently modified by Stiefel and
+Scheifele (1971, Section 19), who also presented (Stiefel and Scheifele 1971, Section 40)
+K-S elements valid in any kind of orbit but only when the perturbing force arises from a
+potential. This limitation motivated Bond (1974) to find the solution of the K-S transformed
+perturbed two-body problem in terms of a uniform set of elements working for perturbations
+both derivable and not derivable from a potential. Arakida and Fukushima (2001) have shown
+that the use of elements under the K-S regularization significantly reduces the error propaga-
+tion in the numerical integration of the differential equations of motion. In the S-B scheme,
+Burdet (1967,1968) applied the VOP technique to Sperling's regularization to obtain the dif-
+ferential equations of the elements which appeared in Sperling's solution. Burdet's approach
+was then modified by Bond and Fraietta who introduced spatial and temporal elements (Bond
+and Allman 1996, Chap. 9).
+    As regards the B-F regularization, a VOP method has been recently developed by (Pelaez
+et al. 2007). The method, which was presented for the first time in 2005 (Pelaez et al. 2005),
+is often referred to as Dromo 1 and is characterized by eight dependent variables: the physical
+time, the inverse of the angular momentum, two elements related to the dynamics along the
+radial direction and the four components of a unit quaternion describing the attitude of a
+slowly moving frame. Such a frame is known after Hansen (1857) as an ideal frame, and
+it was also exploited by Deprit (1975) for determining a set of ideal elements which show
+a strong analogy with Pelaez's elements. When compared to other propagation schemes
+Dromo has been shown to offer a number of important advantages: non-degenerate quaternion
+differential equations, compact form of the equations of motion with perturbing accelerations
+appearing directly in a local-vertical local-horizontal orbiting frame, a reduced number of
+equations to be integrated (a total of eight variables is employed, two less than the K-S
+formulation), a unique formulation for the three types of perturbed conies with no need for
+embedding Stumpff functions. Furthermore, the method has been used to derive the first
+complete asymptotic solution (i.e. including secular and periodic terms) of the two-body
+problem perturbed by constant tangential thrust (Bombardelli et al. 2011).
+   Although the Dromo formulation has been shown to offer an excellent numerical propaga-
+tion performance, its computational speed and/or propagation accuracy can still be improved.
+In its current formulation, for instance, the method cannot benefit from the performance
+increase that is normally achievable when the perturbing force is partially or fully derivable
+from a potential. In fact, both the K-S and S-B formulations take advantage of this situation
+by introducing the total energy (Stiefel and Scheifele 1971, p. 30; Bond and Hanssen 1973)
+or the Jacobi integral (Bond and Gottlieb 1989) instead of the Keplerian energy as depen-
+dent variable. In such case, conservative potentials rather than their corresponding perturbing
+forces should be inserted in the equations of motion whenever possible (Stiefel and Scheifele
+1971, p. 117).
+
+  The word dromo is derived from the old Greek word Spouoi; (dromos) that means running.
+                                                                                     G. Bau et al.
+
+
+    The aim of this paper is to generalize the Dromo propagation method to account for
+disturbing potentials. This is done by adopting the generalized Sundman time transformation
+as it was presented by Sharaf et al. (1992) for the particular case of order two, where the
+angular momentum is replaced by what we call a "pseudo angular momentum". The new set
+of generalized orbital elements proposed here inherits all the benefits of Dromo elements, in
+particular they are nonsingular for all eccentricities and inclinations and provide a uniform
+solution of the perturbed two-body problem, in the sense that the same solution is valid for
+all values of the energy. In addition, and this is the main contribution of this work, they show
+a much better numerical behavior when conservative potentials are considered.
+    In Sect. 2 we derive the linear differential equations of the perturbed two-body problem.
+In Sect. 3 we apply the VOP technique to such equations in order to derive the new set
+of elements and their differential equations. In Sect. 4 we provide a physical interpretation
+of the new elements by establishing relations with the classical orbital elements as well as
+with the Cartesian components of the position and velocity vectors. Finally, we exploit some
+extensively used examples in the literature to compare the performance of our method with
+respect to the classical version of Dromo and two well known VOP methods belonging to
+the K-S and S-B regularization schemes.
+
+
+2 Linearized equations of motion
+
+Let us consider a particle of mass m orbiting around a primary of mass M at initial radial
+position RQ measured from the center of the primary and angular position vo measured from
+the initial eccentricity vector (and hence corresponding to the initial true anomaly). Let us
+employ, from now on, m as the unit of mass, RQ as the unit of distance and 1 /«o as the unit of
+time where «o is the angular rate of a circular orbit with radius equal to the initial radius R$:
+
+                                            JG(M + m)
+                                    «' = ,/—3—
+with G denoting the gravitational constant. In the following we will always refer to non-
+dimensional quantities, unless otherwise stated.
+   The evolution of the particle m obeys the perturbed two-body problem equation written
+here in the non-dimensional form:
+
+
+                                      £ = -?"'•
+where r is the position of the particle with respect to the primary and f is the perturbing force
+applied to the particle. The latter can be written as the sum of two contributions:
+                                              dU (t, r, v)
+                                                   3r
+with U denoting the perturbing potential energy, which, in general, is a scalar function
+depending on time t, r and the velocity v of the particle, and P indicating the perturbing force
+that is not derived by a perturbing potential energy. Once Eq. (1) has been double-integrated
+with the initial conditions r (0) and v (0) the position r (t) is known at a generic time t.
+   In this paper the motion is obtained by considering separately the dynamics of the inverse
+of the orbital distance \/r and the radial direction r / r . Such a coordinate transformation is
+applied together with a transformation of the independent variable from the physical time t
+to a fictitious time <p, which is shown in Subsect. 2.1. In the new space and time variables
+Perturbed two-body problem
+
+
+Eq. (1) can be substituted by a set of linear (at least when the motion is unperturbed) differ-
+ential equations, as it is described in Subsect. 2.2.
+
+2.1 Generalized Sundman time transformation
+
+A Sundman time transformation, coinciding with the angular momentum variation equation,
+is employed by the Dromo method (Pelaez et al. 2007) to relate the physical time t with a
+new independent variable a:
+
+                                          dr             r2
+                                          da             h
+where r and h are the orbital radius and angular momentum of osculating Keplerian motion,
+respectively. The latter quantity can always be written as:
+
+
+
+                                    (S)W*(-7)-(S)'                                          (3)
+
+where:
+
+                                                    v2         1
+                                                    2          r
+is the Keplerian energy, with v denoting the velocity magnitude.
+    Let us now introduce the pseudo angular momentum:
+
+
+                                S
+                                    W2K)-©-                                                 (4)
+
+where we formally added to the Keplerian energy the disturbing potential energy U to obtain
+the total energy:
+
+                                         e = BK + U.
+
+By replacing h with h in Eq. (2) we obtain the generalized Sundman transformation of order
+two as defined by Sharaf et al. (1992):
+
+                                                         rr2
+                                                          2
+                                          r\t
+                                          dr
+                                                                                            (5)
+                                          d<p ~ h"
+         comparing Eqs. (3) and (4) we infer that:
+
+                                                2
+                                      h = Jh         + 2r2U.                                (6)
+
+Unlike Eq. (2) which is just the expression of the orbital angular momentum, Eq. (5) does
+not have a straightforward physical meaning. On the other hand, it is instructive to relate the
+independent variable <p to well known astrodynamical quantities such as the classical orbital
+elements. To this end, let us write the variation of the independent variable <p with respect to
+the initial value (po as the sum:
+
+                                       A0 = Av + y,                                         (7)
+                                                                                    G. Bau et al.
+
+
+where Av = v — vo, being v the true anomaly. The latter quantity takes the expression
+(as shown in Appendix II which is published as Electronic Supplementary Material):
+                                         n              t
+                                                            u
+                                         f              f
+                         y = Aco + / cos i di? + 2 /             df.
+                                     J                  J h+h
+                                     n0                 o
+where Aa>, £2 and i are, respectively, the argument of periapsis variation with respect to the
+initial orbit, the longitude of the ascending node and the orbital inclination. Equation (7)
+underlines that the variation A<p of the independent variable differs, in general, from the
+variation A v of the osculating true anomaly by an angular drift y due to the action of orbital
+perturbations. Therefore, <p can be referred to aspseudo true anomaly of the perturbed orbital
+motion.
+    In the particular case in which the orbital plane is invariant (£2 = i?o) and U = 0, y
+coincides with the angle between the eccentricity vector of the initial and of the osculating
+orbit, and <p, after setting (po = VQ, becomes the longitude of the particle measured from
+the eccentricity vector of the initial orbit. The initial value of the independent variable is
+arbitrary. In our implementation of the method the value of the initial true anomaly vo was
+assigned to <po, so that (po = VQ.
+2.2 Projective decomposition
+
+Let us express the position r as the product of its magnitude r and its direction i, in order
+to decompose the motion of the particle into a displacement of magnitude r along the radial
+direction i and a rotation of i. This procedure is known asprojective decomposition (Ferrandiz
+1987/88; Deprit et al. 1994).
+   We introduce a rotating frame 1Z = (x, y, z) with one axis oriented along the radial
+direction i. Let the axes of TZ be defined as follows:
+1. the x-axis is oriented along i;
+2. the y-axis is oriented along the unit vector j which lies on the osculating orbital plane, is
+   perpendicular to i and satisfies the condition j • v > 0, being v the velocity vector;
+3. the z-axis is oriented along the direction k of the orbital angular momentum vector
+   h = r x v.
+According to the previous definitions, the orthonormal basis {i, j , k} is defined by the rela-
+tions:
+                                r                          h
+                             i=-,            j = kxi,   k=-.                                 (8)
+                                r                          n
+   Following the idea of the projective decomposition the particle's dynamics is described
+by the four projective coordinates (r, i) and their time derivatives (dr/df, di/df). Next, we
+will derive a set of linear equations of motions corresponding to the inverse of the orbital
+radius r, and the orbital radius direction expressed in quaternion form.
+
+2.2.1 Orbital radius dynamics
+
+The radial component of Eq. (1) can be written as:
+
+                                   d2r        h2    1
+
+
+where fx = f i.
+Perturbed two-body problem
+
+
+   As shown by Szebehely and Bond (1983) Eq. (9) can be linearized (at least for the unper-
+turbed case) by employing the following transformation of the orbital radius:
+
+                                                 r = p-\                                  (10)
+
+together with a suitable change in the independent variable. To this end we substitute
+Eqs. (10) and (5) into Eq. (9) to obtain, as detailed in Appendix II (published as Electronic
+Supplementary Material):
+
+                    d2p                1          ldpdh
+                             •fo--         = — — -        — - ( — -2U],                   (11)
+                    d</>2             p       h d</> d</> p h 2
+
+where the term dh/d<p takes the form:
+
+            dh   1 [dp ( dU                       \     1 /     rZZ,         9ZA1
+            — = — ^ — [p                        2W ) + — ( PyJp2h2   -2U+   — ) .         (12)
+
+being Py = P j , which is derived in Appendix II (published as Electronic Supplementary
+Material). Note that when fx = Py = U = 0 Eq. (11) represents a harmonic oscillator
+perturbed by the constant positive term h~2.
+
+
+2.2.2 Radial direction      dynamics
+
+The time variation of the radial unit vector i obeys in general:
+                                                 di _ h
+                                                 dr = ^ " J '
+From the above expression and taking into account Eqs. (5) and (6) one readily obtains:
+
+                                           di        ,     2r2U .
+
+                                           ¥ = V'-^ J                                     (13)
+If both sides of this equation are differentiated with respect to <p it results a second order
+differential equation in <p which for vanishing U and fz represents a harmonic oscillator in
+the state variable i.
+   We propose instead to exploit Eq. (13) to replace d\/d<p with j in the state vector. This
+implies that we have to consider also the pseudo angular momentum h as a state variable.
+   Note that the two unit vectors i and j provide the evolution of the rotating frame 1Z which
+was defined in Eq. (8). According to Euler's rotation theorem, the attitude of 1Z with respect
+to a reference frame X with fixed orientation in space is obtained by a rotation of an angle cp
+around a unit vector u. Following quaternion algebra, let us introduce the unit quaternion q
+associated to such rotation:
+
+                                                q = (q4,q),                               (14)
+where the scalar part q^ and the vectorial part q are functions of cp and u as follows:
+                                               ip                <p
+                                     <74 = cos —,        q = usin—.                       (15)
+
+By projecting q onto the rotating frame 1Z as:
+
+                                           q = q\\ + q2) + qik,
+                                                                                                      G. Bau et al.
+
+
+the time derivative of q appears in the form:
+
+                                                 dq _ 1
+                                                 "d7 ~ 2~' ' w.
+where q w represents the quaternion product of q by the quaternion w = (0, w) being w the
+angular velocity of the frame 1Z which is represented in 1Z by:
+
+                                                       r              h
+                                            w = -&^ 1• +J. - r ku .
+                                                  n        rz
+   After applying the quaternion product rule and switching from t to <p we have:
+                            dq     r2
+                            — = - 7 (-q-w, q4w + q x w),
+
+which yields the four differential equations:
+
+                  dqi                   1                         fz     Z z 2 2
+                                                                q4—+q2[p  h(p-2U)
+                                                                               h - 1U\                       (16)
+                   d(p    2phy/p h 2 2
+                                                 - 2U L
+                  dq2 _                 1
+                                                       13—-qi                    (p2h2        -2U\           (17)
+                   d(p    2ph^]p h 2 2
+                                                 - 2U L P
+                  d^3                       1                                           2 2
+                                                                 qi—-q4\pLhL-2U)
+                                                                            (p h              - 1U\          (18)
+                   d(p      2ph^]p h    2 2
+                                                  - 2U
+                  dq4 _                     1                               z 2 2
+                                                                 qi—+q3[pZh(p  h - 1U\
+                                                                             -2U)                            (19)
+                   dtp      2phJp h 2 2
+                                                  - 2U
+
+
+2.2.3 Summary of the differential equations of motion
+
+The time equation obtained by substituting Eq. (10) into Eq. (5):
+                                                  dr              1
+                                                                                                             (20)
+                                                  d(p            p2h''
+
+together with Eqs. (11), (12) andEqs. (16)—(19) represent a set of differential equations which
+govern the motion of the particle in terms of the eight state variables:
+
+                                            dp
+                              (t                   I                                \
+                                   /9                      qi     q2,     q3,   q4
+                              \         ' M'                 '                    l '
+   The above equations were also presented in a slight different form by Sharaf et al. (1992).
+
+
+3 Generalized orbital elements
+
+In this section we apply the variation of parameters technique to Eqs. (11) and (16)—(19) to
+derive the differential equations of seven generalized orbital elements. For convenience, we
+divide the orbital elements into two sets, the first defining the orbit shape while the second
+characterizing its orientation.
+Perturbed two-body problem
+
+
+3.1 First set of elements
+
+The only variable of the state vector that is already an integral of the unperturbed motion
+is the pseudo angular momentum h. Let us define the generalized orbital element £3 as the
+inverse of h:
+
+                                        ?3 = 7 .                                              (21)
+                                              h
+   In the case of pure Keplerian motion Eq. (11) reduces to:
+
+
+                                       dtp
+which can be solved analytically to yield:
+                                              P = &s,                                         (22)
+                                              dp
+                                              ±r = - ? 3 « ,                                  (23)
+                                              d<p
+where:
+                                  s = £3 + £1 cos <p + £2 sin 0,                                 (24)
+                                  u = £1 sin0 — ^2 cos0,                                        (25)
+                       are
+and where £ 1 and £2         two integration constants, which we will employ as generalized
+orbital elements.
+   First, let us rewrite the time equation (20) by exploiting Eqs. (21) and (22) as:
+                                          dr          1
+                                          dcp ~       &s2'
+                                         an
+   The differential equations of £1, £2 d £3 are derived as follows. We substitute Eqs. (22)
+and (23) into Eq. (11), exploit Eq. (21) to substitute for h, and after simplifying and rearranging
+the terms, we get:
+                d
+                 (fi (0) sin0 - ? 2 (0) cos0) = j - £, + - l ^ - - 2U .                       (26)
+              d0                                         * \?3^      /
+Equation (26) and the osculating condition:
+
+                 — fe (0) [ft (0) + ?i (0) cos0 + f2 (0) sin0]) = -? 3 M,
+                 d0
+constitute a system of two algebraic equations which are solved for the derivatives of £ 1 and
+£2 with respect to 0 to yield:
+                      dii=sin0/A_ 2W\_A                            A        dft
+                      d0   J V?3^   / V?3                           /        #
+                                                                        V
+                      d0        s V            ft*/          V?3    /       dcp
+where the derivative of the orbital element £3 can be obtained by differentiation of Eq. (21)
+to finally find (for the algebraic details see Appendix II which is published as Electronic
+Supplementary Material):
+                                                                                                           G. Bau et al.
+
+
+3.2 Second set of elements
+
+Equations (16)—(19) in purely Keplerian motion simplify to:
+            dqi     1             dg2            1                 dg3   1               dg4        1
+                       q2,                 q1,                               q4,
+            ~64 ~ 2               ~64~~2                           ~64 ~ 2                     ~&p~~2q3'
+These equations can be analytically integrated to give the solutions:
+
+                                                  Ad>         Ad>
+                                      qi = f4 cos — + £ 5 sin — ,                                                  (27)
+                                                  Ad>         Ad>
+                                      q2 = £5 cos — - f4 sin — ,                                                   (28)
+                                                             A(p         A(p
+                                      qi = f6 cos — + f7 sin — ,                                                  (29)
+                                                             A(p         A(p
+                                      q4 = £7 cos — - £6 sin — ,                                                   (30)
+where A<p = (p—(po and the four constants of integration £4, £5, ^ f7 represent the remaining
+generalized orbital elements.
+    By applying again the variation of parameters technique we substitute the solution
+(27)-(30) into Eqs. (16)—(19) and solve for the derivatives of £4, £5, f6 and £7 with respect
+to (p to finally obtain:
+
+
+        ^    =               ^V^r-      ^ cos A ^ - ^sin A ^ + T- ( ^ 2 " 2U ~ s) •
+                       2     2
+        d<P 2&s ^s    - 2U                             2s \            I
+        — =        ^       (t6 cos Ad> + t7 sin Ad>) - — (*Js2 - 2U - s) .
+        d<P 2^s2Js^2U                                  2s V            ) •
+        ^ = -       %—^                   fecosA0              - f 4 sinA0) + f (V^ 2 - 21A - s) ,
+        d0    2&s2Vs2Zr2U                                                     2s V             /
+
+         ^ = -            { V - r - (f4 c o s A ^ + ?5 s i n A0) - f (V* 2 - 2W - s) .
+         d<P      2&s2^s2 - 2U                                      2s \            I
+In Appendix II (published as Electronic Supplementary Material) the procedure to derive
+these four equations is outlined.
+
+
+4 Summary of the differential equations of motion
+
+The state variables that describe the motion of the particle around the primary are:
+
+                                     (t, ?i, ? 2 , ft, ?4, ?5,                     ft,              ft),          (31)
+
+and the corresponding differential equations with respect to the independent variable <p are:
+                  dr     1
+                                                                                                                   (32)
+                  d^ = ^
+                  dft = sin0 / A            _            \ _ /£          \               dft
+                  d0                 GM-(H'
+                                 J Vft*
+                                     2u  +i sin
+                                                         /     Vft       /               #
+
+                  d*             1 v ( -^)-(i
+                                        f, ; u , ) / ** d*
+                                                     s
+Perturbed two-body problem
+
+                  dj3
+                                    M^3* I 2W                      + XPy +                (35)
+                  d(p
+                              1   fz
+                                     (£7 cos A0 — f6 sin A<f>) + ^5 (k — s)               (36)
+                  d(p        2^ &sk
+                              1   fz
+                                     (£e cos A<p + tj sin A(p) — £4 (X — s)               (37)
+                  d</>       2s _&sk
+
+                             .±L£_ (£5 cos A0 — £4 sin A0) — £7 (X — s)                   (38)
+                  d(p
+                  d£?
+                                            (f4 cos A(p + fs sin A0) + ^(k         — s)   (39)
+                  d0            2s \_^3sk
+where A<p = <p — <pQ, s and u are provided respectively by Eqs. (24) and (25):
+
+                                     s = £3 + £ 1 cos 0 + £2 sin 0.                       (40)
+                                     w = £ 1 sin 0 — £2     cos
+                                                                  <P 1                    (41)
+
+and:
+
+                                            X = Js2 - 1U.                                 (42)
+
+   It should be pointed out that the orbital element £3 can be replaced by the total energy
+e in the state vector. In this case we need the differential equation:
+                         de          1 /              ri:      9ZA
+                                   —,[uP x      + PyVs2 - 2U + — ) .
+                         d~4>      i;3s2 V                     3f /
+which is derived in Appendix II (published as Electronic Supplementary Material). The
+quantity £3 is computed from e and the orbital elements £ 1 and £2 thanks to the relation:
+
+                                       ?3       ?i2 + ? !   2e.
+
+which will be shown in Subsect. 5.4. As a rule of thumb, we say that the more conservative
+is the perturbation, the more advantageous in terms of accuracy and computational speed is
+the choice of e in place of £3 in the state vector. On the other hand, as we consider the case
+of a strongly non conservative perturbation, the computation of £3 from e, £1 and £2 is likely
+to produce a bigger error than numerically propagating £3.
+
+
+5 Collection of formulae for the implementation of the method
+
+In this section will be developed useful relationships between the new generalized orbital
+elements and the Cartesian components of the position and velocity vectors expressed in a
+fixed reference frame and the classical orbital elements.
+
+5.1 From the generalized orbital elements to the position and velocity vectors
+
+First, we provide the relations to compute the components of the dimensionless position and
+velocity vectors expressed in a fixed reference frame 1:
+
+                         r=(Rx,       Ry, RZ)T ,       v=           (Vx,Vy,Vz)T:
+from the generalized orbital elements (£1, . . . , £7).
+                                                                                        G. Bau et al.
+
+
+   Equations (22) and (23) are used along with Eqs. (10) and (5) to express the orbital radius
+r and the radial velocity vr in function of t,\,t,2, £3 and <p as:
+
+                                                         1
+                                                       cos
+                                                                                               (43)
+                                    £3 (£3 + K\    <$> + £2 sin 0 ) '
+                               yr = £j sin 0 — £2 cos 0.                                       (44)
+
+Besides, the expression of the transverse velocity can be obtained as:
+
+                               h
+                      ve               (£5 + £1 cos0 + f2 sin0) 2 - 2W,                        (45)
+                               r
+where we made use of Eqs. (6), (21) and (43). From comparison of Eqs. (44) and (45) with
+Eqs. (25) and (42) one infers that:
+
+                                                  u.    ve         X.
+
+  The position and velocity vectors of the particle can be expressed in I by the two matrix
+multiplications:
+
+                              (Rx,   RY,     RZ)T       Qui (r, 0, 0) T ,                      (46)
+                                                                               T
+                               (Vx, Vr,       Vzf       QKX(U,          X,   0) .              (47)
+
+where Qizi is the rotation matrix between the local-vertical local-horizontal frame TZ and
+the fixed frame I and will be computed as follows.
+   The relations (27)-(30) correspond to a quaternion product:
+
+                                                 q = U,                                        (48)
+
+where q was defined by Eqs. (14) and (15), and we have introduced the two unit quaternions:
+
+                                                             /         A0     \
+                               ? = (?7, *) ,                     cos        ,zI.
+
+with the vectorial part given by:
+
+
+                           ( = (? 4 , ?5, ft) ,          - (0,0, sin *f)
+  The unit quaternion <?, as seen in Subsect. 2.2, is associated to the rotation matrix Qizi,
+while the corresponding rotation matrices for £ and z are, respectively:
+
+                        l-2f2-2f2              2f4?5-2f6f7              2f4?6 + 2f5?7
+               go       2f4?5 + 2f6f7          l-2f2-2f2                 2f5ft-2f4?7           (49)
+                        2f4f6-2f5?7            2f 5 ft + 2f4f7           l-2f42-2f2
+                                           cos A(p     — sin A0 0
+                              Ms =         sin A0      cos A(p  0                              (50)
+                                              0           0     1
+
+  The relation between Qizi, 2o and Ms, analogous to the product (48), is the matrix
+multiplication:
+
+                                           QKI      = QoMs                                     (51)
+Perturbed two-body problem
+
+
+   After performing the products in Eqs. (46) and (47), where the matrix Qizi is determined
+according to Eq. (51) by employing Eqs. (49) and (50), we obtain the six components:
+
+               Rx = r [(1 - 2?52 - 2f 2 ) cos A0 + 2 (f4f5 - f 6 f 7 ) sin A 0 ] ,
+                fly = r [(1 - 2?42 - 2f 2 ) sin A0 + 2 (f4f5 + f 6 f 7 ) cos A 0 ] ,
+                /?z = 2r [(f5?6 + ?4?7) sin A0 + (f4?6 - ?5??) cos A<p],
+                V x = [2A. (?4?5 - ?6?7) + M(1 - 2 ? | - 2f62)] cos A0
+                       + [2M (?4?5 - f 6 f 7 ) - A.(l - 2f2 - 2f 2 )] sin A0,
+                Vy = [A.(l - 2 f | - 2f 2 ) + 2M (f4f5 + ? 6 ? 7 )] cos A0
+                       + [M(1 - 2?42 - 2f 2 ) - 2k (f4f5 + f 6 f 7 )] sin A0,
+                Vz = 2 [X (f5f6 + f 4 f 7 ) + u (f4f6 - f 5 f 7 )] cos A0
+                       + 2 [M (? 5 ? 6 + f 4 f 7 ) - X (f4f6 - f 5 f 7 )] sin A0.
+
+
+5.2 From the position and velocity vectors to the generalized orbital elements
+
+In the following we show how to compute the generalized orbital elements (£i, . . . £7) from
+the components of the position and velocity vectors expressed in the fixed frame 1, that is
+(Rx, RY, Rz)and(Vx,        VY, V z ).
+   By solving Eqs. (43), (44) and (45) for the three orbital elements £ 1, £2 a n d £3, one derives
+the relations:
+
+                     f! = ( j k 2 + 2U                   )cos(/> + Msin(/>;                     (52)
+                          V                   r+Jk2 + 2U/
+                     £2 = I vh2 + 21A           r^=^= 1 sin 0 — u cos 0,                         (53)
+                          V                   rV>-2 + 2UJ
+                     ?3 =      , *      ,                                                       (54)
+                             rV>-2 + 2W
+where
+
+                                     R2X + R2+ R\.
+                                           RXVX + RYVY        +    RzVz
+                             U = VI =                                     .
+                                                         r
+                                     h
+                             k =vj = -,
+                                     r
+with
+
+         h = JH2+H2 + H2,
+        Hx = RYVZ-RZVY,               HY = RZVX        - RXVZ,          HZ = RXVY   -   RYVX.
+
+   The relations of the remaining orbital elements can be derived from Eq. (49):
+
+                      ,    2o (3, 2) - go (2, 3)
+                      ?4 =          j -          ,                                              (55)
+                                    4f7
+                      ,    60 (1, 3) - go (3, 1)
+                      ?5 =          j -          ,                                              (56)
+                                    4f7
+                                                                                                    G. Bau et al.
+
+                                   go (2,1) - g o (1,2)
+                         ?6                                                                                  (57)
+                                            4? 7
+
+                         ?7 = ± ^ V l + go (1, 1) + go (2, 2) + go (3, 3),                                   (58)
+
+
+with (Eq. 51):
+
+                                             go = QmMj:                                                      (59)
+
+where M^ is given in Eq. (50) and Qizi can be written by columns as:
+
+
+                                  Qm
+                                           0        r x v
+                                                   |r x v|
+                                                                r r x v
+                                                                r ' |r x v|
+
+  By substituting into Eqs. (55)-(58) the elements of the matrix go as derived in
+Appendix I we finally have:
+
+        1     (HHXXRRYY-H-HYYRRXX\ \           ...Rz       .        fly
+ C4                                     I cos Aq> H          sin Aq
+       Hi     I           rh           I)               r            h
+        1     /HHXXRRYY-H
+                        -HYYRX\            .           RZ           Hx
+ C5                                     I sin Aq>         cos Aq> H
+       Hi                 rh           J               r             h
+        l       HXRZ-HZRX                   RX\ .             (HZRY-HYRZ            RY\       A ^
+                                                 I sin A(p + I                  1        I cos A(p
+       4f 7               rh                 r I              V      rh              r I
+               , HZ (HZRX-HXRZ                         RX\              ( HZRY-HYRZ           Rr\      . .
+  C7 = ± - / l + ——+|
+                 h   \    rh;                      1         | cos A<fr+ I                1         I sin Ai?
+                                                                        \      rh              r )
+
+The singular case £7 = 0 is discussed in the Appendix I
+
+5.3 From the classical to the generalized orbital elements
+
+We provide the relations to compute the generalized orbital elements (£ 1, . . . , £7) from the
+classical orbital elements:
+
+                                            (h, e, v, i, Q, a>),
+
+with h the dimensionless angular momentum, e the eccentricity, v the true anomaly, i the
+inclination, i? the longitude of the ascending node and a the argument of pericenter.
+   The orbital radius r, radial velocity u, and transverse velocity X can be written as (see for
+instance at pages 117 and 126 of Battin 1999):
+
+
+                                                                                                             (60)
+                                                 1 + ecos v
+                                                 1
+                                            u = — e sin v.                                                   (61)
+                                                 «
+                                                 1
+                                            A. = — (1 + ecos v).                                             (62)
+Perturbed two-body problem
+
+
+By inserting these expressions into Eqs. (52)-(54), after some algebra w e have:
+
+                           e cos v (1 + e cos v) + 2Uh2
+                                                                     cos(p H — sin v s i n 0 .
+                             W ( l + e cos v ) 2 + 2W/z2                     h
+
+                           e cos v (1 + e cos v) + 2W/z2
+                                                                     sm<j>       sin v cos0.
+                             h^(l+ecosvf               + 2Uh2
+                                    I + e cos v
+                  ?3
+                         feV(l + e cos v ) 2 + 2Uh2
+   The four Euler parameters £4, £5, £6> a n d £7 a r e associated to the Euler angle sequence
+(£2, i, a> + v — Acp), as w e infer from Eq. (59). A s a consequence, the following relations
+can b e established:
+                                                 i      i ? — o> — v + A 0
+                                  ?4         sin - cos •
+                                                 2              2
+                                                         Q — co — V + A<p
+                                             sin - sin
+                                                 2              2
+                                                 l       £2 + 0) + v -Acp
+                                             cos - sin
+                                                 2               2
+                                                 i        £2 + o.+ 1 -Acp
+                                  ?7         cos - c o s •
+                                                 2               2
+
+
+5.4 F r o m the generalized to the classical orbital elements
+
+W e d e r i v e t h e r e l a t i o n s to compute the classical orbital elements (h, e, v, i, £2, a>) from the
+generalized orbital elements ( £ 1 , . . . , £7).
+   First, by using Eqs. (43)-(45) to substitute for r, u and X on the left-hand side of
+Eqs. (60)-(62), and then solving for the dimensionless angular m o m e n t u m h, eccentricity e
+and true anomaly v, w e derive:
+
+                                v V - 2U
+                                       ?3*
+                                  1
+                                             s2 - 1U) (f2 + f2 - 2W) + 2Wf32,
+                                ft*
+                                       x(    u^s2 - 2U \
+                                tan"
+                                         \s2        -2U-^s\
+
+   The expressions of the inclination i, longitude of the ascending node £2 and argument of
+pericenter o) are obtained b y equating the components of the matrix (2o expressed in terms
+of quaternions (Eq. 49) and described b y the Euler angle sequence (£2, i, o) + v — Acp) as
+can b e inferred from Eq. (59):
+
+                                                     1 - 2?i - 2? 25
+                                                   ?4?6 + ?5?7
+                               £2      tan
+                                               ' ( ?4?7 " ?5?6 ) •
+                                        A0 — v + tan"
+                                                              U5?6 + ?4?7/'
+                                                                                                     G. Bau et al.
+
+
+  Finally, the total energy e can be computed directly from £i, £2 a n d £3 by exploiting
+Eqs. (21), (43) and (44):
+
+                                   l
+                             c      (v^~h2\              1
+                                                               tf   + ^2-?32
+                                   2 ^ + r2J             r "          2
+
+
+6 Disturbing potential
+
+When introducing the generalized Sundman time transformation defined by Eqs. (5) and (6)
+the following constraint has to be satisfied in order to guarantee the existence of h and avoid
+singularities:
+
+                                                 U > —|-.                                                    (63)
+
+    As far as the characterization of the function U the main conservative perturbation relevant
+to astrodynamical problem is of gravitational origin and can stem from higher spherical
+harmonics of the primary body as well as from the gravitational disturbance of third bodies.
+In the first case it is possible to prove that the above condition can only be violated when the
+particle is located inside the primary physical envelope. The second case is more complicated
+to evaluate and violations of Eq. (63) can occur. On the other hand this fact is not of concern
+as an arbitrary constant can always be added to U to remove the singularity (as both the
+disturbing potential energy and the particle transversal velocity are bounded under realistic
+conditions). Moreover, the third body perturbation is almost always expressed directly as a
+force obtained through accurate ephemeris data and rarely considered in potential form.
+    In the case in which the acting perturbations are not derivable from a potential, or are
+not considered as such, the function U can still be used as a pure constant to eliminate the
+singularity affecting Pelaez's method for vanishing transversal velocity (h = 0 in Eq. 2). For
+the purpose of eliminating the singularity any positive constant value for U can be chosen, as
+it is evident from Eq. (63). However, some care should be taken in this regard as the chosen
+value may affect the performance of the method 2 .
+
+
+7 Performance of the method
+
+In this section we test the performance of our method by adopting some known examples in
+the literature. The aim is twofold: to show the appreciable gain in performance with respect
+to Pelaez's special perturbation method (Pelaez et al. 2007), and to compare our formulation
+with other very efficient element methods coming from the Kustaanheimo-Stiefel and the
+Sperling-Burdet regularizations.
+   Because all the propagation methods considered here involve first-order ordinary differ-
+ential equations it is reasonable to choose the same numerical integrator. Accordingly, an
+appropriate and reliable performance parameter is the number of function calls, that is the
+total number of evaluations of the derivative of the state vector with respect to the fictitious
+time. Referring to the number of function calls makes our analysis completely independent
+of uncontrolled factors related to the particular environment where the simulations are run.
+
+  Note for instance that setting U ^ 0 the resulting dependent variables (f 1, . . . , f7) are not constant in the
+unperturbed motion.
+Perturbed two-body problem
+
+
+   The comparison is done by monitoring the number of function calls and the achieved
+accuracy of each method by varying the relative tolerance of the numerical integrator. Basi-
+cally, we can say that the best method shows the lowest function evaluations for a required
+level of accuracy, or equivalently, the best accuracy for a given number of function calls. We
+also provide plots that show the error of the position and physical time as a function of the
+normalized independent variable which is defined by the ratio:
+
+
+
+where x is the time-like argument of a certain method.
+    The following propagation schemes are compared: the method proposed in this paper,
+Pelaez's special perturbation method (Pelaez et al. 2007), the Sperling-Burdet's set of spa-
+tial and temporal elements as presented in Chapter 9 of Bond and Allman (1996), and the
+Stiefel-Scheifele's set of elements as described in Section 19 of Stiefel andScheifele (1971).
+The latter was considered also by Arakida and Fukushima (2001) in a comparison of the
+performance of different element methods generated by the K-S regularization. Note that
+only the last two methods employ a complete set of elements because a time-element (Stiefel
+and Scheifele 1971, Section 18) is used in place of the physical time in the state vector.
+On the other hand, both our formulation and the Dromo method do not take advantage of
+a time-element 3 and the physical time is a dependent variable. Therefore, for the fairness
+of comparison we decided to replace in the state vector of the Sperling-Burdet and Stiefel-
+Scheifele formulations the time-element with the physical time.
+    The propagators were implemented in the Matlab environment (version 2009a), and the
+explicit Runge-Kutta (4, 5) pair of Dormand and Prince (DP54, see Section II.5 of Hairer et
+al. 2009), which is provided by the ode45 function of Matlab, was selected as the numerical
+integrator.
+    We report and discuss below the performance diagrams for some typical problems in
+astrodynamics.
+
+7.1 Problem description and performance analysis
+
+Let us consider a spacecraft around the Earth. The components of the position vector of the
+spacecraft at the initial epoch projected into an Earth-centered inertial frame T are reported
+in Table 1. The velocity vector at the initial epoch is oriented along the X positive direction
+and its magnitude depends on the selected eccentricity of the initial osculating orbit. This
+orbit has an inclination of nearly 30° and the spacecraft is at the perigee at an orbital distance
+of 6800 km. Table 1 reports the velocity vector at the initial epoch for an eccentricity of 0.95,
+which represents the case considered in Section 23 of Stiefel and Scheifele (1971).
+   The motion is propagated up to the desired epoch in three different perturbed scenarios
+involving the Earth's oblateness, the Moon's thirdbody gravitational attraction and the Earth's
+atmospheric drag. The accuracy of each method is assessed by computing the error that affects
+the spacecraft position vector at the end of the numerical propagation. Let Xe, Ye, and Ze be
+the components of the exact position at some epoch, and Xa, Ya, and Za the approximated
+position obtained from one of the compared methods, then the error is calculated as:
+
+                        S = J(Xe - Xaf + (Ye - Yaf + (Ze -                 Zaf.
+
+  The possibility of introducing a time-element in our set of elements will be presented in a forthcoming
+paper.
+                                                                                                   G. Bau et al.
+
+
+Table 1 Initial position and velocity vectors expressed in an Earth-centered inertial frame as employed in
+Stiefel and Scheifele (1971)
+
+Rx,o (km)          RYfi (km)            Rzfi (km)           Vxfi (km/s)         Vyo (km/s)         Vzfi (km/s)
+
+0                  -5888.9727           -3400               10.691338          0                   0
+The resulting Keplerian orbit is a highly eccentric ellipse (the eccentricity is 0.95) and has an inclination of
+nearly 30°
+
+
+Because an analytical solution will not be available a reference solution for the position
+vector is derived with the following procedure: after running the four compared schemes by
+setting a tight relative tolerance of the numerical integrator, we keep the common figures in
+each component of the final position vector.
+   The time range of propagation is chosen in order to allow a number of revolutions that is
+sufficiently high for accumulating an appreciable error, and to stop the spacecraft when it is
+the furthest possible from the Earth because the slower dynamics improves the accuracy of
+the reference solution.
+   As regards the computation of the error during the numerical integration the same proce-
+dure described by Fukushima in (2007b) is followed. Two propagations are carried out with
+a Runge-Kutta of order four (RK4): the first uses a step size h and the second a halved step
+size h/2. Then, an accurate estimate of the position and physical time errors is given by:
+                                      16 r                                     ,
+                               A r = — [in ~ rh/2) - Vh/2(th ~ th/2)\ ,                                   (65)
+                                    16
+                               At = —(th-th/2),                                                           (66)
+where the subscript indicates the step size. Note that the position error Ar is referred to the
+physical time th which, in general, is different from th/2-
+   For convenience we will use the following labels to refer to the methods in the performance
+diagrams and, when necessary, in the text: "Dromo(P)" for the method presented in this
+paper, "Dromo" for Pelaez's special perturbation method, "Spe&Bur" and "Sti&Sche" for
+the Sperling-Burdet and Stiefel-Scheifele formulations respectively both with the physical
+time employed in place of the time-element.
+
+7.1.1 Earth's oblateness
+
+A spacecraft, with initial conditions provided in Table 1, is perturbed by the second zonal
+harmonic of the Earth's gravity field which represents the equatorial bulge. The corresponding
+perturbing potential energy is given by (Battin 1999, p. 503):
+
+                                    U = ,XE      f   2
+                                                         (3 cos 2 0-1),                                   (67)
+
+where the orbital radius r is meant as dimensional here, 0 is the colatitude and the Earth's
+radius RE, gravitational parameter /j,g and oblateness coefficient J2 take the values:
+
+          RE = 6371.22km,             nE = 398601 km 3 /s 2 ,             J2 = 1.08265 x 10~ 3 .
+
+The motion is propagated up to 289.66457509 mean solar days (msd) from the initial epoch,
+when the spacecraft has completed 49.5 revolutions around the Earth. This problem is the
+same presented in the "Example 1" at page 119 of Stiefel and Scheifele (1971).
+Perturbed two-body problem
+
+
+Table 2 Reference position vector at the final time expressed in an Earth-centered inertial frame
+
+Examples                          Xe (km)                          Ye (km)                                  Ze (km)
+
+h                                 -19330.6793                      228708.2356                              130258.6070
+/2+Moon
+    e = 0.95                      -24219.0501                      227962.10637                             129753.44240
+    e = 0.7                        -3529.0232                       33375.887010                             18838.29677
+    e = 0.3                        -1142.351295                     11002.0634065                               6042.183235
+    e= 0                            -587.059481                          6017.7665435                           3094.323699
+J2 + drag                           3754.122945                    -5623.63869                                   708.40001
+
+                                                                         x10
+                                                         Spe&Bur                                                       Spe&Bur
+                •
+                                                         SU&Sche                                                       SU&Sche
+calls
+
+
+
+
+                                                   — Dromo(P) -                                                  — Dromo(P) -
+          CJI
+
+
+
+
+                    V,                             - - - Dromo            ••   '•                                - - - Dromo
+                                                                                                                  •IO"8
+                                                     •Iff*
+                                                                          ;,
+                                                                           I
+                                                                   2.5                                            ° IO" 7
+ 0 -2    5                                           0 io"7
+                                                   * 10"   8
+                                                                         -"\        XX,
+                                                                                                                  * IO" 8
+                                                   0 10" 8
+ § 1-6                                             • 10- 1 0
+                                                                   1.5                                            • IO" 1 0
+                "          ^     ^                                                  ^"^^^SS^2^*_
+        0.5
+                           '—tSIjE~*~^~--
+                                       p~~^^                       0.5
+                                                                                                                 —*
+          icr'           10"        10"      10'                          icr'       10-       io"'   1<T       10"
+                           Position error (km)                                            Position error (km)
+
+Fig. 1 Number of function calls of the DP54 integrator versus position error with J2 perturbation. The prop-
+agation starts from an ellipse of eccentricity 0.95 and (left) stops after 49.5 revolutions (289.66457509 msd).
+The plot on the right shows the same performance diagram when an accurate propagation of the physical time
+is performed. The markers refer to different values of the relative tolerance of the numerical integrator
+
+
+
+
+Fig. 2 Magnitude (left) of the position vector error (Eq. 65) and (right) of the time error (Eq. 66) versus
+normalized time-like argument (Eq. 64) for the same problem of Fig. 1. The motion is propagated by the RK4
+integrator with 3168 steps (64 steps per revolution)
+
+
+   The reference position at the final epoch is reported in the first row of Table 2. In Fig. 1, left,
+the performance of the methods are compared. Dromo(P) requires fewer function calls than
+Dromo for a given error, or equivalently is more accurate for the same number of function
+calls. Moreover, it is notable that the maximum error is nearly one order of magnitude smaller
+for Dromo(P) than Dromo. A deeper analysis has revealed that the main source of error for
+the position is due to the error affecting the physical time which has a dominant effect over
+the error of the orbital elements employed by each method. The influence of the latter on the
+position error can be assessed as follows.
+   For each formulation the same final value of the independent variable is set to stop the
+numerical integrations with different relative tolerances of the integrator. This value of the
+independent variable is determined in such a way that when it is used to stop a propagation
+                                                                                        G. Bau et al.
+
+Fig. 3 Total energy error
+(Eq. 68) for a long-term
+propagation of 10 years under J2
+perturbation and starting from an
+ellipse of eccentricity 0.95
+
+
+
+
+                                         0          2          4          6         8              10
+                                                              Time (years)
+
+
+which is performed with the tightest relative tolerance available (we choose 10~ 13 for the
+integrator DP54) then the physical time at the end of the numerical integration is exactly
+(the error is at the rounding-off level) the desired final time of propagation. However when
+the accurate final independent variable is employed with a different (higher) value of the
+relative tolerance the physical time differs from the desired time of propagation by some
+variable amount for each method. Figure 1, right, shows the error of the position which
+has been obtained in this way. Dromo(P) not only considerably improves Dromo but also
+exhibits the best performance. This fact suggests that the implementation of a time-element
+in Dromo(P), at least for the problem under consideration, may greatly increase the efficiency
+of the method.
+    The error accumulation of the position and physical time with respect to the normalized
+time-like argument x defined in Eq. (64) is shown in Fig. 2, left, and 2, right, respectively.
+Peaks of similar amplitude for Dromo(P) and Dromo characterize the error near the apogee.
+While the amplitude of these peaks does not increase, the mean error grows linearly between
+two consecutive apogees but with a smaller slope for Dromo(P) than Dromo so that our
+proposed method seems to be more suited to long-term propagations.
+    Finally, because the perturbation is derivable from a conservative potential the total energy
+is constant and equal to the value £o of the initial epoch. For this reason it is interesting to
+compute the total energy e from the spacecraft position and velocity vectors and check the
+variation of the relative error:
+
+
+
+   Figure 3 plots this error in function of the physical time for a long-term integration. In
+the comparison we include also the formulation of our method where the state variable £3 is
+replaced by the total energy e, and we refer to this variation of Dromo(P) as Dromo(P2). As
+we said in Sect. 4 the employment of the total energy is advantageous especially when the
+perturbations are conservative. The curves were obtained by setting a tight relative tolerance
+(10~ 12 ) of the numerical integrator. Dromo(P2) along with Dromo(P) show the best behavior
+and the error does not increase for Dromo(P2).
+
+7.1.2 Earth's oblateness and Moon's third body gravitational attraction
+
+We refer now to the "Example 2" at page 121 of Stiefel and Scheifele (1971). This example
+has been used for comparing the performance of different methods also by Bond (1974), in
+Section 9.7 of Bond and Allman (1996) and by Pelaez et al. (2007). The motion is perturbed by
+the Earth's oblateness, which, like in the previous example, is introduced as the J2 perturbing
+Perturbed two-body problem
+
+
+potential energy in Eq. (67), and by the Moon's attraction, which instead is implemented as
+a perturbing force. The orbit of the Moon is assumed circular and its position vector in the
+Earth-centered inertial frame is:
+
+        XM   = Q sin (wtj ,     YM   =        Q cos (wtj   ,   ZM    =     Q COS   (wTj,
+
+where 1 is the physical time. Moon's orbital radius, angular velocity and gravitational para-
+meter take the values:
+
+   Q = 384400km,         w = 2.665315780887 x 10~ 6 s " \           /x M = 4902.66km 3 /s 2 .
+   We first selected the initial position and velocity provided in Table 1, and the motion
+was propagated through 288.12768941 msd, which is the same time interval chosen in the
+"Example 2b" at page 122 of Stiefel and Scheifele (1971). Then, the initial X-component
+of the velocity in Table 1 was gradually decreased in order to lower the apogee radius,
+while keeping unchanged the perigee radius and the other classical orbital elements. More
+specifically, the additional initial eccentricities 0.7, 0.3 and 0 were chosen. The time of
+propagation is set for each case to allow 49.5 revolutions around the Earth and the reference
+positions are found in Table 2. Figure 4 collects the four performance diagrams for the
+considered initial conditions. The results reveal the eccentricity dependence of the position
+error of Dromo(P) in the sense that we now explain. By lowering the apogee altitude the
+motion takes place nearer to the Earth and farther from the Moon, therefore the Earth's
+oblateness becomes the main perturbation for an increasingly large time of propagation. When
+the initial eccentricity is 0 the Moon's attraction is negligible and the spacecraft is always
+perturbed by a strong nearly conservative force field. For this reason Dromo(P) behaves better
+for small eccentricities than Dromo and it is worth noting that for the case of initial circular
+orbit it ranks first among the compared methods.
+    Let us focus on the 0 and 0.3 initial eccentricity examples, and investigate the accumulation
+of the position and time error during the numerical integration. Figure 5 contains the plots
+of such errors which are computed by Eqs. (65) and (66). For near-circular motion only
+Dromo(P) and the Sperling-Burdet method enjoy the linear dependence of the error averaged
+over one revolution for both position and time, while the average errors produced by Dromo
+and the Stiefel-Scheifele method follow the quadratic law at 2+br, where r is the independent
+variable and the coefficients a and b can be conveniently computed. For moderate eccentricity
+linearity characterizes the average error growth of the physical time of all methods and in
+particular we note that the rate of accumulation is smaller of a factor around 30 for Dromo(P)
+than for Dromo. As concerns the position error two different trends of accumulation appear
+both in Dromo and Dromo(P), with the latter showing a much better performance than the
+former.
+    One final remark is on the fact that by decreasing the eccentricity the Stiefel-Scheifele
+method progressively loses accuracy while Dromo(P) improves its performance. In fact it
+is significant that for the case of zero initial eccentricity the level of accuracy reached by
+Sti&Sche with the tightest relative tolerance (10~ 10 ) is still worse than Dromo(P) with a
+relative tolerance of 10~ 6 .
+
+7.1.3 Earth's oblateness and atmospheric drag
+
+We finally address an example involving the atmospheric drag which produces a force not
+derivable from a potential. An object of mass m acted upon by the atmospheric drag force
+undergoes the acceleration (Vallado 2001, p. 525):
+                                                                                                     G. Bau et al.
+
+
+
+
+            10" 4       10" 2        10°          10 2              Kf 4         10"2          10°           102
+                    Position error (km)                                     Position error (km)
+
+
+
+
+                    Position error (km)                                    Position error (km)
+
+Fig. 4 Number of function calls of the DP54 integrator versus position error under Jx and Moon's attraction
+perturbations for 49.5 revolutions and with different eccentricities e of the initial osculating orbit. The time
+propagation is 288.12768941 msd for e = 0.95, 19.43348169 msd for e = 0.7, 5.45405849 msd for e = 0.3,
+and 3.19412898 msd for e = 0. The markers refer to different values of the relative tolerance of the numerical
+integrator
+
+
+
+
+Fig. 5 Magnitude (left column) of the position vector error (Eq. 65) and (right column) time error (Eq. 66)
+versus normalized time-like argument (Eq. 64) with Ji and Moon's attraction perturbations. The motion is
+propagated from a circular orbit (upper row) and an ellipse of eccentricity 0.3 (lower row) through 49.5
+revolutions by the RK4 integrator with 3168 steps (64 steps per revolution)
+Perturbed two-body problem
+
+
+            x10                                                                      x10
+      2.5                                                                      2.5
+                                                       Spe&Bur                                                                         Spe&Bur
+
+ a>    2     ,                                       — SU&Sche
+                                                     — Dromo(P)                 2
+                                                                                                      \                          — Sti&Sche
+                                                                                                                                 — Dromo(P)"
+                                                     — Dromo                                                                     - - - Dromo
+ cs
+ "1.5                                                                                                                            •Iff*
+
+ O
+            " | \                                    = 10-'
+                                                                               1.5
+                                                                                                                                 ° 10" 7
+                                                     * 10"   8
+                                                                                                                                 MO"8
+ o  1
+
+Li. 0.5
+             1
+             1
+                    '*'«..
+                             "---_
+                                                     0 10" 8
+                                                     • 10-"                I'
+                                                                           Li. 0.5
+                                                                                            y
+                                                                                                ?<l
+                                                                                                  A
+                                                                                                                                 0 10" 9
+                                                                                                                                 • 10" 1 0
+
+
+                                     *          0-
+                                                                                                          '^^* " ^ ^ ^ l ! L _
+             1(T              10^        10"1                        10'               10"°               10"°    1(T        10"             10"
+                         Position error (km)                                                                Time error (s)
+Fig. 6 Number of function calls of the DP54 integrator versus (left) position error and (right) time error with
+/2 and drag perturbations. The propagation starts from a circular orbit and stops after 150 revolutions. The
+markers refer to different values of the relative tolerance of the numerical integrator
+
+
+
+                                                                 1         A
+                                            P = --rpCD                     — VrelVrel:
+                                          2      m
+where we set for the drag coefficient and the surface to mass ratio the following values typical
+of a compact spacecraft in free molecular flow:
+                                                                                           ™2
+                                                                           A
+                                          CD = 2.2,                              0.01-
+                                                                                      kg'
+The velocity of the atmosphere at the spacecraft location, which is required to compute the
+relative velocity vector vTeU l S written in an Earth-centered inertial frame as:
+
+                                         Vatm = WE(-RY,                        RX,         0)T,
+
+where WE = 7.29211585531 x 10 rad/s is the angular speedof the Earth's rotation and the
+components Rx and Ry define the spacecraft position projected in the equatorial plane. The
+exponential atmospheric model is employed to determine the atmosphere density p according
+to the relation (Vallado 2001, p. 535):
+                                                                         h — feo"
+                                           p = po exp                  (-i^).
+where the height above the Earth's surface is calculated as the difference between the orbital
+distance and the Earth's radius h = r — Rg, and the base altitude ho, the scale height H and
+the nominal density po are taken from Table 8.4 at page 537 of Vallado (2001).
+   The second perturbation that is considered apart from drag is the J^ zonal harmonic, which
+as in the previous examples is introduced by means of the potential energy in Eq. (67). The
+propagation starts from a circular orbit (the initial conditions are the same of the example with
+e = 0 in the previous subsection) and continues through a suitable number of revolutions
+(namely 150) for appreciating the effect of drag on the trajectory. The reference position
+vector is contained in the last row of Table 2. Figure 6, left, shows that Dromo(P) is the most
+accurate method for a given number of function calls while Dromo is the worst in this sense.
+The considerable gain in performance which is achieved by Dromo(P) with respect to Dromo
+is mainly due to the strong reduction of the numerical integration error affecting the physical
+time as can be appreciated in Fig. 6, right, Such figure is obtained similarly to Fig. 1, right, by
+employing with a certain method the same accurate final value of the independent variable
+for all the chosen relative tolerances. The dependence of the position and time errors on the
+time-like argument is the same observed in Fig. 5, upper row, where Dromo(P) and Dromo
+exhibit a linear and quadratic character of the error growth respectively.
+                                                                                                 G. Bail et al.
+
+
+8 Conclusions
+
+A new set of orbital elements for the numerical propagation of the perturbed two-body prob-
+lem has been presented. The new scheme, called Dromo(P), can be seen as a generalization of
+the element method published by Pelaez et al. in 2007 with an improved performance for the
+case when perturbations arise partially or totally from a potential. As such, the scheme inherits
+all the benefits of Pelaez's method, among which it is notable that it can propagate different
+conies without resorting to Stumpff functions. Moreover, it is shown that the singularity that
+affects Pelaez's method for the case of vanishing angular momentum is removed in the pro-
+posed method. Numerical tests with astrodynamics problems widely used in the literature,
+namely the propagation of elliptic orbits under J^ perturbation applied alone and together
+with either lunar attraction or atmospheric drag, have been performed highlighting the excel-
+lent performance of the method. More specifically, when considering as a performance metric
+the achievable accuracy per number of function calls required and as a numerical integrator
+the explicit Runge-Kutta (4,5) pair of Dormand and Prince known as DOPRI5, the proposed
+method behaves always better than Pelaez's scheme, and the improvement in the performance
+increases as perturbations derived from a potential, the J^ in our examples, have a stronger
+effect on the motion. In fact for the case of near circular motion perturbed by J^ and either
+third body attraction or drag Dromo(P) not only ranks first among the compared methods but
+also transforms the growth of the position error over the independent variable from quadratic
+to linear. Similar conclusions are drawn also when the explicit Runge-Kutta code of order 8
+based on the method of Dormand and Prince is employed 4 .
+    An important role is played in our comparisons by the error accumulated in the physical
+time, which can become dominant over the error affecting the generalized orbital elements.
+We have shown that if the physical time is propagated with a much higher accuracy than
+is achievable by adopting a time transformation of Sundman type, Dromo(P) further gains
+in performance with respect to Dromo and the other formulations even when forces arising
+from a potential exert a moderate influence on the motion. For this reason the development
+of a time-element for Dromo(P) is currently under investigation and will be presented in a
+forthcoming paper.
+
+Acknowledgments The study has been supported by the research project "Dynamic Simulation of Complex
+Space Systems" supported by the Direccion General de Investigacion of the (former) Spanish Ministry of
+Innovation and Science through contract AYA2010-18796.
+
+9 Appendix I
+
+9.1 Matrices Qizi and (2o
+
+We write below the expressions of the elements of the matrix Qizi'-
+                                                     Rx
+                                   2KX(1,1) =
+                                                       r
+                                   Qm (2, 1) =
+                                                      r
+                                   Qm (3,1) =
+                                                      r
+                                                     HYRz     -     HZRY
+                                   QUI    (1, 2) =                         .
+                                                              tir
+
+  This is the numerical integrator DOP853 which is described in Section II.5 of Hairer et al. (2009).
+Perturbed two-body problem
+
+
+                                                      tfz^x        -           HXRZ
+                                  Q.-RX (2, 2) =                                       .
+                                                                   hr
+                                                      HXRY         -           HYRx
+                                  QUI    (3, 2)
+                                                                   hr
+                                  0KX(1,3)
+                                                       h :
+                                  Q K X (2, 3)
+                                                      h ''
+                                  Q K I (3, 3)
+                                                      h '
+   We write below the expressions of the elements of the matrix Qo'-
+
+                   n   n     n     R x
+                                             A*   (HYYRRj
+                                                  (H   Z-HZRY\                                 .
+                   g 0 (1, 1) =          cos A<j> — I                                          I sin A<f>,
+                   n   n     n     *7       A*        (HZRX                -          HXRZ\
+                   Qo (2, 1) = — cos A0 — I                       I sin A<j>.
+                               r             \        hr
+                                             (HXRY-HYRX\
+                   (2o(3, 1) = — c o s A 0 -             " ' " A )sinA0,
+                                                      {                    hr              )
+                               * * • AA , (HyRi (HYRZ-HZRY\
+                   Qo (1, 2) = —   sin A0
+                               — sin   A0 +
+                                          + I(   ,   — - 11
+                                                          ) cos A<p,
+                                r               \  hr       I
+                   n n o^      ^    • A . , (HZRX -     HXRZ\
+                   Qo (2, 2) = — sin A<j> + I                  I cos A0.
+                                r               \  hr        )
+                                         ^        (HXRY-HYRX\
+                   n n ^       * z S•m AA
+                                        A 0. +,   (HXRY-HYRX\
+                   Qo (3, 2) = — sin Acp + \ -    —;— (    - ) cos Acp,    £           J'
+                   Go (1,3) = - ^ ,
+                               h
+                              HY
+                   Q0(2,3) = ^ :
+                               Hz
+                   Go (3, 3) = - ^ .
+                                h
+
+9.2 Expressions of £4, £5 and £g when f7 = 0
+
+In the case that f7 = 0 Eqs. (55)-(57) become singular and we can use instead:
+                                                Go (1,3)
+                                                                                                             (69)
+                                           ?4 =  °V       '
+                                                  2?6
+                                                Go (2, 3)
+                                           ?5 =  \ ,    \                                                    (70)
+                                                          2
+                                                              ie       .
+                                                /Go(3,3)+l
+                                           ?6 =   ±
+                                             V         2     '
+If additionally £6 = 0 Eqs. (69) and (70) are singular and we can use instead:
+                                   ,l-6o(2,2)                                   Go(l,2)
+                        ?4 = ±,/                          , ft = ^ — •
+Finally, if also £4 = 0, then we have £5 = ± 1 .
+                                                                                                   G. Bau et al.
+
+
+References
+
+Arakida, H., Fukushima, T.: Long-term integration error of Kustaanheimo-Stiefel regularized orbital motion.
+   Astron. J. 120(6), 3333-3339 (2000)
+Arakida, H., Fukushima, T.: Long-term integration error of Kustaanheimo-Stiefel regularized orbital motion.
+   II. Method of variation of parameters. Astron. J. 121(3), 1764-1767 (2001)
+Battin, R.H.: An Introduction to the Mathematics and Methods of Astrodynamics. AIAA Education Series,
+   AIAA, Reston, VA (1999)
+Bombardelli, C, Bau, G., Pelaez, J.: Asymptotic solution for the two-body problem with constant tangential
+   thrust acceleration. Celest. Mech. Dyn. Astron 110(3), 239-256 (2011)
+Bond, V.R.: The uniform, regular differential equations of the KS transformed perturbed two-body problem.
+   Celest Mech 10(3), 303-318 (1974)
+Bond, V.R.: Error propagation in the numerical solutions of the differential equations of orbital mechanics.
+   Celest. Mech. 27, 65-77 (1982)
+Bond, V.R., Allman, M.C.: Modern Astrodynamics: Fundamentals and Perturbation Methods. Princeton Uni-
+   versity Press, Princeton (1996)
+Burdet, C.A.: Regularization of the two body problem. Zeitschrift fiir angewandte Mathematik und Physik
+    18(3), 434^138 (1967)
+Burdet, C.A.: Theory of Kepler motion: the general perturbed two body problem. Zeitschrift fiir angewandte
+   Mathematik und Physik 19(2), 345-368 (1968)
+Burdet, C.A.: Le mouvement Keplerien et les oscillateurs harmoniques. Journal fiir die reine und angewandte
+   Mathematik 238, 71-84 (1969)
+Chelnokov, Y.N.: Application of quaternions in the theory of orbital motion of a satellite. I. Cosmic Res 30(6),
+   612-621 (1993)
+Deprit, A.: Ideal elements for perturbed Keplerian motions. J. Res. Natl. Bur Standards 79B(l-2), 1-15 (1975)
+Deprit, A., Elipe, A., Ferrer, S.: Linearization: Laplace vs. Stiefel. Celest. Mech. Dyn. Astron. 58(2), 151-201
+   (1994)
+Ferrandiz, J.M.: A general canonical transformation increasing the number of variables with application in
+   the two-body problem. Celest. Mech. 41(1-4), 343-357. (1987/1988)
+Fukushima, T: New two-body regularization. Astron. J. 133(1), 1-10 (2007a)
+Fukushima, T: Numerical comparison of two-body regularizations. Astron. J. 133(6), 2815-2824 (2007b)
+Hairer, E., N0rsett, S.P, Wanner, G.: Solving Ordinary Differential Equations I: Nonstiff Problems, vol. 1.
+   Springer, Berlin (2009)
+Hansen, P.A.: Auseinandersetzung einer Zweckmassigen Methode zur Berechnung der absoluten Storungen
+   der Kleinen Planeten. Abh der Math-Phys CI der Kon Sachs Ges der Wissensch 5, 41-218 (1857)
+Kustaanheimo, P., Stiefel, E.L.: Perturbation theory of Kepler motion based on spinor regularization. Journal
+   fiir die reine und angewandte Mathematik 218, 204-219 (1965)
+Levi-Civita, T: Questioni di meccanica classica e relativista. Zanichelli, Bologna (1924)
+Pelaez, J., Hedo, J.M., de Andres, PR.: A special perturbation method in orbital dynamics. In: Proceedings of
+   the AAS/AIAA Space Flight Mechanics Meeting held January 23-27, 2005, Copper Mountain, Colorado,
+   American Astronautical Society, Univelt, Inc., San Diego, CA, pp 1061-1078 (2005)
+Pelaez, J., Hedo, J.M., de Andres, PR.: A special perturbation method in orbital dynamics. Celest. Mech. Dyn.
+   Astron. 97(2), 131-150 (2007)
+Sharaf, M.A., Awad, M.E., Najmuldeen, S.A.A.: Motion of artificial satellites in the set of Eulerian redundant
+   parameters (III). Earth Moon Planets 56(2), 141-164 (1992)
+Sperling, H.: Computation of Keplerian Conic sections. Am. Rocket Soc. J. 31(5), 660-661 (1961)
+Stiefel, E.L., Scheifele, G.: Linear and Regular Celestial Mechanics. Springer, New York (1971)
+Stiefel, E., Rossler, M., Waldvogel, J., Burdet, C.A.: Methods of Regularization for Computing Orbits in
+   Celestial Mechanics. Technical report, NASA CR-769, Washington, DC (1967)
+Sundman, K.F.: Recherches sur le probleme des trois corps. Acta Societatis Scientiarum Fennicae 34(6), 1—43
+   (1907)
+Sundman, K.F: Memoire sur le probleme des trois corps. Acta Mathematica 36(1), 105-179 (1912)
+Szebehely, V.: Regularization in celestial mechanics. In: Oden J (ed) Computational Mechanics, Lecture Notes
+   in Mathematics, vol 461, Springer, Berlin, pp 257-263, http://dx.doi.org/10.1007/BFb0074156 (1975)
+Szebehely, V., Bond, V.: Transformations of the perturbed two-body problem to unperturbed harmonic oscil-
+   lators. Celest. Mech. 30, 59-69 (1983)
+Vallado, D.A.: Fundamentals of Astrodynamics and Applications, 2nd edn. Kluwer Academic Publishers,
+   Dordrecht (2001)
+

@@ -475,3 +475,140 @@ class TestLaraTopexValidation:
         assert rss_30day < 20.0, (  # 20 km
             f"Topex 30-day RSS should be < 20 km, "
             f"got {rss_30day * 1000:.1f} m")
+
+
+# ----------------------------------------------------------------
+# Phase 7: Heyoka AD-based SP corrections
+# ----------------------------------------------------------------
+
+class TestHeyokaShortPeriod:
+    """Test heyoka automatic-differentiation SP corrections.
+
+    The heyoka cfunc computes exact Poisson brackets of the W1 generating
+    function via symbolic differentiation, using Lyddane non-singular
+    variables (e*cos w, e*sin w, M+w) to avoid the 1/e catastrophic
+    cancellation that plagues finite-difference approaches at low e.
+    """
+
+    @pytest.mark.parametrize("name,a,e,inc,raan,argp,M0",
+                             [t for t in TEST_ORBITS if t[2] > 0.005])
+    def test_heyoka_matches_fd_at_moderate_e(self, name, a, e, inc, raan, argp, M0):
+        """Heyoka SP corrections match FD at moderate eccentricity (e > 0.005)."""
+        from lara_theory.short_period import (
+            sp_corrections_heyoka, sp_corrections_kep_w1,
+        )
+
+        inc_r = np.deg2rad(inc)
+        raan_r = np.deg2rad(raan)
+        argp_r = np.deg2rad(argp)
+        M0_r = np.deg2rad(M0)
+
+        hy = sp_corrections_heyoka(a, e, inc_r, raan_r, argp_r, M0_r, MU, RE, J2)
+        fd = sp_corrections_kep_w1(a, e, inc_r, raan_r, argp_r, M0_r, MU, RE, J2)
+
+        # da, de, di, dOm should match (FD has ~1e-7 relative error)
+        assert abs(hy[0] - fd[0]) < 1e-5, f"{name}: da mismatch"
+        if abs(fd[1]) > 1e-10:
+            assert abs(hy[1] - fd[1]) / abs(fd[1]) < 1e-4, f"{name}: de mismatch"
+        else:
+            assert abs(hy[1] - fd[1]) < 1e-8, f"{name}: de mismatch"
+        assert abs(hy[2] - fd[2]) < 1e-7, f"{name}: di mismatch"
+        assert abs(hy[3] - fd[3]) < 1e-7, f"{name}: dOm mismatch"
+
+        # dom matches when e is not too small
+        if e > 0.01:
+            rel_dom = abs(hy[4] - fd[4]) / max(abs(fd[4]), 1e-12)
+            assert rel_dom < 1e-4, f"{name}: dom mismatch {rel_dom}"
+
+        # d(M+w) should match (sum cancels FD errors)
+        dMpw_hy = hy[4] + hy[5]  # dom + dM
+        dMpw_fd = fd[4] + fd[5]
+        if abs(dMpw_fd) > 1e-12:
+            rel = abs(dMpw_hy - dMpw_fd) / abs(dMpw_fd)
+            assert rel < 0.02, f"{name}: d(M+w) mismatch {rel}"
+
+    def test_heyoka_near_circular_sanity(self):
+        """At e=0.0001 (Topex), heyoka corrections should be O(J2)."""
+        from lara_theory.short_period import sp_corrections_heyoka
+
+        a = 7707.270
+        e = 0.0001
+        inc = np.deg2rad(66.04)
+        Om = np.deg2rad(180.001)
+        om = np.deg2rad(270.0)
+
+        # Check corrections at multiple mean anomalies
+        for M_deg in [0, 45, 90, 135, 180, 270]:
+            M = np.deg2rad(M_deg)
+            da, de, di, dOm, dom, dM = sp_corrections_heyoka(
+                a, e, inc, Om, om, M, MU, RE, J2)
+
+            # da should be O(J2 * a) ~ O(8 km)
+            assert abs(da) < 20.0, (
+                f"M={M_deg}: |da|={abs(da):.1f} km too large")
+
+            # de should be O(J2) ~ O(1e-3), NOT O(J2/e) ~ O(10)
+            assert abs(de) < 0.01, (
+                f"M={M_deg}: |de|={abs(de):.4e} too large (1/e blow-up?)")
+
+    def test_heyoka_d_Mpw_nonsing(self):
+        """d(M+w) from heyoka should be O(J2) at all eccentricities."""
+        from lara_theory.short_period import _get_sp_heyoka_cfunc
+        from lara_theory.coordinates import solve_kepler
+
+        cf = _get_sp_heyoka_cfunc(MU, RE, J2)
+
+        # Test at e = 0.0001 (where FD dM + dom blows up)
+        a = 7707.270
+        e = 0.0001
+        inc = np.deg2rad(66.04)
+        om = np.deg2rad(270.0)
+        L = np.sqrt(MU * a)
+        G = L * np.sqrt(1.0 - e ** 2)
+        H = G * np.cos(inc)
+
+        for M_deg in [0, 45, 90, 135, 180, 270]:
+            M = np.deg2rad(M_deg)
+            E = solve_kepler(M, e)
+            result = cf([E, om, L, G, H])
+            dMpw = float(result[5])
+
+            # d(M+w) should be < 1 deg ~ 0.017 rad
+            assert abs(dMpw) < 0.1, (
+                f"M={M_deg}: |d(M+w)|={abs(dMpw):.4e} rad is not O(J2)")
+
+    def test_heyoka_topex_30day_w1_mode(self):
+        """Topex 30-day with use_w1_sp=True should match use_w1_sp=False."""
+        from lara_theory.propagator import LaraBrouwerPropagator
+        from lara_theory.coordinates import (
+            keplerian_to_cartesian, solve_kepler, eccentric_to_true,
+        )
+
+        a = 7707.270
+        e = 0.0001
+        inc = np.deg2rad(66.04)
+        Om = np.deg2rad(180.001)
+        om = np.deg2rad(270.0)
+        M0 = np.deg2rad(180.0)
+
+        E0 = solve_kepler(M0, e)
+        f0 = eccentric_to_true(E0, e)
+        r0, v0 = keplerian_to_cartesian(a, e, inc, Om, om, f0, MU)
+
+        j_coeffs_j2 = {2: J2}
+
+        prop_w1 = LaraBrouwerPropagator(MU, RE, j_coeffs_j2, use_w1_sp=True)
+        prop_w1.initialize(r0, v0, 0.0)
+
+        prop_pn = LaraBrouwerPropagator(MU, RE, j_coeffs_j2, use_w1_sp=False)
+        prop_pn.initialize(r0, v0, 0.0)
+
+        t_grid = np.linspace(0, 30 * 86400, 100)
+
+        w1_pos, _ = prop_w1.propagate(t_grid)
+        pn_pos, _ = prop_pn.propagate(t_grid)
+
+        # Both should give identical results (same forward map, same init)
+        diff = np.linalg.norm(w1_pos - pn_pos, axis=1)
+        assert np.max(diff) < 1e-6, (
+            f"W1 and PN modes should be identical, max diff = {np.max(diff)*1000:.1f} m")

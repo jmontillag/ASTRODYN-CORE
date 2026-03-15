@@ -1,0 +1,3081 @@
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN
+SATELLITE THEORY
+ANDRE DEPRIT
+National Bureau of Standards, Washington, DC 20234, U.S.A.
+(Received 19 April, 1979; Accepted 20 March, 1980)
+Abstract. When the perturbation affecting a Keplerian motion is proportional to r-"(n 2 3), a canonical
+transformation of Lie type will convert the system into one in which the perturbation is proportional to
+r *. Because it removes parallactic factors, the transformation is called the elimination of the parallax.
+In the main problem for the theory of artificial satellites, the elimination of the parallax has been con-
+ducted by computer to order 4. The first order in the reduced system may now be integrated in closed
+form, thereby revealing the fundamental propertyofthe first-order intermediary orbits in line with Newton’s
+Propositio XLIV.
+Extension beyond order | leads to identify a new class of intermediaries for the main problem in nodal
+coordinates, namely the radial intermediaries.
+The technique of smoothing a perturbation prior to normalizing the perturbed Keplerian system,
+of which the elimination of the parallax is an instance, is applied to derive the intermediaries in nodal
+coordinates proposed by Sterne, Garfinkel, Cid—Palacios and Aksnes, and to find the canonical diffeo-
+morphisms which relate them to one another and to the radial intermediaries.
+1. Introduction
+So much having been published about the main problem in the theory of an artificial
+satellite, it may be taken as axiomatic that a claim of originality may (and probably
+will) be met by a statement of the opposite. With all this wealth, empty spaces never-
+theless exist where an author can contribute more than an inadvertent duplication
+or a personal derivation of results already in print. We believe the present communica-
+tion falls into one of the cracks. The elimination of the parallax is a technique by
+which a Keplerian system in a central field of force in r’"(n 2 3) is converted into
+a quasi-Keplerian system with a variable angular momentum. To our knowledge,
+this technique is new to perturbation theories in non-linear and celestial mechanics.
+In the theory of artificial satellites, the equations of motion are generally solved
+analytically in two steps. A canonical transformation eliminates the short period
+terms depending on the mean anomaly. Then the averaged equations are solved
+either by numerical integration, as in the semi-analytical theories of Lidov and Cefola
+(1974) or Wu Lian-Da et al. (1978), or by analytical normalization, a second canonical
+transformation being performed to remove the long-period terms in the argument
+of perigee and the longitude of the ascending node. Both methods tend generally
+to underestimate the amount of work required in the course of averaging over the
+mean anomaly. Yet the practical difficulties met in computing average elements
+from initial conditions and in evaluating multivariate Fourier series have discouraged
+engineers from programming analytical solutions for predicting and improving
+Celestial Mechanics 24 (1981) 111-153.
+0008—8714/81/0242-O111 $06.45.
+Copyright © 1981 by D. Reidel Publishing Co., Dordrecht, Holland, and Boston, U.S.A.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+112
+ANDRE DEPRIT
+positions of satellites in real time. In this context, the elimination of the parallax
+presents real merits. In a kind of feasibility study to justify a programming effort
+of long duration, the parallax has been eliminated from the main problem to order 4.
+Even though they have no realistic use, the results are reported here to let the reader
+be thejudge, at the onset, ofour claims to simplicity. Soon after the present manustript
+appears in print, there will come a report on what has been accomplished by removing
+the parallax in a gravity field including the zonal harmonics from J, to J,. It will
+show how radically the elimination has disintricated the problem.
+Undeniably the method imposes the conventional algorithms to start with yet
+another canonical transformation. However, the procedure amounts to factoring
+the elimination of the short-period terms into the product of two transformations,
+each one definitely simpler than the product. The elimination of the parallax removes
+those short-period variations due to a torsion exercised on the apsidal frame by the
+perturbations in r_” (n = 3) and in the argument of latitude. Left in the system are
+the short-period variations resulting from irregularities in the equation of the centre.
+The factoring is reminiscent of the parceling of terms made in lunar theory by de
+Ponteécoulant.
+Computer programs are in the making to eliminate the parallax in the theory
+of artificial satellites; they are built by stepwise refinements, each extension closely
+collating its results with developments obtained by various authors. How else could
+one guard the computer programs from slipping into error? While this sustained
+vigilance stimulates to assimilate anterior contributions into the present scheme,
+it may (and will) trap some readers into commenting that the ‘last word has been
+said long ago in the theory of artificial satellites’. To the contrary, we believe that,
+Stripped of its non-essential complications, the main problem is now amenable to
+further investigations into its characteristic structures.
+The computational complexities induced by the short-period fluctuations have
+been paid a great deal of attention since they were uncovered by Kozai (1962) while
+he extended to order 2 the first-order solution developed by Brouwer (1959). One
+way of mitigating the difficulty consists in breaking the main problem in two parts,
+a dominant term made of a separable Hamiltonian called the intermediary and a
+remainder to be regarded as a perturbation affecting the intermediary (Sterne, 1960).
+In spheroidal coordinates (Vinti, 1959; Kislik, 1961), the intermediaries contain
+the whole first-order part of the main problem. Apparently this is not the case for
+the
+intermediaries
+in polar coordinates
+(Sterne,
+1957;
+Garfinkel,
+1958,
+1959;
+Cid—Palacios,
+1969; Aksnes,
+1965,
+1966). The deficiency, however,
+is remedied
+by reformulating the concept of intermediary. Given a Hamiltonian in the map
+(g, Q), a natural intermediary for H will be defined as a pair (¢, J) made of a canonical
+transformation @:(q,Q)—(p, P) and of a separable Hamiltonian J in the chart
+(p, P) such that the perturbation H[gq(p, P), Q(p, P)|—J(p, P) be of second order.
+For each intermediary in the sense of Sterne—Garfinkel, there exists an infinitesimal
+contact transformation which makes it a natural intermediary. This new concept
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+113
+is but another instance of the general approach advocated in this paper, whereby
+normalization of a perturbed Keplerian system is prepared by a canonical transfor-
+mation designed to achieve specific simplifications. The elimination of the parallax
+itself may be used as the preparatory transformation leading to yet another family
+of natural intermediaries in polar coordinates called the radial intermediaries.
+2. Lie Derivatives in a Keplerian Flow
+Consider the vector space R® with coordinates (x, y, z, X, Y, Z) and the differential
+2-form
+w*=dX ndx+dY a dy+dZ a dz.
+The phase flow (Arnold, 1978, ch. 8) determined by the Hamiltonian
+M,=3(X7?4+ Y74+Z27)—
+wax? + y? +27) 1?
+(1)
+on the symplectic manifold (R°, 7) is what we call here a Keplerian flow. For any
+function F(x, y, z, X, Y, Z), the Lie derivative of F in the Keplerian flow is the function
+L(F) = (F;M,)
+defined by the Poisson bracket of F and M,
+in the symplectic manifold (R°, 7).
+A Whittaker (1904) transformation (x, y, z, X, Y, Z)
+> (r, 0, v, R, ©, N) will replace
+the Cartesian state variables by the polar nodal variables on the symplectic manifold;
+it will simplify the evaluation of the Lie derivatives L,(F). Let it be recalled that the
+rotation of coordinates
+x =x’ cosv—y’sinvcos
+I,
+y=x'sinv+y'cosvcos
+I,
+z=y sin!
+extended by the rotation of momenta
+X = X' cosv— Y’sinvcos
+I,
+Y = X’sinv+ Y'cosvcos
+I,
+Z=Y'sinI
+keeps invariant the differential identity
+Xdx+ Ydy+Zdz=X'dx'+ Y'dy’+Ndv
+when the angle I is determined by the relations
+G=x'Y'—yX’
+and
+cosI=N/G.
+Under these conditions, the substitution (x, y, z, X, Y, Z) > (x’, y’, v, X’, Y’, N) defines
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+114
+ANDRE DEPRIT
+a homogeneous canonical transformation. It is then composed with the canonical
+extension from Cartesian to polar coordinates
+(x’, y’, X’, Y’)-(r,6,R,©) given
+by the equations
+0.
+x'=rcos 9,
+X'=Rcos@
+— — sin 8,
+r
+,
+,
+0)
+y=rsin 0,
+Y’= Rsin 0+ —cos 06.
+r
+The product transformation is what we call a Whittaker transformation.
+In the Whittaker chart, the Keplerian Hamiltonian (1) becomes the function
+]
+©*7\
+uw
+M,==| R*+—;
+]--.
+|
+2
+° (
+r r?
+r
+2)
+The state functions
+p = p(©) = O*/p,
+(3)
+0
+Oo
+C=C(r, 6, R, @)=(2-9)coso+ Rsin 0,
+(4,)
+rp
+©
+©
+S = S(r, 0, R, @)-(2-°) sin @ — Rcos@
+(4,)
+rp
+play a prominent role in the course of eliminating the parallax in a perturbed
+Keplerian flow. The length p is the semi-latus rectum, C the projection of the radial
+velocity R in the direction of the ascending node andS the projection of R on the
+perpendicular to the ascending node in the orbital plane. Unusual though they are,
+the functions C and S came to our attention when we found that they belong to a
+remarkable set of ideal elements for perturbed Keplerian systems (Deprit, 1975).
+Their partial derivatives
+oC
+©
+cos 6
+08
+© in 6
+Grr?
+ror
+OC
+Os
+—=—§
+—=C,
+00
+00
+OC
+os
+—=
+SI
+—= —
+)
+Ps)
+aR
+sin 0,
+aR
+cos
+9,
+(5)
+o€
+a
+cos 8
+os
+i)
+sin 6
+-~ —~(_+4-)cos@,
+ee
+feast
+10)
+rp
+10)
+rp
+0C
+os
+_ —Q
+—=0
+Ov
+Ov
+0C
+0S
+_- —0
+—=0
+ON
+ON
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+115
+with respect to the nodal elements are notably short expressions nowhere singular
+save at the origin and along linear orbits (p = Q).
+It has been suggested that dimensionless quantities like
+R
+C* = C*(r, 0, R, ©) = (2- |) cos 8+ ~? sin 0,
+r©
+R
+s+ = Sty, 0,8, 0)=(2— |) sin
+<P cos 6
+r
+©
+could be more advantageous than the element C and S which have the dimension
+of a velocity. But the partial derivatives
+oC*
+ip
+oS*
+—p
+Orr?
+Grr?
+oCc*
+oS*
+ay
+S* )
+-_~y
+C* ’
+aly
+aly
+oC*
+oS*
+oc*
+|
+Dp
+oS*
+1]
+/p
+J
+= _}("4 4]
+O+C* |,
+—=-—|(-+1 ]sinO+S* |,
+50
+5| (2+ ) cos +
+.
+50
+5| (2+ ) sin +
+.
+oC*
+oS*
+“~_ 0,
+“= 0,
+Ov
+Ov
+oC*
+oS*
+AAT 0,
+Amar 0,
+ON
+ON
+especially those with respect to ©, are less simple than those for C and S, which is
+the reason why, in the present context, the state variables
+C and S have been adopted
+rather than the more common elements C* and S*.
+The Lie derivative of the argument of latitude @ in a Keplerian flow results imme-
+diately from (2):
+OM
+6)
+L,
+(6) =— = —.
+9)
+But the Lie derivatives of C and S in a Keplerian flow are more quickly evaluated
+in a Delaunay than in a Whittaker chart.
+The textbooks in celestial mechanics derive the Delaunay transformation from a
+complete solution of the Hamilton—Jacobi equation for Keplerian systems. In
+essence, however, a Delaunay transformation stands on its own as a change of
+variables in the phase space, irrespective of the dynamical system to which it may be
+applied. To the same extent, the elimination of the parallax belongs to Geometry
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+116
+ANDRE DEPRIT
+per se; through the mechanism of Lie series, the construction is applied to whatever
+Hamiltonian is amenable to it. The mapping
+6 :(r, 0, v, R, O, N)
+> (Lg, h, L, G, H)
+defined implicitly by the equations
+OD
+oD
+oD
+R=—,
+© = —,
+—
+7
+Or
+aly
+Ov
+)
+_ oD
+_ oD
+h = OD
+~
+aL?
+9
+a’
+~ 0H
+which are derived from the function
+D = Dir, »,L,6.H)= vl +06 + | Q! aw
+(8)
+P
+in which the integrand is the expression
+2
+2
+_
+Lu
+LG
+9=Qw,L,G)= —Fa +27 —- 5
+(9)
+and the lower limit P = P(L, G) is a root of the equation
+O(P, L, G) = 0
+(10)
+is called a Delaunay transformation (Andoyer, 1913) or
+a Delaunay map (Abraham
+and Marsden, 1978). The name given to this elementary change of state variables
+should not raise confusion. What recent text-books (see e.g. Brouwer and Clemence,
+1961, pp. 544 and 553) call
+a Delaunay transformation has to do with the removal
+of a periodic term from a perturbation; its creator dubbed it an operation and, since
+Tisserand (1894), the usage had been to call it
+a Delaunay operation (see e.g. Hill, 1902,
+p. 187 or Smart, 1953, pp. 185 and 193).
+In
+its developed form, namely
+R=Q'?,
+© =G,
+N =H,
+wu
+the transformation involves the quadratures
+—1/2
+—1/2
+I
+I,=|Q
+dw
+and
+I[,=
+|Q
+d{
+— }.
+w
+P
+P
+Before calculating these integrals, one introduces the quantities a = a(L),
+ny= (L, G)
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+117
+and e = e(L, G) such that
+L* = ya,
+G = Ln,
+e=(1—n7)!”.
+(11)
+From these definitions, there results that
+p = an? =a(1—e”),
+gHaeo_;])_a=o)
+a
+w
+w
+When 0 Se
+< 1, Equation (10) has two strictly positive roots
+P=a(l—e)
+and
+A=a(l+e).
+Therefore, to perform the quadrature I,, one may introduce an eccentric anomaly
+E = E(r, L, G) such that
+r=a(l—ecosE).
+On account of the identities
+A—r=ae1+cos £),
+r— P= ae(1 — cos £),
+12
+O=—5e sin? E,
+dr=aesinEdE,
+the quadrature becomes
+az
+I, =— (E—esin E)
+and converts Delaunay’s equation for / into Kepler’s equation
+l=E-—esinE.
+Similarly, to execute the quadrature I, , one introduces a true anomaly f = f (r, L, G)
+such that
+“= 1+ecosf,
+then, by reason of the identities
+“-l= + cosf),
+| ~—=
+—cosf),
+9 == rine
+a(*)=—£sinyay
+p
+r
+p
+the quadrature yields that
+I,=—f/G
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+118
+ANDRE DEPRIT
+and reduces Delaunay’s equation for g to the formula
+G=g+f.
+By definition of the true and eccentric anomalies,
+r1+cosf)=P(1+cosE)
+and
+rl —cosf)= A(l —cosE);
+these formulas lead in turn to the identities
+E
+E
+pil2 cost = pi? cos
+and
+r’/? sind = A?’ sin
+and finally to the formulas
+f
+[lt+e\'?
+E
+tan
+=={|
+——
+tan
+—
+12
+an 5
+—_
+an 5°
+(12)
+r cos f= a(cos
+E — e),
+r sin f= an sin E.
+In Delaunay variables, the Keplerian Hamiltonian
+(2) becomes the function
+1p?
+M,=MJL)=—5 73:
+(13)
+while the state variables C and S take the familiar form
+G
+G.
+C=C Gq, L,G)=— ecosg,
+S = Sig, L,G)=— esing.
+(14)
+p
+p
+Because neither C nor S depend on the mean anomaly | whereas M, depends only
+on the momentum L, there follows immediately that
+L,(C) = 9,
+L,(S)=0,
+and
+L,(p)=0.
+(15)
+For any function F = F(p, C, S, 0), consider the gradient
+dF =0,F dp+0,FdC+0,F dS + 0,F dé;
+(16)
+Suggested by Dieudonné (1960), the notation is meant to stress the major distinction
+between the coefficient 0,F of d@ in the Pfaffian (16) and the partial derivative
+OF
+oC
+Os
+—=0,F+0,F —+0,F —
+ag
+Oa
+TF
+O2"
+BG F
+C3
+3G
+of F = F[
+p(©), C(r, 0, R, ©), S(r, 6, R, ©), @] in the Whittaker chart. From the chain
+rule
+L,(F) = L,(p) 0,F + L,(C) 0,F + L,(S) 0,F + L,(0) 6,F
+results the fundamental formula
+©
+LF) = 3 O4F.
+(17)
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+119
+In the context of transformations built by Lie series (Deprit, 1969), Equation (17)
+translates into the following.
+PROPOSITION. For anyfunction F = F(p, C, S, 0), the quadrature
+7)
+W = W(p, C, S, 0) = [re C,S, w) dw
+is aformal solution of the partial differential equation
+©
+L,(W) = 2 F.
+The elimination of the parallax hinges on this proposition.
+3. Elimination of the Parallax
+Consider a function M on the symplectic manifold (R°, 7). For simplicity, we
+shall suppose that, in the Whittaker chart,
+M does not depend on the angle v; later
+in the paper, the restriction will be relaxed. Assume that M can be expanded as a
+series of the form
+©?
+g”
+M=Mo 9+ » —| M,,.0
+(18)
+r
+sn!
+where M, , is the Keplerian Hamiltonian (2) and, for any n2 1,M,,, denotes a
+trigonometric polynomial in 0 whose coefficients are functions of the state variables
+p, C,S and N. To avoid unnecessary complexity, we shall suppose that
+M,o= » M,
+9, coské.
+(19)
+k20
+-_
+Terms in sin k@ will not be considered because they are treated the same way as
+those in cos k@; their presence complicates, but does not in any respect modify,
+the later construction.
+The purpose is to build a canonical transformation w :(r, 6, v, R,O,N) > (r', 6, Vv’,
+R’, ©’, N’) to convert (18) into a series
+©’?
+g”
+M=Mootar dL
+Mon
+(40)
+rn!
+whose coefficients M, , are functions of the state variables p’, C’, S’ and N’. Through-
+out this paper, it is agreed that F’(r’, 0’, v’, R’, ©’, N’) designates the function obtained
+by substituting the primed variables for the original variables in the function F =
+Fir, 0, v, R, @, N). Accordingly, M0,0 denotes the Keplerian Hamiltonian (2) in the
+chart (r’, 0’, v’, R’, ©’, N’); p’, C’ and S’ are derived from (3) and (4) in the same way.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+120
+ANDRE DEPRIT
+Although the terms Mj, are not explicit functions of 0’, the transformed series
+M still depends on @’ implicitly through the state variables C’ and S’. The mapping
+W is not intended to remove from M
+all the terms periodic in 6 by taking averages
+of M over 0.
+The dominant term in both series (18) and (20) being the Keplerian Hamiltonian,
+W is chosen to be close to the identity mapping; it will be developed as a formal power
+series in the small parameter ¢. To the first order, W is an infinitesimal contact trans-
+formation
+OW,
+OW
+=;
++e!
+R=R—c_1
+/
+rt aR
+ara
+OW
+OW
+d=
++e,
+QO =0'
+—-.—1,
+21
++o 56
+ar
+(21)
+OW,
+OW
+=vte—!,
+N=N’—-<2--—1
+V=vV+E FING
+E By!
+derived from a generator
+W,=W(r, 0, v', BR’, O',N’).
+Subjected to the mapping (21), the first two terms in the series (18) are changed
+into the expression
+@’2
+Moot| (M,. ;W,) + SoMio |
+the terms of degree higher than 1 being omitted (see e.g. Whittaker, 1904, chap. 11,
+§ 133). Therefore the generator W, and the first-order coefficient Mj , are linked
+by the partial differential identity
+@/2
+@’2
+L (Wi) +r Mo, = sa Mio.
+(22)
+By choosing M)
+, = M‘{,9.9, one reduces (22) to the Lie equation
+QO”
+L(W,)= ye » M‘,
+0.4 COS ke"
+k21
+and, by application of the theorem proved at the end of Section 2, finds that it is
+satisfied formally by the trigonometric polynomial
+l
+W,=0') i M’,
+9, Sin k&’.
+(23)
+k21
+Incidentally, with the restriction that v is ignorable in the term Mto» there follows
+that v’ is ignorable in the generator W, and, by reason of the transformation equation
+N =N’, that Ww maps each submanifold N = constant into itself.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+121
+Extension of an infinitesimal contact transformation beyond order
+|
+is a Lie
+transformation. The mapping is the phase flow
+Ww": [r'(O), 8’(0), v’(0), RO), ©'(0), N’(O)]
+> [r'(e), 96), v'(e), R'(e), O'(e), Ne)]
+determined by the solution of the Hamiltonian system
+dr
+OW
+da’
+oW
+dv’ 0oW
+de  OR”’
+de
+60”
+de
+ON”
+(24)
+dR’ oW
+da’
+daw
+dN’ OW
+de
+Or’
+de
+06’
+de
+dv
+satisfying the initial conditions
+’ 0) =
+Q’
+= 0
+v’ QO) =
+’
+(O=r,
+(0)
+=8,
+(0)
+=v
+05)
+R'(0)= R,
+©'(0) = 0,
+N'(O)=N.
+The Hamiltonian W
+is the generator of the Lie transformation; it is built as a series
+"
+W= » ni Wit ?
+n20
+°°
+The zeroth-order term W, is the generator of the infinitesimal contact transformation.
+The terms W,(n 2 2) are determined by the condition that they satisfy formally
+partial differential equations in the form
+@’2 7
+L(W,)+M,,= ey Mo »>
+(26)
+the functions Mon in the right-hand member being trigonometric polynomials in
+0’ of the form (19).
+Indeed, assume that the construction has been carried out to order n; the generators
+W,(1 <k <n— 1) have been obtained in a complete and definitive manner as func-
+tions of the type
+W,=W,00',C,S,N0)=0' > Wi,mn Sin mo";
+(27)
+m21
+likewise all elements M, (0 <i<n,0 <j <n,0 <i+ j <n) in the Lie triangle have
+been obtained as expressions of the form
+@’
+M, ,=M,fr, p',C,SN)= TEa M, , Cos k0’
+(28)
+The induction step at order n + 1 starts with evaluating the element
+~
+n
+1
+M,,+1,0 + » (Mi Wisin)
+O<k<n
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+122
+ANDRE DEPRIT
+and continues recursively calculating the provisional elements (i+
+j=n-+
+1)
+~
+~
+i
+M, = M,, 1,j-1 + » (Maas >We 1-4)
+OSk<i
+along the diagonal of the triangle. It must be verified that the new diagonal is made
+of terms all in the form (28). But the provisional elements are linear combinations
+of Poisson brackets of energy-like functions A of the type (28) with action-like
+functions B of the type (27). Such a Poisson bracket will be evaluated as the expression
+(A ;B)=A,B,-A,B,+A,B,—A,B,
+(29)
+with the factors
+0A
+0A
+© 0A
+0A
+A, =r,
+A, =—,
+A,
+=— —.,
+A,=0—,
+30
+1
+Gp
+2 ~ 86
+3
+5 OR
+4"
+30
+(30,)
+having the dimension of an energy multiplying the dimensionless quantities
+p 0B
+1 OB
+1 0B
+OB
+B, =,
+B,==—.,
+B,=-—,
+BL==.
+30
+‘© Or
+2
+© 66
+>
+OR
+*
+60
+(30)
+The energy-like factors A,,A,,A,,A, will immediately come out in the form (23);
+the dimensionless factors B,,B,,B,,B, will be cast in the form of trigonometric
+polynomials
+\. Bip’, C’, S’, N’) cos k6’,
+k21
+possibly by repeatedly multiplying terms in 1/r by the “parallax unity’
+1 =rx|[1/p+(Cp/®) cos 6 + (Sp/®) sin O |
+after the derivations have been carried out. Then it is obvious that the Poisson
+bracket (A ;B) will come out in the format (28) of an energy-like term, which proves
+that the terms in the Lie triangle can be reduced to the standard format.
+In the identity (26), one chooses
+Mons 1 = Mo nt 1 (D, C, S‘, N’) — Mo n+ 1,0
+and, by application of the theorem in Section 2, finds that the Lie equation at order
+n+l
+@’
+L(W,,. 1) = ye » Mo n+ 1,k COS ko"
+k21
+admits the formal solution
+/
+I
+.
+/
+Wii1=0 » own
+14k sin kO".
+k21
+The construction is fit to be programed for an automatic processor of Poisson
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+123
+series, especially if the prescriptions given in (29), (30,) and (30,) are followed to
+evaluate Poisson brackets in a Whittaker chart.
+The Lie transformation W is what we call the elimination of the parallax. The
+terminology will be justified in Section 5.
+For the attention of readers who are not familiar with Lie transformations, let
+it be mentioned that the elimination of the parallax could also be effected using a
+technique devised by Poincare (1889, 1891, 1893, 1897) but nowadays named after
+von Zeipel. To this end, the Delaunay chart is more convenient than the Whittaker
+chart. To recall,
+a Poincare transformation
+@:(Lg,h, L, G, H)— @(l, 9’, h’, L’, G’, H’)
+is defined by the implicit equations
+0s
+Os
+ol
+Og
+oh’
+,
+Os
+,
+os
+0s
+l=;
+Gg =a7
+h' = ——
+OL
+0G
+OH’
+derived from a generator
+S =S(l.g,h,U,G, HW)=LI+Gg+Hht+ ¥ —S,.
+:
+n21°"*
+Following Poincare, one determines the generator and the new function M*
+transformed of M by ¢ from the identity
+0S OS
+OS
+oS
+oS
+as
+—,—, —
+h)=M*|
+L,G’, H',—,—.=
+|}.
+M( Foe he
+(
+aL’ 6G’ |
+Both members are developed in the powers of the small parameter and the coefficients
+of like powers of ¢ are equated. So, at order 0, one obtains that
+oon
+pe
+Moo = Mo (Lh) = — 2"
+At the following orders, it must be understood that the polar nodal variables either
+in the old chart or in the new chart, stand for composite expressions obtained by
+using the new Delaunay momenta (L’, G’, H’) and the old Delaunay coordinates
+(1, g, h). With this convention, the Taylor expansion yields that
+0S,
+©7
+Q”
+n ap tz M10 =r Mot
+with n standing for the state variable n=n(L)= p?/L? called the mean motion.
+The unknown term M,
+,
+being selected as before, therefore the result of S, 1s given
+by the quadrature
+@’?
+l
+n
+Keil
+_
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+124
+ANDRE DEPRIT
+It must be recalled that
+60/dl = ©/nr?
+to find that the quadrature in (31) may be performed in closed form, thereby yielding
+that
+S,=0 > pio Sin ké.
+k21
+The comments showing that the rules for extending the Lie transformation beyond
+order | are consistent, prove also that the elimination of the parallax can be built
+in the form of a Poincaré transformation.
+The digression is informative in that it shows where the elimination of the parallax
+differs from the conventional averaging over the mean anomaly; the term separated
+from the old function M to make the new function M* may not be an average over
+the mean anomaly.
+4. Torsions for Quasi—Keplerian Systems
+The simplest function of type (20) appears to be
+lpao
+|
+©?
+aL
+u
+M=M,,-=—=-| R*+—|1--]]-~-;
+32
+00
+2r° | +F(
+“)
+r
+(62)
+It represents the class of what we call the quasi-Keplerian systems. Since the angles
+v and @ are ignorable, the quasi-Keplerian system has only one degree of freedom,
+hence it is integrable. Irrespective of whether a is a small parameter or not, the
+Hamiltonian (32) is separable in the Whittaker chart.
+A complete solution for the
+Hamilton—Jacobi equation emanating from (32) is easy to find, but the transformation
+it generates is time-dependent; rather than composing it with another canonical
+transformation to eliminate the time, we shall immediately produce a canonical
+transformation to normalize (32).
+The mapping
+6, :(r,6,v,R,O,N)>(l,,9,,4,,L,,G,,H,)
+is
+defined
+by
+the
+implicit equations derived from the generator
+D, =D,(r,6,v,L,,G,,H,) =vH, + (G7 + pa)'/? + or" dw
+(33)
+Py
+with the integrand
+2
+2
+_
+H
+HG
+0,=0,(w, L,,G,)= Tet we we
+and the lower limit P, = P,(L,,G,) a root of the equation Q,(P,,L,,G,)=9. Pro-
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+125
+ceeding exactly as in the case of the Delaunay transformation, one will introduce
+the quantities a,, e, and p, such that
+Li = na,
+Gi = Hp,
+p, =a, (1 — 7),
+also an eccentric anomaly E, and a true anomaly f, such that
+r=a,(l—e,cosE,)
+and
+p,/r=(1+e, cosf;).
+Eventually one finds that the generalized Delaunay transformation is expressed
+in closed form by the implicit equations
+G
+L
+R=Q{}? =—e, sinf, =—e, sinE,,
+(34,)
+Py
+r
+© = (G2 + pa)",
+(34,)
+N=H,,
+(34,)
+| =E,—e,sinE,,
+(34,)
+1/2
+[Loe
+0=(14+ 5) G, +f,).
+(4,)
+1
+h, =v.
+(34,)
+In view of Equations (34,) and (34,), the quasi-Keplerian Hamiltonian (32) becomes
+the Keplerian system M = — }(u*/L‘).
+The quasi-Delaunay transformation
+is in essence the geometric construction
+outlined by Newton in Propositio XLIV, Sectio 1X, Liber I of the Philosophiae
+naturalis Principia mathematica (as quoted from Koyre and Cohen, 1972). Imagine
+in the chart (/,,9,,h,,L,,G,,H,) a phantom satellite $, in Keplerian revolution
+with period T, on a fixed ellipse (semi-major axis a,, eccentricity e,, argument of
+perigee g,). Let t, be the time at which the phantom makes a passage at perigee;
+assume that the (real) satellite S$ occupies the same position at t,. As S, pursues its
+course on the ellipse, S enters a rosette-like orbit, either surging (« > 0) ahead of the
+phantom or trailing it (— p,
+<a<0). At any given time, S and S, are at the same
+distance from the centre of the Earth and they have the same radial velocity; but
+their relative positions and angular velocities are continuously increased or decreased
+in the constant ratio
+Oo
+28 -(148)°=(1 =)
+(35)
+G,
+goth,
+G*
+7
+|
+The successive apogees of S form a regular polygon inscribed in the circle of radius
+a,(1+e,) at the centre of the Earth; likewise, its perigees make a regular polygon
+in a concentric circle of radius a,(1 — e,). Every time the phantom S, completes a
+revolution, the perigee and the apogee of the real satellite jump forward or backward
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+126
+ANDRE DEPRIT
+by an angle A = 2z[(1 + ua /G{)'/? — 1]. It is incorrect to read the formula as meaning
+that the perigee of S rotates continuously at the constant rate
+A
+We
+1/2
+—_— =
+l+—
+—]
+36
+ram
+(+g)
+“
+per anomalistic period T,, , for the rosette-like orbit of S is not generated by an osculat-
+ing ellipse in continuous deformation.
+The generalized Delaunay transformation determined by the function
+D, =D,(r, 9, W Lys GyyH)= YH, +86, + | OY? dw
+(37)
+P2
+with the integrand
+2
+2
+_
+Ll
+be
+GZ
+po
+0, =Q\v, L,,G,)= _ TZ +7 Wwa
+will also convert the quasi-Keplerian system (32) into a Keplerian system in the
+chart (l,,9,,4,,L,,G,,H,). On the one hand, the elements |, ,h,, L,, H, are identi-
+cal to the elements |,,4,,L,,H, respectively; on the other, G, = © = (Gf + pa)'/?
+and @=g,+(1+pa/G<)f,; whereas g,
+is the argument of the perigee for the
+phantom, g, is the argument of one of the perigees for the satellite S.
+This form of Newton’s geometric construction makes up the basic step in the
+programs VARPAR and NODE designed (Claus and Lubowe, 1963; Lubowe, 1964
+and 1966) for communication satellites in the class TELSTAR. Froma
+set of initial
+values in the Whittaker chart, one calculates the elements of the phantom’s elliptic
+orbit and the argument of the closest past perigee of the satellite. For a time span
+equal to the phantom’s anomalistic period T,
+, one computes positions and velocities
+of the phantom S, and generates from them the positions and velocities of the satellite
+by applying Newton’s construction. At the end of the period, there occurs a sort of
+rectification : from the state reached by the satellite S, the second-order perturbations
+averaged over T, being now taken into account, new elliptic elements are calculated
+for a phantom, and the procedure is restarted.
+Rather than resorting to Delaunay-like variables for reducing the quasi-Keplerian
+system (32) to a Keplerian system, one can proceed directly in terms of Whittaker
+elements. To this end is introduced a new class of canonical transformations. A
+mapping t : (7, 6,v, R,O,N)>(r,,9,,¥,,R,,0,,N,) is
+called
+a
+torsion
+if
+it
+is
+defined by the implicit equations derived from a generator of the type T = T(r,,
+0,,V,,R,0,N)=r,R+0,090(0,N)+v,NYV(O,N). A torsion owes its name to
+the fact that it does not modify the radial variables (distance r and radial velocity R).
+The torsion defined by
+Lo
+1/2
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+127
+reduces the quasi-Keplerian system (32) to a Keplerian problem in the chart (r,,0,,
+v,,R,,@,,N,). The transformation equations
+OT
+u\*!?
+OT
+u\'??
+d= —=6,, 1-—-
+,
+0O,=—=0/(1--
+60
+{
+“
+‘06,
+Dp
+are equivalent to formula (35). On the one hand, the generalized Delaunay trans-
+formation 6, is the composition of the torsion generated by (38) and of a Delaunay
+transformation (r,,9,,v,,R,.9,,N,)-(,,9,,4,,L,,G6,,H,). On the other hand,
+the torsion (38) is more general than 6, in that it does not restrict the phantom to
+elliptic orbits — it excludes only linear orbits.
+In the cases where « is a small parameter, conventional perturbation algorithms
+may be applied to the Hamiltonian (32) taken as a power series in « truncated below
+order 1 (see e.g. Chazy, 1953, p. 228). Averaging over the mean anomaly amounts to
+extending an infinitesimal contact transformation
+OW
+OW
+rat + ar
+G= 0 + a5
+v=V,
+|
+OW
+R=R' —- —,
+0O=0',
+N=N'
+Or
+whose generator 1s
+W=-1G'—(f
+-1)
+(39)
+2
+y
+.
+Pp
+The averaged Hamiltonian then becomes
+m= 34 (1421)
+(40)
+a
+Pp
+The geometric model behind the analytical approximation is a familiar one. In
+the Delaunay chart (I, 9’, h’, L, G’, H’), the actions L’, G’ and H’ are integrals while
+the angles I’, g' and h’ are linear functions of the time with the mean motions
+.,
+OM’
+3 o
+OM’
+Oo
+-
+OM’
+[’= —=n|
+1+
+=—"'
+],
+j = —— = ty'—,
+h' = —_ =0.
+(41
+The reference orbit in the Whittaker chart (r’, 6’, v’, R’, ©’, N’) is regarded as an
+ellipse of constant semi-major axis a’ and eccentricity e’ with a perigee rotating at a
+slow uniform rate g’; the secular variation in
+I’ induces a tangential drift from a
+proper Keplerian revolution. At the top level in the Whittaker chart (r, 0, v, R, ©, N),
+there appear short-period corrections affecting not only the position angle@ but
+also the radial elements r and R:
+OL
+1
+1
+p/p’
+=r<]1——]
+y' +=———|—
+-
+1
+;
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+128
+ANDRE DEPRIT
+r=r| 141
+2(7+ 42,
+—_
+») p’
+H
+] 4 y 72
+9
+lo
+l
+p’
+g=F+-——]
+f’-—l+ ——|[{ —41
+Je’sin f’
+|.
+The model is one often met in the world of artifacts produced by the methods of
+averaging over the mean anomaly; extension to higher orders comes easily since it
+can be proved that every step of the induction will yield the generator as a purely
+periodic function of short period expressed in closed form with no development in
+the powers of the eccentricity e’. Yet, familiar as it may be, the model is definitely
+foreign to the exact solution which, to recall, is a rosette developing from a torsion
+applied to a proper Keplerian orbit. At first sight, the only contact between the
+artifact and the exact model is formula (41) for the secular variation of the average
+perigee which is the development of the leap rate (36) as a Taylor series in the powers
+of « truncated below order 1.
+For an approximation scheme that adheres closely to the structures of the exact
+solution, we propose the infinitesimal contact transformation generated by
+W=-1@ <6
+(42)
+2
+'
+.
+p
+It results in the transformation equations
+OW
+OW
+lo
+r=r+———=r,
+d=0+—=6(14+=—},
+OR’
+00’
+(
+2 =|
+OW
+OW
+la
+R=R'—- —=R,
+© = 0’ —-—-=0'
+(14+
+=—
+}.
+ar’
+a6"
+( 9 =|
+They show that the infinitesimal contact transformation does in the small about
+a = 0 what the finite torsion (35) does in the exact solution: (i) it does not affect the
+radial elements; (ii) it induces an infinitesimal torsion
+6d
+0
+14 lo
+g
+Oo
+2p’
+tangent to the finite torsion; (ili) it converts the quasi-Keplerian Hamiltonian (32)
+into precisely a Keplerian Hamiltonian so that the reference orbit remains a constant
+ellipse with fixed perigee. As a matter of fact, it can be extended beyond order 1:
+if it is developed as a Lie transformation in the powers of «, then the generator is
+obtained by applying a procedure due to Shniad (1970) to the torsion generator (38).
+That the generator (42) contains @ as a factor is not objectionable; on the contrary
+it indicates that the transformation does not proceed by taking averages over the
+mean anomaly or even the argument of the latitude 0, but that it applies a torsion
+to a proper Keplerian motion.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+129
+5. The Main Problem in the Theory of Artificial Satellites
+The tools prepared in Sections 3 and 4 will now be applied to the theory of artificial
+satellites.
+Let (I, J, K) be the orthonormal base for a Cartesian frame (U) fixed in space
+at the centre of the Earth; also let (i,j, k) be the orthonormal base for a Cartesian
+frame (B) fixed in the Earth at its centre. Let x be the position of the satellite, taken
+as a massless point, with respect to the centre of the Earth; set
+x = xi+ yj + zk,
+x=rcosfcos,
+y=rcosfsin a,
+z=rsin
+fp.
+The velocity of the satellite relative to the fixed frame (U) is the vector
+X =x+o xx,
+(43)
+with w denoting the angular velocity of rotation of the Earth frame (B) relative to
+the space frame (U) and xX standing for the velocity of the satellite in the moving
+frame (B), that is to say for the vector
+X = xi+ yj + zk. The potential of the gravity
+field of the Earth is usually expressed in terms of the spherical coordinates (r, 4, B)
+by a series of spherical harmonics
+.
+Ll
+a
+\"
+|
+;
+;
+V=--) (=)
+SY (C™cos mA + S™sin mA)P™sin B).
+(44)
+Penz0\l/
+o<ms<n
+where the functions p™are the associated Legendre polynomials of degree n and
+order m. The physical parameters yp and « are respectively the Earth’s Keplerian
+constant, i.e. the product of the mass of the Earth by the constant of gravitation, and
+the ‘equatorial’ radius of the Earth. The triangular matrices C” (n 20,0 <m <n)
+and S” (n21,0<mn) are made of dimensionless elements. Evidently Co=1;
+also C? = C} = S| =0 since the Earth’s barycentre is the origin of coordinates.
+The theory of artificial satellites is the analysis of the dynamical system represented
+by the Lagrangian
+K=3(X'X)+ V.
+CD)
+The Legendre transformation x ~X defined by the relations
+X =(0K/0x)=X+@ x X‘1,
+Y=(0K/dy)=y+oxx’J,
+Z =(0K/0z)=z+oxx°k,
+associates with (45) the Hamiltonian
+M=X-X—K=3(X'X)—-@
+(Xx x)+ V.
+(46)
+The reader should be aware of a disparity in meaning between the coordinates
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+130
+ANDRE DEPRIT
+(x, y, z) and their conjugate momenta (X, Y, Z). Whereas (x, y, z) are the components
+of the position x in the frame (B), (X, Y, Z) are the components in the same frame of
+the velocity X relative to the fixed frame (U).
+The Hamiltonian (46) depends on the time only through the angular velocity
+w. From the onset the theory will be simplified by supposing that
+w = n,k and n, =
+constant; under these assumptions (46) is a conservative Hamiltonian, and the
+dynamical system admits the energy integral
+M = constant.
+A Whittaker transformation (x, y,z, X, Y,Z)—(r, 8,v,R,@,N) is performed to
+convert (46) into a function of the form
+lf,
+©
+M=, R*+— ]—n,N+ V(r, 6, v, ©, N).
+r
+The auxiliary angle I measures the inclination of the satellite’s orbital plane above
+the Earth’s equatorial plane
+(i, j) while v is the longitude of the ascending node
+reckoned from the rotating axis of inertia 1 in the direct sense from East to West
+(not the right ascension of the node counted from I).
+The practical problem of carrying out the substitutions
+cos (A — v) cos
+Bf = cos 0,
+sin (A — v) cos
+B = sin
+0 cos I,
+sin
+§ = sin @ sin I
+in the potential (44) will not be tackled here. For we are planning an approach by
+stepwise refinements in which the programming leapfrogs from a simplified version
+of the problem to the next phase in complexity. To begin with, the system is reduced
+to one with only two degrees of freedom by omitting the tesseral harmonics C™and
+S"(n 2 2,
+1
+<m <n) in (44). In the resulting Hamiltonian
+lf,
+©
+M=, R*+—]—-n,N+ V(r,
+6, v, ©, N),
+r
+the longitude v is ignorable, hence the polar component N of the angular momentum
+is an integral.
+For conciseness in notations, set
+é = C°, c=cosl,s=sinI.
+From the programming standpoint, there arise now two problems: (i) the ex-
+pansion of V in Fourier series of 0, and (11) the elimination of the parallax from the
+result. A forthcoming communication will explain how the expansion has been
+dealt with; at present we content ourselves with solving the second problem. In the
+case of the Earth, the second zonal harmonic coefficient ¢ is about 100 times bigger
+in absolute value than any other zonal harmonic. For the time being, the Hamiltonian
+may thus be reduced even further to the function
+l
+©?
+?
+.
+m= 3(R45) nn
+1 +e(%) Pa(ssin6)
+(47)
+2
+r
+r
+r
+it defines what we call the main problem in the theory of artificial satellites.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+131
+The development of the Legendre polynomial P, is a trivial operation:
+P,(s sin 6)= — (§ — 3s”)
+— $s* cos 26.
+(48)
+With the notations introduced in Section 2,
+2
+2
+2
+2
+2
+uf
+a
+O*
+/a
+p
+O-*
+(a
+Cp
+Sp.
+Pf~2)
+2.[2
+j=
+| —
+1 +—cos
+0+ —sin 6 }.
+49
+Gr)
+=A5) (=U)
+(te osmer
+ose)
+Here is the place where the parallax a/r is formally converted into the ratio «/p.
+The algorithm outlined in Section 3 purports to remove the sum of periodic terms
+by which the parallax has been replaced, hence the name given to the transformation.
+Substituting the expressions (48) and (49) in the Hamiltonian (47) yields
+|
+©?
+/a\?
+M=M
+—-|-—]}]M,.,,
+oo Te y2 (=)
+1,0
+lf, &
+u
+Moo = 5 R +
+TT TAN,
+M,
+,=($—3s7) + 3s? cos 20 +at — 357) cos
+0 + 3s" cos 0|
+1,0
++
+\2
+4
+4
+3)
+2
+8
+8
+4 5P
+(1952)
+sin
+64 35?
+sin 30]
+(50)
+@
+la-ss
+sin
+35° sin
+,
+The expression shows that the main problem (47) belongs to the class of Hamiltonians
+defined in Equation (18). The elimination of the parallax will convert it into a series
+M=M,,+—7zDL—alz=
+—
+—
+Mie
+|
+m8? 2 n!\p
+ae oe, ©
+©
+ue
+(51)
+whose coefficients M, ,, are the polynomials in s’ listed in Table I. The context
+makes
+it
+clear
+that
+the
+Whittaker
+variables
+used
+there
+are
+the
+new
+nodal
+polar variables determined by the transformation. It may be in order to emphasize
+that the developments involve no expansion in the powers of either e or s : the mapping
+is formally consistent over the ranges
+0S e < co and
+O<I <7. Note also that the
+transformation applies everywhere in the phase space save on the submanifold
+© = 0.
+Indications about the complexity of the computer program have been given
+elsewhere (Deprit, 1978). The calculations have been executed in three independent
+ways. By means of his own drastic revision of MAO (Rom, 1969) now written in
+PL/I for the IBM Optimizing Compiler (Version 1, release 3.0), the author completed
+the calculations to order 4 on the Amdahl 470-6 at the University of Cincinnati by
+Christmas 1978. Then, in January 1979, with an updated version of a processor of
+Poisson series composed in Fortran by Dasenbrock (1973), Dr K. T. Alfriend wrote
+a “quick dirty” program for the array-processor TI Advanced Scientific Computer
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+132
+ANDRE DEPRIT
+TABLE
+I
+Coefficients in the main problem for the theory of artificial satellites
+after elimination of the parallax
+1
+3 2
+Mi 0,0 =
+2
+— 4s
+5
+21
+2
+21
+04
+Mioo=
+~4
++9
+— 169
+2
+75 4
+My 10>
+-~3
++75
+— 648
+My o1 =
+—~3
+tes
+tees"
+2
+6345
+.4
+13 725
+.6
+M3 10>
+te oT rs
++gse
+Ss
+8855
+.6
+M301 =
+te
+ays
++ es
+- Rs
+50 049
+.6
+13 815
+(8
+My o0= — tes es
++
+“ea Sa
+S
+M16 —
+3933 + eater 52 _ 218 54) st+1 268 5° _ 2 23328 58
+Mio _— _ 3633 _ 16623 s? + O25 528 st _ 3087 o83 5° + 7 316 30° 58
+Maia —_— _ Be 4+ 13382 52 — 223501 st +
+233 382 5® _ 4 087 302 58
+Myoo=
+—toet ase8 —7So9a7S* + AS0a8 8°
+— Pesea 8°
+at the Naval Research Laboratory to satisfy himself that the author’s results to
+order 3 were indeed correct. Finally, using the same software package and the
+same hardware, Dr S. L. Coffey wrote a fully structured program in Ratfor (Kernighan
+and Plauger, 1976) wherewith, by June 1979, he reproduced the author’s results
+term for term to order 4. (N.B. All three programs proceeding in rational arithmetic,
+the numerical coefficients in the series are independent of the hardware characteristics
+and of the conversion subroutines in the compilers.)
+The generator of the transformation is a series of the form
+en
+OL 2(n+ 1)
+2
+WH Oy
+(S)
+— MyerlPC5.5%,8)
+n2Q
+"°°
+P
+its coefficients being
+trigonometric
+polynomials in @. For the first order,
+g
+32
+CP
+rit
+3.2);
+1 2o
+W, = 35° sin 20 to la-ss ) sin 0 + 3s° sin 36]
+SPrit
+9 2
+§ 41.2
+361:
+(52)
+~@lG-ss ) cos 8 + 5s* cos
+36];
+needless to say, the result could be read immediately from (50). For the second order,
+Cp
+_ (5
+21 .2\.2 o:
+3
+443
+_ 131.2
+195 .4\ a;
+W, = (3 — g5°)s*
+sin 20 + Zs sin 40 +S L-@
+eS) +35
+8°) sin0
+5
+29 *)s?
+; 30 + 2.s¢ sin 50) + 22 +23 2 _ 141 <4) cos 0
+— (96
+- eq
+5)s* sin
+aq5°
+Sl
+6
+ZS
+39
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+133
+C?p
++ (= — 235*)s* cos 30 — 4:s* cos 50] +er lo (3 — 25? + 52, s*) sin 20
+15
+7392) 02 gin 40
+3_ 4 gin 60
+CSp’ _ 3
+3.2
+45 4
+20
+— (65 — 3865" )S° sin 40 + 5565" sin
+]+-69rL(g
+— gS — 7ag5") cos
+S?p?
++ (45 — 32s)s? cos 40 — 733s" cos 60] + erLG — $398") sin 20
++ (23 — 84:s*)s? sin 40 — 532s" sin 60].
+The generators W, and W, are too long to be printed here. With the first two
+terms of W, the reader already has enough information against which to check a
+program of his own to conduct an elimination of the parallax for the theory of arti-
+ficial satellites.
+The conversion equations at the first order are easily derived by hand :
+/
+2
+r—r
+o
+——— =e| — } (4— 3s’? — 4s'* cos 26’),
+D
+p
+(
+2
+2
+4
+4
+a
+\?
+C'p’
+a (=) (3 — $s? -1G — 1s'*) sin 6’ — c’* sin 36"|
+S'p’
+13
+17 4/2
+pr
+f2
+!
++ er LG
+4° )cos 8
+Cc
+cos 36']},
+f
+a \*
+|
+3 sin 20’
+CP 3 cg
+1 cin 34’
+yv—-v =>€ Py
+Cc — 4S
++ 6G sin
+— q Sip
+)
+Ss
+/
+— a G cos 0’ — E-cos 30°),
+R—R’
+a
+\*
+(p’\*
+~~
+= 58 =
+Po
+s’? sin 20’,
+O'/p
+p
+r
+0 — 0’
+a,
+\?
+3 = (=) 3 — 35'* —LG — 35'*) + 38° cos 26"|I
+N=N'.
+The explicit transformations from old to new variables (to set the initial conditions)
+and, conversely, from the new variables to the old ones (to calculate positions and
+velocities at any given time) have been derived by computer to order 3 by Dr Coffey
+(1980).
+6. Brouwer’s Theory After the Parallax has been Eliminated
+Elimination of the parallax «/r simplifies but does not solve the main problem in
+the theory of artificial satellites. Past that preparatory step, several approaches
+toward a solution are open.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+134
+ANDRE DEPRIT
+It is certain that the method advocated by Brouwer is applicable: an averaging
+over the mean anomaly to remove the short-period terms, followed by an averaging
+over the argument of the perigee to complete the normalization. Eliminating the
+short-period terms is strikingly shorter for the new Hamiltonian (51) than for the
+original one (47). That Brouwer’s averaged Hamiltonian is recovered term for term
+proves that the intrinsic characteristics of the phase space for the main problem
+have not been altered by removing the parallax.
+The task at hand is to build a Lie transformation (I, g,h, L,G,H)—- (I',g',h’, L,
+G', H’) for converting the Hamiltonian
+¢?
+3
+M= Myo + EM,
++ 71M 2,0 + Olé ),
+l
+©?
+u
+_
+2
+M50 = 5(R +S)- ~ TN
+©?
+/a\?
+M..=—(—)\
+(4— 32
+1,0
+r2 (=) (5
+4
+);
+©?
+(a
+\*
+—_
+13
+2
+69
+4
+3
+2
+M, = =(2) [—-¢+ 3s*
+— B3s*
++ (§ -—$s° + Bs*)n?
++ (42 — 8s7)s*e? cos 2g]
+into a Series
+62
+M'= M'(g',h’, L, G', H') = My, +éeMy,, + 51Mo,2 + O(e?)
+in which I’ is ignorable. Note that the term M, , is a re-arrangement of the second-
+order term in (51) to revert to variables more familiar than the elements C and S
+defined in Section 2.
+The averaging is built in the manner of a Lie rather than a Poincaré transforma-
+tion. The reason is not that the generator of the Poincare transformation is longer
+or more intricate than that of a Lie transformation; the fact is they are comparable
+in size and composition. But, as was observed by Hori (1966), the invariance of
+Poisson brackets with respect to the group of canonical transformations offers
+ways of simplifying the operations in building a Lie transformation.
+Since the longitude of the node h
+is ignorable in M, Brouwer requires that the
+corresponding variable h’ be ignorable in the generator of the Lie transformation.
+At order 1, the Lie equation is
+,OW,
+OW,
+n ar
+Nea
++ Mo = Mo:
+For the new term M,,, one selects the average of M‘,, over the mean anomaly;
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+135
+then the generator is given by a quadrature in I’. The calculations are straightforward;
+they hinge on the relation
+di
+on
+r
+G
+The results are:
+Oo
+.
+/
+/
+/
+/
+Oo
+°
+/
+Mo =n?a?(2) G3s7w=we(2) Gas)
+P
+Pp
+a
+\*
+3
+2
+where $’ =f’ —I' is the equation of the centre.
+The second order begins with evaluating the provisional element M11=My
+ot
+(M’, ,;W,) in the Lie triangle. The Poisson bracket is more easily computed in
+the Whittaker than in the Delaunay chart. From the partial derivatives
+OM’
+G'2
+a
+2
+rf= —2—7(— }] G-4s"),
+Or
+r~\
+p
+1oWw
+a
+\?
+=
+e (=) (4 —3s'*)(+31' + Bre’ cos f’ + 5f'e* cos 2f')
+r OR
+Dp
+with Bp’ =(1+7’)~', it is readily found that
+~
+,OM',. \( 1 ew,
+Mua = M20 TNT
+ae
+Wa aR
+Gel
+o\
+as | i552
+105 er
+3,
+992
+274),
+—a\
+L—g tas" ea8 + (gs
+— F685")
+4 (2 _ 3 6'? __ 2 s'*)y" + (23 _ $3 5'*)s'7e!? Cos 2g'
+— (5 — 35’? + 2s'*) Bre’ cos f’ — (— 387 + 2s") fe’? cos 2f"].
+The induction continues with evaluating the provisional element M0.2 = Mtat
+(M,,;W,). Because the term M,,
+is already normalized, the Poisson bracket
+is more readily calculated in the Delaunay than in the Whittaker chart. Only the
+two partial derivatives
+!
+2
+él
+a*\p}?2
+*
+”
+|
+2
+12
+oot= (2) 39S
+G'
+ol
+Pp
+r
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+136
+ANDRE DEPRIT
+are needed to find that
+~
+~
+OM
+1 OW
+M,,=M, , —| G24 }|——
+0,2
+1,1
+(
+ol! \(z él
+OL
+4
+_— _ ana(=) (5 _ S/7)*n/?
+G’2
+OL
+4
++ (#2 — $s"")s'*e’? cos 2g' — (5 — 3s'* + 25'*) Bre’ cos f'
+— (4 —35'* + 25'*) Pe? cos 2f'].
+The Lie equation at order 2
+OW,
+OW,
+~
+"op Me ay t M02 = Mo.2
+is solved in the same way as that at order 1. The averaged Hamiltonian is
+& *
+1
+1
+M,.=n 6(=) [— 7g + es? — Bes" + (— 34 25? — 225'4)y'
++ (3 — 3s'* — 2s'*)y'? + (4 — Bs'7)s'7e* cos 2g’ J.
+If s'* is replaced by 1—c’? in M,,, then one recovers term for term the second-
+order averaged
+Hamiltonian F¥ = —(—J,)*M0,2 Produced by Brouwer
+(see
+Brouwer and Clemence, 1961, p. 569). Straightforward quadratures will in turn
+yield the generator
+a
+\*
+15,
+15/2
+105
+./4
+w,=6
+(=) (oL-yris? Bs
++ (3 — 387 — 25")? + (22 — B8'")s'%e'? cos 2g']
+— (5-387 +35’)pre’ sinf’ — (§ — 38’ +3 5'*)p'e? sin 2f"},
+(53)
+definitely shorter and simpler than the generator S, for the Poincare transforma-
+tion at order 2 obtained by Kozai (1962, Equation 3.2, p. 448). By applying the rule
+given by Henrard (1970, proposition 6), one may probably reconstruct the latter
+as the generator of the mapping which combines the elimination of the parallax
+and of the mean anomaly in a single operation.
+With so simple a second-order generator as (53), it becomes possible to extend
+Brouwer’s theory by computer to the third order
+— without omitting terms as was
+deliberately done by Kozai in an attempt to alleviate the massive complexity in
+the intermediate results.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+137
+7. Natural Intermediaries
+The elimination of the parallax is an instance of a general technique which, in retros-
+pect, may be related to an approach taken by Sterne, Garfinkel and others. Consider
+the Hamiltonians J = J(p, P; €) and
+H = H(q,Q;)=H,(q, Q) + €H, (q, Q) + Ole’);
+(54)
+we say that J is a natural intermediary of H
+if (i) J is integrable in the map (p, P) about
+é = 0; (ii) there exists a canonical transformation @
+: (q, Q ; €) > (p, P) such that
+H(q[p,
+Ps 8),O(p, P, );€] =J(p, Ps) + Ole") (n> 2)
+What the definition says in practical terms is that the dynamical system J may be
+solved in the phase space (p, P) and that its solution constitutes an approximation
+to order 1 at least of the solution for the dynamical system H in the map (p, P). Re-
+placing the Hamiltonian H by its natural intermediary J amounts to pushing down
+the perturbation from the first order to a higher order. Whenever it is feasible, the
+downgrading is a very effective way of advancing the solution of the original problem.
+But the bait comes wrapped arounda barb, not the least part of it consisting in a
+swapping of primary models.
+Take for instance the dynamical system
+l
+©*?\
+uw
+lue
+M =-| R*+
+—
+|—-—-—=—+ O(e?).
+55
+s( +=)
+r 227 e)
+6°)
+In the classical approach, one thinks of it as a Keplerian orbit continuously deformed
+and rotated by the perturbations in ¢ and e*. On the other hand, the torsion described
+in Section 3 sets the Keplerian Hamiltonian
+l
+e’2
+u
+J=—| R’’*+—~)--—
+(
++ =>)
+ry’
+as a natural intermediary of (54). The model is now changed: the torsion gets the
+satellite to travel a rosette at the command of a phantom; the intermediary J puts
+the phantom on a Keplerian orbit; the perturbations bear on the phantom’s motions.
+Questions about how the perturbations affect the perigee or the inclination of the
+satellite are no longer pertinent. The introduction of the pair (J, @) as natural inter-
+mediary has replaced the old model by a new gedanken-mechanism.
+In the main problem for the theory of artificial satellites, the elimination of the
+parallax may be used to define a chain of natural intermediaries. Their definitions
+follow easily from a new version of the reduced Hamiltonian (51) in which the quanti-
+ties C and S are replaced by the more familiar elements e and g. After the substi-
+tutions (14) have been made, the Hamiltonian becomes
+©?
+a"
+(a
+\2"
+3;
+ok
+M=M,,+—
+» S| -
+» e
+SY
+M*.s**
+cos 2kg,
+(56)
+Ponzi":
+\P/
+o<j<ni2
+OK<k<j
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+138
+ANDRE DEPRIT
+TABLE II
+Inclination functions for the main problem in the theory of artificial
+satellites
+a
+My
+0,0 =
+5
+— 4s
+M3 0,0 —
+—2
++ 4} s?
+— 23 s4
+Me 10>
+—3
++33"
++ 6qs"
+Mea =
+is
+~ 35
+M3 10 _
+Bt
+_ 837 5?
++ S813 s*
+__ gi4e 5®
+M314 —
+__ i
+_ ih s?
++ 2583 st
+M* oo =
+~ 204 + 18,309 52 _ 134157 st
++ 50.049 56
+13 B15 <8
+Meio =
+— Agr) HAs?
++ 25592st — BINS96 4 259627568
+Moa = Sea
+pag s7+ ASSET
+st
+2 SEO TAS 56
+Mi20=
+128 toys6°S  — 7ggts* + 27pgRSso — LBL
+SOS 58
+M¥a1=
+Sr
++F3es?
++ Atpagest— S3355°
+a
+the coefficients being the polynomials in s* listed in Table II. Incidentally, in (56),
+the pairs (e,g) and (s*,g) both present the d’Alembert characteristic. This is the
+reason why the inclination polynomials M* ., are given in powers of s*, as suggested
+by Aksnes, rather than in powers of c? as do Brouwer and Kozai, thereby reducing
+the total number of terms by about 10%.
+The first two terms of (56), namely
+©?
+/«)\?
+—
+*
+Ryo=Mo
+9 te
+a\— |} Me 00>
+(57)
+r
+\P
+make a quasi-Keplerian approximation that is separable, hence (57) constitutes
+a natural intermediary. The canonical transformation that produces it is precisely
+the elimination of the parallax.
+Responding to Garfinkel’s suggestion of incorporating as much as possible of the
+perturbations in the intermediary, one could adjoin to (57) all terms of (56) beyond
+the first order which are independent of either the eccentricity or the argument of
+perigee. The resulting Hamiltonian
+@2
+e"
+(a
+2n
+—
+*
+R, ~ Moo +> » nlin
+M70,
+(58)
+r
+n21 nN. \ Pp
+is also a natural intermediary. Indeed, it is separable since the torsion defined by
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+139
+the generator
+|
+en
+OL 2n
+1/2
+T=r'R +YN+ 0] +) =(2) M* |
+noi 0h
+\p
+a
+reduces it to a Keplerian system. That the torsion defines the new variables by
+implicit equations may cause difficulties in an automated development for the main
+problem. An extension of Lagrange’s inversion theorem (Deprit, 1979) allows, in
+principle, for recursive explicit expansions of the new variables and functions thereof.
+But the technique was not yet available at the time the author proposed an automated
+procedure to normalize R, ina Delaunay chart (Deprit, 1978).
+A natural intermediary need not be separable; integrability is sufficient. There-
+fore, one may go another step toward meeting Garfinkel’s goal, by adding to (58)
+all terms depending on the eccentricity e, leaving in the perturbation only those
+which depend explicitly on the argument of perigee. The angles 0 and v being ignorable
+in the Hamiltonian
+@2
+oe"
+(a
+2n
+Ry = Moo +
+» nl (=)
+ye IMEjo
+(59)
+n21%-\P/
+ o<j<nj2
+the dynamical system (59) has only one degree of freedom and so is integrable.
+It makes a natural intermediary for the main problem in the theory of artificial
+satellites. How R, is normalized in a Delaunay chart will be explained in a forth-
+coming publication (Deprit, 1981).
+8. Naturalization of Common Intermediaries
+A natural intermediary is not an intermediary in the common sense of the word.
+We propose to elucidate the difference between the two concepts; then we show
+how the common intermediaries, in polar variables proposed for the main problem
+in the theory of artificial satellites, can be reset as natural intermediaries. This is
+a positive step, for natural intermediaries hasten the solution of the main problem
+more effectively than common intermediaries.
+A dynamical system with Hamiltonian J = J(qg, Q; 6) is called a (common) inter-
+mediary of (54) if
+(i) J is of the form
+J =H, +eJ,(q,Q) + Ole’);
+(60)
+(ii) J is integrable;
+(iii) The difference H — J expressed in the angle-action variables (a, A) of J is
+conditionally periodic in the angles a.
+The averaging algorithms of celestial mechanics are not applicable to (54) unless
+the principal term H, is an intermediary of H. The search for intermediaries of
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+140
+ANDRE DEPRIT
+H other than H, stems from the expectation that, if J contains at least part of the
+first-order terms of H, then the solutions of J are ‘better approximations’ of the
+solutions of H than are the solutions given by the principal term H,. This principle
+is not a theorem: what is meant bya ‘better approximation’ is not even formulated!
+|
+Nevertheless, it is generally accepted as a physical mode of operation and, as such,
+is often a fruitful source of ‘faster’ numerical schemes and ‘simpler’ algebraic al-
+gorithms.
+Garfinkel’s definition of an intermediary is dominated by the requirement that
+the Hamilton—Jacobi equation for J be separable in the chart (q, Q) itself (Garfinkel
+and Aksnes, 1970). If
+I read Garfinkel correctly, the sole purpose for the restriction
+is to arrive immediately at a set of angle-action variables for J. Separation of the
+coordinates in the equation yields a complete solution S(q, U, t;e) by quadratures.
+The latter defines a time-dependent canonical transformation o:(q, Q, t) > (u, U)
+by the implicit equations
+os
+hy
+Q= aq’
+uaa
+The mapping o drives the Hamiltonian J to equilibrium; therefore the momenta
+U are integrals of J and, because the transformation o is canonical, they are in
+involution. According to Liouville’s theorem, J is thus integrable. In the elementary
+context of a separable system, the problem of finding a set of action-angle variables
+for
+J may sometimes be solved in a simple way. One builds a time-dependent canoni-
+cal transformation t:(u, U, t)
+> (a, A) whose remainder R depends on the momenta
+A only, and is such that the composition @ = t°a:(q,Q) — (a, A) is independent
+of the time (see e.g. Smart, 1953, pp. 167-169). Evidently J[q(a, A), Q(a, A)| =
+R{[u(a, A), U(a, A)|= R(A).
+The restriction put by Garfinkel
+is not essential. A dynamical system with
+Hamiltonian J(q, Q) is separable if there exists a canonical transformation (q, Q) >
+(p, P) such that the Hamilton—Jacobi equation of J is separable in the chart (p, P).
+In agreement with this definition, the natural intermediaries R, and R, are separable,
+although their Hamilton—Jacobi equations are not separable in the original Whittaker
+chart.
+The condition that the residual perturbation H — J be multiply-periodic in the
+angles a implies Garfinkel’s requirement that the intermediary J ‘cover all the first-
+order secular variations’ of H. Indeed, apply Poincare’s method to the transformed
+H(a, A;e) = J(A;2) + eR(a, A) + O(e7) ofH in the chart (a, A). At order 1, it will produce
+an infinitesimal contact transformation
+Ow
+ow
+a=a+e~ 7,
+A=A'—e=,
+(61)
+whose generator is determined by the partial differential formula (J;W)+ R'=R.
+By assumption, R is periodic in the angles a’; hence one may select R’ as the average
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+141
+of R over the angles a’ while W, being determined by quadratures from R — R’,
+turns out to be a periodic function of the angles a’. To the first order, the Hamiltonian
+H becomes
+H = J(A';e) + €R(A’) + O(e”)
+(62)
+in the chart (a’, A’), which implies that the variables (a’, A’) make upa set of angles
+and actions for H. So Equations (61) of the infinitesimal contact transformation
+may be read as meaning that, save for the addition of first-order periodic corrections,
+the angle-action variables of J ‘cover’ the secular variations in the angle-action
+variables of H.
+For Garfinkel, the search for ‘effective’ intermediaries in the main problem is
+confined to the original Whittaker chart. It rests on the proposition that quasi-
+Staeckel systems
+|
+©?
+©?
+_nt + os + V(r, @,N)+ os V,(0, ©, N)
+are integrable; partial clarification of this statement will be given elsewhere (Deprit
+and Richardson, 1981). The search consists in adjusting the components V, and V,
+to achieve specified effects at the first order and possibly beyond it in the course
+of a Poincaré—Lindstedt normalization of the main problem based on the inter-
+mediary. Depending on whether V, = 0 or V, = ¢3(«/p)’ cos 26, the intermediary J
+is said to be radial or zonal.
+For the main problem in the theory of artificial satellites, the first intermediary
+answering Garfinkel’s requirements, namely
+l
+@*\
+uw
+O*/a\?
+p
+3
+J
+_—
+2
+an
+_
+f=
+1 3
+42 i.
+~
+2
+; (2 + 7) até 2 (=) c
+zs )~ +45 cos 20 |
+(oD)
+was proposed by Sterne (1957); it was immediately followed by
+l
+©?7\
+uw
+07
+/a)\?
+r
+3
+J —_{ R242 )_2
+[7
+1
+3,2
+Jf
+~ 62
+4 (
++ r) wre 2 (=) Et
+7s (1 in) +35 cos 20
+(64)
+due to Garfinkel (1958 and 1959, revised in 1964). Both are zonal intermediaries.
+Cid—Palacios (1969) came with the first radial intermediary
+|
+©O7\
+uw
+07
+/a\?
+Pp
+J.=~|
+R?+— )-—-+e—(- ] G—3s7)-.
+- AG +S) Tt E5 (=) (5 as)
+((s))
+Equation (62) brings to notice that the ‘effectiveness’ of an intermediary is enhanced
+if it is such that R'(A’) = 0, Le. if the residual perturbation H(q, Q) — J(q, Q) averages
+to zero over the angle variables of the intermediary. As was discovered by Aksnes
+(1965 and 1966), the zonal intermediary
+l
+©?
+u
+ ©07/«a\?
+Z5=3(R +S )—H 40S (2) [ (5 —287)
++ 35° cos 20]
+(66)
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+142
+ANDRE DEPRIT
+enjoys this property in relation to the main problem in the theory of artificial satellites.
+The most effective intermediaries would be separable Hamiltonians of the form
+J=H,+eH,+87J,(q, Q)+ Ole’). If the sum H, +H,
+itself was separable, there
+would be no reason to look for an intermediary at the first order. But it is conceivable
+that, by adding terms of order 2 and higher to the non-separable sum H, + ¢éH,,
+one could arrive at a separable Hamiltonian. A case in point is the spheroidal inter-
+mediary (Vinti, 1959; Kislik, 1961) for the main problem in the theory of artificial
+satellites. On the pattern of what was accomplished by the elimination of the parallax,
+we propose yet another way of reaching for the best intermediaries, which is to
+prepare a canonical transformation
+@:(g,Q,¢)—-(p, P) casting the Hamiltonian
+H into a series
+gl
+H*(p, P, ) = H*(p, P)+ > — Halo, P)
+n21
+.
+with the aim of making the sum J(p, P) = Hj + eH* separable in the chart (p, P).
+The pair (¢, J) will then make a natural intermediary. It must be stressed that, in this
+approach, it is the main problem (not a surrogate!) which becomes separable at
+order 1, not in the old chart but in the new chart (p, P).
+The common intermediaries (63)—(66) can all be recovered as natural intermediaries
+for the main problem in the theory of artificial satellites. The statement is proved
+by producing the infinitesimal contact transformation leading from the main problem
+to the intermediary, and this is done by solving a Lie equation of the form
+L(W)=M —J,
+(67)
+using the techniques outlined in Section 2.
+For the intermediary of Cid—Palacios, the right-hand member of (67) is
+3 ©?
+2
+M— J. == Py COS 260,
+4r-\p/
+r
+hence the generator
+|
+,
+C
+|
+S
+w.=0(-)
+3?
+> sin 20 + <P (3 sin 8 + < sin 36) + PP (3 cos 6 — .cos36)
+|
+‘
+p
+©
+©
+which Cid—Palacios obtained as the first-order term in his von Zeipel transformation.
+In the case of Sterne’s Hamiltonian,
+3 ©2
+2
+M—J,= +o(¢] t -- 1) cos 26,
+4r-\p
+r
+a\* ,| C
+S
+W.= (2) 2] Se sin 0 + § sin 36)+5 cos 0 — 5.cos 3) |
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+143
+while, for Aksnes’ zonal intermediary,
+©?
+(a
+\?
+M — Z, -S(2) G vice 25°) + 28° cos 20],
+2 C
+,
+;
+W= o() ie [(5 —2s*) sin 6 + $s” sin 30]
+p
+6)
+SPrit
+92
+941.2
+36
+~@la-ss )cos 8+ 35° cos
+36]
+>.
+For Garfinkel’s intermediary taken as the extension
+©?
+/a«\’
+r
+J.=Z,+——(-]
+G—3s7)[
+2-3-
+9
+oT
+73 (| (—-% (
+“|
+of Aksnes’ zonal Hamiltonian, the generator of the infinitesimal contact trans-
+formation which sets it as a natural intermediary of the main problem is of the form
+W, = W, + Wi, the additional term being a solution of the Lie equation
+OL
+2
+U
+©2
+Lawy=(5) -209(3'n—- 27}
+But, in the Delaunay chart,
+OE 0M
+a
+L.(£) =—
+2 =n-,
+Ma
+ae
+hence the solution
+OL 2
+wi = (2) (5 — 3s7)(GE — 26).
+There are many ways in which the infinitesimal contact transformation leading
+to a natural intermediary may be extended into a canonical transformation. Not
+to be overlooked is the straightforward continuation by the exponential mapping
+eg"
+q=p+ 2 — Lip) = exp(eLy)(p),
+ae
+an
+ev
+Q=P+) — Liy(P) = exp (cL,,)(P),
+a
+the differential operators being defined inductively by the sequence
+L(F) = LiyLLiy “(F)]
+(n
+2)
+starting with the derivations L).(F) = F and L,(F)=(F;W).
+For comparison, we completed to order 4 the exponential continuation for the
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+144
+ANDRE DEPRIT
+infinitesimal contact transformations which naturalize the intermediaries of Sterne
+—
+and Aksnes. The continuations yield the series
+©?
+(a
+\*
+©?
+(/a\*
+,
+;
+Only the parts of order 2 are presented here, those of orders 3 and 4 being too long
+for a conventional print. In the case of Sterne,
+S,o = — 335° + (G — $5”) cos 20 + $5 s* cos 40
+CP
+ro
+2
+3
+21.2
+15
+2
++6 Less cos 6 + (5 — #s”) cos 30 + 728° cos 50]
+Sp
+63 2) o:
+3
+39 .2)¢:
+15 62:
++5 [ — (6 — Ss*) sin 6 + (5 — 5°) sin 304+ 425° sin 56]
+C?p?
++7 Ure — 2457) + (2 — 1345’) cos 20 + (4 — 3:87) cos 40
+9 22
+CSp*
+3
+153 .2)¢:
+9
+21.2\¢:
+— 7338 cos 60| +67 L-G~ ers ) sin 20 + (3 — 7s") sin
+40
+S? p?
++ 2; s* sin 66] t-orl —(33
+— 158 57)+ (41— 287
+5”) cos 20
+— (2 — 325s’) cos 40 + 25s? cos 66],
+and, for Aksnes’ zonal intermediary,
+Z,,= —7t ips’ — BS s* — (F— Bs")s* cos 20 + 3 s* cos 40
+Cp
+352 , 51.4
+15
+87 .2\.2
+tol-@-es + == s") cos 0 — (Pp — 75
+8")s* cos 36
+S
+;
++ +2s* cos 50] +5 [ —(2++2s* —2*s*) sin 6 — (42— 92s)s* sin 30
+C*p*
++ 2s* sin 50] +Sr [—24+ 2s’ -—Bs*— (2— 38°
++ 35*) cos 20
+CSp?
+— (2 — Bs”)s’ cos 40 + 7358* cos 60] + “srl — (2-357
+— #5 s*) sin 20 — (2 — 22s7)s* sin 40 + 4° sin 60]
+S?p*
+3.
+15.2 , 105 41/3
+39
+4
+tor L-s—ies + 64 § + (3 —- 7538 ) cos 26
++ (2 — 3 s*)s’ cos 40 — =35 s* cos 66].
+Symmetric though they are, these expressions are not simple enough. Undeniably
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+145
+they squander most of the advantages gained from having assimilated the whole
+first-order perturbation into the intermediary by naturalization.
+From a practical
+standpoint, the bulkiness of the result implies that the exponential continuation
+of the naturalizing infinitesimal contact transformation is too loose, that it burdens
+the main problem with too many periodic fluctuations around the intermediary’s
+model. The continuation should remove these non-essential terms as it proceeds
+from order to order.
+We proposed that, past order 1, the continuation be implemented as an elimination
+of the parallax, in that it converts parallactic factors «/r into ratios «/p and removes
+the terms explicitly periodic in 6. Acting on that suggestion, Dr Alfriend at the Naval
+Research Laboratory conducted
+the naturalization
+for the zonal intermediary
+(66) to order 3. The result is a series
+©?
+oe"
+(ay 2n
+Sp 2k Cp
+2(j—k)
+M=Z +S
+= (2)
+yy
+>» (2
+—
+Zak
+or? n>!
+\p
+0<j<n/2 0<k<j
+©
+©
+”
+with the coefficients
+_
+5
+15
+.2
+123 4
+Lyo0=
+7a tgs —335°>
+_
+3
+27
+62
+75
+.4(
+_—
+Zy10= ~sties —GaS (=M,, 9),
+_
+3
+15
+,2
+105
+.4¢ _
+LZyo1=
+37168 tea5 (=My, 44),
+_ 39
+2
+117 4
+585
+.6
+23.0.0 = 77 278 + 35S + 335
+5
+_
+87
+1737
+.2
+1647
+4
+225
+.6
+23107167
+64 5 +37
+8
+— gS’;
+_ 87
+1611
+,2
+927 4
+2475
+.6
+Z301 167
+64
+© +765 —
+6a
+§
+comparable in size and form to the corresponding polynomials mentioned in Table I.
+Here again Garfinkel’s proposal to make the intermediary as inclusive as possible
+invites us to adjoin selected contributions of order 2 and 3 to the basic zonal inter-
+mediary Z,. To this end, Alfriend’s results are expressed in terms of e and g rather
+than C and S so that the main problem becomes the series
+©?
+oe”
+(ax
+2n
+3;
+5k
+M=Z,+5y =(2)
+» e Y Z*..s**
+cos 2kg
+Pon22"%-\P/
+o<j<nji2
+9 0K<k<j
+with the inclination polynomials
+—
+5,
+15,2
+123
+47 _
+230.0 = ~atas — 325
+(=Zy 00):
+_—
+3
+3 2
+15 4 _
+2510 = ~3 tas + eas (=MZ, 9),
+_ 21
+45 2 _
+2711 = 167 328
+(= Mz 11);
+39
+2
+117 4
+585
+.6 ( _
+23.0.0 = 4
+27S +378 + 37S
+(=Z3
+4 0),
+_
+87
+837
+.2
+2001
+4
+4275
+.6
+23410
+=16 7 325 +64 8 — G78 5S)>
+_ _ 63
+207.2 __ 675
+64
+23.1 647 64S ~ 1285
+°
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+146
+ANDRE DEPRIT
+The natural intermediary
+©?
+en
+Oo
+2n
+Z,=Z,+—5
+> -—(-]}
+Z*
+(68)
+1
+0
+2
+,0,0
+r so n!\p
+°
+is separable, whereas the natural intermediary
+©2
+e"
+(a
+2n
+_
+2j
+Z,=Z,+ 4) —|-
+»
+etZ*
+(69)
+Po
+n22":\P
+1<j<n/2
+TABLE III
+Classification of the natural intermediaries in polar variables for the
+main problem
+6?
+U
+Momi(e re)!
+|
+|
+|
+|
+67
+(a
+\?
+I--->R, =M, +e (*) (4 — 35?)
+;
+r
+r
+|
+|
+|
+I——~—>9R ~~~ > R,
+|
+|
+|
+|
+0?
+(a
+\?
+p
+|
+|
+I
+|
+|
+2
+2
+0*
+(a
+i-_-— 4Z =R eo (“) s* cos 26
+0
+on
+ae 2
+D
+|
+|
+|
+|
+I-~-9Z
+92,
+|
+|
+|
+|
+07
+(a
+\*
+p
+|
+|
+|
+2
+2
+O°
+(a
+r
+ay = Z, 4(2) 1-39 (2 _ 3"
+9
+(0)
+r2 p
+(5
+4
+)
+p|
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+147
+is integrable but not separable. Both may be more effective than Z,. There are
+indications that this is the case. The first transformation by which Aksnes (1969, 1970)
+processes the residual perturbations M — Z,, although it is announced as an averag-
+ing over the mean anomaly, is precisely the elimination of the parallax extending
+Z, into Z,.
+Now that all known intermediaries in polar variables have been shown to share
+the capital property of being natural intermediaries to the main problem in the
+theory of artificial satellites, is there a reason to favour one rather than the others”?
+By the ‘criteria of merit’ proposed by Garfinkel and Aksnes (1970), the radial inter-
+mediaries rate higher than the zonal ones since the separation of variables in their
+Hamilton—Jacobi equation does not involve elliptic integral for the argument of
+latitude. By the same criteria, among the radial intermediaries, the Hamiltonian
+R, is especially commendable for ‘1. its accuracy, 2. its simplicity, and 3. the ease
+of calculating higher order perturbations’.
+In Table III, the natural intermediaries in Whittaker variables for the main problem
+have been ordered in a genealogical tree by increasing complexity of their components
+V, and V,. By duality, the tree constitutes an ordering by increasing simplicity in
+the generators and the equations of their naturalizing canonical transformations.
+Which intermediary one picks on the tree is a matter of personal taste, commanded
+to a large extent by the software context. After all, no one said it with more glee
+than Prolix (Goscinny and Uderzo, 1972): Simplicity is difficult to program, but
+recognizable when it occurs.
+9. The Radial Intermediary
+The parallax having been eliminated, one may pursue the solution of the main
+problem by adopting the Keplerian principal part M, as the intermediary, thus
+viewing the orbit as a kind of envelope of a family of ellipses in continuing deforma-
+tion. As was indicated in Section 6, an averaging over the mean anomaly will then
+reproduce the Hamiltonian in the perigee elements (g,G) obtained by Brouwer
+and Kozai. In a subsequent averaging over the argument of perigee, the Poincare-
+Lindstedt method breaks down formally at the singular inclinations I, mod z=
+tan” ' 2; away from these singularities, it produces first-order long period variations
+in g.
+In sharp contrast with Brouwer’s reference ellipse stands the model based on the
+radial intermediary R, of Equation (57).
+As a dynamical system, R, is integrable: the coordinates @ and v are ignorable,
+hence the momenta © and N
+are integrals. The intermediary may be reduced to a
+dynamical system with only one degree of freedom in (r, R) ; integration of the differen-
+tial equations
+.
+OR,
+r= ae = R,
+(70,)
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+148
+ANDRE DEPRIT
+.
+6R,
+©?
+a
+\*
+Uu
+is to be followed by the quadratures
+0
+/a\?
+,— 3,
+[7
+70
+v 2&5 (*) C
+(705)
+0)
+a,
+\7
+The differential system (70,)-(70,) may be solved in the conventional way. Setting
+Oo 2
+A =A(O,N,e)=1+ (2) (1 — $s),
+Oo 2
+6 = 0(0, N,é)=A™at + 1o(2) (1 — 6c?)
+p
+u=Ae,
+y=s-18,
+r
+one finds that the differential equation of the orbits is d?u/dw? + u = 1. Its general
+solution
+u = | + ecos(w — g) introduces two arbitrary constants e and g in addition
+to the integrals
+© and N. Two more constants will appear in the quadratures (70,)
+and (70,).
+On the basis of these results one might derive a set of canonical constants.
+A
+direct
+approach,
+however,
+is
+simpler:
+it
+consists
+in
+applying
+the
+torsion
+(0, v, O, N) > (Ww, @, ‘V, ®) generated by the function
+T =T(y, 6, 9,N)=WOA'?
++ ON
+(71)
+to convert R, into the Keplerian system
+i
+we
+Ll
+= —|
+R*+
+—
+]—~-.
+72
+Ro (
++ r?
+r
+(72)
+The transformation is given by the implicit equations
+Oo 2
+06=dA'?*y,
+y= + 3e(2) cA Ney,
+(73)
+Y=A!’6,
+O=—N.
+It is now obvious that the orbits of R, are rosettes developed from Keplerian orbits
+by the geometric construction Newton has given in Propositio XLIV.To the elemen-
+tary law given in (35) corresponds here the pair of equalities 6/0 = ‘P/O = A‘.
+The variables (¢, y, ‘V, ®) refer to the phantom satellite: the latter travels a conic
+fixed in dimensions and position and does it in accordance with Kepler’s laws.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+149
+At any given moment, the satellite and its phantom are at the same distance from
+the centre of the Earth and they have the same radial velocity. Intuitively speaking,
+the torsion has adjusted the parameters of the phantom’s Keplerian motion to
+make superfluous the addition of short-period variations to the radial variables
+(r, R) of the satellite; for instance, the mean motion of the phantom is determined
+not by the principal part M, but by the total energy R,. The phantom’s perigee is
+fixed; the satellite’s perigees form a polygonal contour ona fixed circle in the orbital
+plane. The torsion in @ translates in Brouwer’s model into a uniform rotation of
+the perigee ; the mean motion of perigee for Brouwer’s orbit equals the rate of increase
+in the average of 0 over the anomalistic period of the phantom.
+So far, in contrast to the approximate solution restricted to bounded orbits as it
+was built by Brouwer, we have produced an exact solution for the radial inter-
+mediary valid everywhere in the phase space except on the submanifold
+yw =0.
+The generality may be an advantage in applications where the second-order per-
+turbations are not significant and the time span is limited to afew revolutions. But
+if the radial intermediary is to provide reference orbits in a calculation of perturba-
+tions beyond the first order, it is desirable that the equations of the torsion be made
+explicit. The problem consists in solving the implicit equation ‘¥ = OA!”
+and in
+substituting the solution © = © (Y, ®) in the equations for the angles 6 and v. But
+we suggest that the torsion be reconstructed as a Lie transformation developed
+in the powers of ¢. An exposition of the transformation in full falls outside the scope
+of this article; it is sufficient here to examine only the infinitesimal contact transfor-
+mation leading from R, to the Keplerian system (73). Its generator is a solution of
+the Lie equation
+2
+2
+L,(W) =(2) (G— 5°);
+hence, up to the addition of an arbitrary function in © and N,
+Oo 2
+w =00(*) (5 — 25°)0
+(Z3)
+Pp
+and the explicit equations of the torsion are
+OL 2
+o=v) 1+ 20(2) a5) |+ 00),
+a 2
+v=@@+ 2-(=) yw + O(e7),
+a 2
+© =1 + (2) (5 — 207) | + O(e7),
+N=9,
+the auxiliary functions q, y and o being given by the relations ‘¥* = pq,
+y = ®/¥ and
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+150
+ANDRE DEPRIT
+o* = 1—y*. As one would expect, the values I, for the inclination take on a special
+significance. At these inclinations, 0 = w and the torsion in the orbital plan becomes
+the identity mapping. More precisely, the satellite’s orbits are conics having a focus
+at the centre of the Earth, although the satellite’s motion on the conical path does
+not obey Kepler’s second law of areas.
+Is it possible to build a solution to the main problem in the theory of artificial
+satellites on the model emanating from the radial intermediary? The solution would
+offer an alternative to the solutions built on the Keplerian model, not necessarily
+in the sense of providing a practical way of evaluating the second-order perturba-
+tions, but it would assist in separating the features of Brouwer’s solution which
+belong intrinsically to the phase space of the main problem from those which are
+mere artifacts of the analytical procedure.
+Conceivably the second-order perturbations have a two-fold effect. On the one
+hand they bring corrections on the rate of the torsion; on the other, they distort
+the Keplerian motion of the phantom’s regulating mechanism. That much we know
+for certain: the perturbations cannot be targeted at the torsion exclusively. Indeed,
+let us attempt to build a Lie transformation with the aim of converting the
+Hamiltonian
+M=M,+éM, + xé°M, »,
+©?
+Oo
+2
+M,.,=—7a\|-]M
+,
+1,0
+2 (|
+1,0,0
+.
+@©2
+Oo 4
+C*p*
+S?p?
+M, —=(=) (M00 + M, 1,0 @2 + My 01 “@2.
+into a Keplerian system. We have already obtained in (74) the first-order generator.
+Then, at the second order, we calculate that
+7
+7
+©2
+Oo
+4
+C?p?
+S*p
+M,,=Mo2= (2) (Ms. +My
+10 @2 +My61 @2
+with the inclination polynomial
+MS 50 = —35*(1 —3s*) = 45°(1 — Sc’).
+According to the proposition proved in Section 1, the Lie equation L,(W,)=M,,
+admits the solution
+OL 4
+C*p*
+S?p?
+W, = W,(p,C, S, 8) = 00(*)
+M} 0,0 +My 100 @2 +My1 @2
+/"
+Pp
+The resulting equations for the radial elements are then of the form
+OW
+rar te?—erl[l+e*#k(e7,s7, 6,9)],
+OR
+OW
+R=R'—&a = R’[14+ 26'K(e’,s'*, 0,9’)],
+r
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+15]
+where k and K are multiply-periodic functions in 6’ and g’. The presence of 6’ as
+a factor makes this type of function worthless to an analysis of how the perturba-
+tions recondition the phase space of the radial intermediary. Nevertheless, the Lie
+transformation just built may have some practical value in contexts where one is
+interested in a solution accurate to the second order in é* on a time span of a few
+anomalistic periods.
+10. Conclusion
+A case has been made for canonical transformations aimed not at generating integrals
+of a dynamical system but only at removing non-essential intricacies. Applied to the
+main problem in satellite theory, the elimination of the parallax has put the system
+in a state where the developments have become elementary at the second order and
+manageable without the help of a computer at the third order. Conceptually, it has
+offered a new perspective along which one can regroup various theories based on the
+notion of an intermediary and increase their effectiveness. Finally, the elimination
+of the parallax itself has produced a new class of intermediaries. It is not unreasonable
+to expect that the radial intermediary will contribute one day to our understanding of
+the phase flow in the main problem for the theory of artificial satellites.
+Acknowledgements
+Drs K. T. Alfriend and S. L. Coffey at the U.S. Naval Research Laboratory have
+helped considerably in checking programs and results by developing codes parallel to
+but independent of the author’s own software. Mrs Deprit-Bartholome executed
+most of the hand calculations needed while various algorithms and co-ordinate
+systems were explored and later while the basic code was under test.
+The topics of this paper have been discussed at our seminar in celestial mechanics
+with our colleagues Drs K. R. Meyer, D. Richardson and D. S. Schmidt at the Univer-
+sity of Cincinnati, Dr G. Jukic of the University of Novi—Sad and Dr S. Hughes of
+the University of Leicester during his visit in the spring of 1977.
+The paper has been a long time in preparation during which a number of ideas
+have been clarified in correspondence with Drs J. Message and A. Jupp of the Univer-
+sity of Liverpool, Dr B. Garfinkel of Yale University and Dr P. Cefola of the Charles
+Stark Draper Laboratory in Cambridge, Mass. The author gratefully acknowledges
+the critical attention given to the manuscript by Dr J. Vinti of M. I. T. while he spent
+the summer of 1978 as ‘guest worker’ at the National Bureau of Standards.
+While the author was professor at the University of Cincinnati, he received partial
+support for this research from the Naval Research Laboratory and from the Time
+and Frequency Division at the Boulder Laboratories of the National Bureau of
+Standards.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+152
+ANDRE DEPRIT
+References
+Abraham, R. and Marsden, J. E.: 1978, Foundations of Mechanics, 2nd edition, Benjamin Cummings
+Publishing Co., London—New York.
+Aksnes, K.: 1965, Astroph. Norv. 10, 69.
+Aksnes, K.: 1966, Astroph. Norv. 10, 149.
+Aksnes, K.: 1969, Ph.D. dissertation, Graduate School of Yale University, New Haven, Connecticut.
+Aksnes, K.: 1970, Astron. J. 75, 1066.
+Andoyer, H.: 1913, Bull. Astron. 30, 28.
+Arnold, V. I.: 1978, Mathematical Methods of Classical Mechanics, translated from Russian by K. Vogt-
+mann and A. Weinstein, Springer-Verlag, New York.
+Brouwer, D.: 1959, Astron. J. 64, 378.
+Brouwer, D. and Clemence, G. M.: 1961, Methods of Celestial Mechanics, Academic press, New York
+and London.
+Cefola, P.: 1974, AIAA 12th Aerospace Sciences Meeting, Washington D. C., Paper No 74-170.
+Chazy, J.: 1953, Mecanique céleste— Equations canoniques et variations des constantes, Presses universitaires
+de France, Paris.
+Cid-Palacios, R.: 1969, Publ. Rev. Ac. Cienc. Zaragoza 24, 159.
+Claus, A. J. and Lubowe, A. G.: 1963, Astronaut Acta 9, 275.
+Coffey, S. L.: 1980, Manuscript in private communication prior to publication.
+Dasenbrock, R.: 1973, NRL Report 7564, Naval Research Laboratory, Washington D. C. 20375.
+Deprit, A.: 1969, Celes. Mech. 1, 12.
+Deprit, A.: 1975, J. Res. Natl. Bur. Std. 79B, 1.
+Deprit, A.: 1978, AIAA Paper 78-1439, AIAA/AAS Astrodynamics Conference, August 7-9, Palo Alto,
+California. Accepted for publication in the Journ. for Guidance and Control.
+Deprit, A.: 1979, Celes. Mech. 20, 325.
+Deprit, A.: 1981, Celes. Mech. 24, 185 (this issue).
+Deprit, A. and Richardson, D.: 1981, Celes.Mech. (submitted).
+Dieudonneé, J.: 1960, Foundations ofModern Analysis, Academic Press, New York
+Garfinkel, B.: 1958, Astron. J. 63, 88.
+Garfinkel, B.: 1959, Astron. J. 64, 353.
+Garfinkel, B.: 1964, Astron. J. 69, 223.
+Garfinkel, B. and Aksnes, K.: 1970, Astron. J. 75, 85.
+Goscinny, R. and Uderzo, A. 1972: Le Devin, Dargaud éditeur, Paris.
+Henrard, J.: 1970, Celes. Mech. 3, 107.
+Hill, G. W.: 1902, Astron. J. 22, 183.
+Hori, G.: 1966, Publ. Astron. Soc. Japan 18, 287.
+Kernighan, B. W. and Plauger, P. J.: 1976, Software Tools, Addison-Wesley Publishing Co., Reading.
+Kislik, M. D.: 1961, Artificial Earth Satellites 4, 183.
+Koyré, A. and Cohen, I. B.: 1972, Isaac Newton’s Philosophiae Naturalis Principia Mathematica, Harvard
+University Press.
+Kozai, Y.: 1962, Astron. J. 67, 446.
+Lubowe, A. G.: 1964, Astron. Acta 10, 253.
+Lubowe, A. G.: 1966, AIAA J. 4, 361.
+Poincaré, H.: 1889, Comptes rendus Acad. Sc. Paris, 108, 210; also in Oeuvres de Henri Poincare, t. VMI,
+551, Gauthier-Villars, Paris.
+Poincaré, H.: 1891, Comptes rendus Acad. Sc. Paris, 114, 1305; also in Oeuvres de Henri Poincaré, t. VII,
+491, Gauthier-Villars, Paris.
+Poincaré, H.: 1893, Les méthodes nouvelles de la mécanique céleste, t. II, pp. 17-24, Gauthier-Villars,
+Paris.
+Poincaré, H.: 1897, Bull. Astron. 14, 241; also in Oeuvres de Henri Poincare, t. VII, 516, Gauthier- Villars,
+Paris.
+Rom, A.: 1969, Celes. Mech. 1, 301.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1981CeMec..24..111D
+THE ELIMINATION OF THE PARALLAX IN SATELLITE THEORY
+153
+Shniad, H.: 1970, Celes. Mech. 2, 114.
+Smart, W. M.: 1953, Celestial Mechanics, Longmans, Green and Co., London.
+Sterne, T. E.: 1957, Astron. J. 63, 28.
+Sterne, T. E.: 1960, An Introduction to Celestial Mechanics, Interscience Publishers Ltd., London.
+Tisserand, P.: 1894, Traité de mécanique céleste, t. III, Gauthier-Villars, Paris.
+Vinti, J. P.: 1959, J. Res. Nat. Bur. Standards 63B, 10S.
+Whittaker, E. T.: 1904, A Treatise on the Analytical Dynamics of Particles and Rigid Bodies, Cambridge
+University Press.
+Wu Lian-da, Wang Chang-bin and Tong-Fu: 1978, Acta Astron. Sinica 19, 131; English translation in
+Chinese Astron. 3, 238.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System

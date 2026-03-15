@@ -1,0 +1,292 @@
+68. . 555L
+
+
+
+
+                                     REGULARIZATION OF THREE-BODY PROBLEM                                                                    555
+
+                                                                                   Siegel, C. L. 1956, Vorlesungen ü. Himmelsmechanik (Springer-
+1963AJ
+
+
+
+
+             interval can be obtained. This is possible especially
+             for periodic solutions of (1).                                          Verlag, Berlin).
+                                                                                   Thiele, T. N. 1895, Astron. Nachr. 138, 1-10.
+                                      REFERENCES                                   Wintner, A. 1930, Math. Z. 32, 675-698, 2.
+             Birkhoff, G. D. 1915, Rend. Circ. Mat. Palermo 39, 265-334, 276.           . 1947, The Analytical Foundations of Celestial Mechanics
+             Burrau, C. 1906, Astron. Ges. Vjs. 41, 261-266.                          (Princeton University Press, Princeton, New Jersey).
+
+
+
+             THE ASTRONOMICAL JOURNAL                                       VOLUME 68, NUMBER 8                                   OCTOBER 1963
+
+                 Small Eccentricities or Inclinations in the Brouwer Theory of the Artificial Satellite
+                                                                      R. H. Lyddane
+                                                      U. S. Naval Weapons Laboratory, Dahlgren, Virginia
+                                                                   (Received 17 June 1963)
+
+                             Brouwer’s theory of the artificial satellite is re-examined for small eccentricities and inclinations and im-
+                          proved formulas are obtained. The validity of the new formulas is confirmed by comparison with the results
+                          of numerical integration.
+
+                                   1. INTRODUCTION                                 equations of motion for the coordinates in closed form,
+                                                                                   and to derive from the coordinates and velocity com-
+             THE solution of the problem of the near-earth
+                                                                                   ponents the true osculating elements. If after this has
+                    satellite, in terms of general perturbation theory,
+                                                                                   been done, the coefficient of the second zonal harmonic
+             has been given by Brouwer (1959). The resultant
+             formulas for the perturbations of the elements of the                 &2 is allowed to become zero, the four osculating
+                                                                                   elements which describe the unperturbed orbit are
+             orbit are well known to contain singularities both at
+                                                                                   found to be
+             zero eccentricity constant and at zero inclination
+             constant. As several investigators including Brouwer                                         a,
+             have remarked, there are no singularities in the co-                                         e=0,
+             ordinates of the satellite and it should be possible to                                            /=0,
+             write well-determined expressions for them, in either
+             the small-eccentricity or the small-inclination case.                                         g+&=WoH-const.
+             The difficulty with making this approach directly is                  On the other hand, Brouwer’s theory tacitly takes the
+             that it requires the expansion of the coordinates in                  elements of the unperturbed orbit in this case to be
+             Taylor series in the element perturbations, and although
+             the first-order terms in these expansions are regular, the                                        a,
+             higher terms are singular and hence ignoring them is                                              e—0,
+             unjustifiable. This is the case with the method em-
+             ployed by Smith (1961). There is an even more funda-                                              l=not+const,
+             mental difficulty with the singularities in that the                                          g+Ä= const.
+             general perturbation theory is based upon an expansion
+             of the Hamiltonian in a Taylor series in the pertur-                      Either set of elements is perfectly capable of de-
+             bations of the Delaunay variables, and the neglect of                  scribing the unperturbed orbit, but the former set
+             higher terms is equally questionable here. Attempts to                 differs from the perturbed elements by small quantities
+             verify both Brouwer’s formalism and Smith’s modifi-                    of the order of     as the perturbation theory assumes
+             cation, in the small-eccentricity case, by comparison                  to be the case, while the differences calculated on the
+             with the results of numerical integration have been                    basis of the latter set are of zero order in Æ2. The
+             unsuccessful. Errors of the first order appear in both, as             situation is reminiscent of the quantum-mechanical
+             the eccentricity constant approaches zero.                             perturbation theory of degenerate stationary states,
+                Since the coordinates are in reality nonsingular, it                where the first step in solving the problem is to find the
+             must be possible to go a step farther : there can be no                “right linear combination of unperturbed states.”
+             infinite singularities in the true osculating elements of                 It proves to be possible to avoid all the difficulties
+             the orbit. The reason for the apparent presence of such                with singularities by adopting the well-known procedure
+             singularities may be clarified by a simple example.                    of formulating the perturbation theory in terms of
+             Consider a satellite in a potential field which includes               Poincaré variables rather than Delaunay variables and
+             the second zonal harmonic, moving in an equatorial                     calculating from the results the true osculating elements,
+             circular orbit. It is easy in this case to solve the Cartesian         of the perturbed orbit.
+
+
+
+
+                 © American Astronomical Society • Provided by the NASA Astrophysics Data System
+68. . 555L
+
+
+
+
+             556                                            R. H. LYDDANE
+
+                                                                          in a Taylor series about the “mixed point” 0r/',y¿), and
+1963AJ
+
+
+
+
+                            2. FORMULATION OF THE PROBLEM
+                                                                          the usual separation by orders of magnitude and by
+               The Hamiltonian, which includes as perturbing terms        type of periodicity is made, the results are
+             the zonal harmonics of the earth’s potential, is written
+             following Brouwer’s notation:                                                           iV=A,
+                                  F=F0+Fl8+Flp+F2l                  (1)                               Pi*=Fn,
+             where Fq=ii2/2L2, Fu and Fip are respectively the                                   F üXlS\yi F lp,
+             secular and short-period terms of order fo, and F2           F2*-\-FlSy2Si*X2 — FuX2Si*y2-\-Fuy3Si*XZ — FuXzSi*y3
+             (taken to be of second order in k2) is the contribution        — [F^i^ 0X1X1 (Sly^-j-Flp^Sly^Flp^Slyj,
+             of the zonal harmonics of order higher than two.
+                The Poincaré canonical variables, in terms of which                        Ipx^lyz ^             ^ lsay^lj/2
+             the perturbation theory is to be formulated, are defined                                    F lsyzSlX3~\~FlaxtSly^]9,   (6)
+             in terms of the Delaunay variables as follows :            the subscript s on the bracket in the last equation
+                            xi=Lj                                       denoting   that terms periodic in yi are to be dropped.
+                                                                        All of the quantities appearing in this set of equations
+                            *2 = [2 (Z - G) ]* cos (g+ ¿0,              are functions of            by the derivation, but since
+                             Xz=l2(G-H)J cosh,                          they are identities in the #/',      we may with equal
+                                                                        validity take them all as functions of (x/^y/'). Once
+                            yi=l+g+h,                                   this change has been made, it is a straightforward
+                            y2=-Z2(L-G)J sin(g+¿),                      process to transform Eqs. (6) into terms of Delaunay
+                             y3= “[2(G—#)]* sin/z.                  (2) variables, the primed Poincaré variables bearing the
+                                                                        same functional relationship to the primed Delaunay
+             These variables have the well-known advantage that variables as holds for the two unprimed sets. The point
+             the perturbing potential may be written as a power of making such a transformation rather than directly
+             series in x2, xz, y2, and y3 throughout the range of solving Eqs. (6) in terms of Poincaré variables is that
+             variation of the latter quantities. Let us for the sake of the latter course would unnecessarily duplicate a large
+             clarity write the Hamiltonian as F when it is considered amount of the work done by Brouwer.
+             as a function of the Poincaré variables and as F when         Before considering the transformation of (6), let us
+             it is considered as a function of the Delaunay variables. note that since F can be written as a power series in
+             Then we have                                               #2, % y2, and[y3, it is evident from (6) that so also can
+                                                                        F*,ßh and J>i*; this being the case, derivatives such
+                                                                        as SiX2 and 51*2/3 will also be power series and hence re-
+                 and F thus represent the same dynamical quantity, gular in behavior at small eccentricity or small incli-
+             but as indicated by the tilde they have different nation. There are therefore no terms in (6) or in (4) which
+             functional forms. The same notation will be used for the have the potentiality of becoming singular, nor have any
+             component parts of the Hamiltonian, as defined in (1), such terms been dropped in truncating the expansions,
+             and for the determining function now to be defined.         and the expansions may thus be considered valid to the
+                The determining function is taken to be                  indicated accuracy in the perturbation parameter.
+                                                                            The transformation of the first three of Eqs. (6) into
+               S = xi'yi+x2/y2+x3"y 3+5i (x/',y¿)+5i* (x/',y4-). (3)
+                                                                         terms of Delaunay variables is simple : the trans-
+             5i* is defined as the part of the first-order term which formation of the fourth is somewhat tedious, but may be
+             is independent of yi. The new variables are designated eased by invoking the canonical invariance of the
+             by the double prime for eventual agreement with Poisson bracket of any two dynamical quantities. The
+             Brouwer’s notation. The relations between the primed results are
+             and unprimed variables for this determining function                                  Z0* = Zo,
+             are
+                    xi^Xi'+Siyv          yi'^yi+Six^S^xv                                          FqlSii=Fip,
+                    ^2=X2"+5i2/2+5i*2/2, y2f = y2-)rSiX2-)rSi*X2,         Z2*-Z1s(?51/=[Z2+|Zoll(51z)2+Z1pL51z
+                       =:    //
+                    ^3= ^3 +5i2/3+*5i*2/3, ys^ys+^ixa+iSi*^,        (4)                               +ZiP(?5iy+Zi8G‘S,ii7]i.
+             and the Hamilton-Jacobi equation is                          (In carrying out the transformation, advantage has
+                                                                          been taken of the absence of h from the Hamiltonian
+                                  F*(xi",yn = F(xi,yi),             (5)
+                                                                          and the absence of g as well as l and h from Zi,.) These
+             the transformation being determined by the condition         are exactly the equations which Brouwer solves for
+             that F* shall be independent of yi". If F* is written as     his Z**, 5i, and Si*. Thus his solutions for these
+             Fo*+F1*+F2*, in powers of k2, and Eq. (5) is expanded        quantities are applicable without change as transformed
+
+
+
+
+                   © American Astronomical Society • Provided by the NASA Astrophysics Data System
+68. . 555L
+
+
+
+
+                                         SMALL ECCENTRICITIES OR INCLINATIONS                                                 557
+
+                                                                        sin(|/) cos//=£sin(|/")+cos(|/")p/] cosä"
+1963AJ
+
+
+
+
+             Hamiltonian and first-order determining functions in
+             the present theory, and the only remaining deviation                                  —sin(J7")ôA sinÄ",
+             from Brouwer is in the transformation generated by the
+             determining function, Eqs. (4).                            sin(J7) sinh= [sin(J7")+cos(|7")j57] sinÄ"
+                                                                                                     +sin(¿7")5^cos^".         (8)
+                             3. OSCULATING ELEMENTS                     The algorithm for the use of these formulas is then
+                Equations (4) remain valid to the desired accuracy      as follows :
+             if Si{x",y") and                   are substituted for       (a) Compute a, l+g+h, /", h", be, e"bl, bl, and
+             5i(x/',y¿) and            the error made being at most
+             second-order periodic. They may then be readily                        sin(|7")öÄ= únl,fbh/ (2 cosj7")
+             transformed into terms of Delaunay variables :
+                                                                        from Brouwer’s formulas for computation, with one de-
+                                         L=L"+Slh                       viation. In computing the short-period terms, Brouwer
+                                                                        uses /' and gf, remarking that the use of Z" and g" in
+             i+g+h=r+gf,+h"-                                            their place would be equally satisfactory. In the present
+                                                                        case, /" and g" must be substituted for V and g', which
+             [2(Z,-G)]i exp[i(g+/?)]                                    may be ill-defined. For a numerical program, it is ad-
+                                                                        visable to add together Brouwer’s expressions for Z, g,
+               = [2CL''-G")]iexp|l(g''+Ä'0]                             and h before computing l+g+h, and to use in comput-
+                                                                        ing be the identities
+                                  1
+                       X ! 1+          [Su- (Si+Sx*),,]                 ( WO [ O"//')3 - *r3]=ir6[0+e" ( i+^)~1+3 cos/"
+                         l    2(L"-G")                                                            +3e" cos2/"+e"2 cos3/"],
+                                    —í (S i+*Si*)g+ (S i+Si*) j61 j >   (l/e")[(a"/r")3-r7-4] = 0[^+3 cos/"
+             [2(G—#)]* exp(i/0                                                                     +3e" cos2/"+e"2 cos3/"],
+                                                                        in order to avoid the occurrence of terms which may
+               = [2 (G"-#")]* exp(^")
+                                                                        become the small difference of two large quantities.
+                                                                           (b) Compute e, I, l, and h from Eqs. (8). These are
+                  xf 1+  ^(7)                                           valid for all eccentricities and inclinations (except
+                   L 2(G"—H") J                                         inclinations in the neighborhood of tt), although if
+             The partial derivatives of Si and Gi* can be obtained      neither the eccentricity nor the inclination is small they
+             from Brouwer’s computational formulas. If we define        have no advantage over Brouwer’s formulas, yielding
+                                                                        the same results with a little additional work. However,
+                       0Z=-(51+51*)l,                                   for machine computation the advantage of having one
+                                                                        algorithm for all cases outweighs this small disadvan-
+                                                                        tage. The case in which I^tt can probably be handled
+                      bh= — (Si+Si*)h,                                  most efficiently by using the same algorithm with
+             then bl, for example, is the sum of Brouwer’s long-        tt—7 substituted for 7 and —h for h,
+             period and short-period terms, but is not necessarily         (c) Compute the coordinates and velocity com-
+             the difference between l and     Brouwer does not give     ponents from the osculating elements in the usual way.
+             bL and bG explicitly, but rather ba, be, and bl, where
+                                                                             4. COMPARISON WITH O. K. SMITH’S RESULTS
+                             L"                                           Smith defines a quantity e which is neither the
+                      bL =         ba,
+                             2a"                                        osculating eccentricity nor the eccentricity constant,
+                                                                        but in a sense an intermediate constructed quantity.
+                              L"2            G"                         This quantity, which will be labeled e* to avoid con-
+                      ôG=            e"be+         ba=G" tan/'^Z.       fusion, is given in his paper by the formula
+                               G"            2a"
+             Substitution in Eqs. (7) and some algebraic manipu-
+             lation leads to formulas more convenient to use :          Comparison of the results of Smith’s formulas with
+                                                                        those of the present theory indicates that this is
+                        a=a"+ba,                                        erroneous. Agreement is obtained only if
+                 l+g+h=l"+g"+h"+b(l+g+h),                                                      ßs=6//-f‘öß
+                   e cos/= {e"-\-be) coslf/—e'fbl sin/",                is used instead. Since the present theory does not
+                   e sin/= (e"-j-be) sinl"-^effbl cos/",                depend upon expansions of doubtful validity, this
+
+
+
+
+                © American Astronomical Society • Provided by the NASA Astrophysics Data System
+LOLO
+LO
+00
+LO
+    :   558                                                R. H. LYDDANE
+'o
+c
+00
+LO
+co
+
+
+
+
+                                                                                                         Fig. 1. Coordinate prediction
+                                                                                                      error versus time after epoch,
+                                                                                                      (a) Present theory. (b)
+                                                                                                      Brouwer. Eccentricity constant
+                                                                                                      0"=0.032. Coordinate devia-
+                                                                                                      tions: — total magnitude; *
+                                                                                                      radial component; A com-
+                                                                                                      ponent along velocity; + com-
+                                                                                                      ponent normal to orbit plane.
+
+
+
+
+        change will produce accurate results from Smith’s                 The procedure was first to choose a set of Brouwer
+        formulas. In using these formulas, it should be noted          constants and calculate the coordinates from Brouwer’s
+        that eB can assume a negative value. When this occurs,         formulas. The best fit of a Cowell’s orbit to these
+        the negative value is to be carried through the calcu-         coordinates was then found by a least-squares determi-
+        lation ; e8 being a constructed quantity need not              nation of the initial coordinates, and the deviations
+        necessarily be positive. Smith’s results for small             of the Brouwer coordinates from the Cowell coordinates
+        inclination require no correction.                             were computed and plotted. The same procedure was
+                                                                       repeated, using the same Brouwer constants but the
+                    5. COMPARISON WITH THE RESULTS OF                  algorithm of the present theory. None of the Brouwer
+                          NUMERICAL INTEGRATION                        constants was varied except e", which was assigned
+                                                                       several small values ; the common values of a" and /"
+           In order to obtain some numerical confirmation of           were approximately 7365 km and 66?69, respectively.
+        the validity of the foregoing considerations, a com-           Typical computer-drawn plots of the coordinate devia-
+        parison was made with the results of a Cowell’s inte-          tions are shown in Fig. 1, and Table I shows maximum
+        gration for the low-eccentricity case. Zonal harmonics         coordinate errors taken from these and similar plots.
+        through the fifth order were included, and the numerical          The errors are periodic in all cases, and since a
+        integration was a tenth-order process with an integration      periodic error of the order of 10 m is to be expected
+        interval of 60 sec and two iterations per time line. All       because second-order short-period terms are completely
+        orbits were computed for a 12-h time span.                     neglected in the general perturbation theory, the
+                                                                       agreement between the numerical integration and the
+              Table I. Maximum coordinate prediction error (meters).   present theory is regarded as satisfactory.
+                                                                          My thanks are due Dr. Charles J. Cohen for stimu-
+                    e"                Brouwer         Present theory   lating my interest in this problem and for numerous
+                   __                   _                   _          helpful discussions.
+                    0.008               1100                15                                   REFERENCES
+                    0.016                500                15
+                    0.032                300                15         Brouwer, D. 1959, Astron. J. 64, 378.
+                                                                       Smith, O. K. 1961, ibid. 66, 359.
+
+
+
+
+              © American Astronomical Society • Provided by the NASA Astrophysics Data System
+

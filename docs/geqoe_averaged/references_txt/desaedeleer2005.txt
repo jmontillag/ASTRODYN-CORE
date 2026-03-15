@@ -1,0 +1,1806 @@
+Celestial Mechanics and Dynamical Astronomy (2005) 91:239–268
+DOI 10.1007/s10569-004-1813-6                                                     Ó Springer 2005
+
+
+COMPLETE ZONAL PROBLEM OF THE ARTIFICIAL SATELLITE:
+GENERIC COMPACT ANALYTIC FIRST ORDER IN CLOSED FORM
+
+
+                              BERNARD DE SAEDELEER
+De´partement de Mathe´matique, University of Namur, Rempart de la Vierge, 8, B-5000 Namur,
+                    Belgium, e-mail: Bernard.DeSaedeleer@fundp.ac.be
+
+
+        (Received: 22 December 2003; revised: 25 May 2004; accepted: 26 July 2004)
+
+
+Abstract. This paper is a contribution to the Theory of the Artiﬁcial Satellite, within the frame
+of the Lie Transform as canonical perturbation technique (elimination of the short period
+terms). We consider the perturbation by any zonal harmonic Jn (n  2) of the primary on the
+satellite, what we call here the complete zonal problem of the artiﬁcial satellite. This is quite
+useful for primaries with symmetry of revolution. We give an analytical formula to compute
+directly the ﬁrst order averaged Hamiltonian. The computation is carried out in closed form
+for all terms, avoiding therefore tedious expansions in the eccentricity or in any anomaly; this
+feature makes the averaging process, not only valid for all kind of elliptic trajectories but at the
+same time it yields the averaged Hamiltonian in a very short and compact way. The formula
+allows us to now skip the averaging process, which means an asymptotic gain of a factor 3n=2
+regarding the computational cost of the nth zonal. Our analytical formulae have been widely
+checked, by comparison on one hand with published works (Brouwer, 1959) (which contained
+results for particular zonal harmonics, let’s say typically from J2 to J8 ), and on the other hand
+with the results of 3 symbolic manipulation software, among which the MM (standing for
+‘Moon’s series Manipulator’), which has already been used and described in (De Saedeleer B.,
+2004). Additionally, the ﬁrst order generator associated with this transformation is given into
+the same closed form, and has also been validated.
+
+Key words: artiﬁcial satellite theory, Lie, Hamiltonian, zonal harmonic, ﬁrst order, closed form
+
+
+
+
+                                        1. Introduction
+
+The main problem of the artiﬁcial satellite has drawn much attention in the
+past; but the problem was by deﬁnition limited to the eﬀect of J2 , even if
+pushed to higher orders. At the opposite side, we want to consider here the
+complete zonal problem of the artiﬁcial satellite, which means taking any
+zonal Jn into account, but computing only the ﬁrst order averaged Hamil-
+tonian for the time being. This is quite useful since zonal harmonics are suited
+to describe primaries with symmetry of revolution, which are common and
+widely used in many analytical theories of an artiﬁcial satellite.
+240                           BERNARD DE SAEDELEER
+
+   Some averaging techniques for perturbed two-body problems have been
+fundamental in the understanding of averaging theories and Lie transfor-
+mations for two-body problems in closed form, like among others (Kozai,
+1962; Jeﬀerys, 1971; Coﬀey and Deprit, 1982; Kelly, 1989; Osácar and Pa-
+lacián, 1994). No doubt then that the integrals appearing in this complete
+zonal problem could be solved by several methods described in the literature.
+   But the fact is that the user still has to perform many steps involving many
+manipulations before having access to the ﬁrst order averaged Hamiltonian.
+In this paper, we derived an analytical formula which gives directly the ﬁnal
+result for any zonal Jn in a very compact and eﬃcient way; a formula that we
+did not ﬁnd as such in the literature, to the best of our knowledge. On the
+way, we give also analytical expressions for the mean values over f of the
+functions cosi ð f Þ, cosi ð f Þ cosðaf Þ and cosi ð f Þ sinðaf Þ, formulae that we did
+also not ﬁnd as such in the literature.
+   Of course some expressions have already been derived for the ﬁrst order
+averaged zonal eﬀect, but there were always particular to a given zonal
+harmonic, let’s say typically from J2 to J8 . These expressions, together with
+others derived by use of a symbolic manipulation software, allowed us to
+check our analytical formula.
+   It is a fact that canonical perturbation methods have many advantages
+(Boccaletti and Pucacco, 1999). So we are working in the canonical frame
+suggested by Hamilton; and we use here the algorithm of the Lie Transform
+by Hori (1966) and Deprit (1969) for averaging the Hamiltonian of the
+problem, in canonical variables. The solution is developed in powers of the
+small factor n linked to each Jn . The results are obtained in a closed form,
+without any series developments in eccentricity or inclination.
+   The structure of this paper is the following. We apply the Lie Transform
+method to the complete zonal problem of the artiﬁcial satellite (ﬁrst order) in
+Section 2. We then develop the solution of the ﬁrst order averaged Hamil-
+tonian H  ð1Þ for the case n even and n odd in Sections 3 and 4 respectively,
+           0;n
+making use of 3 Propositions, given in Appendices A, B, C. We summarize
+these results in Section 5 valid for any n. We then check our analytical result
+in Section 6, and estimate its eﬃciency in Section 7. We do essentially the
+same for the generator W 1;n in Sections 8 to 11. We then conclude in Section 12.
+
+
+2. The Lie Transform Applied to the Complete Zonal Problem of the Artiﬁcial
+                 Satellite: First Order Averaged Hamiltonian
+
+Let’s consider the complete zonal problem of the artiﬁcial satellite. We deﬁne
+the inertial frame ðx; y; zÞ as follows: the origin is taken at the center of the
+primary; the ðx; yÞ plane is the equatorial plane of the primary, and the z
+            COMPLETE ZONAL PROBLEM OF THE ARTIFICIAL SATELLITE                     241
+
+direction is the right-handed normal to ðx; yÞ. In order to be able to use the
+expressions of the spherical harmonics for the potential, we ﬁrst have to
+deﬁne spherical coordinates ðr; k; /Þ, so that the latitude / is deﬁned as the
+deviation from the ðx; yÞ plane, while the longitude k is useless here.
+   Within that inertial frame, the Hamiltonian describing the motion of the
+artiﬁcial satellite under the eﬀect of any zonal harmonic is written:
+                                n
+           1 2 l lX      1
+                                R
+     H¼ v  þ               Jn      Pn ðsin /Þ                             ð1Þ
+           2       r r n¼1      r
+Pn ðxÞ being the Legendre Polynomial of order n. If we deﬁne the perturba-
+tion parameter for the nth zonal harmonic by
+     n ¼ Jn Rn                                                        ð2Þ
+then (1) is written as:
+             ð0Þ
+                  X1
+                          ð0Þ
+     H ¼ H0 þ         n H1;n                                                      ð3Þ
+                   n¼1
+with:
+       ð0Þ  1          l
+     H0 ¼ v2                                                                      ð4Þ
+            2           r
+       ð0Þ        l
+     H1;n ¼ þ nþ1 Pn ðsin /Þ                                                       ð5Þ
+                r
+                                                                        ð0Þ
+The Hamiltonian (3), which includes the central ﬁeld term H0 and the per-
+                                   ð0Þ
+turbative partial potential H1;n , is now well suited for a perturbation method.
+We use here the method of the Lie Transform (Deprit, 1969). The Hamilto-
+nian is written in powers of a perturbative        P in parameter n . For the initial
+                                           ð0Þ            ð0Þ
+Hamiltonian (input), we write: Hn ¼ iP0 i! Hi;n ; and for the transformed
+Hamiltonian
+       P i(output),           where the fast angle has been removed, we write:
+                    ðiÞ
+H0;n ¼ iP0 i!n H0;n . The Lie algorithm consists of imposing the form of the
+new Hamiltonian; here we choose it to be independent of the fastest angle l:
+                 Z
+       ð1Þ    1 2p ð0Þ                          ð1Þ
+     H0;n ¼               H1;n dl ¼    ¼ H    0;n                               ð6Þ
+             2p 0
+            ð1Þ         ð1Þ in order to remember that l has been eliminated. The
+We write H0;n as H        0;n
+generator W 1;n associated with this transformation may be computed by
+using the relation
+                                      
+       ð1Þ      ð0Þ           ð0Þ
+     H0;n ¼ H1;n þ H0 ; W 1;n                                                      ð7Þ
+  ð0Þ
+H0 being a function of L only, the Poisson parenthesis reduces to one term,
+giving:
+               Z
+             1 l  ð0Þ          
+                           ð1Þ dl
+     W 1;n ¼     H1;n  H  0;n                                          ð8Þ
+            n 0
+242                                   BERNARD DE SAEDELEER
+                          2
+if we deﬁne n ¼ Ll 3 .
+   Our goal in this paper is to obtain an analytical expression which gives
+directly H ð1Þ for a given n. Doing so, we will be able in the future to skip the
+            0;n
+                          ð0Þ
+averaging process of H1;n since we know directly the averaged Hamiltonian;
+this drastically reduces the number of terms being manipulated (see Section 7).
+A similar analytical expression will also be obtained for the generator W 1;n .
+   We come back on the choice of the variables now. In order to keep the
+Hamiltonian formalism, it is required to work in canonical variables; we
+choose the classical Delaunay variables ðqi ; pi Þ ¼ ðl; g; h; L; G; HÞ. Now we
+have to write the Hamiltonians in these variables. The central term 12 v2  lr is
+                        ð0Þ          2                                        ð0Þ
+                          l
+simply written H0 ¼  2L    2 . For the partial perturbative Hamiltonian H1;n ,
+
+there is no problem to translate its argument (sin /) into Delaunay variables:
+it can be done by way of spherical trigonometry (the plane of the orbit being
+at an inclination I ):
+
+      sin / ¼ sin I sinð f þ gÞ                                               ð9Þ
+
+But there remains the variable r and f to be expressed as a function of ðl; g; hÞ
+in order to be able to apply a canonical perturbation method. It turns out
+that the functions r ¼ rðl; g; hÞ and f ¼ fðl; g; hÞ cannot be expressed in a
+closed form; so we prefer to use the following set of auxiliary variables
+(n; f; g; h; a; n ; e; g; s; c), which is closed and allows high eccentricities:
+
+      n ¼ ar ¼ 1þe cos f
+                1e2
+                         ¼ 1e 1cos E       f
+            2                                     2
+      a ¼ Ll                                n ¼ Ll 3
+          qﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃ
+                    2                         pﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃ
+      e ¼ 1  GL                            g ¼ 1  e2 ¼ GL                  ð10Þ
+                     qﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃ
+                               2
+      s ¼ sin I ¼ 1  H          G          c ¼ cos I ¼ H
+                                                        G
+      g                                     h
+Note that we used the notation n in order not to be confused with the index
+n already introduced in (1). The only drawback of this set is that it is
+redundant and that we would need to perform partial derivatives of them
+with respect to the canonical variables in case we have to compute a Poisson
+bracket, which is by the way not the case here for the ﬁrst order averaged
+Hamiltonian (but it would be anyway not too burdensome). The only partial
+derivative that we will need is
+     @f
+        ¼ n2 g                                                             ð11Þ
+     @l
+which plays an important role, since it will allow us to switch the integration
+from l to f:
+             COMPLETE ZONAL PROBLEM OF THE ARTIFICIAL SATELLITE                             243
+                   Z 2p                    Z 2p    ð0Þ                Z 2p
+       ð1Þ     1           ð0Þ         1          H1;n           1                    ð1Þ
+     H0;n ¼               H1;n dl ¼                      df ¼                       
+                                                                             D df ¼ H       ð12Þ
+                                                   2                                  0;n
+              2p    0                 2p    0     ng            2p     0
+                                                                ð0Þ
+                                                            H
+In the following, we will denote the quantity n21;ng by D. So our aim is now to
+recognize in D the part which is independent of f, in order to obtain directly
+  ð1Þ
+H0;n .
+   We start by expressing (5) in the new set of variables (10):
+                                                 nþ1
+      ð0Þ      l                                 n                     nnþ1
+     H1;n ¼ þ nþ1 Pn ðsin /Þ ¼ n2 a3                  Pn ðsin /Þ ¼ n2 n2 Pn ðsin /Þ
+             r                                   a                     a
+                                                                                            ð13Þ
+and furthermore we convert it into D for the integration in f:
+              nn1
+     D ¼ n2       Pn ðsin /Þ                                              ð14Þ
+             gan2
+The integration will be possible since n will appear only at the numerator.
+Note that the variable h does not appear anywhere, because of the symmetry
+of revolution of the zonal problems.
+   Even if we search for the most compact analytical result, there is no way to
+avoid the expansion of some functions; this it the price to pay to extract the
+ﬁrst order mean value. Among these function is the Legendre polynomial
+Pn ðxÞ which can be expressed by the following expansion (see 8.911 1. of
+(Gradshteyn and Ryzhik, 1980)):
+                    bnc
+              1X2
+                    ð1Þk ð2n  2kÞ! n2k
+     Pn ðxÞ ¼ n                        x                                                    ð15Þ
+             2 k¼0 k!ðn  kÞ!ðn  2kÞ!
+
+where the lower integer part of n is denoted by bnc.
+   In (15) the argument x will be sin / ¼ s sinðf þ gÞ by (9), so that we have to
+consider sinn2k ðf þ gÞ. The sinðxÞ function has itself the following expan-
+sions (see 1.320 1. of (Gradshteyn and Ryzhik, 1980)):
+                       (                      !                       !)
+                    1    X
+                         n1
+                                           2n                      2n
+        sin2n ðxÞ ¼ 2n        ð1Þnk 2          cos 2ðn  kÞx þ             ð16Þ
+                   2     k¼0               k                        n
+                                                    !
+         2n1        1 X n1
+                                     nþk1 2n  1
+     sin      ðxÞ ¼ 2n2      ð1Þ                    sinð2n  2k  1Þx      ð17Þ
+                   2     k¼0                   k
+        
+          n                  n!
+where          stands for k!ðnkÞ! .
+          k
+244                          BERNARD DE SAEDELEER
+
+                                             ð1Þ
+                                          0;n for the n Even Case
+             3. Analytical Expression of H
+
+To go further in the developments, we assume starting from now n to be even
+(and nP2), so that (16) may be rewritten for an even n:
+                  ( n1                                 !)
+                1   X
+                    2                               n
+                            n      n
+     sinn ðxÞ ¼ n       ð1Þ2k 2     cosðn  2kÞx þ n                 ð18Þ
+               2                   k                  2
+                     k¼0
+
+and furthermore for the even power n  2k appearing in (15):
+                        (nk1                    
+                         2X
+        n2k        1              n
+                                    kp    n  2k
+     sin     ðxÞ ¼ n2k        ð1Þ2     2
+                  2       p¼0
+                                               p
+                                                  )
+                                            n  2k
+                   cosðn  2k  2pÞx þ n                                    ð19Þ
+                                             2k
+
+On the other side, the Newton’s formula
+                Xn         
+           n         i ni n
+    ðx þ yÞ ¼       xy                                                       ð20Þ
+                i¼0
+                           i
+may be applied to expand nn1 :
+                                                             
+     n1     1 þ e cos f n1    1 X n1
+                                                  i n1i n  1
+    n    ¼                   ¼ 2n2     ðe cos f Þ 1                         ð21Þ
+                 g2           g     i¼0
+                                                            i
+With (21) and (19), (14) may now be rewritten as
+                   (                        ) X    bnc
+          2   1      1 X n1
+                                i    i
+                                         n1      1 2 ð1Þk ð2n  2kÞ! sn2k
+    D¼n                        e cos f
+             gan2 g2n2 i¼0              i      2n k¼0 k!ðn  kÞ!ðn  2kÞ! 2n2k
+          (nk1                                                           )
+             2X                  n  2k                               n  2k
+                      n
+                        kp
+                 ð1Þ2      2            cosðn  2k  2pÞðf þ gÞ þ n
+              p¼0                   p                                  2k
+
+                                                                             ð22Þ
+Let’s now build the following deﬁnitions:
+                   n  1
+     ai;n ðeÞ ¼ ei
+                      i
+                  ð1Þk ð2n  2kÞ! sn2k
+      bk;n ðsÞ ¼                                                             ð23Þ
+                 k!ðn  kÞ!ðn  2kÞ! 2n2k
+                                  
+      cp;k;n ¼ ð1Þ2kp 2 n p 2k
+                     n
+
+
+
+
+                 n2
+      dn ¼ n 2n1 n2
+             2g      a
+          COMPLETE ZONAL PROBLEM OF THE ARTIFICIAL SATELLITE                                          245
+
+which allow us to write (22) in a more compact form, followed by further
+summation manipulations in order to gather the trigonometric functions:
+              (                          ) bnc          (nk1
+               Xn1                       X 2            2X
+                                         i
+    D ¼ dn                  ai;n ðeÞcos f      bk;n ðsÞ        cp;k;n cosðn  2k  2pÞð f þ gÞ
+                    i¼0                         k¼0             p¼0
+                               )
+                  n  2k
+         þ         n
+                   2k
+
+               b2cn               (                          )(nk1
+               X                   Xn1                        2X
+                                                        i
+       ¼ dn            bk;n ðsÞ              ai;n ðeÞcos f             cp;k;n cosðn  2k  2pÞð f þ gÞ
+               k¼0                    i¼0                       p¼0
+                               )
+                  n  2k
+         þ         n
+                   2k
+
+               b2cn               (     n
+               X                   Xn1 2k1
+                                          X
+       ¼ dn            bk;n ðsÞ                     ai;n ðeÞ cp;k;n cosi f cosðn  2k  2pÞð f þ gÞ
+               k¼0                    i¼0     p¼0
+                 n1              )
+           n  2k X               i
+        þ n            ai;n ðeÞcos f
+            2k    i¼0
+                  n
+               b2c
+               X
+       ¼ dn            bk;n ðsÞfA þ Bg                                                            ð24Þ
+               k¼0
+
+where we have split into
+                n
+         n1 2k1
+         X    X
+    A¼                        ai;n ðeÞ cp;k;n cosi f cosðn  2k  2pÞð f þ gÞ
+         i¼0          p¼0
+                             X
+                               n1
+        n  2k
+     B¼ n                             ai;n ðeÞcosi f                                              ð25Þ
+         2k                    i¼0
+
+so that we may obtain the ﬁrst order averaged Hamiltonian in that way:
+                       Z 2p               bn2c      Z 2p        Z 2p
+      ð1Þ ¼    1                     dn X
+     H                         D df ¼          b ðsÞ      A df þ      B df                        ð26Þ
+       0;n
+               2p         0           2p k¼0 k;n      0           0
+
+
+ Let’s ﬁrst consider the integration of B over 2p. We make use of the
+Proposition 1 of the Appendix A:
+246                                BERNARD DE SAEDELEER
+
+      Z 2p            Z 2p 
+                         n  2k  X
+                                           n1
+             B df ¼       n             ai;n ðeÞcosi f df
+       0           0      2k     i¼0
+                           X
+                             n1          Z 2p
+                    n  2k
+                 ¼ nk           ai;n ðeÞ       cosi f df
+                           2         i¼0             0
+                                                               !
+                                 n1
+                          n  2k X             1           i
+                 ¼         n
+                              k       ai;n ðeÞ i          i       2p                  ð27Þ
+                           2        even i¼0
+                                               2           2
+
+Let’s now integrate A:
+     Z 2p            n
+                 n1 2k1
+                 X     X                  Z 2p
+          A df ¼           ai;n ðeÞcp;k;n      cosi fcosðn  2k  2pÞðf þ gÞ df        ð28Þ
+       0              i¼0 p¼0                    0
+
+We may separate f from g in the integrand by using the formula
+cosðu þ vÞ ¼ cos u cos v  sin u sin v:
+                 Z 2p
+                       cosi f cosðn  2k  2pÞðf þ gÞ df
+                       0
+                      Z 2p
+                 ¼             cosi ffcosðn  2k  2pÞf cosðn  2k  2pÞg
+                       0
+                   sinðn  2k  2pÞf sinðn  2k  2pÞgg df
+                                     Z 2p
+                 ¼ cosðn  2k  2pÞg      cosi f cosðn  2k  2pÞf df
+                                                 0
+                                                 Z 2p
+                       sinðn  2k  2pÞg                cosi f sinðn  2k  2pÞf df   ð29Þ
+                                                     0
+We apply now the Proposition 3 of the Appendix C with a ¼ ðn  2k  2pÞ:
+    Z 2p
+         cosi f sinðn  2k  2pÞf df ¼ 0                           ð30Þ
+       0
+and the PROPOSITION 2 of the Appendix B with a ¼ ðn  2k  2pÞ:
+     Z 2p                                             
+             i                          p       i
+          cos f cosðn  2k  2pÞf df ¼ i1 iðn2k2pÞ                                 ð31Þ
+      0                               2         2
+if i and ðn  2k  2pÞ are of the same parity; that is to say for i even since n is
+assumed to be even.
+    Using (31), (28) becomes:
+       Z 2p                n
+                     n1 2k1
+                     X       X                                
+                                                 p       i
+            A df ¼              ai;n ðeÞ cp;k;n i1 iðn2k2pÞ cosðn  2k  2pÞg
+        0          even i¼0 p¼0
+                                               2         2
+
+                                                                                       ð32Þ
+            COMPLETE ZONAL PROBLEM OF THE ARTIFICIAL SATELLITE            247
+
+Gathering the results (32) and (27) and canceling the 2p, (26) becomes ﬁnally:
+               Z                bn2c      Z 2p        Z 2p
+      ð1Þ   1 2p           dn X
+    H0;n ¼          D df ¼           b ðsÞ      A df þ      B df
+            2p 0            2p k¼0 k;n      0            0
+                    n
+                                     ai;n ðeÞ  i  n  2k 
+                   b2c
+                   X         X
+                             n1
+            ¼dn          bk;n ðsÞ               i     n
+                k¼0        even i¼0
+                                        2i      2     2k
+               n                            !                 #
+               2k1
+                 X                 i
+             þ       cp;k;n iðn2k2pÞ cosðn  2k  2pÞg                ð33Þ
+                   p¼0                2
+
+with the deﬁnitions (23).
+
+
+                                                   ð1Þ
+                                          0;n for the n Odd Case
+             4. Analytical Expression of H
+
+One can do the same kind of developments assuming n odd now (and nP3).
+The Legendre polynomial Pn ðxÞ is still expanded by (15), and we still have to
+consider sinn2k ðf þ gÞ, but now the exponent is odd, and instead of (16) we
+have to use (17), which may be rewritten for an odd n:
+                     8 n1                           9
+                     < X 2
+                                                   =
+                  1             n1   n
+     sinn ðxÞ ¼ n1        ð1Þ 2 þk     sinðn  2kÞx                     ð34Þ
+               2 : k¼0                k              ;
+
+and furthermore for the odd power n  2k appearing in (15):
+                          8n1                                     9
+                          < 2 k
+                            X                                    =
+        n2k         1                n1
+                                         kþp n2k
+     sin     ðxÞ ¼ n2k1        ð1Þ  2             sinðn2k2pÞx       ð35Þ
+                  2       : p¼0                p                   ;
+
+Using the same expansion (21) together with (35), (14) may now be rewritten
+by D for n odd as:
+             ð0Þ
+            H1;n
+     D ¼
+            n2 g
+                         (                            )
+              1               1 X n1
+                                                 n  1
+        ¼n2 n2                      ei cosi f
+            ga              g2n2 i¼0              i
+                   bnc
+            1X  2
+                    ð1Þk ð2n  2kÞ! sn2k 1
+           n
+            2 k¼0 k!ðn  kÞ!ðn  2kÞ! 2n2k 21
+            8n1                                                 9
+            <X2 k
+                                                               =
+                       n1       n  2k
+                  ð1Þ 2 kþp            sinðn  2k  2pÞðf þ gÞ        ð36Þ
+            : p¼0                   p                            ;
+248                                    BERNARD DE SAEDELEER
+
+If we take again the deﬁnitions (23) with another one:
+                                
+                  n1
+                     kþp n  2k
+     fp;k;n ¼ ð1Þ 2                                                                        ð37Þ
+                             p
+one can write (36) in a more compact form. Moreover, one can unify the
+deﬁnition of the symbols for the odd and the even case, by deﬁning:
+                                     
+                    n         n  2k     cp;k;n  for n even,
+     cp;k;n ¼ ð1Þb2ckp 2          ¼                             ð38Þ
+                                 p       2fp;k;n for n odd.
+So that (36) may be rewritten and further manipulated in order to gather the
+trigonometric functions:
+            (                       ) bnc               8n1                                     9
+                Xn1                    X2              <X   2 k c                             =
+                                                                    p;k;n
+     D ¼dn          ai;n ðeÞcosi f         2bk;n ðsÞ                     sinðn  2k  2pÞðf þ gÞ
+                 i¼0                    k¼0
+                                                        : p¼0 2                                  ;
+                            (                         8
+                                                   ) n1k                                      9
+             Xbn2c
+                              X
+                              n1                     <X  2                                     =
+        ¼dn        bk;n ðsÞ        ai;n ðeÞcosi f               cp;k;n sinðn  2k  2pÞðf þ gÞ
+             k¼0              i¼0
+                                                      : p¼0                                     ;
+                            8                                                                9
+             Xbn2c          <Xn1 X
+                                    n1
+                                     2 k                                                    =
+        ¼dn        bk;n ðsÞ                ai;n ðeÞ cp;k;n cosi f sinðn  2k  2pÞðf þ gÞ
+             k¼0
+                            : i¼0 p¼0                                                        ;
+                   n
+                  b2c
+                  X
+            ¼dn          bk;n ðsÞfA g                                                      ð39Þ
+                  k¼0
+where we have deﬁned A as:
+                       n1
+              X   2 k
+              n1 X
+        
+      A ¼                    ai;n ðeÞ cp;k;n cosi f sinðn  2k  2pÞð f þ gÞ               ð40Þ
+              i¼0 p¼0
+
+so that we will obtain the ﬁrst order averaged Hamiltonian by
+                Z                bn2c      Z 2p
+        ð1Þ  1 2p           dn X
+      
+     H0;n ¼         D df ¼            b ðsÞ      A df                                      ð41Þ
+            2p 0             2p k¼0 k;n      0
+
+Note that there is no B for the n odd case. Let’s now integrate A :
+    Z 2p          X
+                       n1
+                   n1 X2 k
+                                             Z 2p
+                                      
+         A df ¼              ai;n ðeÞ cp;k;n      cosi f sinðn  2k  2pÞðf þ gÞ df
+        0                    i¼0 p¼0                 0
+
+                                                                                            ð42Þ
+We may again separate f from g in the integrand by using the formula
+sinðu þ vÞ ¼ sin u cos v þ cos u sin v:
+                COMPLETE ZONAL PROBLEM OF THE ARTIFICIAL SATELLITE               249
+           Z 2p
+             cosi f sinðn  2k  2pÞðf þ gÞ df
+       Z0 2p       
+                i
+     ¼       cos f sinðn  2k  2pÞf cosðn  2k  2pÞg
+            0
+
+       þ cosðn  2k  2pÞf sinðn  2k  2pÞg df
+                         Z 2p
+     ¼ cosðn  2k  2pÞg      cosi f sinðn  2k  2pÞf df
+                          0
+                           Z 2p
+       þ sinðn  2k  2pÞg      cosi f cosðn  2k  2pÞf df                      ð43Þ
+                                0
+We apply now the Proposition 3 of the Appendix C with a ¼ ðn  2k  2pÞ:
+    Z 2p
+         cosi f sinðn  2k  2pÞf df ¼ 0                           ð44Þ
+       0
+and the Proposition 2 of the Appendix B with a ¼ ðn  2k  2pÞ:
+     Z 2p                                             
+             i                          p       i
+          cos f cosðn  2k  2pÞf df ¼ i1 iðn2k2pÞ                           ð45Þ
+      0                               2         2
+if i and ðn  2k  2pÞ are of the same parity; that is to say for i odd since n is
+assumed to be odd.
+    Using (45), (42) becomes:
+      Z 2p           X
+                     n1 X
+                          n1
+                           2 k
+                                                              
+                                               p       i
+           A df ¼               ai;n ðeÞ cp;k;n i1 iðn2k2pÞ sinðn  2k  2pÞg
+       0           odd i¼0 p¼0
+                                               2         2
+
+                                                                                 ð46Þ
+Plugging the result (46) into (41), and canceling the 2p, one has ﬁnally:
+                Z 2p                Xbn2c         Z 2p
+       ð1Þ   1                 d n
+     H ¼            D    df ¼             b  ðsÞ        A df
+       0;n
+            2p 0                2p k¼0 k;n             0
+                 n
+                b2c                          n1                   !
+               X              X                2 k
+                               n1
+                                     ai;n ðeÞ X       
+                                                               i
+           ¼dn      bk;n ðsÞ                        c                sinðn  2k  2pÞg
+               k¼0           odd i¼0
+                                          2i p¼0 p;k;n iðn2k2pÞ
+                                                               2
+
+                                                                                 ð47Þ
+with the deﬁnitions (23) and (38).
+
+                                                                 ð1Þ
+                                                       0;n for any n
+       5. Summary of the Analytical Expression Giving H
+
+In summary, we have obtained an analytical formula which gives the ﬁrst
+order averaged Hamiltonian for any zonal harmonic.
+250                                    BERNARD DE SAEDELEER
+
+   For the case n even, we have:
+                b2cn                             " !         !
+                X               X
+                                n1
+                                       a     ðeÞ   i n   2k
+       ð1Þ ¼dn
+      H              bk;n ðsÞ
+                                         i;n
+        0;n
+                 k¼0          even i¼0
+                                           2i      i
+                                                   2
+                                                      n
+                                                      2k
+                n                              !               #
+                2k1
+                  X                  i
+             þ        cp;k;n iðn2k2pÞ cosðn  2k  2pÞg                                ð48Þ
+                   p¼0                      2
+
+while for the case n odd, we have:
+                   b2c
+                   X
+                       n
+                                       X
+                                                     n1
+                                                    2 k
+                                                                            
+       ð1Þ ¼ dn
+                                       n1
+                                           ai;n ðeÞ X                   i
+      H 0;n                bk;n ðsÞ                        cp;k;n iðn2k2pÞ sinðn  2k  2pÞg
+                   k¼0                odd i¼0
+                                                2i   p¼0                 2
+
+                                                                                           ð49Þ
+both formulae making use of the deﬁnitions (23) and (38), which are recalled
+here:
+                        
+                   i n1
+      ai;n ðeÞ ¼ e
+                      i
+                 ð1Þk ð2n  2kÞ! sn2k
+     bk;n ðsÞ ¼
+                k!ðn  kÞ!ðn  2kÞ! 2n2k
+                                       
+                    bn2ckp    n  2k
+       cp;k;n ¼ ð1Þ          2
+                                    p
+                      2
+                    n
+           dn ¼ n 2n1 n2                                                                 ð50Þ
+                2g       a
+   A few remarks on these results:
+1. There is of course a notable symmetry between the odd and even case,
+   especially sinð jgÞ and cosð jgÞ series. Physically, odd harmonics are to be
+   considered only if symmetry of the primary with respect to the equator
+   does not exist.
+2. The function         bn2c    may     of   course        be   simpliﬁed      with
+            n
+                   for n even,
+   bn2c ¼ 2n1
+              2   forn odd.
+                    n         n!
+3. The function          ¼ k!ðnkÞ! assumes implicitly (i) n  k, (ii) n  0 and (iii)
+                    k
+   k  0. The (i) and (ii) are satisﬁed for the   formulae    (48–50), while (iii)
+                               ni2k                     i
+   gives the restriction p  2 for the case iðn2k2pÞ only. So that the
+                                                                     2
+   summation on p starts giving
+                              terms
+                                     from that value only; we take the more
+                               n
+   easy common convention          ¼ 0 for k < 0. Note that the ending value
+                               k
+   on p is also sometimes lower than the starting value, then no terms is
+           COMPLETE ZONAL PROBLEM OF THE ARTIFICIAL SATELLITE                   251
+
+   generated. It may complicate a little bit the counting for the number of
+   terms, but we have a satisfactory description of these in Section 7.
+4. The analytical result makes more easy the considerations about the
+   d’Alembert characteristic, e.g. for the fastest periodic term in g, which is
+   ei cosðn  2k  2pÞg, with p ¼ pmin ¼ ni2k            i
+                                            2 , we have e cos ig, which means
+   that the d’Alembert characteristic is preserved.
+
+                                                    ð1Þ
+         6. Checks of the Analytical Expression of H 0;n for J2 to J7
+
+Many checks of our analytical results (48–50) were performed, by comparison
+either with the results from other symbolic manipulation software packages or
+with published works; we present a few of them here. We used three symbolic
+manipulation software packages: the Maple program (for computing the
+analytical result, and comparing to the output of the MM program), the
+Mathematica program (for integrating symbolically (14) and comparing that
+result to our analytical result), and the MM (standing for ‘Moon’s series
+Manipulator’), a speciﬁc FORTRAN program, which has been developed at
+our University. The MM program is based upon the idea described in
+(Henrard, 1986). Within this tool, each expression is given by a series of linear
+trigonometric functions, with polynomial coeﬃcients; an example is given in
+the Table I. The MM program has been used also for integrating (14), a
+procedure which was used to check some generic subroutines.
+    Let’s ﬁrst consider a few checks of (48) for n even.
+    For n ¼ 2, the analytical formula (48) gives H    ð1Þ ¼ n23 ð3s2  2Þ which is
+                                                       0;2   4g
+the same result as Brouwer’s (Brouwer, 1959) ﬁrst order averaged Hamilto-
+nian for J2 (suppressing the heavy notation):
+            l4 k2                    1 3 H2
+      F1 ¼ 3 3 A with A ¼  þ                              ðð13Þ from BrouwerÞ
+            LG          
+                                     2 2 G2
+                      F      ð1Þ (since 2 ¼ 2k2 ) and if we make the following
+if we consider that 2k1 2 ¼ H 0;2
+substitutions:
+     H         l2          L2         L
+       !c         ! n        !a        ! g1     g2 ! 1  e2     c2 ! 1  s2
+     G         L3          l          G
+                                                                  ð51Þ
+For n ¼ 4, the analytical formula (48) gives:
+                                                           
+       ð1Þ   n2      45 2 105 4 2                    2  315 4 2
+     H0;4 ¼               s      s e cosð2gÞ þ 9  45s þ    s e
+            16g7 a2    2        4                          8
+                          105 4
+            þ 6  30s2 þ     s                                    ð52Þ
+                           4
+which is the same result as Brouwer’s (Brouwer, 1959, p. 389) ﬁrst order
+averaged Hamiltonian for J4 :
+                                      ð1Þ
+                       TABLE I The H
+                                    series for J6 (20 terms)
+                                    0;6
+
+
+      f   g   n   a     n       e          g     c        s    ðf  lÞ   Coeﬃcient                   252
+
+cos   0   0   0   )4    2        0          )11   0        0    0         0:3125000000000000  100
+cos   0   0   0   )4    2        0          )11   0        2    0          0:3281250000000000  101
+cos   0   0   0   )4    2        0          )11   0        4    0         0:7382812500000000  101
+cos   0   0   0   )4    2        0          )11   0        6    0          0:4511718750000000  101
+cos   0   0   0   )4    2        2          )11   0        0    0         0:1562500000000000  101
+cos   0   0   0   )4    2        2          )11   0        2    0          0:1640625000000000  102
+cos   0   0   0   )4    2        2          )11   0        4    0         0:3691406250000000  102
+cos   0   0   0   )4    2        2          )11   0        6    0          0:2255859375000000  102
+cos   0   0   0   )4    2        4          )11   0        0    0         0:5859375000000000  100
+cos   0   0   0   )4    2        4          )11   0        2    0          0:6152343750000000  101
+cos   0   0   0   )4    2        4          )11   0        4    0         0:1384277343750000  102
+cos   0   0   0   )4    2        4          )11   0        6    0          0:8459472656250000  101
+cos   0   2   0   )4    2        2          )11   0        2    0         0:8203125000000000  101
+cos   0   2   0   )4    2        2          )11   0        4    0          0:2460937500000000  102
+cos   0   2   0   )4    2        2          )11   0        6    0         0:1691894531250000  102
+cos   0   2   0   )4    2        4          )11   0        2    0         0:4101562500000000  101
+cos   0   2   0   )4    2        4          )11   0        4    0          0:1230468750000000  102
+                                                                                                      BERNARD DE SAEDELEER
+
+
+
+
+cos   0   2   0   )4    2        4          )11   0        6    0         0:8459472656250000  101
+cos   0   4   0   )4    2        4          )11   0        4    0         0:7690429687500000  100
+cos   0   4   0   )4    2        4          )11   0        6    0          0:8459472656250000  100
+            COMPLETE ZONAL PROBLEM OF THE ARTIFICIAL SATELLITE                   253
+                                                                
+                           l6 k4      3 15 H2 35 H4          5 3 G2
+     F1 ¼ D4 F2s
+                       
+                  þ D4 F2p ¼                   þ             
+                           L3 G7      8 4 G2 8 G4            2 2 L2
+                                                             
+                                  5 20 H2 35 H4          3 3 G2
+                           þ  þ                                cosð2gÞ       ð53Þ
+                                  6 3 G2 6 G4            4 4 L2
+                    F     ð1Þ (since 4 ¼ 8 k4 ) and (51).
+if we consider that 8 1 ¼ H    0;4           3
+                     3k4
+
+   For n ¼ 6, the analytical formula (48) gives:
+                                                      
+                 ð1Þ   n2         1575 4 3465 6 4
+               H0;6 ¼                   s þ         s e cosð4gÞ
+                      64g11 a4       32         64
+                                                          
+                              525     1575 4 17325 6 4
+                      þ  s2 þ               s           s e
+                               2         2          32
+                                                        
+                                2          4   17325 6 2
+                      þ 525s þ 1575s                 s e cosð2gÞ
+                                                 16
+                                                                
+                             75 1575 2 17325 6 14175 4 4
+                      þ  þ            s þ          s         s e
+                             2     4           32          16
+                                                               
+                                          2   4725 4 5775 6 2
+                      þ 100 þ 1050s               s þ       s e
+                                                2          4
+                                      945 4 1155 6
+                      20 þ 210s2        s þ         s                         ð54Þ
+                                       2          4
+which is the same result as the ﬁrst order averaged Hamiltonian H         ð1Þ for J6
+                                                                           0;6
+given by the MM program (see Table I).
+   For higher values of n, since the expressions (14) and (15) are expo-
+nential in n, numerical precision has to be considered with the MM
+program, which uses double precision reals for the coeﬃcients (which
+means a numerical accuracy of 1016 ). Some coeﬃcients of H           ð1Þ have al-
+                                                    ð1Þ                0;6
+ready 12 signiﬁcant digits (see Table I). For H   
+                                                    0;12 , the smallest coeﬃcient
+in absolute value is 10669659=65536 ¼ 0:1628060760498046875  103
+which has 19 signiﬁcant digits (note that 65536 ¼ 216 ), while the biggest is
+50414138775=128 ¼ 0:3938604591796875  109 which has 16 signiﬁcant
+digits.
+   That is the reason why the Legendre polynomial has been implemented
+with care, i.e. using the robust recurrence on l:
+      ðl  mÞPm                  m                        m
+               l ðxÞ ¼ xð2l  1ÞPl1 ðxÞ  ðl þ m  1ÞPl2 ðxÞ                   ð55Þ
+It is useful because there is a closed-form expression for the starting value:
+                    m                   
+                                        2 m=2
+      Pmm ðxÞ ¼ ð1Þ ð2m  1Þ!! 1  x                                     ð56Þ
+Using (55) with l ¼ m þ 1, and setting Pm
+                                        m1 ðxÞ ¼ 0, we ﬁnd
+      m                    m
+    Pmþ1 ðxÞ ¼ xð2m þ 1ÞPm ðxÞ                                                  ð57Þ
+254                           BERNARD DE SAEDELEER
+
+Equations (56) and (57) provide the two starting values required for (55) for
+general l.
+   Let’s now consider a few checks of (49) for n odd.
+   For n ¼ 3, the analytical formula (49) gives H     ð1Þ ¼ n25 ð15s3  12sÞe sinðgÞ
+                                                       0;3   8g a
+which is the same result as Brouwer’s (Brouwer, 1959, p. 390) ﬁrst order
+averaged Hamiltonian for J3 :
+                                              
+                  l5 A3:0          3 15 H2
+     F1 ¼ D3 F2p ¼ 3 5 e sin i                  sinðgÞ                           ð58Þ
+                    LG               8 8 G2
+                    F       ð1Þ (since 3 ¼ A3:0 ) and (51).
+if we consider that 1 ¼ H
+                      A3:0     0;3
+   For n ¼ 5, the analytical formula (49) gives:
+                                      
+       ð1Þ   n2                3 945 5
+                                                             
+     
+    H0;5 ¼            90s315s þ      s e3 þ 120s420s3 þ315s5 e sinðgÞ
+               9
+           32g a 3                  4
+                         
+                     315 5 3
+           þ 35s3      s e sinð3gÞ                                 ð59Þ
+                      8
+which is the same result as Brouwer’s (Brouwer, 1959, p. 391) ﬁrst order
+averaged Hamiltonian for J5 :
+                                                                            
+                   l7 A5:0             15            H2         H4         G2
+     F1 ¼ D5 F2p ¼ 3 9 e sin i                 1  14 2 þ 21 4          7  3 2 sin g
+                      LG                128            G          G          L
+                                          2        4
+                                                              2
+                                                                  
+                         35              H        H           G
+                              1  10 2 þ 9 4             1  2 sin 3g               ð60Þ
+                        256              G        G           L
+                      
+                     F1
+if we consider that A5:0  ¼H  ð1Þ (since 5 ¼ A5:0 ) and (51).
+                               0;5
+   For n ¼ 7, the analytical formula (49) gives:
+                                                
+       ð1Þ    n2            2079 5 9009 7 5
+     H0;7 ¼                         s þ        s e sinð5gÞ
+            128g13 a5          32          128
+                                                         
+                    4725 3 51975 5 135135 7 5
+            þ             s þ           s            s e
+                      8             32           128
+                                                     
+                         3    17325 5 45045 7 3
+            þ 1575s þ                s           s e sinð3gÞ
+                                 4            16
+                                                                   
+                              14175 3 51975 5 225225 7 5
+            þ 525s þ                 s           s þ            s e
+                                 4             8            64
+                                                                   
+                                       3    51975 5 225225 7 3
+            þ 2100s þ 14175s                     s þ            s e
+                                               2            16
+                                                             
+                                   3            5    45045 7
+            þ 840s þ 5670s  10395s þ                      s e sinðgÞ               ð61Þ
+                                                        8
+which is the same result as the ﬁrst order averaged Hamiltonian H             ð1Þ for J7
+                                                                               0;7
+given by the MM program (see Table II).
+                                       ð1Þ
+                       TABLE II The H
+                                     series for J7 (20 terms)
+                                     0;7
+
+
+      f   g   n   a     n       e           g     c        s    ðf  lÞ   Coeﬃcient
+
+sin   0   1   0   )5    2        1           )13   0        1    0         0:6562500000000000  101
+sin   0   1   0   )5    2        1           )13   0        3    0          0:4429687500000000  102
+sin   0   1   0   )5    2        1           )13   0        5    0         0:8121093750000000  102
+sin   0   1   0   )5    2        1           )13   0        7    0          0:4398925781250000  102
+sin   0   1   0   )5    2        3           )13   0        1    0         0:1640625000000000  102
+sin   0   1   0   )5    2        3           )13   0        3    0          0:1107421875000000  103
+sin   0   1   0   )5    2        3           )13   0        5    0         0:2030273437500000  103
+sin   0   1   0   )5    2        3           )13   0        7    0          0:1099731445312500  103
+sin   0   1   0   )5    2        5           )13   0        1    0         0:4101562500000000  101
+sin   0   1   0   )5    2        5           )13   0        3    0          0:2768554687500000  102
+sin   0   1   0   )5    2        5           )13   0        5    0         0:5075683593750000  102
+sin   0   1   0   )5    2        5           )13   0        7    0          0:2749328613281250  102
+sin   0   3   0   )5    2        3           )13   0        3    0         0:1230468750000000  102
+sin   0   3   0   )5    2        3           )13   0        5    0          0:3383789062500000  102
+sin   0   3   0   )5    2        3           )13   0        7    0         0:2199462890625000  102
+sin   0   3   0   )5    2        5           )13   0        3    0         0:4614257812500000  101
+sin   0   3   0   )5    2        5           )13   0        5    0          0:1268920898437500  102
+sin   0   3   0   )5    2        5           )13   0        7    0         0:8247985839843750  101
+sin   0   5   0   )5    2        5           )13   0        5    0         0:5075683593750000  100
+sin   0   5   0   )5    2        5           )13   0        7    0          0:5498657226562500  100
+                                                                                                       COMPLETE ZONAL PROBLEM OF THE ARTIFICIAL SATELLITE
+                                                                                                       255
+256                             BERNARD DE SAEDELEER
+
+TABLE III Number of terms before and after the integration; eﬃciency of the analytical result
+                      ð0Þ               
+                       H
+                                             ð1Þ          a                  3n
+n            a ¼ # n21;ng          b¼# H      0;n
+                                                           b                  2
+
+ 2                       7                 2                 3                     3
+ 3                      18                 2                 9                     4
+ 4                      48                 8                 6                     6
+ 5                      90                 8                11                     7
+ 6                     174                20                 8                     9
+ 7                     280                20                14                    10
+ 8                     460                40                11                    12
+ 9                     675                40                16                    13
+10                    1005                70                14                    15
+11                    1386                70                19                    16
+12                    1932               112                17                    18
+13                    2548               112                22                    19
+70                1610910              15540               103                105
+71                1702296              15540               109                106
+
+
+                                                              0;n          ð1Þ
+             7. Eﬃciency of the Analytical Expression Giving H
+
+Now that the formulae (48–50) have been checked, the question of their
+eﬃciency arises. What we did in substance is to delete from (14) all the terms
+periodic in f, which gives more compact results. The stage of averaging the
+Hamiltonian may now be skipped by using directly (48–50).
+   To have an idea of the gain regarding the computational aspect, one can
+compare the number of terms generated before and after the integration, for
+a given n. This is done in Table III, which gives:
+1. the number of terms before the integration, that is to say contained in D for
+   n even and in D for n odd, and after having fully expanded the expression
+   (no powers in the trigonometric functions),
+2. the number of terms after the integration, that is to say given by formulae
+   (48–50),
+3. the eﬃciency of the analytical result, i.e. the ratio of the 2 ﬁrst numbers,
+4. the asymptotic trend for the eﬃciency.
+As said previously, the exact analytical determination of the number of terms
+may be diﬃcult since some combination of indices do not generate any term.
+However, one knows by looking at (22) or (36) that the number of terms before
+the integration must be a polynomial of order 4 in n, and of order 3 after the
+integration while looking at (48) and (49). These polynomials have then been
+determined by polynomial ﬁtting of the number of terms given by the MM
+program for the cases n ¼ 213 (separately for odd and even cases).
+           COMPLETE ZONAL PROBLEM OF THE ARTIFICIAL SATELLITE                                                         257
+
+  The number of terms before the integration is given by
+         ( ð0Þ ) (
+           H1;n       ð8þ10nþ5n2 þn3 Þn
+                             16         for n even,
+   a¼#      2
+                  ¼ ð3þ7nþ5n   2
+                                 þn3 Þn
+                                                                                                                     ð62Þ
+           ng               16          for n odd.
+while the number of terms after the integration is given by
+                      (
+            n       o   ð8þ6nþn2 Þn
+                                        for n even,
+               ð1Þ         24
+     b¼# H      0;n ¼   ð3nþ3n2 þn3 Þ
+                                                                                                                     ð63Þ
+                              24        for n odd.
+so that we conclude that the asymptotic eﬃciency of the analytical formulae
+(48–50) is ðn4 =16Þ=ðn3 =24Þ ¼ 3n=2 for a given n (whatever the parity). This
+gives already a factor of order 10 for J8 , and of order 100 for J70 .
+
+
+
+             8. Analytical Expression of W 1;n for the n Even Case
+
+By the relation (8) and the deﬁnition (12) of D, we have:
+               Z l                                 Z
+                     ð0Þ   ð1Þ        ð1Þ
+     n W 1;n ¼      H1;n  H 0;n dl ¼ H0;n ðf  lÞ þ   D df                                                          ð64Þ
+                     0                                                                         pp
+                                                                  R
+where H  ð1Þ is given by (48–50) and where we use the notation
+          0;n                                                      pp for the
+integration of the periodic part only.
+   For the n even case, we have split D by the relation (24) into A and B
+deﬁned at (25), so that we also have the splitting of the generator:
+     n W 1;n ¼ H  ð1Þ ðf  lÞ þ n W A þ n W B                        ð65Þ
+                     0;n                                1;n              1;n
+
+along with the deﬁnitions
+                     b2c
+                     X
+                         n                    n
+                                        n1 2k1
+                                        X    X                                 Z
+      
+     n WA
+        1;n ¼ dn             bk;n ðsÞ                   ai;n ðeÞ cp;k;n                 cosi f cosðn  2k  2pÞðf þ gÞ df
+                     k¼0                i¼0       p¼0                              pp
+
+                     bn2c
+                                                        !                      Z
+                     X                   n  2k               X
+                                                              n1
+      
+     n W B1;n ¼ dn           bk;n ðsÞ     n
+                                                                    ai;n ðeÞ            cosi f df                    ð66Þ
+                     k¼0                  2k                 i¼0                  pp
+
+Let’s ﬁrst consider n W B1;n . By making use of the relation (A.8) of the
+Proposition 1 we obtain directly:
+                          8 i1                 9
+     Z                    <Xb2c               = C
+                        1         i sinði  2jÞf
+         cosi ðf Þ df ¼ i       2                                    ð67Þ
+      pp               2 : j¼0    j    i  2j ; 2i
+
+for any i (odd or even).
+   Let’s now consider n W A
+                           1;n . We can again separate f from g in the inte-
+grand by using the formula cosðu þ vÞ ¼ cos u cos v  sin u sin v:
+258                           BERNARD DE SAEDELEER
+        Z
+           cosi f cosðn  2k  2pÞðf þ gÞ df
+            pp
+                           Z
+      ¼ cosðn  2k  2pÞg       cosi f cosðn  2k  2pÞf df
+                             pp
+                              Z
+         sinðn  2k  2pÞg       cosi f sinðn  2k  2pÞf df       ð68Þ
+                                pp
+
+We apply now the Proposition 3 of the Appendix C with a ¼ ðn  2k  2pÞ:
+    Z
+       cosi ð f Þ sinððn  2k  2pÞfÞ df
+       pp
+          ( bi1c !
+        1       X  2
+                        i    cosði  2j þ n  2k  2pÞf
+      ¼ i
+       2         j¼0    j        i  2j þ n  2k  2p
+          bi1
+                       !
+          X   2 c
+                     i    cosði  2j  ðn  2k  2pÞÞf
+        þ
+            j¼0      j       i  2j  ðn  2k  2pÞ
+           j6¼j
+                    !                      )
+                  i cosððn  2k  2pÞf Þ        CS
+        ki i                                  i                   ð69Þ
+                 2
+                          n   2k  2p           2
+and the Proposition 2 of the Appendix B with a ¼ ðn  2k  2pÞ:
+     Z
+         cosi ð f Þ cosððn  2k  2pÞf Þ df
+      pp
+           8 i1
+             b 2 c  
+         1 <X        i   sinði  2j þ n  2k  2pÞf
+     ¼ i
+        2 : j¼0 j           i  2j þ n  2k  2p
+             bi1
+             X 2 c
+                    
+                    i  sinði  2j  ðn  2k  2pÞÞf
+        þ
+              j¼0
+                    i  2j  ðn  2k  2pÞ
+                     j
+             j6¼j
+                                   9
+            
+            i sinððn  2k  2pÞf Þ = CC
+        þki i                          i                           ð70Þ
+            2     n  2k  2p      ;     2
+
+                         iðn2k2pÞ
+by redeﬁning j  ¼ ia
+                     2 ¼      2     . We end up to:
+        Z
+      i
+     2    cosi f cosðn  2k  2pÞð f þ gÞ df
+            pp
+
+       ¼ CC cosðn  2k  2pÞg  CS sinðn  2k  2pÞg
+               COMPLETE ZONAL PROBLEM OF THE ARTIFICIAL SATELLITE               259
+
+                9. Analytical Expression of W 1;n for the n Odd Case
+
+One can do the same kind of developments assuming n odd now (and n  3).
+We work then with D deﬁned at (39) and consider only the integration of the
+periodic part of A (there is no B for the n odd case) deﬁned at (40):
+                        n                     n
+                       b2c              n1 2k1
+                       X                X    X
+     n W A;
+      
+         1;n ¼dn             bk;n ðsÞ                   ai;n ðeÞcp;k;n
+                       Z
+                       k¼0              i¼0       p¼0
+
+                            cosi f sinðn  2k  2pÞð f þ g Þ df
+                        pp
+
+   We can again separate f from g in the integrand by using the formula
+sinðu þ vÞ ¼ sin u cos v þ cos u sin v and apply the Proposition 3 of the
+Appendix C with a ¼ ðn  2k  2pÞ, together with the Proposition 2 of the
+Appendix B; we end up this time to
+        Z
+      i
+     2     cosi f sinðn  2k  2pÞðf þ gÞ df
+          pp
+     ¼ CS cosðn  2k  2pÞg þ CC sinðn  2k  2pÞg
+along with the same deﬁnitions (69) and (70) for CS and CC.
+
+     10. Summary of the Analytical Expression Giving W 1;n for any n
+
+In summary, we have obtained an analytical formula which gives the ﬁrst
+order generator for any zonal harmonic.
+   For the case n even, we have:
+                                    bn2c
+                                                                "         !
+                                   X              X
+                                                  n1
+                                                      a     ðeÞ     n2k
+                ð1Þ ðflÞþdn
+     n W 1;n ¼H                         bk;n ðsÞ
+                                                        i;n
+                                                                  C n
+                 0;n
+                                   k¼0            i¼0
+                                                          2i         2 k
+                  bn1
+                                                                            #
+                    2 ck
+                    X
+               þ          cp;k;n fCC cosðn2k2pÞgCS sinðn2k2pÞgg ð72Þ
+                       p¼0
+
+while for the case n odd, we have:
+                                              n
+                                         b2c
+                                         X                   X
+                                                             n1
+                 ð1Þ                                             ai;n ðeÞ
+     n W 1;n ¼ H0;n ðf  lÞ þ dn
+      
+                                                  bk;n ðsÞ
+                                          k¼0                i¼0
+                                                                    2i
+                   2 n1                                                         3
+                    b 2 ck
+                      X
+                  4        cp;k;n fCS cosðn  2k  2pÞg þ CC sinðn  2k  2pÞgg5
+                        p¼0
+
+                                                                      ð73Þ
+       ð1Þ
+where H0;n is given by (48–50) and with the deﬁnitions (50) completed by:
+260                                 BERNARD DE SAEDELEER
+
+         b2c  
+         X
+            i1
+               i sinði2jÞf
+      C¼     2                                                                 ð74Þ
+         j¼0   j    i2j
+            bi1
+            X 2 c
+                   
+                   i  cosði2jþn2k2pÞf
+      CS¼
+            j¼0           j       i2jþn2k2p
+                b 2 c  
+                  i1                                            !
+                X      i  cosði2jðn2k2pÞÞf                 i cosððn2k2pÞf Þ
+            þ                                            ki   i
+                 j¼0          j    i2jðn2k2pÞ              2
+                                                                     n2k2p
+                j6¼j
+
+                                                                               ð75Þ
+            bi1
+            X 2 c
+                   
+                   i  sinði2jþn2k2pÞf
+      CC¼
+            j¼0           j       i2jþn2k2p
+                bi1                                          !
+                X 2 c
+                       i  sinði2jðn2k2pÞÞf                 i sinððn2k2pÞfÞ
+            þ                                            þki   i
+                   j¼0        j    i2jðn2k2pÞ              2
+                                                                     n2k2p
+                  j6¼j
+
+                                                                               ð76Þ
+and with j  ¼ iðn2k2pÞ
+                    2     we have a similar notable symmetry like before
+between the odd and even case. Note also that the generator W 1;n may be
+shifted by a constant (independent of f ) as usual.
+
+        11. Checks of the Analytical Expression of W 1;n for J2 to J8
+
+Many checks of our analytical results (72–76) were again performed, mainly
+by comparison with the results from a symbolic manipulation software
+(Maple). We would ﬁnd it cumbersome to give the details here. The formulae
+have been validated for J2 to J8 .
+
+                                       12. Conclusions
+
+We have established an analytical formula which gives directly the ﬁrst order
+averaged Hamiltonian H   ð1Þ for any zonal eﬀect. The analytical formula is
+                          0;n
+eﬃcient since it allows us to skip the averaging process, which means an
+asymptotic gain of a factor 3n=2 regarding the computational cost of the nth
+zonal. The eﬀects of the zonals could then be easily added linearly to higher
+order theories. Moreover, the analytical formulae give more physical insight
+by the fact that we can access more easily a given order of g.
+   We used three symbolic manipulation software, among which the MM.
+We made extensive checks, by comparison either with the results of the MM
+           COMPLETE ZONAL PROBLEM OF THE ARTIFICIAL SATELLITE                        261
+
+or with published works (Brouwer, 1959). It gives good conﬁdence in our
+symbolic procedure, hence in new results obtained with the same tool, but for
+other kind of perturbations, which eventually includes all angles l; g; h. As
+usual for such developments, extreme caution has been taken in order to
+avoid any error, even typographical.
+   One could easily deduce the ﬁrst order averaged equations of motion from
+this analytical result.
+   We gave also a similar explicit expression of the generator W 1;n in closed
+form, which could be used as a ﬁrst step to obtain, in the future, a second-
+order theory, or to calculate the explicit expressions of the direct and inverse
+change of variables in the current ﬁrst-order theory.
+
+
+                                  Acknowledgements
+
+The author is pleased to acknowledge professor Jacques Henrard for fruitful
+discussions, and for having extended the powerful tool MM (‘Moon’s series
+Manipulator’) designed by Michele Moons. He also thanks the reviewers for
+having improved the quality of the paper by suggesting to include the
+generator W 1;n .
+
+
+                                     Appendix
+                        Z                  Z 2p
+                               i
+A. Proposition giving       cos ðxÞ dx and      cosi ðxÞ dx
+                                             0                       
+                                                                         1   for i even,
+PROPOSITION 1. If we deﬁne                ki ¼ 1  d2i e þ b2i c ¼
+                                                                         0   for i odd,
+then we have, for any i (odd or even):
+                        8 i1       !                           ! 9
+     Z                  <X
+                         b2c
+                                                              i   =
+                      1           i   sinði  2jÞx
+        cosi ðxÞ dx ¼ i       2                    þ ki          x
+                     2 : j¼0      j     ði  2jÞ              i
+                                                              2
+                                                                  ;
+     Z 2p                       !
+              i          1 i
+          cos ðxÞ dx ¼ ki i i 2p
+      0                  2 2
+Proof. The function cosi x may be expanded (see 1.320 1. of (Gradshteyn and
+Ryzhik, 1980)) in that way:
+                   (                              )
+                     n1 
+                     X         
+                 1          2n                     2n
+    cos2n ðxÞ ¼ 2n        2      cos 2ðn  kÞx þ                      (A:1Þ
+                2            k                      n
+                        k¼0
+
+                          n1         
+        2n1          1 X       2n  1
+     cos       ðxÞ ¼ 2n2                cosð2n  2k  1Þx                         (A:2Þ
+                    2             k
+                            k¼0
+262                         BERNARD DE SAEDELEER
+
+which can be rewritten as
+                  8i                          9
+                  <X21
+                                          =
+                1         i                 i
+     cosi ðxÞ ¼ i       2    cosði  2jÞx þ i   for i even;
+               2 : j¼0    j                 2 ;
+           i1 
+       1 X  2
+               i
+                  cosði  2jÞx for i odd:                                  (A.3)
+      2i1 j¼0 j
+and compacted into a formula valid for any i (odd or even):
+                  8 i1                         9
+                  < b2c                     =
+                1  X      i                   i
+     cosi ðxÞ ¼ i       2   cosði  2jÞx þ ki i                            (A:4Þ
+               2 : j¼0    j                   2 ;
+
+by deﬁning
+                 i   i     n
+                              1 for i even,
+     ki ¼ 1  d e þ b c ¼                                              (A:5Þ
+                2    2        0 for i odd.
+The integration of (A.4) gives – see also 2.513 3. and 4. of (Gradshteyn and
+Ryzhik, 1980):
+                        8 i1                            9
+     Z                  <Xb2c                        =
+                      1             sinði  2jÞx      i
+        cosi ðxÞ dx ¼ i        2 ij              þ ki i x              (A:6Þ
+                        :
+                     2 j¼0            ði  2jÞ        2  ;
+
+note by the way that ði  2jÞ never reaches zero for any j in the range.
+  Hence we have in particular for the mean value:
+     Z 2p                   
+             i           1 i
+          cos ðxÞ dx ¼ ki i i 2p                                        (A:7Þ
+      0                  2 2
+while forR the integration of the periodic part only (what we will remind by the
+symbol pp ) of cosi ðxÞ, we have :
+                          8 i1                  9
+     Z                    < b2c                =
+                        1  X       i sinði  2jÞx
+          cosi ðxÞ dx ¼ i       2                  for any i (odd or even). (A:8Þ
+       pp              2 : j¼0     j     i  2j ;
+                                                                               j
+These formulae have been checked by the use of a symbolic manipulation
+software (Mathematica). For example, the integration done by Mathematica
+gives, for n 2 IN:
+     Z 2p
+           cos2nþ1 ðxÞ dx ¼ 0                                      (A:9Þ
+      0
+which checks directly the odd case. For the i even case, we had the result:
+    Z 2p                  
+            i          1 i
+         cos ðxÞ dx ¼ i i 2p                                         (A:10Þ
+      0                2 2
+             COMPLETE ZONAL PROBLEM OF THE ARTIFICIAL SATELLITE                             263
+
+which can be rewritten
+    Z 2p                  
+            2n          1 2n
+         cos ðxÞ dx ¼ 2n     2p                                                           (A:11Þ
+      0                2  n
+Now Mathematica gives:
+   Z 2p
+                            21þ2n p2
+        cos2n ðxÞ dx ¼              2                                                 (A:12Þ
+    0                  ð2nÞ! C 12  n
+a result which refers to the gamma function (Euler’s integral of the second
+kind), reduced to the case n 2 IN. So that we have to expand also the r.h.s. of
+(A.11) into gamma functions:
+                                
+      1 2n            pﬃﬃﬃ C 12 þ n
+               2p ¼ 2 p                                                 (A:13Þ
+     22n n                 Cð1 þ nÞ
+Finally the following equation remains to be checked:
+                                      
+          21þ2n p2        pﬃﬃﬃ C 12 þ n
+                 2 ¼ 2 p                                                              (A:14Þ
+     ð2nÞ! C 1  n             Cð1 þ nÞ
+                2
+
+which turns out to be true if we consider the following relationships, valid for
+n 2 IN (see 8.339 of (Gradshteyn and Ryzhik, 1980)):
+           CðnÞ ¼ðn  1Þ!
+              pﬃﬃﬃ
+            1       p
+      C nþ      ¼ n ð2n  1Þ!!
+            2     2
+                          pﬃﬃﬃ
+         1            n   2n p
+      C  n ¼ð1Þ
+         2              ð2n  1Þ!!
+             ð2nÞ! ¼ð2Þn n!ð2n  1Þ!!                                                     (A:15Þ
+where ð2n  1Þ!! means the product of all odd integers less or equal to ð2n  1Þ.
+
+                        Z                                 Z 2p
+                                  i
+B. Proposition giving          cos ð f Þcosðaf Þ df and          cosi ð f Þ cosðaf Þ df
+                          pp                               0
+PROPOSITION 2. For ði; aÞ 2 IN, and a > 0, we have
+                                     8     
+      Z 2p                           < p
+                                     >      i
+                                           ia                 if (i, a) have the
+             cosi ð f Þ cosðaf Þ df ¼ 2i1 2
+       0                             >
+                                     :                         same parity, and (aOi)
+                                      0                        otherwise.
+
+and
+264                                                   BERNARD DE SAEDELEER
+      Z
+              cosi ð f Þ cosð af Þ df
+       pp
+                8
+                >bi1               !                                             !
+              1 <X
+                                                                       i1
+                   2 c                                                 b2c
+                                                                       X
+                                i        sinði  2j þ aÞf                      i        sinði  2j  aÞf
+      ¼                                                            þ
+              2i > : j¼0        j           i  2j þ a                  j¼0
+                                                                               j           i  2j  a
+                                                                       j6¼j
+                                       9
+                        !              >
+                    i         sinðaf Þ =
+      þ ki          i
+                    2
+                                a            >
+                                             ;
+
+for any parity of i and with j ¼ ia
+                                   2 and with
+                           (
+               i      i       1 for i even;
+     ki ¼ 1  d e þ b c ¼
+               2      2       0 for i odd:
+  Proof (for the case i odd ). The function cosi f may be expanded by (A.3),
+which gives:
+     Z 2p
+          cosi ð f Þ cosðaf Þ df
+       0
+              Z 2p              i1              !
+                         1 X
+                           2                 i
+      ¼                                               cosði  2jÞf cosðaf Þ df
+               0        2i1 j¼0             j
+                        i1             !Z
+               1 X
+                 2                  i            2p
+                                                      1
+      ¼                                                 fcosði  2j þ aÞf þ cosði  2j  aÞf g df          (B:1Þ
+              2i1      j¼0         j     0           2
+by using the formula 2 cos u cos v ¼ cosðu þ vÞ þ cosðu  vÞ. But all trigono-
+metric functions have null contribution, except in the case ðÞði  2j þ aÞ ¼
+0 $ j ¼ iþa                                ia
+         2 or ðÞ ði  2j  aÞ ¼ 0 $ j ¼ 2 . As j must 2 IN, i and a must
+have same parity. Since the upper bound of j is i1                     iþa
+                                                 2 , it will never reach 2 since
+                                  ia  
+a 2 IN. So only the case ðÞ j ¼ 2 ¼ j need to be considered; with the ﬁnal
+constraint that iPa.
+   So (B.1) becomes:
+      Z 2p
+           cosi ðf Þ cosðaf Þ df
+          0
+             8          !
+             >
+             < p      i
+                            if (i, a) have the same parity, and (a O i)
+         ¼ 2i1 ia
+             >
+             :
+                      2
+               0            otherwise.                               (B.2)
+Moreover, if we consider now the integration of the periodic part only, we
+obtain:
+                COMPLETE ZONAL PROBLEM OF THE ARTIFICIAL SATELLITE                  265
+      Z
+               cosi ð f Þ cosðaf Þ df
+          pp
+                    Z   i1
+         1 X 2   
+                 i       1
+      ¼ i1      j          fcosði  2j þ aÞf þ cosði  2j  aÞf g df
+       2 j¼0          pp 2                                                        (B:3Þ
+          8                                                                   9
+          > i1                                                             >
+        1 <X                                                                  =
+                                             i1
+             2    sinði  2j þ aÞf        X 2    sinði  2j  aÞf
+      ¼ i        i                        þ       i
+       2 >       j        i  2j þ a              j      i  2j  a           >
+          : j¼0                              j¼0                              ;
+                                                 j6¼j
+                                                                                     j
+  Proof (for the case i even). The function cos i f may be expanded by (A.3),
+which gives:                          8i                             9
+    Z 2p                      Z 2p <X   21
+                                                              =
+                                   1                              i
+         cosi ðfÞcosðafÞ df ¼               2 i cosði  2jÞf þ i       cosðafÞ df
+      0                        0 2
+                                    i :        j                  2 ;
+                                8i      j¼0
+                                          Z 2p "
+                              1 <X21
+                                                 1
+                            ¼ i        2 i          cosði  2j þ aÞf
+                              2 : j¼0     j 0 2
+                                               #       Z 2p            )
+                                                      i
+                             þ cosði  2j  aÞf df þ i         cosðafÞ df (B:4Þ
+                                                             2    0
+
+The trigonometric function cosðafÞ will have a null contribution since a 2 IN
+and a > 0. The other trigonometric functions will also have null contribution,
+except again in the case ðÞði  2j þ aÞ ¼ 0 $ j ¼ iþa     2 or ðÞði  2j  aÞ ¼
+         ia
+0 $ j ¼ 2 . As j must 2 IN, i and a must have same parity. Since the upper
+bound of j is i1                           iþa
+                   2 , it will never reach 2 since a 2 IN. So only the case
+         ia
+ðÞ j ¼ 2 need to be considered; with the ﬁnal constraint that iPa.
+   So (B.4) becomes:
+     Z 2p                      (  
+                                 p   i
+          cosi ðfÞcosðafÞ df¼ 2i1 ia   if (i, a) are ofthe sameparity, and (aO i)
+                                     2
+      0                         0         otherwise                           (B .5)
+Moreover, if we consider now the integration of the periodic part only, we
+obtain:
+      Z
+        cosi ð f Þ cosðaf Þ df
+       pp ( i 1   Z                                                   )
+        1 X    2
+                                1 n
+      ¼ i          2 ij             cosði  2j þ aÞf þ cosði  2j  aÞ f df
+       2       j¼0           pp 2
+           Z                             ( i 1                              (B .6)
+             i                           1 X  2
+                                                    i   sinði  2j þ aÞ f
+       þ i              cosðaf Þ df g ¼ i           j
+             2       pp                 2                  i  2j þ a
+          i
+            1        (                  ) j¼0            )
+          X
+          2
+                   i      sinði  2j  aÞf         i sinðaf Þ
+       þ           j                          þ i
+           j¼0
+                             i  2j  a            2     a
+                j6¼j                                                                j
+266                           BERNARD DE SAEDELEER
+
+Since (B.2) and (B.5) are equivalent, the Proposition 2 is valid for any parity
+of i concerning the constant part. Concerning the periodic part, (B.3) and
+(B.6) may be gathered into:
+      Z
+         cosi ðf Þ cosðaf Þ df
+       pp
+            ( bi1c                           b 2 c  
+                                                 i1
+        1     X 2
+                     i   sinði  2j þ aÞf        X      i  sinði  2j  aÞf
+      ¼ i                                    þ
+       2       j¼0
+                     j      i  2j þ a            j¼0
+                                                         j     i  2j  a
+                                                 j6¼j
+
+                   )
+          i sinðaf Þ
+      þki i
+          2    a
+
+which is now valid for any parity of i by using (A.5), so that the Proposition 2
+is also valid for any parity of i concerning the periodic part.
+   Alternate proof of Proposition 2 concerning the constant part. One could
+also consider the following relationship (see 3.631 9. of (Gradshteyn and
+Ryzhik, 1980)), valid for Re m > 0:
+     Z p
+        2                               p
+          cosm1 ðxÞ cosðaxÞ dx ¼ m mþaþ1 maþ1                     (B:8Þ
+      0                          2 mB 2 ; 2
+a result which refers to the beta function (Euler’s integral of the ﬁrst kind),
+which, in the case ðn; mÞ 2 IN2 , reduces to (see 8.384 6. of (Gradshteyn and
+Ryzhik, 1980)):
+                                               
+         1          nþm1              nþm1
+             ¼m                   ¼n                                      (B:9Þ
+     Bðn; mÞ           n1               m1
+so that (B.8) becomes:
+     Z p                                      
+        2
+             m1               p mþaþ1     m
+          cos ðxÞ cosðaxÞ dx ¼ m         ma1                                  (B.10)
+      0                       2m   2       2
+   If we now substitute i for m  1in order
+                                                to ﬁnally
+                                                          compare with Proposition
+2, and if we use the relationship i þn 1 ¼ iþ1n   iþ1    i
+                                                          n
+                                                              one obtains successively:
+      Z p                          Z p
+         2                             2
+           cosm1 ðxÞ cosðaxÞ dx ¼       cosi ðxÞ cosðaxÞ dx
+       0                             0                                 
+                                          p        iþ2þa iþ1
+                                 ¼ iþ1                            ia
+                                   2 ði þ 1Þ            2          
+                                                                   2      
+                                     p iþ2þa                1          i
+                                 ¼ iþ1                                ia
+                                   2           2      i þ 1  ia      2
+                                                              2
+                                       p         i
+                                 ¼ i                                            (B:11Þ
+                                   2 þ 1 ia    2
+            COMPLETE ZONAL PROBLEM OF THE ARTIFICIAL SATELLITE                                               267
+
+And ﬁnally, from symmetry considerations, we have:
+     Z 2p
+          cosi ðxÞ cosðaxÞ dx
+      0
+        8 Z p
+        >
+        <4
+                2
+                  cosi ðxÞ cosðaxÞ dx if ði; aÞ are of the same parity, and ðaOiÞ
+     ¼        0
+        >
+        :
+           0 otherwise.
+        8               !
+        >
+        >   p       i
+        <                 if ði; aÞ are of the same parity, and ðaOiÞ
+     ¼     2i1 ia
+                    2
+        >
+        >
+        :
+           0 otherwise:                                                     ðB:12Þ
+which proofs Proposition 2 again concerning the constant part.                                                j
+                      Z                          Z 2p
+                           i
+C. Proposition giving   cos ð f Þsinðaf Þ df and      cosi ðf Þ sinðaf Þ df
+                                   pp                                      0
+                                                            
+PROPOSITION 3. If we deﬁne j                                    ¼ ia
+                                                                   2 and
+                                                                      (
+                                     i     i                           1   for i even,
+                           ki ¼ 1  d e þ b c ¼
+                                     2     2                           0   for i odd
+then we have, for any i (odd or even):
+                    Z 2p
+                         cosi ðfÞ sinðafÞ df ¼ 0 for ði; aÞ 2 IN;
+                               0
+and
+                Z
+                         cosi ðf Þ sinðaf Þ df
+                    pp
+                          ( bi1c
+                            X                        !
+                   1          2
+                                                 i         cosði  2j þ aÞf
+                 ¼ i
+                  2                j¼0
+                                                 j            i  2j þ a
+                           i1
+                          b2c                                                                           )
+                          X                  !                                            !
+                                         i         cosði  2j  aÞf                   i       cosðaf Þ
+                     þ                                                         ki
+                            j¼0
+                                         j            i  2j  a                      i
+                                                                                      2          a
+                           j6¼j
+
+Proof. The proof is very similar to the proof of the Proposition 2. The
+function cosi f may be expanded as before by (A.3). Then we use now the
+formula 2 cos u sin v ¼ sinðu þ vÞ  sinðu  vÞ, so that we are left with only sin
+trigonometric functions. These have null contribution when being integrated
+over 2p, while they give cos functions when being integrated for the periodic
+part.                                                                           j
+268                               BERNARD DE SAEDELEER
+
+
+                                         References
+
+Boccaletti, D. and Pucacco, G.: 1999, Theory of Orbits, 2: Perturbative and Geometrical
+   Methods, Springer-Verlag.
+Brouwer, D.: 1959, ‘Solution of the problem of artiﬁcial satellite theory without air drag’,
+   Astron. J. 64, 378–397.
+Coﬀey, S. and Deprit, A: 1982, ‘Third order solution to the main problem in satellite theory’,
+   J. Guid. Control. Dyn. 5, 366–371.
+De Saedeleer, B.: 2004, ‘Analytical theory of an artiﬁcial satellite of the moon’, In: E. Belbruno
+   and P. Gurﬁl (eds.), Astrodynamics, Space Missions, and Chaos, To appear in Annals of the
+   New York Academy of Sciences.
+Deprit, A.: 1969, ‘Canonical transformations depending on a small parameter’, Celest. Mech.
+   Dyn. Astr. 1, 12–30.
+Gradshteyn, I. and Ryzhik I.: 1980, Table of Integrals, Series, and products, Academic Press.
+Henrard, J.: 1986, ‘Algebraic manipulation on computers for lunar and planetary theories’, In:
+   J. Kovalevsky and V. Brumberg (eds.), IAU Symposium 114, 59–62.
+Hori, G.: 1966, ‘Theory of general perturbations with unspeciﬁed canonical variables’, Publ.
+   Astron. Soc. Japan 18(4), 287–296.
+Jeﬀerys, W.: 1971, ‘Automated, closed form integration of formulas in elliptic motion’, Celest.
+   Mech. Dyn. Astr. 3, 390–394.
+Kelly, T.: 1989, ‘A Note on ﬁrst-order normalizations of perturbed Keplerian systems’, Celest.
+   Mech. Dyn. Astr. 46, 19–25.
+Kozai, Y.: 1962, ‘Second-order solution of artiﬁcial satellite theory without air drag’, Astron.
+   J. 67, 446–461.
+Osácar, C. and Palacián, J.: 1994, ‘Decomposition of functions for elliptic orbits’, Celest.
+   Mech. Dyn. Astr. 60, 207–223.
+

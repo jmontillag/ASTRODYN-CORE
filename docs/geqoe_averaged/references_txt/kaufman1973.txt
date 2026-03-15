@@ -1,0 +1,598 @@
+                                                                                                         VOL. 10, NO. 6, JUNE 1973                                     J. SPACECRAFT                                                              377
+
+
+
+
+                                                                                                                Semianalytic Theory of Long-Term Behavior of Earth and
+                                                                                                                                    Lunar Orbiters
+                                                                                                                                                   BERNARD KAUFMAN AND ROBERT DASENBROCK*
+                                                                                                                                                   Naval Research Laboratory, Washington, D. C.
+
+                                                                                                                           A semianalytical method capable of analyzing both lunar and Earth orbiters is presented. Primary
+                                                                                                                        attention is focused on predicting the evolution of the orbit as affected by third body perturbations together with
+                                                                                                                        those of the rotating primary. The singly averaged (literal) equations of motion are expanded by machine to high
+                                                                                                                        order in the parallax factor and the mean motion ratio. The equations are numerically integrated to yield
+                                                                                                                        the orbital evolution for a wide range of initial conditions. In addition, a purely analytical method is introduced
+                                                                                                                        to yield the orbital lifetimes for a special class of orbits.
+Downloaded by UNIVERSITY OF MICHIGAN on February 21, 2015 | http://arc.aiaa.org | DOI: 10.2514/3.61894
+
+
+
+
+                                                                                                                                   Introduction                                      this assumption is clearly violated in the case of the Earth-moon
+                                                                                                                                                                                     system. Thus in carrying out the expansion, a time rate of
+                                                                                                                                                                                     change for all terms containing the third body position must
+                                                                                                         T     HE design of any mission to place a satellite in orbit
+                                                                                                               about the Earth or moon is a complex and time con-
+                                                                                                         suming investigation of the types of orbits that would meet
+                                                                                                                                                                                     be included. This yields a further expansion of the disturbing
+                                                                                                                                                                                     function in terms of the mean motion ratio ri\n\ the ratio of
+                                                                                                         stated objectives. Because of the complex dynamics field in                 the mean motion of the disturbing body to that of the satellite.
+                                                                                                         the Earth-moon system, the mission analysis phase of the                         To carry out the expansions in terms of the parallax factor
+                                                                                                         study must and will of necessity, include a time history of                 and the mean motion ratio and then to average the equations
+                                                                                                         many orbits in order to gain the maximum scientific data                    of motion over one orbit requires an excessive amount of
+                                                                                                         from the final orbit chosen. Since a variety of initial con-                algebra for the higher order terms. To aid in the algebraic
+                                                                                                         ditions will be used, it is essential that the model chosen to              computations, a general algebraic manipulation routine was
+                                                                                                         produce the time history be not only accurate but fast. Any                 developed and was used to compute the average (literal)
+                                                                                                         good n-body precision integration program is capable of                     equations of motion to eighth order in the parallax factor and
+                                                                                                         meeting the first of these criteria but certainly not the second.           to second order in the mean motion ratio with corresponding
+                                                                                                             To speed up the computations involved, the standard                      cross terms up to and including fifth order in parallax.
+                                                                                                         approximation used has been to doubly average the disturbing                     In addition to the third body effects, the gravity harmonics
+                                                                                                         function due to the presence of a third body. First the                      of the rotating primary must be considered. For the moon,
+                                                                                                         disturbing function is averaged over one orbit of the satellite              these equations may be averaged over the orbital period since
+                                                                                                         and then over one revolution of the central body about the                   the moon rotates slowly. However, for the more rapidly
+                                                                                                         disturbing body. This process eliminates all short and med-                  rotating Earth, this analysis is invalid as the orbital mean
+                                                                                                         ium-period terms leaving only the long-period perturbations                  motion may be nearly commensurate with the rotation of the
+                                                                                                          for consideration. However, experience has shown this model                 primary. To avoid this problem, the equations of motion
+                                                                                                          has limited use for the Earth moon-system. Also for a planet                are numerically averaged from one-half orbit behind to one-
+                                                                                                          such as Mars where coupling between oblateness and the third                half orbit ahead of the present position of the satellite. These
+                                                                                                          body can be strong, the doubly averaged system sometimes                    averaged rates are then used in the total variations of the ele-
+                                                                                                          fails. A good discussion of this model can be found in Ref. 1.              ments. At present a full 7 x 7 and 4 x 4 field is used for the
+                                                                                                             The singly averaged equations of motion have been shown                  Earth and moon, respectively. When the tesseral harmonics
+                                                                                                          in Ref. 2 to be highly accurate for orbiters of Mars. Here                  are not required, only terms containing 72, /22, /3 and /4 are
+                                                                                                          only the short-period terms are averaged out and the equations              used and the variational equations are calculated explicitly.
+                                                                                                          of motion retain the medium and long-period terms. There-                       In addition to this semianalytic approach, a purly analytical
+                                                                                                          fore the model is also valid for both near and far orbiters of              model is also developed. This model concentrates on the
+                                                                                                          the Earth and moon. However, as shown in that reference,                     long-period terms and applies to both lunar and high Earth
+                                                                                                          the expansion of the third body disturbing function is essen-                orbiters. To derive the long-period equations of motion,
+                                                                                                          tially in terms of the parallax factor (a/r') only. For a                    the medium-period terms must be removed. This can be
+                                                                                                           100,000 km high Earth orbiter this ratio is about 0.25 for the              done provided the Earth and moon move much faster on
+                                                                                                          moon as the disturbing body. The expansion in Ref. 2 was                     their respective paths than the line of apsides of the perturbed
+                                                                                                          truncated to retain only terms of second order in the parallax               orbit under question. This condition is satisfied for all lunar
+                                                                                                          factor but for high Earth or lunar orbiters this is not sufficient.          orbiters provided their height does not exceed approximately
+                                                                                                          The expansion must be to at least fourth order and for high                  four lunar radii. Thus these medium-period effects involving
+                                                                                                           orbiters (100,000 km) should be carried even further. Further               the Earth angle can be removed by a von Zeipel transforma-
+                                                                                                           discussions and uses of the singly averaged equations may                   tion.
+                                                                                                           be found in Refs. 3 and 4.                                                      For Earth orbiters, the analysis is more complicated. The
+                                                                                                              When the third body terms are averaged, the assumption is                line of apsides rotates with an angular velocity of about 8°
+                                                                                                           sometimes made that the disturbing body does not move signi-                per day for a low orbiter, whereas the sun and moon move along
+                                                                                                           ficantly over one orbit of the satellite, however, for high orbits           their respective paths with angular rates of 1° and 13° per day,
+                                                                                                                                                                                       respectively. Thus these medium-period terms cannot be
+                                                                                                             Presented as Paper 72-936 at the AIAA/AAS Astrodynamics                   removed for the low orbiters; however, the analysis is valid
+                                                                                                          Conference, Palo Alto, California, September 11-12, 1972;                     for the higher orbits and useful results can be obtained.
+                                                                                                          received September 21, 1972; revision received December 20, 1972.                In the absence of oblateness, the solution to the equations
+                                                                                                            Index categories: Earth Orbital Trajectories; Lunar and Plane-              of motion can be expressed in closed form using elliptic
+                                                                                                          tary Trajectories.                                                            integrals. However, in certain special cases involving initially
+                                                                                                             * Research Analysts.                                                       near circular orbits, the solution involves only the elementary
+                                                                                                         378                                                   B. KAUFMAN AND R. DASENBROCK                                               J. SPACECRAFT
+
+                                                                                                         functions. These special cases are extended to include                Gauss' Form of the Equations
+                                                                                                         oblateness by introducing a series expansion. The solutions
+                                                                                                         are accurate and yield results applicable to initially near
+                                                                                                         circular orbits. These solutions yield the long-period time
+                                                                                                         history of eccentricity and pericenter position and give the
+                                                                                                         orbital lifetime for unstable orbits. This procedure works               de = (1 -e 2 ) 1/2 sin/              (l-e 2 ) 1 / 2 \a2(\ -e2)-i
+                                                                                                         well for high lunar orbits and can be extended to high earth             dt           na                         ena2
+                                                                                                         orbiters.
+                                                                                                                                                                                                                      W
+                                                                                                                           Machine Automated Algebra                              dt ~ na\\ -e 2 ) 1 / 2 sinz
+
+                                                                                                             The use of machine automated algebra in celestial mechan-            —^ 2             W
+                                                                                                         ics has become increasingly popular in recent years. Due to              dt'~na (l-e2)112
+                                                                                                                                                                                                                                                            (2)
+                                                                                                         the high probability of error which is introduced when hand             dw =        (1 -e2)112         (1 -e 2 ) 1 / 2 sin/
+                                                                                                         methods are used it was decided to develop the equations of                                    cosfR + -———-———- X
+                                                                                                                                                                                 dt              ane                  ane
+                                                                                                         motion to high order by computer. To this end it was decided
+                                                                                                         to construct an algebraic manipulation program compatible                                |         r
+                                                                                                                                                                                                               IP         rsin(o)+/)coti
+                                                                                                         with the CDC 3800 presently in use at the Naval Research Lab.                                a(l-e 2 )J            aXl-e 2 ) 1 ' 2
+Downloaded by UNIVERSITY OF MICHIGAN on February 21, 2015 | http://arc.aiaa.org | DOI: 10.2514/3.61894
+
+
+
+
+                                                                                                         This program will manipulate the otherwise involved literal Pois-
+                                                                                                         son series occurring in classical perturbation theory. The com-         dM                f(
+                                                                                                                                                                                                   f(l-e 2
+                                                                                                                                                                                                           )cos/ _ ——
+                                                                                                                                                                                                                    2r-
+                                                                                                                                                                                 ____ =   n _)_
+                                                                                                         puterized operations include the simplification, ordering, nega-         dt               L      ne       na
+                                                                                                         tion, addition, subtraction, multiplication, differentiation and
+                                                                                                         integration of the trigonometric series occurring in the theory.
+                                                                                                         Other more specialized routines include a binomal and Taylor                                                 a
+                                                                                                         series expansion. The program is written in Fortran and can                                  ane       [      d ~ e )J
+                                                                                                         be used on any machine possessing a Fortran compiler with               Where the disturbing force A is defined as
+                                                                                                         little or no modifications.
+                                                                                                             The equations of motion (to be described later) were deve-                                      A = RUr + SUe + WUA                            (3)
+                                                                                                         loped entirely by computer. These literal equations were
+                                                                                                         automatically card punched in Fortran compatible form and             and A is decomposed into components in the radial, (R)9
+                                                                                                         inserted directly into the variation of parameters program            transverse, (5), orbit plane normal, (W), directions where
+                                                                                                         with no human interaction. Literally thousands of terms
+                                                                                                          were involved in these expansions with a savings in time of                                               UA = UrX Ue
+                                                                                                         many months and possibly years. The entire expansion
+                                                                                                          required approximately 2 min, of central processing time on                             The Third Body Disturbing Function
+                                                                                                          the CDC 3800. The method has the added advantage in that
+                                                                                                          trivial algebraic and keypunching errors are eliminated as              The acceleration experienced by a satellite under the in-
+                                                                                                          possible errors in the analysis. Remaining errors can be             fluence of a point mass third body is
+                                                                                                          traced to those of concept and the programming of the literal
+                                                                                                          expansions. A detailed description of the algebraic mani-
+                                                                                                          pulation program may be found in Ref. 5.
+                                                                                                                                                                               where /// is the gravitational coefficient of the third body and
+                                                                                                                                                                               r'i denotes the acceleration vector in inertial space. ¥ and r
+                                                                                                                              Variation of Parameters                          are the position vectors to the third body and the satellite
+                                                                                                                                                                               respectively (see Fig. 1.)
+                                                                                                           The equations for the variation of the keplerian elements               Equation (4) may be expressed as
+                                                                                                         are well known and are developed in any good textbook on
+                                                                                                         celestial mechanics. Therefore the equations will be listed                                                        1
+                                                                                                                                                                                                            r = —A                                          (5)
+                                                                                                         here without derivation in the two forms that were used in
+                                                                                                         the computer program.
+                                                                                                                                                                               where
+                                                                                                         Lagrange's Planetary Equations
+
+                                                                                                                 da
+                                                                                                                 rln   29 fiF
+                                                                                                                 dt ~~ na dM
+                                                                                                                 de
+                                                                                                                 dt         ena2         [                dM
+                                                                                                                 dO,         1              dF
+                                                                                                                 dt 'na\\ -e 2 ) 1 / 2 sin/ di
+                                                                                                                                   CSC /             dF        dF
+                                                                                                                       =
+                                                                                                                           " na\\ - e*
+
+                                                                                                                            (1       ) 1/2 dF ___cos i____
+                                                                                                                 Tt              ena 2
+                                                                                                                                           ~de ~ na\\ —e2)ll2sini1 di                                                             x,y PLANE IS EQUATORIAL
+                                                                                                                                                                                                                                  PLANE OF PLANET
+
+                                                                                                                 dM
+                                                                                                                 ".—.=        ~ 3F           (1
+                                                                                                                                                  ~ e ^ dF
+                                                                                                                  dt          nada                nea2 de                                               Fig. 1 Planet-centered geometry.
+                                                                                                         JUNE 1973                             LONG-TERM BEHAVIOR OF EARTH AND LUNAR ORBITERS                                                 379
+
+                                                                                                         Equation (5) can be written in the following form                    with similar expressions for B and y.       0' is the third body
+                                                                                                                                                                              central angle and
+                                                                                                                                                                       (6)
+                                                                                                         where                                                                                         £d = ! " ^
+                                                                                                                                                                                                       88' ~ ri ' dt
+
+                                                                                                                                                    ~ w cosS           (7)
+                                                                                                                                                                              and dr'/dt is given along with r' by an analytical ephemeris.
+                                                                                                                                                                              Equation (10) becomes
+
+                                                                                                         and                                                                  *, =/( (A0, Bo, y0, e, E) +         (n'\n)(M - M0) +
+                                                                                                                                    cos S = r-ir'/rr'
+                                                                                                            Now introduce the eccentric anomaly E directly into Eq. (7),
+                                                                                                         i.e., let (r/r7) cos S = SA(cos E-e) + SB(l - e2)112 sin E,
+                                                                                                         (rlr'y = 8*(1 - e cos E)2, 8 = a\r' = parallax factor, A=P-r'                                               higher order terms (13)
+                                                                                                         and B=Q-ff where P and (3 are shown in Fig. 1 and r' is              Substitution of this into Eq. (11) then yields the averaged
+                                                                                                         the unit vector to the third body.                                   rates of change for the elements.
+                                                                                                           F(r', r) was expanded directly to order 8 in 8 by using the           Since the disturbing function is time dependent, the time
+                                                                                                                                                                              rate of change of the semimajor axis has a nonzero average.
+Downloaded by UNIVERSITY OF MICHIGAN on February 21, 2015 | http://arc.aiaa.org | DOI: 10.2514/3.61894
+
+
+
+
+                                                                                                         algebraic manipulation program previously mentioned. Due
+                                                                                                         to the direct nature of the expansion, the explicit expressions      Although no secular change results, small but not insignificant
+                                                                                                         for the Legrendre polynomials were not required. The                 twice monthly and twice yearly fluctuations in the semimajor
+                                                                                                         coefficients of each factor 8"(2 < n ^ 8) were automatically         axis do appear.
+                                                                                                         collected and the disturbing function is then obtained in the           The final form of the equations of motion are obtained
+                                                                                                         form                                                                 in the parallax and mean motion ratio as follows:
+
+                                                                                                                                      ~                   e, E)         (8)
+                                                                                                                                       T
+
+
+                                                                                                         where each Fn (A, B, e, E) is of the form
+                                                                                                                                                                                                t (air')                                      (14)
+                                                                                                         Fn(A9         =         Cjklm AJBkel cos mE -f
+                                                                                                                                                                              where /fc0, kk\ and/ 22 are determined from the averaged eq-
+                                                                                                                                                                       (9)    uations of motion and are too lengthy to be listed here but
+                                                                                                                                                                              may be found in Ref. 6.
+                                                                                                         where both Cjkim and Sjkim are obtained as rational integer             For a very high Earth or lunar orbiter it is not enough to
+                                                                                                         coefficients. The equations of motion as determined by the           assume that the orbital elements (a, e, /, n, oj) remain con-
+                                                                                                         Lagrangian planetary equations are                                   stant during the averaging process as was done here. For
+                                                                                                                                                                              these high orbits it is necessary to include the coupling between
+                                                                                                                        '*, =/i 04, £,y, £?,£)(!</<6)                 (10)    the short-period fluctuations in the elements with the short-
+                                                                                                         where                                                                periodic part of the disturbing function. This is especially
+                                                                                                                                                                              important for high lunar orbiters. These additional ex-
+                                                                                                                           xt = Keplerian state vector                        pansions are being carried out but have not yet been imple-
+                                                                                                                                                                              mented in the variation of parameters program.
+                                                                                                                            7 =
+                                                                                                                                                                                              Gravitational Field Analysis
+                                                                                                         where
+                                                                                                                                                                                 For a satellite of the moon, the disturbing function could be
+                                                                                                                                           -Q(2)\                             averaged analytically, however, for most other planets such
+                                                                                                                                             GO) ; and R =                    is not the case. Representing the gravitational field of the
+                                                                                                                         o/                   o/                              body by the standard expansion in spherical harmonics, we
+                                                                                                                                                                              have
+                                                                                                           Thus far the third body analysis is exact except for Eq. (8)
+                                                                                                         where the expansion was terminated at order 8 in the parallax
+                                                                                                         factor. The next step is to average the equations of motion
+                                                                                                         over one orbital period, i.e.,
+                                                                                                                                                                                                            {Cnm COS m\ + Snm SH1             (15)
+                                                                                                                                        = -       ft(l-ecosE)dE        (11)
+                                                                                                                       277-J _
+                                                                                                                                                                              Then in the Lagrangian equations we would normally sub-
+                                                                                                           In the first order variation of parameters analysis it may be      stitute
+                                                                                                         assumed that the orbital elements (a, e, /, Q, o>) are constant as
+                                                                                                         the equations of motion are averaged. However, the third                                          F=-
+                                                                                                         body position cannot be held constant.
+                                                                                                           Therefore, A, B, and y are expanded about their nominal
+                                                                                                         values, i. e.,                                                       for the disturbing function where, more explicitly
+
+
+
+                                                                                                                                                                                                                       [cos"1 <f>eim(*-»]df   (16)
+                                                                                                                                                                              where 0 = 6t and 6 is the rotation rate of the primary.
+                                                                                                         380                                                          B. KAUFMAN AND R. DASENBROCK                                            J SPACECRAFT
+
+                                                                                                            The integral in the above equation is evaluated with all                  above averaging and quadratures. The variational equations
+                                                                                                         quantities held constant except/. For a satellite of the moon,               will simply be listed here. The equations in J2 and J22 are
+                                                                                                         the change in 6 over one orbit is negligible to the first approxi-           derived in detail in Ref. 9 with additional terms from Ref. 10
+                                                                                                         mation, but for other planets, this change can be significant.               and those in J3 and /4 were taken from Ref. 11. This option
+                                                                                                         It is for this reason, that the disturbing accelerations caused              is also used for high-speed analysis of Earth and lunar orbiters
+                                                                                                         by a nonspherical central body must be treated differently.                  where a full gravity field is not required.
+                                                                                                         Here the equations of motion are averaged numerically and
+                                                                                                         these averaged equations are then integrated to obtain the
+                                                                                                         variation in the orbital elements. This treatment was sugg-                  Equations in J2,J22
+                                                                                                         ested by Lorell4 and Uphoff.7 Uphoff defines the averaged
+                                                                                                         Lagrangian equations of motion in the following manner:
+                                                                                                         let Xi be the standard variational equation of any element.
+                                                                                                         The averaged Lagrangian equation is then
+                                                                                                                                   1    /*T               n C 2n
+                                                                                                                                                                               (17)
+                                                                                                                                                                                                                             ->«*'•« • - - '
+                                                                                                                          *, = ^ U (r)dt = f |
+                                                                                                                                   T J0                   2-7T Jo                                       3nJ2 Re cos i _ 9nJ2 Re4 cos i [3 _ 5 . 2 .
+                                                                                                                                                                                                                  2
+
+
+                                                                                                         but
+                                                                                                                                                                                                        /1 , 5 s•mi\ ,
+                                                                                                                                                                                                        (6 + 24            ')
+Downloaded by UNIVERSITY OF MICHIGAN on February 21, 2015 | http://arc.aiaa.org | DOI: 10.2514/3.61894
+
+
+
+
+                                                                                                         therefore
+                                                                                                                                          nP2
+                                                                                                                                                                               (18)
+                                                                                                                                       27T(nPy             (1+^cos/) 2
+                                                                                                         Substituting the Gaussian form of the variational equations
+                                                                                                         into Eq. (18), the following is obtained:
+                                                                                                                                              in/#(/) + d + e cos/)£(/) „
+                                                                                                                                                   (1+ecos/) 2
+                                                                                                          -r nP2 ff2       \            sin/
+                                                                                                          e = -—               -
+                                                                                                                                        e cos/)2
+
+                                                                                                               2 cos/+*(! + cos2/)
+                                                                                                                      ecos/) 3     S(f)\4f
+                                                                                                                                                                                                   cos 2co (7 — ^r- sm2 * I sm2 * ~~
+                                                                                                                           (1 -f ecosf)
+                                                                                                                                                    ^df                        (19)
+
+                                                                                                             nP2 f / 2 fi(2 + e cos/) sin/
+                                                                                                           = 27T^J
+                                                                                                             ^—
+                                                                                                                     /1[               -f
+                                                                                                                                                                                                  (1 - e2Y12 (24 - 66 sin2 i + 45 sin4 i)
+                                                                                                                    cos/                              sin (qj + /) cos /
+                                                                                                               e(\ + ecos/) 2                        (1 + e cos/)3 sin i              where Rc is the equatorial radius of the planet, P = a(l — e2)
+                                                                                                                                                                                      is the semilatus rectum, and the subscript J2 means oblateness
+                                                                                                                                                           W(f)df                     and J2 terms only.
+                                                                                                               277yz J/i (1 + e cos/)3 sin i
+                                                                                                                               _ ,,2)1/2 f '2(r C O S/               2                Equations in /3
+
+
+                                                                                                                                                    ecos/)sin/                                                                  ,3
+                                                                                                                                   2                                     df
+                                                                                                               (1 +ecos/)                     e(l
+                                                                                                         The evaluation of the definite integrals in these equations is
+                                                                                                         done using Gaussian quadratures with 24 points.                                                    (5 cos2 i - 1)
+                                                                                                            The computation of the disturbing accelerations is accomp-
+                                                                                                         lished using a technique devised by DeWitt in Ref. 8. This                                                                               ._
+                                                                                                         method was programmed to include any order of the zonals
+                                                                                                         and tesserals desired. At present a full 1x1 and 4 x 4 field
+                                                                                                                                                                                              gl=^si
+                                                                                                                                                                                                     3n v
+                                                                                                         is used for the Earth and moon respectively. The accelera-
+                                                                                                         tions are evaluated in cartesian coordinates and transformed
+                                                                                                                                                                                              M\
+                                                                                                                                                                                              \dt)j
+                                                                                                                                                                                                    _  **
+                                                                                                                                                                                                       BP
+                                                                                                                                                                                                          * e cos co cos i (5 cos / — 1)
+                                                                                                                                                                                                                      3
+                                                                                                                                                                                                                                              2
+
+                                                                                                                                                                                                    3
+                                                                                                         to components in the radial (R), transverse (5), and orbit
+                                                                                                         plane normal (W\ directions by means of the following                                                            (l+4e 2 ) .
+                                                                                                         rotation transformations
+
+
+                                                                                                         The transformed accelerations are then used directly in Eqs.
+                                                                                                                                                                                                                                     (?)„«>"
+                                                                                                         (19).                                                                        where
+                                                                                                            For central bodies other than the Earth or moon, only                                                         (dPldt)j, + 2ae (deldt),3
+                                                                                                                                                                                                         (da\
+                                                                                                         terms containing /2, /22, /a and /4 are used and the variational                                                                              (22)
+                                                                                                         equations are calculated explicitly without going through the                                   \dt),3                    d-e 2 )
+                                                                                                         JUNE 1973                         LONG-TERM BEHAVIOR OF EARTH AND LUNAR ORBITERS                                                                                         381
+
+                                                                                                         Equations in J4                                                                                                   LUNAR ORBITER
+                                                                                                                                                                                                                       a = 2846.5396 km    w = 140°
+                                                                                                                                                                                                                         = 0.003            i = 116.5°
+                                                                                                                                                                                                                                           il=282°
+                                                                                                                                                                                                                                    L. LUNAR FIELD
+
+                                                                                                                lde\       \5nRSJ* „                                                                                                                          —— POPLAR
+                                                                                                                                                             > sin2 i x
+                                                                                                                \dt) J4 = ——32F~ e(l ~                                                                                                                        ---NUMERICAL
+                                                                                                                                                                                                                                                                  INTEGRATION
+
+                                                                                                                              (7 cos2 i - 1)
+
+
+
+                                                                                                                            e2[7 cos2 z - 1 + 4 sin2 oj(7 cos2 i - 4)]} (23)
+                                                                                                                A/A     15/LRc4/4 2 . 0           . _,_            2
+                                                                                                                      =
+                                                                                                                \S* L     64P4 ^ Sm             Sm    (      C S
+                                                                                                                                                              °        f
+                                                                                                                                                                           ~                                 16   24    32 40    48     56 64 72    80   88   96 104
+                                                                                                                                                                                                                                      TIME (DAYS)
+
+
+                                                                                                                                                                                        Fig. 2 Eccentricity vs time-POPLAR and numerical integration
+                                                                                                                                                                                                                  comparison.
+Downloaded by UNIVERSITY OF MICHIGAN on February 21, 2015 | http://arc.aiaa.org | DOI: 10.2514/3.61894
+
+
+
+
+                                                                                                                            sin2 to sin2 1(7 cos2 / — 1) +
+
+                                                                                                                            e2 6 — 14 sin2 i + — sin4 j +                               program took 4.6 min of 360/95 time which translates to
+                                                                                                                                                                                        about 115 min of 3800 time. POPLAR took 3.65 min for
+                                                                                                                                                                                        the same case—a factor of over thirty to one.
+                                                                                                                            sin 2 co 1 6 — 35 sin2 / + — sin4 /                            Figure 3 is a plot of eccentricity vs argument of pericenter
+                                                                                                                                                                                        for a lunar orbiter. Superimposed on this graph are contours
+                                                                                                         where a definition identical to Eq. (22) holds with the proper                 of constant lifetime. The value of such a plot is that it allows
+                                                                                                         change in the subscripts.                                                      initial conditions to be selected that will yield any given life-
+                                                                                                                                                                                        time. For lunar orbiters, the inclination does not vary by
+                                                                                                                                                                                        more than a degree or two and, therefore, these curves may
+                                                                                                                                        Drag                                            be used as a very good first approximation to a nominal orbit.
+                                                                                                            For the variations due to the presence of an atmosphere, a                  The data shown in Fig. 3 is composed of 13 different cases
+                                                                                                         model has been assumed in which there are no lift forces                       and took a total of about 15 min of 3800 CPU time.
+                                                                                                         present, the drag force acts as a negative tangential component                   Figure 4 is a similar curve for an Earth orbiter of 75°
+                                                                                                         due to a nonrotating atmosphere. This results in variations
+                                                                                                         only in the semimajor axis and eccentricity. The variational
+                                                                                                                                                                                                        LUNAR ORBITER
+                                                                                                         equations are then averaged over a single orbit using Gaussian
+                                                                                                         quadratures. The density is taken from several models and
+                                                                                                         is calculated as a function of altitude. These models can be
+                                                                                                         found in Refs. 12 and 13 for Mars and Venus, respectively.
+                                                                                                         For the Earth, no atmosphere was used in the present program
+                                                                                                         although it would be very easy to incorporate a model similar
+                                                                                                         to the type used for Mars and Venus.
+                                                                                                            The detailed derivation may be found in Ref. 2 with only
+                                                                                                         the results being listed here.
+                                                                                                                           CDAa2(\ -e
+                                                                                                                              2-n-
+                                                                                                                                        217                                ;df   (24)
+
+                                                                                                                           CDA(l -e2)3          pFQ + cos/)                                  -90 -80 -70 -60 -50 -40 -30 -20 -10        0 10 20 30 40 50 60 70 80 90
+                                                                                                                                                             df                  (25)                                                 W(DEG)
+                                                                                                                               ITT m           jl + ecos/) 2
+                                                                                                         where CD is the aerodynamic drag coefficient, A is the cross-                       Fig. 3 Eccentricity vs argument of perigee-lunar orbiter.
+                                                                                                         sectional area and p is the density.
+                                                                                                           It is to be stressed that only a nonrotating atmosphere has
+                                                                                                         been considered; otherwise di/dt and d£l/dt would be nonzero.
+                                                                                                         The complexities of assuming an exponential density profile
+                                                                                                         have also been bypassed by averaging the effects over one
+                                                                                                         revolution of the satellite.
+
+                                                                                                                                   Sample Cases
+                                                                                                           The method described above has been programmed for a
+                                                                                                         CDC 3800 computer in double precision mode under the
+                                                                                                         program name of POPLAR: Planetary Orbiter Prediction and
+                                                                                                         Lifetime Analysis Routine. Figure 2 shows a comparison
+                                                                                                         between POPLAR and an Encke n-body numerical integration
+                                                                                                         program for a lunar orbiter. Most of the slight differences
+                                                                                                         noticed here are due to the fact that mean elements were not
+                                                                                                         used and to differences in constants between the two programs.                      -90 -80 -70 -60 -50 -40 -30 - 2 0 - 1 0 0 10           20 30 40     50 60 70       80 90
+                                                                                                                                                                                                                                 CJ (DEG)
+                                                                                                         However, it is important to note that these differences do not
+                                                                                                         appear to be growing with time. The numerical integration                      Fig. 4 Eccentricity vs argument of perigee-earth orbiter, i = 75°.
+                                                                                                          382                                                      B. KAUFMAN AND R. DASENBROCK                                    J. SPACECRAFT
+
+                                                                                                                                                                                         A relationship between sin 2g and L, G, H must now be
+                                                                                                                                                                                       determined. This is accomplished by setting
+                                                                                                                                                                                                                                               (29)
+                                                                                                                                                                                       and solving for cos 2g
+
+
+
+
+                                                                                                            0.85 -
+
+                                                                                                                -90 -80 -70 -60 -50 -40 -30 -20 -10 0 10     20 30 40 50 60 70 80 90
+                                                                                                                                                                                                                                               (30)
+                                                                                                                                                   CJ(DEG)
+
+                                                                                                         Fig. 5 Eccentricity vs argument of perigee-earth orbiter, i = 45°.
+                                                                                                                                                                                       where
+                                                                                                                                                                                                                         (-15
+Downloaded by UNIVERSITY OF MICHIGAN on February 21, 2015 | http://arc.aiaa.org | DOI: 10.2514/3.61894
+
+
+
+
+                                                                                                         initial inclination to the ecliptic. For Earth orbiters, the
+                                                                                                                                                                                                                   •fiM /M*
+                                                                                                         inclination does not remain as constant as for lunar orbiters,                                            a    \a)
+                                                                                                         however, the change in inclination is only about 12°; therefore
+                                                                                                         approximate initial conditions may still be obtained but must
+                                                                                                         be finally checked by numerical integration. Total CPU                        *T0 is the ratio between the lunar oblateness effect and the
+                                                                                                         time for Fig. 4 was about 25 min.                                             terrestrial gravity effect.
+                                                                                                            Figure 5 is again an Earth orbiter inclined at 45° to the                     Now let
+                                                                                                         ecliptic and shows stable orbits as far as lifetime is concerned.
+                                                                                                         The intersections of the curves near w = ± 90° are indicative                                                                         (31)
+                                                                                                         of the fact that inclination does not remain constant, varying
+                                                                                                         as much as 15° for some of the curves in this figure. Again,
+                                                                                                         however, first approximations to initial conditions may still                                                                         (32)
+                                                                                                         be obtained. Approximately 20 min of CPU time was re-
+                                                                                                         quired for Fig. 5.                                                            and expand the expression for cos 2g up to the second power
+                                                                                                                                                                                       of(l-G/L) = Jf
+                                                                                                                                     Analytical Results
+                                                                                                            The results obtained thus far have been arrived at by numer-
+                                                                                                         ically integrating the medium and long-period equations of
+                                                                                                         motion. For a lunar orbiter (and some Earth orbiters) the
+                                                                                                         medium-period terms may be averaged out leaving the long-                                                                             (33)
+                                                                                                         period equations of motion. For a low lunar orbiter these
+                                                                                                         equations may be integrated analytically away from resonance
+                                                                                                         by the method of successive approximations as in Ref. 14. In
+                                                                                                         the absence of oblateness the solution may be expressed in                    where
+                                                                                                         terms of elliptic integrals (Ref. 1). However, in the case of
+                                                                                                         the initially near circular orbit, the solution to the latter                                          15/P_1
+                                                                                                         problem may be expressed exactly in terms of the elementary
+                                                                                                         functions. J2 is considered by introducing a power series
+                                                                                                         expansion in terms of the quantity [1 —(1 —e2)112] which                                               105/P_5
+                                                                                                         converges quickly for most values of e.
+                                                                                                           The long period Hamiltonian for a moderately high lunar                                              525^_55
+                                                                                                         orbiter can be written as
+                                                                                                                                                                                                                 8 L2 ~24
+
+                                                                                                                                                                                                      cos 2g = :                              (34)
+
+
+
+                                                                                                                                                                                       where
+                                                                                                                                                                                                          _1_/P 1
+                                                                                                                                                                                                         °~5 L2+2AoLAl
+                                                                                                         where L, G, H, and g are the usual Delaunay variables.
+                                                                                                          For a Hamiltonian system                                                                     ^i--2^-h^ 0 ^ 2 L 3
+
+                                                                                                                                 *      &F                   dF
+                                                                                                                                                                               (27)
+
+                                                                                                                                                                               (28)            =-     «.» a*l -          + B.X+               (35)
+                                                                                                         JUNE 1973                                LONG-TERM BEHAVIOR OF EARTH AND LUNAR ORBITERS                                                       383
+
+
+                                                                                                         where                                                                        this assumption is no longer valid. The algebraic program
+                                                                                                                                                                                      carries out, automatically, the expansion of the disturbing
+                                                                                                                                                                                      function, differentiation of the expansion, averaging the equa-
+                                                                                                                                                                                      tions of motion, and then punches out the resulting equations
+                                                                                                                                                                                      on computer cards in a Fortran compatible mode. These
+                                                                                                                  Bl=2AQA1-4—(l-^                                                     cards are then inserted directly into the program.
+                                                                                                                                                                                          Gravitational harmonics for the Earth and moon are also
+                                                                                                                          H2                                                          included by averaging the variations in the elements by means
+                                                                                                                  B2=4—-                                                              of Gaussian quadratures over one orbit of the satellite. These
+                                                                                                                                                                                      averaged variations are then included in the total variation of
+                                                                                                           In terms of X the equation for G becomes                                   the elements which are numerically integrated to yield a time
+                                                                                                                                                                                      history of the orbit.
+                                                                                                                              15 n 2                                                      Drag effects, while not used in the present examples for
+                                                                                                                         x= -                                                  (36)   the Earth, may be included in the perturbation model. At
+                                                                                                                                                                                      present this is limited to a nonrotating atmosphere with no
+                                                                                                         where                                                                        lift present and with the drag force acting as a negative tangen-
+                                                                                                                                    Co = BQ                                           tial component. The atmospheric density p is calculated as
+                                                                                                                                                                                      a function of altitude.
+Downloaded by UNIVERSITY OF MICHIGAN on February 21, 2015 | http://arc.aiaa.org | DOI: 10.2514/3.61894
+
+
+
+
+                                                                                                                                       __ D   _    D
+                                                                                                                                     1 — £>i — tio
+
+                                                                                                                                    C2 = Bo/4 -Bi + B2
+                                                                                                                                                                                          The program has proven to be a very fast and accurate one.
+                                                                                                                                                                                      In its high-speed mode of calculating third body perturbations
+                                                                                                         Equation (36) may be integrated                                              and oblateness (/2, /s, A) only it has reached speeds of greater
+                                                                                                                                                                                      than 500 to 1 over numerical integration. When the full
+                                                                                                                                                                       X
+                                                                                                                                                                                      gravitational harmonics are included, speeds of 25 to 50 to 1
+                                                                                                                                                              1
+                                                                                                                                        X                         2C0J XQ             are still attainable. Such speeds and accuracy make the
+                                                                                                                                                                                      program extremely useful in parametric studies and in gaining
+                                                                                                                                                            I5ne2                     insights into the behavior of planetary orbiters.
+                                                                                                                                                            I6~^n(t~                      In special cases it has been shown that the long-period
+                                                                                                           Equation (37) give a time history for the evolution of the                 equations of motions may be solved analytically. The re-
+                                                                                                         canonical pair (G, g) for an initially near circular lunar orbit.            sults yield lifetimes of unstable orbits accurate to about 10%.
+                                                                                                         The solution is valid for any value for the semimajor axis as
+                                                                                                         long as the following condition is satisfied                                                             References
+                                                                                                                                                                                         1
+                                                                                                                                                                                            Williams, R. R. and Lorell, J., "The Theory of Long Term
+                                                                                                                                                                                      Behavior of Artificial Satellite Orbits due to Third Body Pertur-
+                                                                                                                         0<                                       <1           (38)   bations," TR 32-916, Feb. 1966, Jet Propulsion Lab., Pasadena,
+                                                                                                                                                                                      Calif.
+                                                                                                                                                                                         2
+                                                                                                                                                                                            Kaufman, B., "Variation of Parameters and the Long Term
+                                                                                                                                                                                      Behavior of Planetary Orbiters, Pt. 1, Theory," GSFC X551-70-15,
+                                                                                                            These results can be summarized in Table 1. The lifetimes                 Feb. 1970, NASA.
+                                                                                                         for six different lunar orbiters are computed using Eq. (37).                   3
+                                                                                                                                                                                            Lorell, J., "Lunar Orbiter Gravity Analysis," The Moon, Vol. 1,
+                                                                                                         As a check, these same cases are computed using the program                  1970, pp. 190-231.
+                                                                                                                                                                                         4
+                                                                                                         POPLAR which is described in a previous section. As can                           Lorell, J., Sjogren, W. L., and Boggs, D., "Compressed
+                                                                                                         be seen from Table 1, the agreement is excellent considering                 Tracking Data Used for First Iteration in Selenodesy Experiment,
+                                                                                                         the simplicity of the analysis.                                              Lunar Orbiters I and II," JPL TM 33-343, May 1, 1967, Jet Pro-
+                                                                                                                                                                                      pulsion Lab., Pasadena, Calif.
+                                                                                                                                                                                         5
+                                                                                                                                                                                           Dasenbrock, R. R., "Algebraic Manipulation by Computer,"
+                                                                                                                                           Summary                                    U. S. Naval Research Lab. Rept. 7564U (to be published).
+                                                                                                                                                                                         6
+                                                                                                                                                                                            Kaufman, B. and Dasenbrock, R., "Higher Order Theory for
+                                                                                                           The inclusion of medium-period terms in the equations of                   Long Term Behavior of Earth and Lunar Orbiters," Rept. 7527,
+                                                                                                         motion, while not being new in the theory, has not until                     1973, Naval Research Lab., Washington, D.C.
+                                                                                                                                                                                         7
+                                                                                                         the present, been available in a rapid program useful for the                     "Final Report for Radio Astronomy Explorer-B In-Flight
+                                                                                                         Earth and moon because of the excessive algebra involved in                  Mission Control System Design Study," Rept. 71-23, Contract
+                                                                                                         carrying out the expansions in the parallax factor. The                      NAS5-11796, April 22, 1971, Analytical Mechanics Associates Inc.,
+                                                                                                         development of an algebraic manipulation routine has not                     Los Angeles, Calif.
+                                                                                                                                                                                         8
+                                                                                                         only made this expansion possible, but has allowed the further                    DeWitt, R. N., "Derivatives of Expressions Describing the
+                                                                                                                                                                                      Gravitational Field of the Earth," TM K-35/62, 1962, U. S. Naval
+                                                                                                         inclusion of the motion of the disturbing body into the                      Weapons Lab., White Oak, Silver Spring, Md.
+                                                                                                         Lagrangian equations. Usually the disturbing body has been                      9
+                                                                                                                                                                                           Lorell, J., Anderson, J. D., and Lass, H., "Application of the
+                                                                                                         held fixed during the averaging process, but for high orbiters               Method of Averages to Celestial Mechanics," TR 32-482, March 16,
+                                                                                                                                                                                      1964, Jet Propulsion Lab., Pasadena, Calif.
+                                                                                                                                                                                         10
+                                                                                                                              Table 1 Lifetime comparisons                                   Lamers, B., private communication, Computer Science Corp.,
+                                                                                                                                                                                      Santa Monica, Calif.
+                                                                                                                                                        Lifetime        Lifetime         ^Belcher, S. J., Rowell, L. N., and Smith, M. C, "Satellite
+                                                                                                            -.•     ,0        /.     0>0      n0        [Eq. (37)]     (POPLAR)       Lifetime Program," NASA, RM-4007, April 1964, Rand Corp.,
+                                                                                                                                                                                      Santa Monica, Calif.
+                                                                                                                                                                                         12
+                                                                                                          5214km    0.1       90°      40°    0°       0.92 years      0.99 years           Models of Mars Atmosphere (1967), NASA SP-8010, May
+                                                                                                          5214      0.1       75°      40°    0°       0.98            1.05           1968.
+                                                                                                                                                                                         13
+                                                                                                          5214      0.2       75°      40°    0°       0.64            0.68                 Models of Venus Atmosphere (1968), NASA SP-8011, Dec.
+                                                                                                          6952      0.1       90°      40°    0°       0.65            0.70           1968.
+                                                                                                                                                                                         14
+                                                                                                          6952      0.1       75°      40°    0°       0.70            0.79                 Dasenbrock, R. R., "Some Higher Order Analysis of Earth
+                                                                                                          6952      0.2       75°      40°    0°       4.08            0.55           and Lunar Orbiters," Ph. D. dissertation, May 1971, Dept. of
+                                                                                                                                                                                      Aeronautics and Astronautics, Stanford Univ., Stanford, Calif.
+

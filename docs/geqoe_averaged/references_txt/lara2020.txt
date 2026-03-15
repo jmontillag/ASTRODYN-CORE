@@ -1,0 +1,1445 @@
+                                            Nonlinear Dynamics manuscript No.
+                                            (will be inserted by the editor)
+
+
+
+
+                                           Solution to the main problem of the artificial satellite by reverse
+                                           normalization
+                                           Martin Lara
+arXiv:2007.00058v1 [math.DS] 30 Jun 2020
+
+
+
+
+                                           draft of April 16, 2020
+
+
+                                           Abstract The non-linearities of the dynamics of Earth arti-       tion of the zonal harmonic of the second degree, whose co-
+                                           ficial satellites are encapsulated by two formal integrals that   efficient is usually denoted J2 , is traditionally known as the
+                                           are customarily computed by perturbation methods. Stan-           main problem of artificial satellite theory. The J2 -truncation
+                                           dard procedures begin with a Hamiltonian simplification that      of the gravitational potential is known to give rise to noninte-
+                                           removes non-essential short-period terms from the Geopo-          grable dynamics [12, 26, 5, 8] that comprise short- and long-
+                                           tential, and follow with the removal of both short- and long-     period effects, as well as secular terms [36, 31]. However,
+                                           period terms by means of two different canonical transfor-        due to the smallness of the J2 coefficient of the Earth, the
+                                           mations that can be carried out in either order. We depart        full system can be replaced by a separable approximation,
+                                           from the tradition and proceed by standard normalization to       which is customarily obtained by removing the periodic ef-
+                                           show that the Hamiltonian simplification part is dispensable.     fects by means of perturbation methods [53].
+                                           Decoupling first the motion of the orbital plane from the in-          When written in the action-angle variables of the Kepler
+                                           plane motion reveals as a feasible strategy to reach higher       problem, also called Delaunay variables, the main problem
+                                           orders of the perturbation solution, which, besides, permits      Hamiltonian immediately shows that the right ascension of
+                                           an efficient evaluation of the long series that comprise the      the ascending node is a cyclic variable. In consequence, its
+                                           analytical solution.                                              conjugate momentum, the projection of the angular momen-
+                                                                                                             tum vector along the Earth’s rotation axis, is an integral of
+                                           Keywords main problem · Hamiltonian mechanics ·
+                                                                                                             the main problem, which, therefore, is just of two degrees
+                                           normalization · canonical perturbation theory · floating-
+                                                                                                             of freedom. Then, following Brouwer [6], the main prob-
+                                           point arithmetic
+                                                                                                             lem Hamiltonian is normalized in two steps. First, the short
+                                                                                                             period effects are removed by means of a canonical transfor-
+                                                                                                             mation that, after truncation to some order of the perturba-
+                                           1 Introduction
+                                                                                                             tion approach, turns the conjugate momentum to the mean
+                                                                                                             anomaly (the Delaunay action) into a formal integral. Next,
+                                           The dynamics of close Earth satellites under gravitational
+                                                                                                             a new canonical transformation converts the total angular
+                                           effects are mostly driven by perturbations of the Keplerian
+                                                                                                             momentum into another formal integral. The main problem
+                                           motion induced by the Earth oblateness. For this reason, the
+                                                                                                             Hamiltonian is in this way completely reduced to a function
+                                           approximation obtained when truncating the Legendre poly-
+                                                                                                             of only the momenta in the new variables, whose Hamilton
+                                           nomials expansion of the Geopotential to the only contribu-
+                                                                                                             equations are trivially integrable.
+                                           M. Lara                                                                In spite of the normalization procedure is standard from
+                                           Scientific Computing Group–GRUCACI, University of La Rioja,       the point of view of perturbation theory, it happens that not
+                                           Madre de Dios 53, 26006 Logroño, La Rioja, Spain
+                                           Tel.: +34-941-299440
+                                                                                                             all the action-angle variables of the Kepler problem appear
+                                           Fax: +34-941-299460                                               explicitly in the Geopotential, as is usually advisable in the
+                                           E-mail: mlara0@gmail.com                                          construction of perturbation solutions [32, 43, 44, 49]. In par-
+                                           M. Lara                                                           ticular, the mean anomaly remains implicit in the gravita-
+                                           Space Dynamics Group, Polytechnic University of Madrid–UPM,       tional potential through its dependence on the polar angle.
+                                           Plaza Cardenal Cisneros 3, 28040 Madrid, Spain                    Unavoidably, Kepler’s equation must be solved to show the
+2                                                                                                                            Martin Lara
+
+
+mean anomaly explicit, a fact that entails expanding the el-        could seem to be unavoidably attached. On the other hand,
+liptic motion in powers of the eccentricity [23, 7]. This stan-     when extended to higher orders, it removes more terms than
+dard procedure is quite successful when dealing with orbits         those needed in a partial normalization. Last, the fact that the
+of low eccentricities, like is typical in a variety of astronomy    technique was originally devised in the canonical set of po-
+problems [14, 57]. However, it involves handling very long          lar variables, to which the argument of the perigee does not
+Fourier series in the case of orbits with moderate eccentric-       pertain, neither helps in grasping the essence of the trans-
+ities [19, 33], and hence the application of this method to         formation. Reimplementation of the procedure in the usual
+different problems of interest in astrodynamics is de facto         set of action-angle variables makes the process of convert-
+prevented.                                                          ing the argument of the perigee into a cyclic variable much
+     On the contrary, the integrals appearing in the solution       more evident [45], but it still bears the same differences with
+of the artificial satellite problem can be solved in closed         respect to a classical normalization procedure.
+form of the eccentricity [6, 36]. It only requires the help of           We disregard the claimed benefits of Hamiltonian sim-
+the standard relation between the differentials of the true         plification procedures and compute the solution to the main
+and mean anomalies that is derived from the preservation            problem of the artificial satellite theory by standard normal-
+of the total angular momentum of the Keplerian motion.              ization. It is called reverse normalization because we ex-
+Regrettably, the closed form approach soon finds difficul-          change the order in which the formal integrals are tradition-
+ties in achieving higher orders of the short-period elimi-          ally introduced when solving the artificial satellite problem.
+nation, which stem from the impossibility of obtaining the          More precisely, the total angular momentum is transformed
+antiderivative of the equation of the center (the difference        into a formal integral in the first place, in this way decou-
+between the true and mean anomalies) in closed form of              pling the motion of the orbital plane from the satellite’s mo-
+the eccentricity in the realm of trigonometric functions [28,       tion on that plane.1 Then, a second canonical transformation
+54]. Nonetheless, the difficulties are overcome by the arti-        converts the mean anomaly into a cyclic variable, in this way
+fact of grouping the equation of the center with other func-        achieving the total reduction of the main problem Hamilto-
+tions appearing in the procedure previously to approaching          nian.
+their integration [37, 1, 17]. Alternatively, the application of         The procedure for making the argument of the perigee
+a preliminary Hamiltonian simplification, the elimination of        cyclic in the first place follows an analogous strategy to the
+the parallax [16, 46], eases the consequent removal of short-       one devised in the classical elimination of the perigee trans-
+period effects to some extent [9, 25].                              formation [2]. However, in our approach it is applied directly
+     From the point of view of the perturbation approach, re-       to the original main problem Hamiltonian, and differs from
+moving the short-period effects in the first place seems the        the original technique, as well as from an analogous proce-
+more natural in view of the degeneracy of the Kepler prob-          dure carried out in [56], in which the parallactic terms (in-
+lem. Indeed, the Kepler Hamiltonian in action-angle vari-           verse powers of the radius with exponents higher than 2) are
+ables, on which the perturbation approach hinges on, only           not removed from the new, partially normalized Hamilto-
+depends on the Delaunay action [22, 41]. However, the order         nian. In spite of that, we did not find trouble in dealing with
+in which the formal integrals are sequentially introduced in        the equation of the center in closed form in the subsequent
+the perturbation solution is not relevant in a total normaliza-     Delaunay normalization [17], a convenience that might had
+tion procedure, whose result is unique [3]. In fact, it hap-        been anticipated from the discussions in [50].
+pens that relegating the transformation of the Delaunay ac-              The Hamiltonian reduction has been approached in De-
+tion into a formal integral to the last step of the perturbation    launay variables. Unfortunately, these variables share the de-
+approach provides clear simplifications in dealing with the         ficiencies of their partner Keplerian elements, which are sin-
+equation of the center [2]. In this way the task of extending       gular for circular orbits and for equatorial orbits. Because
+the solution of the main problem to higher orders is notably        of that, the secular terms are reformulated in a set of non-
+simplified.                                                         singular variables that replaces the mean anomaly, the argu-
+     Converting the total angular momentum into a formal in-        ment of the perigee, and the total angular momentum, by
+tegral of the main problem requires making cyclic the argu-         the mean argument of the latitude and the projections of
+ment of the perigee, up to some truncation order of the per-        the eccentricity vector in the nodal frame, which are some-
+turbation approach, in the transformed Hamiltonian. How-            times denoted semi-equinoctial variables [34]. For the pe-
+ever, as it appeared in the literature, the transformation called   riodic corrections, we find convenience in using polar vari-
+by their authors the elimination of the perigee [2] is not the      ables, which in the particular case of the main problem are
+typical normalization procedure, although it operates anal-           1 The advantages of decoupling the motion of the instantaneous or-
+ogous results. Indeed, on the one hand, the elimination of
+                                                                    bital plane from the in-plane motion are well known, and are com-
+the perigee is only applied to a Hamiltonian obtained af-           monly pursued in the search for efficient numerical integration meth-
+ter the elimination of the parallax, to which simplification it     ods, q.v. [42] and references therein.
+Solution to the main problem of the artificial satellite by reverse normalization                                                         3
+
+
+free from small divisors of any kind except for those related                2 Construction of the analytical solution
+to the critical inclination resonance, and are known to pro-
+duce compact expressions that yield faster evaluation [27,                   The solution of Laplace’s equation in spherical coordinates
+47].                                                                         provides the gravitational potential in the form of an expan-
+    We extended the complete normalization to the order six                  sion in harmonic functions. In the case of the Earth, the mass
+of the perturbation approach, which, to our knowledge, is                    distribution is almost symmetric with respect to the rotation
+the maximum order that has been reported in the literature                   axis. For this reason, the Geopotential is simplified in dif-
+(yet limited to partial normalization cases) [25, 56]. The aim               ferent applications to just the contribution of the zonal har-
+of computing such a high order is not to enter a competi-                    monics (see [13], for instance)
+tion. On the contrary, we did it simply because the particu-                        µ X R⊕m
+lar value of the Earth’s J2 coefficient is ∼ 10−3 , and hence                V=           m
+                                                                                            Jm Pm (sin ϕ),                              (1)
+                                                                                    r   r
+the computed solution should be exact to the numerical pre-                           m≥0
+
+cision of standard floating-point arithmetic [30] already at                 where r is distance from the origin, ϕ is latitude, µ is the
+the fifth order. We checked that it is exactly the case, and                 Earth’s gravitational parameter, R⊕ is the Earth’s mean equa-
+extending the computations to the sixth order only served                    torial radius, Jm are zonal harmonic coefficients, and Pm
+us to verify that we don’t find observable improvements in                   denote Legendre polynomials of degrees m.
+our tests. In order to compute this high-order solution we re-                   The flow stemming from the potential (1) admits Hamil-
+sorted to the practicalities of standard commercial software,                tonian formulation. Besides, because J2 ∼ 10−3 whereas
+in which Deprit’s perturbation algorithm based on the Lie                    Jm (m > 2) are O(J22 ) or smaller, the Hamiltonian
+transforms method [15] is easily implemented. On account
+                                                                                                2
+of the current computational power, it should be quite fea-                            µ    µ R⊕    1
+                                                                                                  J2 1 − 3 sin2 ϕ ,
+                                                                                                                 
+                                                                             H=−          −     2
+                                                                                                                                        (2)
+sible to extend the perturbation solution, if desired, to even                         2a   r r     2
+higher orders, although we didn’t try that.                                  is representative of the main characteristics of the dynam-
+    On the other hand, making cyclic the argument of the                     ics of close Earth satellites, and is commonly known as the
+perigee with the standard normalization in action-angle vari-                main problem of artificial satellite theory. The symbol a in
+ables seems to be a particularly efficient procedure from                    Eq. (2) stands for the orbit semi-major axis, and, from stan-
+the computational point of view, resulting in a generating                   dard trigonometric relations, sin ϕ = sin I sin θ, where I
+function whose size is astonishingly smaller than alternative                and θ are used to denote the inclination and the argument of
+proposals in the literature. This fact, combined with the re-                the latitude, respectively.
+duction in the number of transformations required by the                         When using the classic set of Keplerian elements, the ar-
+perturbation solution to just two, as opposite to the three                  gument of the latitude is θ = f + ω, where f and ω denote
+transformations needed when the elimination of the paral-                    the true anomaly and the argument of the periapsis, respec-
+lax is carried out in the first place, might make this latter                tively. The radius is computed from the conic equation
+simplification dispensable, as well as the discussions in [18]
+                                                                                         p
+questionable, at least in what respects to the computation of                r=                 ,                                       (3)
+                                                                                    1 + e cos f
+explicit analytical solutions as opposite to partial normaliza-
+tions to be integrated semianalytically.                                     where p = a(1 − e2 ) is the parameter of the conic and
+    Tests carried out on typical Earth orbits of different types             e is the eccentricity of the orbit. Note, however, that, be-
+confirm that the computed solution bears exactly the ex-                     cause we are using Hamiltonian formulation, the symbols
+pected characteristics of a perturbation solution of perturbed               appearing in Eq. (2) need to be expressed as functions of
+Keplerian motion. In particular, we verified the degree of                   some set of canonical variables. While the Keplerian vari-
+convergence of successive approximations. We confirmed                       ables are not canonical, they are conveniently expressed in
+too that, as expected, the quality of the analytical solution                the set of Delaunay canonical variables (`, g, h, L, G, H), in
+degrades in the vicinity of the critical inclination resonance               which ` is the mean anomaly, g = ω, h is the argument of
+                                                                                                          √
+—a case that, of course, would require a specific treatment                  the ascending node, L = µa is known as the Delaunay
+                                                                                             √
+[10,29, 48]. In addition, we checked that the computation                    action, G = L 1 − e2 is the total angular momentum, and
+of the initialization constants of the analytical solution from              H = G cos I is the projection of the angular momentum
+corresponding initial conditions gets a clear benefit of us-                 along the Earth’s rotation axis. That the latter is an integral
+ing a higher order of the periodic corrections than the order                of the main problem becomes evident after checking that h
+needed for ephemeris evaluation, yet this additional accu-                   is an ignorable variable in Hamiltonian (2), which, in conse-
+racy is not needed in all the variables and can be limited to                quence, is of just two degrees of freedom.
+the computation of the formal integral given by the Delau-                       Besides, the main problem Hamiltonian is conservative,
+nay action [4, 19, 24].                                                      and, therefore, Eq. (2) remains constant (the total energy)
+4                                                                                                                                 Martin Lara
+
+
+for a given set of initial conditions. On the other hand, the        in which {Wm ; K0,0 } stands for the computation of the Pois-
+existence of a third integral has not been proved. Then, exact       son bracket of Wm and the zeroth order term of the Hamilto-
+solutions of the main problem are not known. Alternatively,          nian. Terms K e 0,m are known from the original Hamiltonian
+it is approached with the usual tools of non-linear dynam-           as well as from previous computations to the step m, which
+ics, such as Poincaré surfaces of section or the computation        are carried out using Deprit’s fundamental recursion
+of families of periodic orbits [12, 5, 38, 39]. Still, in some re-                           n  
+gions of phase space, and for particular energy values, the
+                                                                                           X     n
+                                                                     Fn,q = Fn+1,q−1 +               {Fn−m,q−1 ; Wm+1 }. (11)
+third integral can be constructed formally with the help of                                m=0
+                                                                                                 m
+perturbation methods, obtaining in this way useful analyti-
+                                                                     Equation (11) can be used to formulate any function F of
+cal approximations to the main problem dynamics in these
+                                                                     the canonical set of original variables like a function of the
+particular regions.
+                                                                     new variables, the Hamiltonian (4) being just one among the
+                                                                     different possibilities. Finally, the term K0,m is chosen at
+                                                                     our will, with the only condition of making the homological
+2.1 Perturbation approach
+                                                                     equation solvable in Wm .
+We rewrite the main problem in the form of a perturbation                When using Delaunay variables the homological equa-
+Hamiltonian                                                          tion of the main problem Hamiltonian is solved by indefinite
+                                                                     integration. Indeed, Eq. (5) turns into K0,0 = − 21 µ2 /L2 ,
+                                    X εm
+H = H(`, g, −, L, G, H) ≡                       Km,0 ,        (4)    and hence the Lie derivative operator L0 takes the extremely
+                                           m!                        simple form
+                                    m≥0
+
+                                                                                  ∂Wm
+in which ε is a formal small parameter (ε = 1) used to man-          L0 (Wm ) = n       ,
+ifest the strength of each summand of Eq. (4), and                                  ∂`
+                                                                                   p
+              µ                                                      in which n = µ/a3 = µ2 /L3 is the mean motion of the
+ K0,0 = − ,                                             (5)
+             2a                                                      unperturbed problem. Then, from Eq. (10),
+                 2
+             µ R⊕ 1                                                        1
+                                                                              Z
+                     J2 2 − 3s2 + 3s2 cos(2f + 2ω) , (6)
+                                                    
+ K1,0 = −        2                                                   Wm =         e 0,m − K0,m ) d` + Cm ,
+                                                                                 (K                                  (12)
+             r r 4                                                          n
+Km,0 = 0, m ≥ 2.                                        (7)
+                                                                     where the functions Cm ≡ Cm (−, g, L, G; H) play the role
+The symbol s in Eq. (6) stands for the usual abbreviation of
+                                                                     of integration “constants” that verify dCm /d` = 0. Equa-
+the sine of the inclination.
+                                                                     tion (12) is solved in closed form of the eccentricity with the
+    The aim is to find a transformation of variables
+                                                                     help of the differential relation between the true and mean
+                                                                     anomalies provided by the preservation of the angular mo-
+(`, g, h, L, G, H; ε) 7→ (`0 , g 0 , h0 , L0 , G0 , H 0 ),
+                                                                     mentum of the Kepler problem. That is, G = r2 df /dt, from
+given also by an expansion in powers of the small parameter,         which
+such that, up to some truncation order m = k, the Hamil-
+                                                                     a2 η d` = r2 df,                                 (13)
+tonian in the new variables is transformed into a separable
+                                                                                   √
+Hamiltonian. Namely,                                                 where η = 1 − e2 = G/L is usually known as the eccen-
+                                                                     tricity function. Hence,
+        k
+        X εm
+H0 =               K0,m (−, −, −, L0 , G0 , H) + O(εk+1 ).    (8)                                     2
+                                                                                 Z
+                                                                               1     e 0,m − K0,m ) r df + Cm .
+       m=0
+           m!                                                        Wm =           (K                                (14)
+                                                                              n                      2
+                                                                                                   a η
+    The desired transformation is derived from a scalar gen-             The transformation that makes the main problem Hamil-
+erating function                                                     tonian separable, up to the truncation order, is split into two
+        X εm                                                         different canonical transformations. With the first one
+W=                 Wm+1 .                                     (9)
+       m≥0
+              m!                                                     (`, g, h, L, G, H; ε) 7→ (`0 , g 0 , h0 , L0 , G0 , H 0 ),
+
+which, in our case, is computed using Deprit’s perturbation          we make the argument of the perigee cyclic, thus converting
+algorithm based on Lie transforms [15]. The procedure is             the total angular momentum into a formal integral. That is,
+summarized in finding a particular solution of the homolog-          the motion of the satellite in the orbital plane, whose incli-
+ical equation                                                        nation remains constant in the new variables, is decoupled
+                                                                     from the motion of the orbital plane. Therefore, the reduced
+L0 (Wm ) ≡ {Wm ; K0,0 } = K
+                          e 0,m − K0,m ,                     (10)    system representing the motion on the orbital plane could be
+Solution to the main problem of the artificial satellite by reverse normalization                                                                    5
+
+
+integrated separately. Rather, we carry out a second canoni-                            f in Eqs. (15), (16), and (17) are functions of the Delaunay
+cal transformation                                                                      variables.
+                                                                                            At the second order we compute K0,2 from Eq. (11), to
+(`0 , g 0 , h0 , L0 , G0 , H 0 ; ε) 7→ (`00 , g 00 , h00 , L00 , G00 , H 00 ),          obtain
+that makes ignorable the mean anomaly in the transformed                                K0,2 = {K0,1 , W1 } + K1,1 ,                               (18)
+Hamiltonian in double-prime variables. In this way, the De-
+launay action is converted into a formal integral too, and the                          in which K1,1 is computed using again Eq. (11). Namely,
+complete Hamiltonian reduction is achieved up to the trun-                              K1,1 = {K0,0 , W2 } + {K1,0 , W1 } + K2,0 .                (19)
+cation order of the perturbation solution, whose Hamilton
+equations are thus trivially integrable.                                                On account of K2,0 = 0 from Eq. (7), the known terms
+     The computation of the secular terms from the normal-                              hitherto of the homological equation (10) are
+ized Hamiltonian is only part of the perturbation solution. To                          e 0,2 = {K0,1 , W1 } + {K1,0 , W1 },
+                                                                                        K
+be complete, it requires the correct initialization of the con-
+stants of the perturbation solution from corresponding initial                          whose computation only involves partial differentiation. Be-
+conditions using the inverse transformation (from original                              fore approaching the solution of Eq. (14), we first check that
+to double prime variables), on the one hand, and the recov-                             the term K e 0,2 is made of trigonometric coefficients Ti whose
+ery of periodic effects using the direct transformation (from                           arguments always involve the true anomaly as argument, ex-
+double prime to original variables) to obtain the ephemeris                             cept for the terms
+corresponding to the secular terms propagation. Both the di-                                      3µp 2 2
+                                                                                        T0 = 2          s e (23s2 − 16 + 8 4s2 − 3) ,
+                                                                                                                                          
+rect and inverse transformations are obtained from standard                                       4rr
+application of the Lie transforms method. Because there are                                       3 2 21
+                                                                                        T1 = −  G 2 (15s2 − 14)s2 e2 cos 2ω,
+no specific artifices related to the computation of the current                                   2        r
+solution in what respects to that part, we do not provide de-                                        1            ∂C1
+                                                                                        T2 = 6G 2 (5s2 − 4)            .
+tails on their computation and an interested reader is referred                                     r              ∂g
+to the literature [15].                                                                 Integration of these 3 terms in Eq. (14) would yield corre-
+                                                                                        sponding terms that grow unbounded with f . The term T0
+                                                                                        is free from the argument of the periapsis, and hence it can
+2.2 Normalization of the total angular momentum                                         be cancelled by choosing the new Hamiltonian K0,2 having
+                                                                                        a corresponding term T0 . On the contrary, the terms T1 and
+At the first order, we check from Eq. (11) that the known
+                                                                                        T2 depend on the argument of the perigee, a fact that pre-
+terms involved in the homological equation consist only of
+                                                                                        vents their appearance in the new Hamiltonian under our re-
+Ke 0,1 = K1,0 . Therefore, we chose the new Hamiltonian
+                                                                                        quirement of making g a cyclic variable. Nevertheless, since
+term
+                                                                                        we had left C1 arbitrary, both terms will cancel each other
+                  2
+               µ R⊕ 1                                                                   if C1 is determined from the partial differential equation
+                      J2 2 − 3s2 ,
+                                
+K0,1 = −                                                                         (15)
+               r r2 4                                                                   T1 + T2 = 0. We readily check that the particular solution
+which is the part of Eq. (6) that is free from the argument of                                    15s2 − 14 2 2
+the perigee, as desired. Then, Eq. (14) turns into                                      C1 = G              s e sin 2ω,                           (20)
+                                                                                                  8(5s2 − 4)
+                   2
+                R⊕
+                        Z
+         3            2   p                                                             matches this purpose. Remark that the appearance of the di-
+W1 = − GJ2 2 s               cos(2f + 2ω) df + C1 ,
+         4       p        r                                                             visor 5s2 − 4 prevents application of the solution to the res-
+                                                                                        onant cases that happen at the so-called critical inclinations
+which is solved by standard integration after replacing the
+                                                                                        in which sin2 I = 4/5. That is, the supplementary inclina-
+radius with the conic equation (3). We obtain
+                                                                                        tions I = 63.435◦ and I = 116.565◦ .
+                          3                                                                 After computing the partial derivatives of Eq. (20) with
+        1 X b2− 12 ic |i−2|
+W1 = −G s2   3      e      sin(if + 2ω) + C1 , (16)                                    respect to L and G, which also appear among the coeffi-
+        2 i=1
+                                                                                        cients of the terms remaining in K   e 0,2 , the known terms of
+where C1 is hold arbitrary by now, the symbol b c stands for                            the homological equation become fully determined. Then,
+integer part, and we abbreviated                                                        we can safely choose K0,2 so that it comprises those terms
+          2                                                                             of Ke 0,2 that are free from the argument of the periapsis. We
+      1 R⊕
+=     J2 2 ,                                                                    (17)   obtain,
+      4 p
+                                                                                                                    2     b1− 21 jc
+                                                                                                     2
+                      2
+in which p = G /µ, and, therefore  is a function of the total                                   2µ p      3s2     X   pj X
+                                                                                        K0,2 =                                     e2k γ2,j,k ,   (21)
+angular momentum. Recall that the symbols p, s, e, ω, and                                         r r2 8(5s2 − 4)2 j=0 rj
+                                                                                                                            k=0
+6                                                                                                                            Martin Lara
+
+
+in which the inclination polynomials γ2,j,k ≡ γ2,j,k (s) are           which contributes three additional inclination functions that
+provided in Table 1.                                                   are also listed in Table 2. In this way, the second order term
+                                                                       of the generating function given by Eq. (22) becomes fully
+                                                                       determined.
+Table 1 Inclination polynomials γ2,j,k in Eq. (21).
+                                                                           The needed partial derivatives of C2 appearing in K   e 0,3
+0,0      −8 (200s6 − 455s4 + 345s2 − 88)                               are then computed, and the third order term of the new Hamil-
+0,1      375s6 − 930s4 + 780s2 − 224                                   tonian is chosen, as before, to comprise those terms of K e 0,3
+1,0      5 (805s6 − 1878s4 + 1464s2 − 384)                             that are free from the argument of the periapsis. We obtain
+2,0      −825s6 + 1990s4 − 1616s2 + 448
+                                                                                                                      1
+                                                                                                    4     b2− 2 jc
+                                                                                 µ p2     3s2      X   pj X
+                                                                       K0,3 = 3                                   e2k γ3,j,k ,    (24)
+    The second order term of the generating function is then                     r r2 32(5s2 − 4)3 j=0 rj
+                                                                                                            k=0
+readily computed from Eq. (14), yielding
+                                                                       where the inclination polynomials γ3,j,k are displayed in Ta-
+                          2     2l+2   1
+         2 G    X X X                  ∗                              ble 3.
+W2 =      2    2
+                         Γ2,j,k,l e2j+k
+     32(5s − 4)      j=0 l=1 k=l−2
+                              k6=0
+                                                                       Table 3 Inclination polynomials γ3,j,k in Eq. (24).
+          ×s2l sin(kf + 2lω) + C2 ,                             (22)
+                                                                       0,0    −8(5s2 − 4)(313525s8 − 899030s6 + 933656s4
+         ∗                                                                    −409296s2 + 61824)
+with k ≡ k mod 2, and the inclination polynomials Γ2,j,k,l
+are given in Table 2.                                                  0,1    4(1551625s10 − 5675700s8 + 8148960s6 − 5706408s4
+                                                                              +1930272s2 − 248064)
+                                                                       0,2    −2(40500s10 − 99525s8 + 64840s6 + 18788s4
+                                                                              −33936s2 + 9408)
+Table 2 Non-zero inclination polynomials Γ2,j,k,l in Eqs. (22)–(23).   1,0    2(5s2 − 4)(2631475s8 − 7558270s6 + 7872692s4
+                                                                              −3470616s2 + 530304)
+1,−1,1       −12(5s2 − 4)(7s2 − 6)(15s2 − 14)                                 −3457125s10 + 12282750s8 − 17085020s6
+                                                                       1,1
+0,1,1        −48(5s2 − 4)(195s4 − 340s2 + 148)                                +11554040s4 − 3756000s2 + 459648
+1,1,1        24(5s2 − 4)2 (15s2 − 14)                                         −2(5s2 − 4)(1584375s8 − 4536150s6 + 4716436s4
+                                                                       2,0
+1,1,2        −3(225s4 − 430s2 + 208)                                          −2082712s2 + 321408)
+0,2,1        −96(5s2 − 4)2 (9s2 − 8)                                          138375s10 − 128250s8 − 351900s6 + 612440s4
+                                                                       2,1
+1,2,1        −24(5s2 − 4)(65s4 − 116s2 + 52)                                  −326368s2 + 56448
+1,2,2        −60(50s4 − 87s2 + 38)                                            8(5s2 − 4)(93300s8 − 259915s6 + 264982s4 − 116928s2
+                                                                       3,0
+0,3,1        −64(5s2 − 4)2 (8s2 − 7)                                          +18816)
+1,3,1        4(3s2 − 2)(5s2 − 4)(15s2 − 14)                                   −20s2 (5s2 − 4)(15s2 − 14)(45s4 + 36s2 − 56)
+                                                                       4,0
+0,3,2        −4(5s2 − 4)(135s2 − 122)
+1,3,2        −8(75s4 − 135s2 + 61)
+1,4,1        −12(5s2 − 4)2 (7s2 − 6)
+0,4,2        24(5s2 − 4)2                                                  Then, after solving Eq. (14), we find that the third order
+1,4,2        −12(5s2 − 4)(25s2 − 23)
+             24(5s2 − 4)2
+                                                                       term of the generating function can be arranged in the form
+0,5,2
+1,5,2        −3(5s2 − 4)(15s2 − 14)                                                                 3    2l+4   2
+             6(5s2 − 4)2                                                            3 G     X X X                  ∗
+1,6,2
+                                                                       W3 =                          Γ3,j,k,l e2j+k
+0,0,2        (15s2 − 14)2 (15s2 − 13)                                                  2
+                                                                               8960(5s − 4)4
+                                                                                                 j=0
+                                                                                                   l=1 k=l−4
+0,0,1        8(5s2 − 4)2 (1215s4 − 1997s2 + 824)                                                        k6=0
+1,0,1        −2(5s2 − 4)(15s2 − 14)(45s4 + 36s2 − 56)
+                                                                               ×s2l sin(kf + 2lg) + C3                             (25)
+                                                                       in which the inclination polynomials Γ3,j,k,l that do not van-
+    Analogously as we did with C1 , the arbitrary function             ish are listed in Table 4. The constant C3 is determined at the
+C2 in which Eq. (22) depends upon is determined at the                 next order of the perturbation approach in the same way as
+next step of the perturbation approach in such a way that the          we did previously. We obtain
+appearance of unbounded terms in the solution of the ho-
+mological equation of the third order are avoided. Thus, we                                        3    3−l
+                                                                                   3 G      XX
+compute K    e 0,3 by successive evaluations of the fundamen-          C3 =           2    5
+                                                                                                  Γ3,j,0,l e2(j+l) s2l sin 2lω,
+                                                                              1536(5s − 4)    j=0
+tal recursion (11). After identifying the problematic terms                                       l=1
+
+of Ke 0,3 , they are cancelled by computing
+                                                                       which contributes six additional inclination polynomials Γ3,j,0,l ,
+                          2    2−l
+                                                                       that are also listed in Table 4.
+             2 G     XX
+                                                                           The computation of additional orders finds similar struc-
+C2 =          2     3
+                           Γ2,j,0,l e2(j+l) s2l sin 2lω, (23)
+         64(5s − 4)    j=0                                             tures. Thus, for instance, the fourth order term of the new
+                         l=1
+Solution to the main problem of the artificial satellite by reverse normalization                                     7
+
+
+Table 4 Non-zero inclination polynomials Γ3,j,k,l in Eq. (25).
+
+2,−3,1    35 (15s2 − 14) (87375s10 − 335550s8 + 505080s6 − 371184s4 + 132096s2 − 17920)
+2,−2,1    105 (15s2 − 14) (399375s10 − 1863400s8 + 3389440s6 − 3023632s4 + 1328128s2 − 230400)
+1,−1,1    −840 (5s2 − 4) (228125s10 − 549325s8 + 255940s6 + 324664s4 − 352992s2 + 93824)
+2,−1,1    210 (15s2 − 14) (100875s10 − 275600s8 + 228220s6 − 6408s4 − 70272s2 + 23296)
+2,−1,2    −105 (5s2 − 4) (15s2 − 14) (13725s6 − 37680s4 + 34228s2 − 10304)
+                                2
+0,1,1     −1680 (5s2 − 4) (486525s8 − 1594290s6 + 1955772s4 − 1064576s2 + 216960)
+1,1,1     840 (5s2 − 4) (1531125s10 − 6503075s8 + 10982780s6 − 9224760s4 + 3855648s2 − 641920)
+2,1,1     −420 (15s2 − 14) (61875s10 − 138825s8 + 51640s6 + 92200s4 − 89088s2 + 22400)
+1,1,2     1680 (5s2 − 4) (240750s8 − 775475s6 + 932445s4 − 495822s2 + 98320)
+2,1,2     105 (5s2 − 4) (226125s8 − 787950s6 + 1015020s4 − 572056s2 + 118944)
+2,1,3     −840 (15s2 − 14) (1125s6 − 3300s4 + 3235s2 − 1058)
+                                3
+0,2,1     −1680 (5s2 − 4) (41615s6 − 97838s4 + 76016s2 − 19488)
+1,2,1     −1680 (5s − 4) (666875s10 − 2586600s8 + 4014940s6 − 3117320s4 + 1210368s2 − 187904)
+                       2
+
+2,2,1     210 (5398125s12 − 27480750s10 + 57999400s8 − 64973520s6 + 40757888s4 − 13579264s2 + 1878016)
+                                2
+1,2,2     −3360 (5s2 − 4) (42850s6 − 108830s4 + 92099s2 − 25958)
+2,2,2     840 (5s2 − 4) (123750s8 − 359475s6 + 378010s4 − 167724s2 + 25624)
+2,2,3     −105 (639375s8 − 2259750s6 + 2991200s4 − 1757840s2 + 387104)
+                                2
+0,3,1     −1120 (5s2 − 4) (270650s8 − 828285s6 + 945816s4 − 477232s2 + 89664)
+1,3,1     280 (5s2 − 4) (634500s10 − 2623725s8 + 4300340s6 − 3496152s4 + 1412352s2 − 227584)
+2,3,1     −70 (15s2 − 14) (76875s10 − 202950s8 + 167700s6 − 16544s4 − 37376s2 + 12544)
+                              2
+0,3,2     −560 (5s2 − 4) (605775s6 − 1524950s4 + 1277728s2 − 356256)
+                           2
+1,3,2     560 (5s − 4) (9150s6 − 6435s4 − 9741s2 + 7154)
+                  2
+
+2,3,2     35 (5s2 − 4) (104625s8 − 68850s6 − 286620s4 + 378936s2 − 127232)
+1,3,3     −280 (5s2 − 4) (52875s6 − 129225s4 + 102900s2 − 26456)
+2,3,3     −140 (15s2 − 14) (7875s6 − 21225s4 + 19120s2 − 5756)
+1,4,1     −840 (5s2 − 4) (516875s10 − 1956050s8 + 2950940s6 − 2217472s4 + 829440s2 − 123392)
+2,4,1     420 (5s2 − 4) (173625s10 − 668250s8 + 1023720s6 − 780120s4 + 295872s2 − 44800)
+                                3
+0,4,2     −6720 (5s2 − 4) (730s4 − 1153s2 + 444)
+                                2
+1,4,2     −3360 (5s − 4) (66050s6 − 166215s4 + 139230s2 − 38808)
+                       2
+
+2,4,2     420 (5s2 − 4)2 (20925s6 − 38700s4 + 19984s2 − 1976)
+1,4,3     840 (5s2 − 4) (10125s6 − 32150s4 + 33500s2 − 11456)
+2,4,3     −2100 (5s2 − 4) (3525s6 − 9240s4 + 7996s2 − 2280)
+1,5,1     −168 (5s2 − 4) (115000s10 − 434875s8 + 663700s6 − 512080s4 + 199936s2 − 31488)
+2,5,1     −105s2 (5s2 − 4) (15s2 − 14) (825s6 − 1990s4 + 1616s2 − 448)
+                              3
+0,5,2     −336 (5s2 − 4) (15425s4 − 24050s2 + 9112)
+                            2
+1,5,2     −84 (5s − 4) (551625s6 − 1390850s4 + 1167040s2 − 325728)
+                   2
+
+2,5,2     105 (5s2 − 4)2 (15s2 − 14) (225s4 + 288s2 − 364)
+0,5,3     3360 (5s2 − 4)2 (1575s4 − 2795s2 + 1256)
+1,5,3     840 (5s2 − 4) (8250s6 − 24975s4 + 25080s2 − 8336)
+                                       2
+2,5,3     −420 (5s2 − 4) (15s2 − 14) (15s2 − 13)
+2,6,1     35 (5s2 − 4) (171375s10 − 616950s8 + 871680s6 − 600128s4 + 199168s2 − 25088)
+                              3
+1,6,2     −280 (5s2 − 4) (8265s4 − 12874s2 + 4872)
+                              2
+2,6,2     −280 (5s − 4) (11475s6 − 29280s4 + 24828s2 − 6992)
+                     2
+
+0,6,3     560 (5s2 − 4)3 (1335s2 − 1166)
+1,6,3     560 (5s2 − 4)2 (8325s4 − 14910s2 + 6764)
+2,6,3     70 (5s2 − 4) (21375s6 − 61950s4 + 59960s2 − 19328)
+                            3
+1,7,2     −60 (5s2 − 4) (8385s4 − 13226s2 + 5080)
+0,7,3     10080 (5s2 − 4)3 (90s2 − 79)
+1,7,3     12600 (5s2 − 4)2 (105s4 − 191s2 + 88)
+                                     3
+2,8,2     −840 (3s2 − 2) (5s2 − 4) (15s2 − 14)
+                    2        3    2
+1,8,3     4200 (5s − 4) (96s − 85)
+2,8,3     210 (5s2 − 4)2 (525s4 − 990s2 + 472)
+1,9,3     7560 (5s2 − 4)3 (10s2 − 9)
+2,10,3    315 (5s2 − 4)3 (15s2 − 14)
+0,0,3     2 (15s2 − 14)3 (825s4 − 1445s2 + 634)
+                          2
+0,0,2     −6 (5s2 − 4) (2171250s8 − 7719525s6 + 10225470s4 − 5983260s2 + 1305248)
+                                     2
+1,0,2     −3 (5s − 4) (15s2 − 14) (1800s6 + 2655s4 − 8208s2 + 3928)
+                 2
+                         2
+0,0,1     48 (5s − 4) (9060750s − 34431275s8 + 51858720s6 − 38675200s4 + 14258176s2 − 2072064)
+                2                   10
+
+1,0,1     −12 (5s2 − 4) (93223125s12 − 421210500s10 + 784654200s8 − 771469840s6 + 422629664s4 − 122600960s2 + 14780416)
+2,0,1     6 (15s2 − 14) (2328750s12 − 8703375s10 + 13317150s8 − 10848180s6 + 5157560s4 − 1450624s2 + 200704)
+8                                                                                                                            Martin Lara
+
+
+Hamiltonian takes the form                                          perturbation solution [19, 9]. Thus, for instance, we find 5,
+                                               1
+                                                                    56, 367, 1152, 2627, and 4897 expanded terms for the 1st,
+                              5     b3− 2 jc
+             2
+        4µ p       9s2       X   pj X                               2nd . . . , 6th order terms of the generating function, respec-
+K0,4 =                                      e2k γ4,j,k ,           tively, whereas much longer expressions have been reported
+         r r2 1280(5s2 − 4)6 j=0 rj
+                                            k=0
+                                                                    in the literature. For instance, the sixth order of the gener-
+                                                           (26)     ating function reported in [56] entails 39630 terms, which
+and the fourth order term of the generating function takes          is almost one order of magnitude larger than the one ob-
+the form                                                            tained with the current approach. It is worth mentioning that
+                                4   2l+6   6
+                                                                    further simplifications could be obtained in particular cases,
+              4 G       X X X                  ∗
+                                                                    like when constraining the application of the analytical so-
+W4 =               2   6
+                                 Γ4,j,k,l e2j+k
+       30105600(5s − 4)      j=0                                    lution to the case of low eccentricity orbits, in which case
+                               l=1 k=l−6
+                                    k6=0                            many of the terms involved can be neglected [40, 21].
+       ×s2l sin(kf + 2lω) + C4 .                           (27)          The comparisons are, nevertheless, inconclusive due to
+                                                                    the diversity of approaches used in the computation of the
+While the former involves 15 inclination polynomials γ4,j,k ,
+                                                                    variety of solutions reported in the literature, which involve
+the later comprises up to 124 non-vanishing inclination poly-
+                                                                    representation in different variables, on the one hand, and
+nomials Γ4,j,k,l , of degree 9 in s2 . Therefore, these and other
+                                                                    yield distinct one-degree-of-freedom Hamiltonians, on the
+polynomials resulting from following orders are not listed
+                                                                    other. The partially normalized Hamiltonian obtained here
+due to their length.
+                                                                    is definitely longer than the one obtained after the classi-
+     The normalization of G has been extended up to the or-
+                                                                    cal elimination of the perigee. However, this is not of con-
+der six without major trouble, except for the increase of the
+                                                                    cern in the complete, as opposite to partial, normalization
+computational burden of successive orders due to the no-
+                                                                    of the main problem. Indeed, after the following elimina-
+table growth of the length of the series to be handled, on
+                                                                    tion of short-period terms either procedure should arrive to
+the one hand, and the increasing size of the rational coef-
+                                                                    the same Hamiltonian. We didn’t find reported data for the
+ficients resulting from the integer arithmetic used, on the
+                                                                    second normalization after the elimination of the perigee,
+other. Thus, the new Hamiltonian terms K0,5 and K0,6 take
+                                                                    but one would expect that the figures should be balanced to
+analogous forms to the previous orders, with 24 inclination
+                                                                    some extent —the generating function of the short-period
+polynomials γ5,j,k , and 35 γ6,j,k . Similarly, the generating
+                                                                    elimination probably being heavier in our case than in other
+function terms W5 and W6 have been arranged in the same
+                                                                    prospective approaches. While the needed data for the thor-
+form as previous orders of the perturbation approach, with
+                                                                    ough comparison is not available, our claims must restrict
+254 non-vanishing coefficients Γ5,j,k,l and 429 Γ6,j,k,l , 15
+                                                                    to the checked fact that our approach makes both transfor-
+of which correspond to the integration constant C5 and 21
+                                                                    mations of manageable size —as we will show in the next
+to C6 .
+                                                                    section, where the short-period effects are removed in a De-
+     At the end, since the generating function is known, the
+                                                                    launay normalization. This feature makes the evaluation of
+transformation equations from the original Delaunay vari-
+                                                                    higher orders of our perturbation solution certainly practica-
+ables to the new ones, and vice versa, are readily computed
+                                                                    ble.
+by standard application of the fundamental recursion (11)
+(see [15] for details). The procedure ends by replacing the
+original variables by the new ones in the computed terms            2.3 Delaunay normalization
+K0,m .
+     We remark that the procedure described here is not equiv-      The partially normalized Hamiltonian is just of one degree
+alent to the combination of the elimination of the parallax         of freedom, yet it is not separable. To get an explicit ana-
+and the elimination of the perigee into a single transforma-        lytical solution we remove the short-period terms that are
+tion, in spite of the fact that the total angular momentum is       associated to the radius by means of a Delaunay normaliza-
+converted into a formal integral in both cases. On the con-         tion [17]. The partially reduced Hamiltonian from which we
+trary, the perigee has been removed here keeping as much            start takes again the form of Eq. (4), but it is now written
+short-period terms as possible in the new Hamiltonian. With         in prime Delaunay variables (`0 , g 0 , h0 , L0 , G0 , H 0 ). In this
+this strategy, the size of the generating function of the first     Hamiltonian the variables g 0 and h0 are cyclic, and hence
+partial normalization is astonishingly smaller than the one         H 0 = H and G0 remain constant for given initial conditions.
+that would be obtained with other alternatives in the liter-        The zeroth order term is the same as in Eq. (5), the term K1,0
+ature. To check that, we fully expanded both the Hamil-             is given by Eq. (15), whereas terms Km,0 with m ≥ 2 are
+tonian and the generating function and reckoned the num-            no longer void, and, on the contrary are given by Eqs. (21),
+ber of terms. This procedure is the one that has been tradi-        (24), (26), for m = 2, 3, 4, respectively, and analogous equa-
+tionally used in the literature to assess the complexity of a       tions for higher orders that, due to its length, are not printed
+Solution to the main problem of the artificial satellite by reverse normalization                                                               9
+
+
+in the paper. Moreover, the definition in Eq. (17) turns  into              Table 5 Inclination polynomials Λ2,j,k in Eq. (33).
+a physical constant, rather than a function, when witten in
+                                                                             1,0    15(3s2 − 2)(805s6 − 2448s4 + 2400s2 − 768)
+the prime variables. In consequence  can replace now the                           3(3s2 − 2)(2225s6 − 8160s4 + 8928s2 − 3072)
+                                                                             1,1
+formal small parameter ε used before in the Lie transforms                   1,2    3(825s8 − 3030s6 + 4064s4 − 2368s2 + 512)
+procedure, assumed, of course, that the corresponding scal-                  1,3    −3s2 (975s6 − 2250s4 + 1728s2 − 448)
+ing of the Hamiltonian terms is properly made.                               2,0    6(1925s8 − 6210s6 + 7452s4 − 3936s2 + 768)
+                                                                             2,1    6(125s8 − 930s6 + 1660s4 − 1120s2 + 256)
+    The homological equation to be solved at each step of                           2625s8 − 7270s6 + 7408s4 − 3264s2 + 512
+                                                                             3,0
+the new Lie transformation is the same as before, either in                  3,1    s2 (825s6 − 1990s4 + 1616s2 − 448)
+the form given by Eq. (12) or Eq. (14), except for choosing
+a non-zero integration constant does not provide any advan-
+tage in the current case. In fact, since the new Hamiltonian                 where β = 1/(1 + η), Φ2,0 = 8(s2 − 1)(5s2 − 4), Φ2,1 =
+must be free from terms depending on the mean anomaly,                       8 − 8s2 − 5s4 , and the inclination polynomials Λ2,j,k are
+which are obtained by averaging, the homological equation                    provided in Table 5.
+can be further particularized. That is,                                          Integrals cease to be trivial at the third order. Indeed, the
+                              Z 2π           2
+                                                                             formal computation of K0,3 using the fundamental recursion
+                          1          e 0,m r df,                             (11) yields two different types of terms.
+K0,m = hK
+        e 0,m i` =                   K      2
+                                                                   (28)
+                         2π    0          a η                                    The first type consists of terms depending on the equa-
+and hence                                                                    tion of the center, which can be reduced to the form
+
+      `        1
+                 Z        2                                                   µp
+Wm = − K0,m +      e 0,m r df
+                   K                                                          rr
+                                                                                 P (e)Q(s)φ sin mf ,
+      n        n        a2 η
+                         r2
+               Z               
+         φ   1                                                               with P and Q denoting arbitrary eccentricity and inclination
+   = K0,m +        K0,m 2 − K0,m df,
+                   e                                               (29)
+         n n            a η                                                  polynomials. Definite integration of these kinds of terms is
+                                                                             carried out from expressions in [52], whereas the indefinite
+in which φ = f − ` is the equation of the center, and the
+                                                                             integration is achieved by parts, to get
+terms under the integral sign in the final form of the equation
+are purely periodic in f .
+                                                                                    Z                                      Z
+                                                                                 2     sin mf          sin mf
+    Thus, at the first order of the Lie transforms procedure                 ma η              φ d` =          −φ cos mf − cos mf d`,
+                                                                                          r2              m
+we find
+                                                                             in which the antiderivatives of cosines of multiples of the
+                     µ
+K0,1 = hK1,0 i` ≡ η 3 3s2 − 2 ,
+                                   
+                                                           (30)              true anomaly are carried out after expressing them in terms
+                     p
+                                                                             of r and R = dr/dt, rather than in trigonometric functions,
+from which                                                                   as discussed in [28].
+                                                                                 The second type consists of terms free from the equation
+W1 = G0 3s2 − 2 (e sin f + φ).
+               
+                                                                   (31)      of the center. In these terms, the trigonometric functions of
+                                                                             the true anomaly can be replaced by inverse powers of the
+Recall that the symbols p, η, e, etc. are now functions of the               radius, without involving the radial velocity. We found that
+Delaunay prime variables.                                                    the exponents of the inverse of r range from 0 to 8 miss-
+   At the second order, the known terms are given again by                   ing the exponent 1. Therefore, both definite and indefinite
+Eqs. (18) and (19), from which, using Eq. (28),                              integrals of terms of the second type are trivially solved.
+                 2
+                                                                                 Proceeding in this way, we compute the third order Hamil-
+            µ3 3X                                                            tonian term
+K0,2 = −       η    λ2,j η j ,                                     (32)
+            p 4 j=0
+                                                                                                      4
+                                                                                      µ     9η 3     X
+                                                                             K0,3 =                      λ3,j η j ,                           (34)
+with λ2,0 = 5(7s4 − 16s2 + 8), λ2,1 = 4(3s2 − 2)2 , and                               p 16(5s2 − 4)2 j=0
+λ2,2 = 5s4 + 8s2 − 8. The second order term of the gen-
+erating function is then trivially integrated from Eq. (29), to              with the inclination polynomials λ3,j given in Table 6.
+yield                                                                           The corresponding term of the generating function is
+                                     1                                                                           1
+                     3 3−b 2 jc                                                                  6 7−2b
+                                                                                                     X2 jc
+           G0 β     X   X                                                             G0 β 2    X
+W2 = −                          Λ2,j,k η k ej sin jf                         W3 =                          Λ3,j,k η k−1 ej sin jf
+       32(5s2 − 4)2 j=1                                                           128(5s2 − 4)3 j=1
+                                   k=0                                                                        k=0
+                  1                                                                                      3 X
+                                                                                                           4
+           3      X                                                                          3G0         X
+        −G0 φ    Φ2,j e2j ,                                        (33)              +               φ               Φ3,j,k η k ej cos jf ,   (35)
+           4 j=0                                                                         16(5s2 − 4)2 j=0
+                                                                                                              k=0
+10                                                                                                                                           Martin Lara
+
+
+Table 6 Inclination polynomials λ3,j in Eq. (34).                               in s2 although they are divided by (5s2 − 4)6 , as well as
+                                                                                134 nonvanishing trigonometric polynomials of the type Λ,
+0     5(28700s10 − 107205s8 + 158960s6 − 118492s4
+      +45152s2 − 7168)
+                                                                                which are of degree 12 in s2 yet they must be divided by
+1     60(3s2 − 2)(5s2 − 4)2 (7s4 − 16s2 + 8)                                    (5s2 − 4)7 . Finally, the figures of the 6th order are 11 and
+2     −2(28675s10 − 98005s8 + 130852s6 − 87164s4                                70 of degree 13 in s2 for λ and Φ, respectively, and 218 for
+      +30176s2 − 4608)                                                          Λ of degree 16.
+3     20(3s2 − 2)(5s2 − 4)2 (5s4 + 8s2 − 8)
+      −s2 (15s2 − 14)(450s6 − 925s4 + 590s2 − 112)
+                                                                                    Once reached the desired order of the second normal-
+4
+                                                                                ization, the procedure ends by changing prime variables by
+                                                                                double-prime variables in the new Hamiltonian terms K0,m .
+Table 7 Non-zero coefficients Φ3,j,k in Eq. (35). Φ3,1,0 = 15         Φ
+                                                                    2 3,0,3
+                                                                            ,
+                                                                                    In order to provide comparative figures of the compu-
+Φ3,1,2 = − 3
+           2
+             Φ 3, 0,3 , Φ 3, 2,0 = 3Φ 3,0, 3 , and Φ 3,3, 0 = 1
+                                                              2
+                                                                Φ 3,0,3 .
+                                                                                tational burden of this normalization with other approaches
+0,0    5(89100s10 − 323615s8 + 466320s6 − 337684s4                              that might be carried out, we expanded the series that com-
+       +125216s2 − 19456)                                                       prise the solution and reckon the number of separate terms,
+0,2    −2(112125s10 − 374775s8 + 488460s6 − 314932s4                            as we already did in the normalization of the total angular
+       +103840s2 − 14848)
+       8(3s2 − 2)(5s2 − 4)2 (5s4 + 8s2 − 8)                                     momentum. We found that the 1st, 2nd, . . . 6th-order terms
+0,3
+0,4    −3s2 (15s2 − 14)(450s6 − 925s4 + 590s2 − 112)                            of the generating function of the Delaunay normalization
+                                                                                comprise 4, 48, 257, 931, 2266, and 4826 terms respectively.
+                                                                                Note that different arrangements from the one chosen by
+in which the inclination polynomials Φ3,j,k are given in Ta-                    us —Eqs. (35), (37), etc.— may provide different figures
+ble 7, and those Λ3,j,k in Table 8.                                             than those reported, yet should be of analogous magnitude.
+    In the process of carrying out the normalization to higher                  Following the same procedure with the completely reduced
+orders we need to deal with trigonometric series of notably                     Hamiltonian, we reckon up to 2, 9, 29, 55, 106, and 152 co-
+increasing length. However, we only found terms of the same                     efficients, for the 1st, 2nd, . . . 6th-order term, respectively.
+two types as before in the solution of the homological equa-
+tion, which, in consequence, is analogously integrated. In
+this way, the second normalization has been extended up to                      2.4 Secular terms
+the order 6 in the small parameter, in agreement with the
+                                                                                After neglecting higher order effects of J2 , the normalized
+order to which the perigee was previously eliminated. Cor-
+                                                                                Hamiltonian is
+responding Hamiltonian and generating function terms are
+analogously arranged in the form of Eqs. (34) and (35), re-                                                                  m̃
+                                                                                                                             X  m
+spectively, yet the inclination polynomials comprise much                       K00 = K00 (−, −, −, L00 , G00 , H 00 ) ≡                Km,0 ,      (38)
+                                                                                                                                   m!
+                                                                                                                            m≥0
+more longer listings, as expected. Thus, for instance, at the
+fourth order the normalized Hamiltonian term                                    in which m̃ ≤ 6 for the different approximations provided
+                               6                                                by the computed perturbation solution, and terms Km,0 are
+          µ     9η 3           X
+K0,4 =                       λ4,j η j ,                                (36)     obtained by replacing prime by double-prime variables in
+          p 64(5s2 − 4)3 j=0                                                    corresponding terms given by Eqs. (30), (32), (34), as well
+                                                                                as higher order Hamiltonian terms K0,m that have not been
+contributes 7 new inclination polynomials, which are poly-                      displayed. That is, the symbols p, η, and s in these equations
+nomials of degree 7 in the square of the sine of the inclina-                   are assumed to be functions of the double-prime Delaunay
+tion, whereas the generating function term                                      momenta. Recall that  is obtained from Eq. (17) by making
+                      6 7−2b
+                          X2 jc
+                                            1
+                                                                                p = G002 /µ.
+          G0 β 3     X
+W4 =                            Λ4,j,k η k−3 ej sin jf                              The corresponding solution to the flow stemming from
+     20480(5s2 − 4)6 j=1                                                        Eq. (38) is
+                                        k=0
+                                 5 X
+                                   6
+                 3G   0          X                                              `00 = `000 + n` t,
+        +                φ                  Φ4,j,k η k ej cos jf ,     (37)
+            256(5s2 − 4)3 j=0                                                   g 00 = g000 + nω t
+                                      k=0
+
+is made of 20 non-zero coefficients Φ4,j,k , of degree 7 in                     h00 = h000 + nh t,
+s2 , and 72 non-zero coefficients Λ4,j,k , which are of degree                  in which, from Hamilton equations,
+10 in s2 . Note that, because of the denominators factoring
+                                                                                       ∂K00                  ∂K00                 ∂K00
+the summations, the maximum degree amounts to 4 in any                          n` =        ,        ng =         ,       nh =          ,
+case, in agreement with the order of the perturbation. At the                          ∂L00                  ∂G00                 ∂H 00
+5th order we find 9 coefficients of the type λ and 41 non-                      L00 = L000 , G00 = G00 , and H 00 = H0 , are the initializa-
+vanishing coefficients of the type Φ, which are of degree 11                    tion constants of the analytical solution, and `000 , g000 , h000 , L000 ,
+Solution to the main problem of the artificial satellite by reverse normalization                                                        11
+
+
+Table 8 Non-zero inclination polynomials Λ3,j,k in Eq. (35).
+
+1,0   −864(3s2 − 2)3 (5s2 − 4)3
+1,1   3(22218875s12 − 104346550s10 + 202703740s8 − 209869352s6 + 123038240s4 − 39033472s2 + 5275648)
+1,2   12(10925500s12 − 50711075s10 + 97386820s8 − 99715748s6 + 57863024s4 − 18199872s2 + 2445312)
+1,3   3(27560125s12 − 119080550s10 + 212650740s8 − 202245448s6 + 109190304s4 − 32208768s2 + 4128768)
+1,4   12(3155125s12 − 10820800s10 + 13899620s8 − 7620256s6 + 944256s4 + 613248s2 − 167936)
+1,5   3(5410625s12 − 17331450s10 + 19448180s8 − 6842968s6 − 2742560s4 + 2556544s2 − 491520)
+1,6   −12(59625s12 − 415275s10 + 942920s8 − 994980s6 + 529776s4 − 134592s2 + 12288)
+1,7   −3s2 (77625s10 − 568950s8 + 1256420s6 − 1222216s4 + 550816s2 − 94080)
+2,0   −1044(3s2 − 2)3 (5s2 − 4)3
+2,1   24(131000s12 − 1121875s10 + 3061340s8 − 3989664s6 + 2758768s4 − 983648s2 + 143360)
+2,2   96(51625s12 − 437800s10 + 1183290s8 − 1528682s6 + 1049344s4 − 372240s2 + 54144)
+2,3   −12(5s2 − 4)(16375s10 + 64070s8 − 257508s6 + 297320s4 − 145792s2 + 26624)
+2,4   −12(263625s12 − 1000750s10 + 1526820s8 − 1206712s6 + 539616s4 − 142592s2 + 19968)
+2,5   −12s2 (162375s10 − 576100s8 + 787020s6 − 506248s4 + 145984s2 − 12992)
+3,0   −656(3s2 − 2)3 (5s2 − 4)3
+3,1   −934875s12 + 605000s10 + 4973120s8 − 10412952s6 + 8554272s4 − 3281280s2 + 491520
+3,2   −2080125s12 + 3562000s10 + 2881300s8 − 11103360s6 + 10155456s4 − 4038912s2 + 614400
+3,3   −(5s2 − 4)(254925s10 − 526480s8 + 318084s6 − 10672s4 − 40064s2 + 8192)
+3,4   3(28875s12 − 147800s10 + 254260s8 − 160992s6 − 11968s4 + 54016s2 − 16384)
+3,5   −12s2 (4500s10 − 4125s8 − 16075s6 + 31670s4 − 20664s2 + 4704)
+4,0   −240(3s2 − 2)3 (5s2 − 4)3
+4,1   6(5s2 − 4)(50325s10 − 157660s8 + 180520s6 − 90312s4 + 18112s2 − 1024)
+4,2   12(5s2 − 4)(47475s10 − 147000s8 + 164852s6 − 79056s4 + 14208s2 − 512)
+4,3   6s2 (5s2 − 4)(44625s8 − 136340s6 + 149184s4 − 67800s2 + 10304)
+5,0   −48(3s2 − 2)3 (5s2 − 4)3
+5,1   6s2 (5s2 − 4)2 (180s6 − 609s4 + 530s2 − 112)
+5,2   3s2 (5s2 − 4)(1125s8 − 7440s6 + 11516s4 − 6144s2 + 896)
+5,3   −3s4 (5s2 − 4)(15s2 − 14)(45s4 + 36s2 − 56)
+6,0   −4(3s2 − 2)3 (5s2 − 4)3
+
+
+
+and G00 , are computed applying consecutively the inverse                    [19]
+transformation of the normalization of the angular momen-
+                                                                              F = F0 + nF t,                                           (39)
+tum and the Delaunay normalization to corresponding initial
+conditions of the original problem.                                           C = e cos(g0 + ng t) = C0 cos ng t − S0 sin ng t,        (40)
+    On the other hand, Delaunay variables are singular for                    S = e sin(g0 + ng t) = S0 cos ng t + C0 sin ng t,        (41)
+equatorial orbits, in which the argument of the node is not                   L = L0 ,                                                 (42)
+defined, as well as for circular orbits, in which the argument                h = h0 + nh t,                                           (43)
+of the periapsis is not defined. In particular, the singularity
+                                                                             H = H0 ,                                                  (44)
+for circular orbits reveals immediately by the appearance of
+the eccentricity in denominators of the transformation equa-                 in which nF = n` + ng , C0 = e cos g0 , S0 = e sin g0 , and
+tions of both the mean anomaly and the argument of the                       e = (1 − G20 /L20 )1/2 . The double-prime notation has been
+perigee (see Eqs. (20) and (21) of [6], for instance). This                  omitted for simplicity.
+fact not only makes singular the transformation of these el-                     After standard partial differentiation, we obtain
+ements for exactly circular orbits, but prevents convergence
+                                                                                            m̃             2m−1
+of the respective perturbation series for small values of the                               X       m      X
+                                                                             nF = n + n            2     m
+                                                                                                                Ψm,i (s)η i ,          (45)
+eccentricity.                                                                               m=1
+                                                                                                (5s  − 4)   i=0
+     Different sets of non-singular variables can be used to                           m̃               2m−2
+                                                                                       X       m     X
+avoid these issues [51]. In particular, troubles related with                 ng = n          2 − 4)m
+                                                                                                          ωm,i (s)η i ,                (46)
+                                                                                           (5s
+low eccentricities are commonly avoided by replacing the                               m=1            i=0
+mean anomaly, the argument of the periapsis, and the total                               m̃              2m−2
+                                                                                         X       m     X
+angular momentum with the non-canonical variables given                       nh = nc           2     m
+                                                                                                            Ωm,i (s)η i ,              (47)
+                                                                                         m=1
+                                                                                             (5s  − 4)  i=0
+by the mean distance to the node F = `+g, also called mean
+argument of the latitude, and the components of the eccen-                   where the inclination polynomials Ψm,i , ωm,i , and Ωm,i are
+tricity vector in the nodal frame C = e cos ω, S = e sin ω,                  provided in Tables 9, 10, and 11, respectively, up to the third
+also called semi-equinoctial elements [34, 11]. In these vari-               order of the perturbation approach. In these tables we can
+ables, the secular terms of the main problem are given by                    check that, in spite of the general arrangement of the secular
+12                                                                                                                            Martin Lara
+
+
+frequencies in Eqs. (45)–(47), the critical inclination divi-      the true anomaly. Therefore, we rather formulate them in
+sors 5s2 − 4 start to appear only at the third order truncation.   polar variables. In this way we avoid the trouble of small
+                                                                   denominators in the J2 -problem, yet, of course, the nodes
+                                                                   of exactly equatorial orbits remain undefined. For simplicity
+Table 9 Inclination polynomials Ψi,j in Eq. (45).
+                                                                   we do not deal with this latter case, which, if desired, could
+1,0   −3(5s2 − 4)2                                                 be approached using different sets of non-singular variables.
+1,1   −3(3s2 − 2)(5s2 − 4)
+      15
+2,0   8
+         (5s2 − 4)2 (77s4 − 172s2 + 88)
+      9
+2,1     (5s2 − 4)2 (155s4 − 256s2 + 104)
+      8
+      3                                                            3 Performance of the solution
+2,2   8
+        (5s2 − 4)2 (189s4 − 156s2 + 8)
+      15
+2,3   8
+         (5s2 − 4)2 (5s4 + 8s2 − 8)
+3,0   − 15 (2439500s12 − 11312175s10 + 21772080s8                  The performance of the analytical solution is illustrated in
+        32
+      −22346500s6 + 12956400s4 − 4043136s2 + 533248)               three different cases. The first one is a low-altitude, almost-
+3,1   − 45
+        32
+           (5s2 − 4)(62300s10 − 260365s8 + 431504s6                circular orbit with the orbital parameters of the PRISMA
+      −356508s4 + 147552s2 − 24576)
+      3                                                            mission [55]. The second is a high-eccentricity orbit with
+3,2   16
+         (1835625s12 − 7723875s10 + 13291500s8
+      −12015300s6 + 6064176s4 − 1644928s2 + 192256)                the typical characteristics of a geostationary transfer orbit
+3,3
+      15
+      16
+         (5s2 − 4)(18175s10 − 85105s8 + 153172s6 − 136540s4        (GTO), which we borrowed from [35]. The third test has
+      +61408s2 − 11264)                                            been specifically carried out to check the behavior of the
+      3
+3,4   32
+         (213750s12 − 1441125s10 + 3537000s8 − 4313100s6           analytical solution when approaching the critical inclination
+      +2835280s4 − 967808s2 + 135424)
+3,5
+      21 2
+         s (5s2 − 4)(15s2 − 14)(450s6 − 925s4 + 590s2 − 112)       resonance. For this last case we selected an orbit with orbital
+      32
+                                                                   parameters similar to the TOPEX orbit, which departs only
+                                                                   ∼ 3◦ from the inclination resonance condition [20]. Orbital
+                                                                   elements corresponding to these three cases are presented in
+                                                                   Table 12. The reference, true orbits have been propagated
+Table 10 Inclination polynomials ωi,j in Eq. (46).                 numerically in extended precision to assure that all the com-
+                                                                   puted points are accurate with 15 significant digits in the
+1,0   −3(5s2 − 4)2
+2,0
+      15
+          (5s2 − 4)2 (77s4 − 172s2 + 88)                           decimal representation. We requested that precision because
+       8
+2,1   9(3s2 − 2)(5s2 − 4)3                                         this is the maximum number of digits with which exact dec-
+      3
+2,2   8
+        (5s2 − 4)2 (45s4 + 36s2 − 56)                              imal operations are guaranteed in standard double-precision
+3,0   − 15
+         32
+            (2439500s12 − 11312175s10 + 21772080s8                 [30]. Because the analytical solution is evaluated in double-
+      −22346500s6 + 12956400s4 − 4043136s2 + 533248)
+      − 45  (5s2 − 4)3 (168s6 − 497s4 + 460s2 − 136)
+                                                                   precision the reference numeric orbit is considered exact.
+3,1      4
+       3
+3,2   16
+          (2150625 s12 − 9409875s10 + 16968300s8
+      −16218180s6 + 8729136s4 − 2535808s2 + 315136)
+3,3   − 15  (5s2 − 4)3 (105s6 + 39s4 − 228s2 + 104)                Table 12 Initial conditions of the test cases. Angles are in degrees.
+         4
+       3
+3,4   32
+          (438750s12 − 1771125s10 + 2865000s8 − 2345100s6             type       a (km)         e        I          Ω        ω      `
+      +999760s4 − 199808s2 + 12544)
+                                                                   PRISMA      6878.137     0.001      97.42    168.162      20     30
+                                                                   TOPEX       7707.270     0.0001     66.04    180.001     270    180
+                                                                   GTO         24460.00     0.73       30.      170.1       280      0
+
+
+Table 11 Inclination polynomials Ωi,j in Eq. (47).
+                                                                       Two different kind of errors are associated to the trunca-
+1,0   −6(5s2 − 4)                                                  tion order of the analytical solution. On the one hand, the
+      15
+2,0    2
+         (5s2 − 4)2 (7s2 − 8)                                      truncation of the secular terms introduces an error in the
+2,1   18(3s2 − 2)(5s2 − 4)2
+      3                                                            computation of the frequencies of the analytical solution,
+2,2   2
+        (5s2 − 4)2 (5s2 + 4)
+3,0   − 15 (215250s10 − 823025s8 + 1255040s6 − 953760s4            Eqs. (45)–(47), which will make the perturbation solution
+         8
+      +361088s2 − 54464)                                           to degrade with time. On the other hand, the truncation af-
+3,1   − 45
+         4
+           (5s2 − 4)3 (63s4 − 124s2 + 56)                          fects also the generating function from which the periodic
+      3
+3,2   8
+        (430125 s10 − 1553550s8 + 2222340s6 − 1570224s4            corrections are derived. The latter fundamentally affects the
+      +546432s2 − 74624)
+      − 15 (5s2 − 4)3 (45s4 + 28s2 − 40)
+                                                                   amplitude of the periodic errors, and, therefore, the qual-
+3,3      4
+3,4
+      3
+        (50625s10 − 168375s8 + 215900s6 − 130800s4                 ity of the ephemeris provided by the analytical solution is
+      8
+      +35840s2 − 3136)                                             not expected to deteriorate significantly with time by effect
+                                                                   of this error. However, this is only true for the direct trans-
+                                                                   formation, a case in which we will see that it is acceptable
+   Computing the periodic corrections of the semi-equi-            to use a lower order truncation than the truncation used for
+noctial variables would require to carry out expansions of         the secular terms. On the contrary, the truncation order of
+Solution to the main problem of the artificial satellite by reverse normalization                                                                   13
+
+
+the inverse corrections has a direct effect in the precision                              0.4
+
+
+
+
+                                                                               106 δa
+                                                                                          0.2
+with which the initialization constants are computed from
+                                                                                            0
+a given set of initial conditions. Therefore, not computing                              -0.2
+the inverse transformation with the same accuracy as that                                       0   1   2       3       4       5      6       7
+of the secular terms will also contribute to the deterioration                            0.3
+
+
+
+
+                                                                               109 δa
+of the latter. In practice, the highest accuracy of the inverse
+                                                                                           0
+transformation can be limited to the computation of the peri-
+                                                                                         -0.3
+odic corrections of the initial semimajor axis (or its partner
+                                                                                                0   1   2       3       4      5       6       7
+canonical variable, the Delaunay action) because it affects                               0.6
+directly the secular mean motion n` , while the other ele-                                0.3
+
+
+
+
+                                                                              1012 δa
+                                                                                            0
+ments only affect the frequencies of the secular node and                                -0.3
+perigee, which are O(J2 ) when compared to n` .                                          -0.6
+                                                                                                0   1   2       3       4       5      6       7
+                                                                                          0.6
+
+
+
+
+                                                                               1014 δa
+3.1 Accuracy of the periodic corrections                                                  0.4
+                                                                                          0.2
+                                                                                          0.0
+                                                                                         -0.2
+First of all, we check the accuracy of the periodic corrections                          -0.4
+                                                                                                0   1   2       3       4       5      6       7
+for increasing orders of the perturbation solution. If the pe-
+riodic corrections were exact, transforming different states                 Fig. 1 Relative errors of the semimajor axis of the PRISMA-type orbit
+of the same orbit provided by the reference solution will re-                for, from top to bottom, the 1st, 2nd, 3rd, and 4th order truncations of
+                                                                             the perturbation solution. The latter shows the relative errors of the 5th
+sult in the same, constant secular values of the momenta,                    order truncation superimposed. Abscissas are hours.
+and in an exactly linear growing of the secular angles. On
+the contrary, the secular values obtained from the different
+states of the true orbit oscillate periodically due to the trun-             rather than the total angular momentum G0 , for the 1st, 2nd,
+cation order of the solution. This is illustrated in Fig. 1 for              . . . , 4th order truncations of the periodic corrections, respec-
+the semimajor axis of the PRISMA test orbit, where the rela-                 tively. The relative errors of the 4th order truncation in the
+tive errors with respect to a constant reference value, which                bottom plot of Fig. 2 (black dots) are superimposed to the
+has been obtained as the arithmetic mean of the computed                     third order ones (gray line) for reference. Corresponding ab-
+secular values, are shown for different truncations of the per-              solute errors are of the order of tens of milliarc seconds for
+turbation solution. We recall that the expected errors of a                  the 1st order, hundredths of mas for the second, hundredths
+perturbation solution are of the order of the neglected terms,               of microarc seconds for the third, and below the level of
+as follows from Eq. (8). Therefore, for a truncation to the                  1 thousandth of µas for the fourth order. Due to the larger
+order m, we would expect errors of the order εm+1 .                          semimajor axis, the GTO orbit is less perturbed in general,
+    We found that the relative errors of the secular semima-                 and we found that the numerical precision is achieved at the
+jor axis of the first order truncation (top plot of Fig. 1) are of           fourth order of the perturbation approach.
+the order of J22 , as it should be the case, which amounts to 3                     In the case of the TOPEX orbit the inclination of ∼ 66◦
+meters in absolute value. The relative errors of the second or-              makes the coefficient 5s2 − 4 to become less than 2 tenths.
+der truncation (second to top plot) are of the order of J23 , or             However, this small divisor is not harmful at all in a first or-
+less than 3 millimeter in absolute value. The third and fourth               der truncation because, as follows from Eq. (20), it is multi-
+order truncations of the solution yield relative errors of the               plied by the square of the eccentricity, which is really small
+order of J24 and J25 , respectively (second from bottom and                  for the TOPEX orbit (about one thousandth, on average).
+bottom plots, respectively), or absolute errors of microme-                  Hence, the relative errors in the semimajor axis introduced
+ters and hundredths of micrometers, respectively. The lat-                   by the periodic corrections are slightly better than those pre-
+ter are very close to the 15 exact digits reachable working                  viously found for PRISMA, as shown in the top plot of
+in double precision. Still, additional improvements are ob-                  Fig. 3. The improvements should be a consequence of the
+tained when the truncation of the periodic corrections is ex-                larger semimajor axis of the TOPEX orbit when compared
+tended to the fifth order of J2 , now effectively reaching the               with that of PRISMA.
+numerical precision, as shown in the bottom plot of Fig. 1, in                      The effects of the offending divisors are more apparent
+which the relative errors of the fifth order truncation (black               when using higher order truncations of the periodic correc-
+dots) are superimposed to the previous case.                                 tions. Indeed, the coefficients of sin(f + 2ω) and sin(3f +
+    The behavior is analogous in the case of the GTO orbit,                  4ω) in Eq. (22), as well as the coefficient of sin f in Eq. (33),
+yet now the errors notable peak at perigee passages. This is                 are multiplied by the factor e/(5s2 −4)2 , which, while being
+illustrated in Fig. 2, where, from top to bottom, we present                 bigger than before, it is neither of worry for TOPEX yet, as
+now the relative errors of the inclination I = arccos(H/G0 ),                demonstrated in the second to the top plot in Fig. 3, where
+14                                                                                                                                     Martin Lara
+
+            0.1                                                                   ing coefficients are found in higher orders of the periodic
+            0.0
+ 106 δI
+
+
+
+
+           -0.1                                                                   corrections, which make that the relative errors of the fourth
+           -0.2
+           -0.3                                                                   order truncation are clearly larger than corresponding ones
+                     0       5       10       15       20       25       30       of PRISMA. These relative errors are depicted in the bottom
+            0.3                                                                   plot of Fig. 3 (gray line) superimposed with the errors of the
+            0.2                                                                   fifth order truncation (black dots), showing that, at the end,
+ 109 δI
+
+
+
+
+            0.1
+            0.0                                                                   the numerical precision is reachable also in this case with
+           -0.1                                                                   the fifth order truncation of the solution. The absolute error
+                     0       5       10       15       20       25       30       of the different truncations are now of the order of one me-
+            0.0
+                                                                                  ter, a few tenths of cm, sevral hundredths of mm, tenths of
+ 1012 δI
+
+
+
+
+           -0.1
+           -0.2                                                                   µm, and thousandths of µm, respectively.
+           -0.3
+           -0.4
+                     0       5       10       15       20       25       30
+            2
+                                                                                  3.2 Accuracy of the analytical solution
+            1
+ 1014 δI
+
+
+
+
+            0                                                                     The reference orbits of the three test cases are now com-
+           -1
+           -2                                                                     pared with the ones provided by the analytical solution. That
+                 0       5       10           15       20       25       30       is, starting from initial conditions in Table 12, we first apply
+Fig. 2 Relative errors of the inclination of the GTO orbit for, from top          the inverse periodic corrections to initialize the constants of
+to bottom, the 1st, 2nd, 3rd, and 4th order truncations of the perturba-          the secular solution. Then, the secular terms are evaluated in
+tion solution. The latter is superimposed to the relative errors of the 3rd       Eqs. (39)–(44) at the same times ti as those in which the true
+order truncation. Abscissas are hours.
+                                                                                  solution has been obtained from the numerical integration.
+                                                                                  It follows the application of the direct periodic corrections
+            1.5
+            1.0                                                                   to each secular term to get the ephemeris predicted by the
+ 107 δa
+
+
+
+
+            0.5                                                                   analytical solution at the times ti . The accuracy of the dif-
+            0.0
+           -0.5                                                                   ferent truncations of the analytical solution is assessed by
+                     0   1       2        3        4        5        6        7   computing the root-sum-square (RSS) of the difference be-
+            0.4                                                                   tween the position and velocity predicted by the analytical
+ 109 δa
+
+
+
+
+            0.2                                                                   solution and those of the reference orbit and the times ti .
+                0                                                                      The results of the PRISMA test case are shown in Fig. 4,
+           -0.2                                                                   in which ordinates are displayed in a logarithmic scale to
+                     0   1       2        3        4        5        6        7
+                                                                                  ease comparisons. The letter S in the labels (S:P ) stand for
+            0.1
+            0.0                                                                   the truncation order of both the inverse corrections and the
+ 1011 δa
+
+
+
+
+           -0.1
+           -0.2                                                                   secular terms, whereas P indicates the truncation order of
+           -0.3
+           -0.4                                                                   the direct periodic corrections. As we already pointed out,
+                     0   1       2        3        4        5        6        7   the latter do not need to be computed to the same accuracy
+            30                                                                    as the inverse transformation. We observe in Fig. 4 that a
+ 1015 δa
+
+
+
+
+            20
+            10                                                                    simple first order truncation of the analytical solutions —
+             0                                                                    curve labeled (1:1)— starts with a RSS error of approxi-
+           -10
+                    0    1       2        3        4        5        6        7   mately 1 meter in position, but, due to the errors introduced
+                                                                                  by the first order truncation of the secular terms, the RSS
+Fig. 3 Relative errors of the semimajor axis of the TOPEX-type or-
+bit for different truncations of the perturbation solution. Abscissas are
+                                                                                  errors reach more than 10 km after one month. The solution
+hours.                                                                            is notably improved when taking the second order terms of
+                                                                                  the inverse corrections and the secular terms into account.
+                                                                                  This is shown with the curve labeled (2:1), that only reaches
+it can be checked that the relative errors in the semimajor                       about 30 m at the end of the one-month propagation. The
+axis remain of O(J23 ). On the contrary, at the third order we                    improvements are obtained with only a slight increase of the
+find the small divisor alone in coefficients of sin 2m(f + ω),                    computational burden, because the inverse corrections and
+m = 1, 2, 3, in Eq. (25), in this way lessening to some ex-                       the secular frequencies are evaluated only once. The (3:2)
+tent the corrector effect of the terms factored by J23 . This                     propagation starts from a much smaller RSS error, of less
+slight deterioration of convergence is noted in the second-                       than 1 cm, that only grows to about 10 cm by the end of
+from-bottom plot of Fig. 3, where we see that the relative                        day 30. Errors fall clearly below the mm level in the case of
+errors in the semimajor axis are now about 10 times big-                          the (4:3) truncation, and to just a few µm in the (5:4) case.
+ger than corresponding errors of PRISMA. Bigger offend-                           No further improvement of the RSS errors is observed if the
+Solution to the main problem of the artificial satellite by reverse normalization                                                                                         15
+
+
+direct periodic corrections are taken also up to the fifth or-                            Analogous tests carried out for TOPEX are presented
+der, yet a slight improvement is achieved in that case in the                         in Fig. 6. The results are similar to those previously pre-
+preservation of the energy integral, that reaches in this last                        sented in Fig. 4 for PRISMA, and the apparent discrepancies
+case the numerical precision.                                                         when using the (2:1) solution are only due to the logarithmic
+                                                                                      scale, which encompasses a different range in each figure.
+                                                                                      In fact, the periodic oscillations of the RSS errors are of the
+                                                                                      same amplitude in both cases (∼ 2 m), yet the secular trend
+                          1000                (1:1)                                   grows at a low rate of less than 2 cm per day in the case of
+                                                                         (2:1)
+ RSS position error (m)
+
+
+
+
+                                                                                      TOPEX while it does almost two orders of magnitude faster
+                             1
+                                                                                      for PRISMA (∼ 1 m/day). This fact should be attributed
+                                      (3:2)                                           to the less perturbed orbit of TOPEX due to its higher al-
+                                                                                      titude. The (3:2) solution provides quite similar RSS errors
+                          0.001                       (4:3)
+                                                                                      in both cases, TOPEX and PRISMA, whereas the (4:3) so-
+                                                                                      lution performs worse for TOPEX, whose RSS errors grow
+                          10-6                                (5:4)                   now at a secular rate about 5 times faster than in the case of
+                                                                                      PRISMA. These behavior is in agreement with the slight de-
+                                  0    5       10      15      20         25     30   terioration of the solution previously observed when testing
+Fig. 4 RSS errors of different (S:P) truncations of the secular (S) and               the periodic corrections due to the proximity to the critical
+periodic terms (P) of the analytical solution in the PRISMA test case.                inclination. Things are balanced with the (5:4) order solution
+Abscissas are days.                                                                   —also in agreement with the previously observed behavior
+                                                                                      due to the increased precision of the analytical solution—
+                                                                                      for which the RSS errors reach only the micrometer level at
+    The behavior of the analytical solution is analogous in                           the end of the 30 day propagation.
+the case of the high-eccentricity GTO orbit in what respects
+to the secular terms, yet the errors of the periodic correc-                                                    1000        (1:1)
+tions are now of larger amplitude, as clearly observed in
+                                                                                       RSS position error (m)
+
+
+
+
+Fig. 5. Now, the periodic oscillations of the (1:1) trunca-                                                       10                (2:1)
+tion may allow the RSS errors to grow to many tens of km.
+                                                                                                                0.100
+A secular trend in the RSS errors of about half meter per                                                                                                        (3:2)
+day of the (2:1) solution remains almost hidden along the                                                       0.001
+30 days propagation under periodic oscillations of about 30                                                                                 (4:3)
+m. A similar behavior is observed in the (3:2) propagation,                                                     10-5
+                                                                                                                                                         (5:4)
+where the amplitude of the oscillations is now reduced to the                                                   10-7
+cm order. This amplitude is further reduced to hundredths of
+                                                                                                                        0    5       10      15     20       25          30
+mm with the (4:3) truncation. Finally the (5:4) solution im-
+proves slightly the propagation, and the RSS errors remain                            Fig. 6 RSS errors of different (S:P) truncations of the analytical solu-
+of just a few µm along the whole propagation interval, thus                           tion in the TOPEX test case. Abscissas are days.
+showing the same quality as in the previous test case.
+                                                                                          As it is confirmed by the examples carried out, at the
+                                                                                      end of a long-term propagation the secular trend of the er-
+                                                                                      rors prevails over their periodic oscillations. Therefore, in
+                                                                                      practice, perturbation solutions in which the periodic terms
+                          1000                (1:1)
+ RSS position error (m)
+
+
+
+
+                                                                         (2:1)        are recovered to a lower order than the order at which the
+                                                                                      secular frequencies are truncated make full sense. The com-
+                             1
+                                      (3:2)                                           putational burden of these kinds of solutions is notably al-
+                                                                                      leviated, and hence are definitely much more practicable
+                          0.001
+                                                      (4:3)                           for ephemeris computation. This is further illustrated for
+                                                                                      TOPEX in Fig. 7, where it is shown that the (5:3) truncation
+                          10-6
+                                                                                      of the analytical solution might replace the more accurate
+                                                                      (5:4)
+                                                                                      (5:4) truncation in a long-term propagation with substantial
+                                  0    5       10      15      20         25     30   reductions in computing time and minimum degradation of
+Fig. 5 RSS errors of different (S:P) truncations of the analytical solu-              accuracy, which, besides, remains much more uniform along
+tion in the GTO test case. Abscissas are days.                                        the whole propagation interval. Note that the scale of the or-
+16                                                                                                                                                   Martin Lara
+
+
+dinates axis has been changed from meters in Fig. 6 to mm                                  Conflict of Interest: The author declares that he has no conflict of
+in Fig. 7.                                                                                 interest.
+
+
+
+                           1000
+                                                                                           References
+ RSS position error (mm)
+
+
+
+
+                                                                              (5:1)         1. K. Aksnes. A note on ‘The main problem of satellite theory for
+                             10                                  (5:2)                         small eccentricities, by A. Deprit and A. Rom, 1970’. Celestial
+                                                                                               Mechanics, 4(1):119–121, September 1971.
+                                                                                            2. K. T. Alfriend and S. L. Coffey. Elimination of the perigee in the
+                           0.100                        (5:3)                                  satellite problem. Celestial Mechanics, 32(2):163–172, February
+                                                                                               1984.
+                                                                                            3. V. I. Arnol’d. Mathematical Methods of Classical Mechanics, vol-
+                           0.001
+                                                                                               ume 60 of Graduate Texts in Mathematics. Springer-Verlag, New
+                                       (5:4)                                                   York, 2nd edition, 1989.
+                                                                                            4. J. V. Breakwell and J. Vagners. On Error Bounds and Initialization
+                                   0           5   10       15    20     25           30       in Satellite Orbit Theories. Celestial Mechanics, 2:253–264, June
+                                                                                               1970.
+Fig. 7 TOPEX: RSS errors of different (5:P) truncations. Abscissas
+                                                                                            5. R. A. Broucke. Numerical integration of periodic orbits in the
+are days.
+                                                                                               main problem of artificial satellite theory. Celestial Mechanics
+                                                                                               and Dynamical Astronomy, 58(2):99–123, February 1994.
+                                                                                            6. D. Brouwer. Solution of the problem of artificial satellite theory
+                                                                                               without drag. The Astronomical Journal, 64:378–397, November
+                                                                                               1959.
+                                                                                            7. D. Brouwer and G. M. Clemence. Methods of Celestial Mechan-
+4 Conclusions                                                                                  ics. Academic Press, New York and London, 1961.
+                                                                                            8. A. Celletti and P. Negrini. Non-integrability of the problem of mo-
+                                                                                               tion around an oblate planet. Celestial Mechanics and Dynamical
+The main problem of artificial satellite theory is a two de-                                   Astronomy, 61(3):253–260, March 1995.
+grees of freedom model that captures the bulk of the gravi-                                 9. S. Coffey and A. Deprit. Third-Order Solution to the Main Prob-
+tational effects undergone by low Earth orbits. Still, it lacks                                lem in Satellite Theory. Journal of Guidance, Control and Dy-
+                                                                                               namics, 5(4):366–371, 1982.
+of enough integrals to obtain a closed form solution. On the                               10. S. L. Coffey, A. Deprit, and B. R. Miller. The critical inclination
+other hand, perturbation methods disclose as specially suc-                                    in artificial satellite theory. Celestial Mechanics, 39(4):365–406,
+cessful in providing analytical solutions that can replace the                                 December 1986.
+true dynamics within a high degree of approximation. Using                                 11. R. A. Cook. The long-term behavior of near-circular orbits in a
+                                                                                               zonal gravity field (AAS 91-463). In B. Kaufman, K. T. Alfriend,
+them, it is shown that there are wide regions of phase space                                   R. L. Roehrich, and R. R. Dasenbrock, editors, Astrodynamics
+in which the main problem behaves as if it were separable.                                     1991, volume 76 of Advances in the Astronautical Sciences, pages
+     In particular, the main problem Hamiltonian has been                                      2205–2221, P.O. Box 28130, San Diego, California 92198, USA,
+completely reduced by reverse normalization. That is, the                                      1992. American Astronautical Society, Univelt, Inc.
+                                                                                           12. J. M. A. Danby. Motion of a Satellite of a Very Oblate Planet. The
+motion of the orbital plane is first decoupled from the mo-                                    Astronomical Journal, 73(10):1031–1038, December 1968.
+tion on that plane, and then the remaining short-period terms                              13. J. M. A. Danby. Fundamentals of Celestial Mechanics. Willmann-
+are removed by averaging. The normalization is achieved                                        Bell, Richmond VA, 2nd edition, 1992.
+without need of resorting to Hamiltonian simplification pro-                               14. C. E. Delaunay. La Théorie du Mouvement de la Lune, Premier
+                                                                                               volume, volume 28 of Mémoires de l’Academie des Sciences de
+cedures, in this way radically departing from a well stab-                                     l’Institut Impérial de France. Mallet-Bachellier, Paris, 1860.
+lished tradition in artificial satellite theory. The computed                              15. A. Deprit. Canonical transformations depending on a small pa-
+analytical solution is exact to all practical purposes in the                                  rameter. Celestial Mechanics, 1(1):12–30, 1969.
+sense that, working in double-precision floating point arit-                               16. A. Deprit. The elimination of the parallax in satellite theory. Ce-
+                                                                                               lestial Mechanics, 24(2):111–153, 1981.
+methic, there are no substantial differences with respect to                               17. A. Deprit. Delaunay normalisations. Celestial Mechanics, 26:9–
+exact numerical integrations (computed with extended pre-                                      21, January 1982.
+cision) for reasonably long time intervals. In agreement with                              18. A. Deprit and B. Miller. Simplify or Perish. Celestial Mechanics,
+the particular value of the Earth’s oblateness coefficient, this                               45:189–200, 1989.
+                                                                                           19. A. Deprit and A. Rom. The Main Problem of Artificial Satellite
+precision is achieved only when the perturbation approach is                                   Theory for Small and Moderate Eccentricities. Celestial Mechan-
+extended up to, at least, the fifth order of the small parame-                                 ics, 2(2):166–206, June 1970.
+ter.                                                                                       20. R. B. Frauenholz, R. S. Bhat, B. E. Shapiro, and R. K. Leav-
+                                                                                               itt. Analysis of the TOPEX/Poseidon Operational Orbit: Observed
+                                                                                               Variations and Why. Journal of Spacecraft and Rockets, 35:212–
+Acknowledgements Support by the Spanish State Research Agency                                  224, March 1998.
+and the European Regional Development Fund under Projects ESP2016                          21. G. Gaias, C. Colombo, and M. Lara. Analytical Framework for
+-76585-R and ESP2017-87271-P (MINECO/ AEI/ERDF, EU) is rec-                                    Precise Relative Motion in Low Earth Orbits. Journal of Guidance
+ognized.                                                                                       Control Dynamics, on line:1–13, March 2020.
+Solution to the main problem of the artificial satellite by reverse normalization                                                                 17
+
+
+22. H. Goldstein, C. P. Poole, and J. L. Safko. Classical Mechanics.         44. M. Lara and S. Ferrer. Expanding the simple pendulum’s rotation
+    Addison-Wesley, 3rd edition, 2001.                                           solution in action-angle variables. European Journal of Physics,
+23. P. A. Hansen. Expansions of the product of a power of the radius             36(5):055040, September 2015. Expanded version: arXiv eprint
+    vector with the sinus or cosinus of a multiple of the true anomaly           nlin.SI 1503.03358.
+    in terms of series containing the sinuses or cosinuses of the mul-       45. M. Lara, J. F. San-Juan, and L. M. López-Ochoa. Delaunay
+    tiples of the true, eccentric or mean anomaly. Abhandlungen der              variables approach to the elimination of the perigee in Artificial
+    Koniglich Sachsischen Gesellschaft der Wissenschaften, 2(3):183–             Satellite Theory. Celestial Mechanics and Dynamical Astronomy,
+    281, 1855. English translation by J. C. Van der Ha, ESA/ESOC,                120(1):39–56, September 2014.
+    Darmstadt, Germany, 1977.                                                46. M. Lara, J. F. San-Juan, and L. M. López-Ochoa. Proper Averag-
+24. D. Hautesserres and M. Lara. Intermediary LEO propagation in-                ing Via Parallax Elimination (AAS 13-722). In S. B. Broschart,
+    cluding higher order zonal harmonics. Celestial Mechanics and                J. D. Turner, K. C. Howell, and F. R. Hoots, editors, Astrodynam-
+    Dynamical Astronomy, 127:505–526, April 2017.                                ics 2013, volume 150 of Advances in the Astronautical Sciences,
+25. L. M. Healy. The Main Problem in Satellite Theory Revisited. Ce-             pages 315–331, P.O. Box 28130, San Diego, California 92198,
+    lestial Mechanics and Dynamical Astronomy, 76(2):79–120, 2000.               USA, January 2014. American Astronautical Society, Univelt, Inc.
+26. M. Irigoyen and C. Simó. Non integrability of theJ 2 problem.           47. M. Lara, R. Vilhena de Moraes, D. M. Sanchez, and A. F. B. A.
+    Celestial Mechanics and Dynamical Astronomy, 55(3):281–287,                  Prado. Efficient computation of short-period analytical corrections
+    March 1993.                                                                  due to third-body effects (AAS 15-295). In R. Furfaro, S. Casotto,
+27. I. G. Izsak. A Second-Order Solution of Vinti’s Dynamical Prob-              A. Trask, and S. Zimmer, editors, AAS/AIAA Spaceflight Mechan-
+    lem. Smithsonian Contributions to Astrophysics, 6:81–107, 1963.              ics Meeting 2015, volume 155 of Advances in the Astronautical
+28. W. H. Jefferys. Automated, Closed Form Integration of Formulas               Sciences, pages 437–455, P.O. Box 28130, San Diego, California
+    in Elliptic Motion. Celestial Mechanics, 3:390–394, September                92198, USA, 2015. American Astronautical Society, Univelt, Inc.
+    1971.                                                                    48. M. Lara. On inclination resonances in Artificial Satellite Theory.
+29. A. H. Jupp. The critical inclination problem - 30 years of progress.         Acta Astronautica, 110:239–246, May 2015. Dynamics and Con-
+    Celestial Mechanics, 43(1-4):127–138, 1988.                                  trol of Space Systems.
+30. W. Kahan. ”Lecture Notes on the Status of IEEE Standard 754              49. M. Lara. Nonlinear librations of distant retrograde orbits: a per-
+    for Binary Floating-Point Arithmetic. Technical report, Electri-             turbative approach—the Hill problem case. Nonlinear Dynamics,
+    cal Engineering and Computer Science, University of California,              93(4):2019–2038, apr 2018.
+    Berkeley, CA, October 1997.                                              50. M. Lara. A new radial, natural, higher-order intermediary of
+31. W. M. Kaula. Analysis of Gravitational and Geometric Aspects                 the main problem four decades after the elimination of the par-
+    of Geodetic Utilization of Satellites. Geophysical Journal, 5:104–           allax. Celestial Mechanics and Dynamical Astronomy, 131(9):20,
+    133, July 1961.                                                              September 2019.
+32. H. Kinoshita. First-Order Perturbations of the Two Finite Body           51. R. H. Lyddane. Small eccentricities or inclinations in the Brouwer
+    Problem. Publications of the Astronomical Society of Japan,                  theory of the artificial satellite. Astronomical Journal, 68(8):555–
+    24:423–457, 1972.                                                            558, October 1963.
+33. H. Kinoshita. Third-Order Solution of an Artificial-Satellite The-       52. G. Metris. Mean values of particular functions in the elliptic mo-
+    ory. SAO Special Report, 379, July 1977.                                     tion. Celestial Mechanics and Dynamical Astronomy, 52:79–84,
+34. A. Konopliv. A Perturbation Method and Some Applications. Ce-                March 1991.
+    lestial Mechanics and Dynamical Astronomy, 47:305, 1990.                 53. A. H. Nayfeh. Perturbation Methods. Wiley-VCH Verlag GmbH
+35. A. S. Konopliv. A Third Order of J2 Solution with a Transformed              & Co. KGaA, Weinheim, Germany, 2004.
+    Time”. Interoffice Memorandum IOM 314.3 - 970, Jet Propul-               54. C. Osácar and J. F. Palacián. Decomposition of functions for el-
+    sion Laboratory, 4800 Oak Grove Dr, Pasadena, CA 91109, USA,                 liptical orbits. Celestial Mechanics and Dynamical Astronomy,
+    March 1991.                                                                  60(2):207–223, October 1994.
+36. Y. Kozai. The motion of a close earth satellite. The Astronomical        55. S. Persson, B. Jacobsson, and E. Gill. PRISMA – Demonstration
+    Journal, 64:367–377, November 1959.                                          Mission for Advanced Rendezvous and Formation Flying Tech-
+37. Y. Kozai. Second-order solution of artificial satellite theory with-         nologies and Sensors (paper IAC-05-B56B07). In Proceedings
+    out air drag. The Astronomical Journal, 67:446–461, September                of the 56th International Astronautical Congress (IAC), October
+    1962.                                                                        17 - 21 2005, Fukuoka, Japan, pages 1–10. International Astro-
+38. M. Lara. SADSaM: A Software Assistant for Designing SAtel-                   nautical Federation (IAF), International Astronautical Federation
+    lite Missions. Technical Report DTS/MPI/MS/MN/99-053, Cen-                   (IAF), October 2005.
+    tre National d’Études Spatiales, 18, avenue Edouard Belin - 31401       56. J. F. San-Juan, D. Ortigosa, L. M. López-Ochoa, and R. López.
+    Toulouse Cedex 9, France, May 1999.                                          Deprit’s Elimination of the Parallax Revisited. Journal of the As-
+39. M. Lara. Searching for Repeating Ground Track Orbits: A Sys-                 tronautical Sciences, 60:137–148, June 2013.
+    tematic Approach. Journal of the Astronautical Sciences, 47(3-           57. F. Tisserand. Traité de mécanique céleste. Tome I: Perturbations
+    4):177–188, 1999.                                                            des planètes d’aprés la méthode de la variation des constantes
+40. M. Lara. Simplified Equations for Computing Science Orbits                   arbitraries. Gauthier-Villars et fils, Quai des Grands-Augustins,
+    Around Planetary Satellites. Journal of Guidance Control Dy-                 55, Paris, 1889.
+    namics, 31(1):172–181, January 2008.
+41. M. Lara. Analytical and Semianalytical Propagation of Space Or-
+    bits: The Role of Polar-Nodal Variables. In G. Gómez and J. J.
+    Masdemont, editors, Astrodynamics Network AstroNet-II: The Fi-
+    nal Conference, volume 44 of Astrophysics and Space Science
+    Proceedings, pages 151–166. Springer, Cham, 2016.
+42. M. Lara. Note on the ideal frame formulation. Celestial Mechan-
+    ics and Dynamical Astronomy, 129:137–151, September 2017.
+43. M. Lara and S. Ferrer. Closed form perturbation solution of a fast
+    rotating triaxial satellite under gravity-gradient torque. Cosmic
+    Research, 51(4):289–303, July 2013.
+

@@ -1,0 +1,1122 @@
+1969CeMec...1...12D
+CANONICAL TRANSFORMATIONS
+DEPENDING ON A SMALL PARAMETER
+ANDRE DEPRIT
+Boeing Scientific Research Laboratories, Seattle, Wash., U.S.A.
+(Received 20 September, 1968)
+Abstract. The concept of a Lie series is enlarged to encompass the cases where the generating function
+itself depends explicitly on the small parameter. Lie transforms define naturally a class of canonical
+mappings in the form of power series in the small parameter. The formalism generates nonconservative
+as well as conservative transformations. Perturbation theories based on it offer three substantial
+advantages: they yield the transformation of state variables in an explicit form; in a function of the
+original variables, substitution of the new variables consists simply of an iterative procedure involving
+only explicit chains of Poisson brackets; the inverse transformation can be built the same way.
+1. Introduction
+Canonical transformations developed in formal series
+i
+n(n)
+x=yt ) —ety(y, 31),
+n!
+n21
+1
+ny7(n)
+X=Y+
+— ey
+(y, Y; t)
+(1)
+n!
+n21
+in the powers of a small parameter ¢ play an important role in the quantitative as
+.
+well as qualitative study of dynamical systems described by Hamiltonians of the type
+1
+KH = A(x, X;t;e)= ) — 8H, (x, X51).
+©)
+n!
+n2O
+When the transformations are conservative, the so-called von Zeipel’s method pro-
+poses to build them from generating functions in mixed variables, like
+1
+W =W(x, Y; 8) =(x|Y) + ) — &'W,, (x, Y),
+n!
+.
+Le
+.
+nZ 1
+by the implicit equations
+X =X(x, Y;«)=W,,
+63)
+(
+y=y(x, Y;8)=Wy.
+4)
+(N.B. (x | Y) denotes the dot product of the configuration vector x and the moment
+vector Y; W, indicates the gradient of W in the configuration space x,
+a vector made
+of the partial derivatives of W with respect to the components of x; Wy has a similar
+interpretation.)
+Von Zeipel’s method presents serious inconveniences:
+Celestial Mechanics 1 (1969) 12-30; © D. Reidel Publishing Company, Dordrecht
+- Holland
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1969CeMec...1...12D
+CANONICAL TRANSFORMATIONS DEPENDING ON A SMALL PARAMETER
+13
+(a) An explicit formulation of the transformation and of its inverse requires
+inverting the Equations (4) to obtain the configuration vector x as a function of the
+state variables (y, Y), whereafter the result of the inversion is substituted into the
+Equations (3) to express explicitly the moment vector X in terms of the state variables
+(y, Y).
+From a practical viewpoint, inversions and substitutions are cumbersome opera-
+tions. Oftentimes the authors of a perturbation theory are satisfied with suggesting a
+Lagrange series extended to several variables in order to invert Equation (4), but
+they do not enter into the details of the operations. As a result, their theory is left
+unfinished, precisely on a point to which practitioners ought to pay special care.
+For instance, ephemerides of an artificial satellite based on a theory elaborated by
+means of a von Zeipel’s technique may suffer in accuracy from the fact that Delaunay’s
+elements averaged over an anomalistic period are not explicitly developed in terms
+of the initial conditions (see Lyddane and Cohen, 1962).
+(b) The implicit relations (3) and (4) do not lead to a general algorithm to convert
+into the state variables (y, Y) a function
+1
+I(x, X:e)= ) — "f(x, X)
+n>0
+"
+of the original state variables (x, X). But these conversions have a considerable
+importance in practice. In the sequence of computations needed to establish and
+differentially correct the orbit of an artificial satellite, substantial savings would be
+made if the perturbation theories would express explicitly state functions like longi-
+tude, latitude, range and range rate in terms of the averaged elements.
+(c) In numerous problems, a transformation to be appropriate must
+satisfy,
+besides the criterion of canonicity, other essential conditions, like being analytical
+in the moments Y or defining the state variables (x, X) as averages of their transformed
+ones (y, Y). Some of these properties easily transfer from the mapping to the gen-
+erating function. But this is not the general case. How, for instance, do we select
+those functions W such that, after inversion and substitution, the coefficients y and Y”
+be analytical in the moment vector Y? The problem is a real one. According to Barton
+(1967), it is
+a major obstacle to implementing by computer a Delaunay operation.
+We felt the shortcomings of von Zeipel’s method when we attempted to apply it
+to normalize a Hamiltonian system in the neighborhood of an equilibrium (Deprit,
+1966). As a result of this failure, we found a way of constructing the transformation
+(1) in a straightforward recursion based on an extension to quasi-periodic solutions
+of Poincaré’s continuation of periodic orbits (Deprit and Henrard, 1967). However,
+we still failed to give a good answer to the problem of converting in the normalizing
+variables a function of the primitive state variables (x, X).
+In the present communication, we offer
+a Theory of Transformations that, in our
+opinion, accomplishes everything that von Zeipel’s method does in a general perturba-
+tion theory, and yet remedies its shortcomings and inconveniences.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1969CeMec...1...12D
+14
+ANDRE DEPRIT
+For the sake of clarity in the exposition, we would like to present the basic idea as
+a generalization of the concept of an infinitesimal canonical transformation. We
+proceed in two stages. First we review howa Lie series defines a canonical mapping
+as a formal power series of a small parameter ¢, provided the generating function
+itself does not depend on e. Then we overcome this restriction by introducing the
+concept of a Lie transform, and we show how they naturally define the canonical
+transformations contemplated by von Zeipel’s method. We complete this paper by
+outlining the basic steps of a general theory of perturbations based on Lie transforms.
+A little consideration of the past literature makes it apparent that the class of
+canonical transformations introduced in this communication has been envisioned by
+several authors.
+(a) It naturally encompasses the transition mappings from initial states at ft, to the
+states at a nearby instant t as they are determined by the general solution of a con-
+servative Hamiltonian system. Grdbner (1960) recommends presenting the transition
+mappings as Lie series generated by the Hamiltonian itself; recently Stumpff (1968)
+commented on possible applications of Grébner’s formalism. In that context, Section
+3 of this paper offers a generalization of Lie series to nonconservative Hamiltonian
+systems (see also Leimanis, 1965).
+(b) Von Zeipel’s technique and the present one are identical to the first order.
+At this approximation, the conversion rule applied to a function that does not depend
+explicitly on the small parameter has been proposed by Iszak (1963). As a matter of
+fact, Iszak’s formula was inspired by a remark of Dziobek (1888) that purports to
+justify a similar operation in the first order of a planetary theory.
+(c) The construction that we propose here ought to be discussed in relation with
+an algorithm already proposed by Hori (1966, 1967). Although the preamble to his
+construction seems amenable to a serious objection, a thorough comparison of the
+|
+two formalisms could prove very informative.
+(d) The present formalism justifies the way Schechter (1967) corrected a normaliza-
+tion around an equilibrium carried by Breakwell and Pringle (1966) in the case of a
+resonance. What Schechter does there amounts to deriving from a von Zeipel’s
+generating function in mixed variables the Lie transforms that define the transforma-
+tion in explicit form.
+(e) Most recently, Lacina (1969) has proposed a recursive algorithm to construct
+explicitly a canonical transformation that renders all variables, except
+a moment,
+ignorable in a conservative Hamiltonian function. Lacina’s mapping is not derived
+from a generating function.
+2. Lie Series as Canonical Mappings
+Given a function W(y, Y), the application f>(f; W), where
+Gim- ) ooo
+y,; OY;
+OY; oy;
+1<j<m
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1969CeMec...1...12D
+CANONICAL TRANSFORMATIONS DEPENDING ON A SMALL PARAMETER
+15
+is the Poisson bracket of
+fand W over the phase space (y, Y), is called the Lie deriy-
+ative generated by W, and it is denoted by Ly.
+For any real numbers « and f, and for any functions f(y, Y) and g(y, Y),
+Ly(«:f +B-g)=a-Lyf
++ B-Lyg,
+(11)
+Ly(f:9)=f-Lw9 +9°Lwf.
+(21)
+Ly (f; 9) =(f; Lwg)
++ (Lwfs 9);
+(31)
+also, for any function V(y, Y),
+LyLy = Lw:yv) + LwLy-
+(4,)
+These properties are obvious transpositions of corresponding properties of Poisson
+brackets.
+Repeated applications of the operator Ly give
+Lif = Ly (Lyf) ,
+Lyf = Ly (Lyf ) )
+and so on. It makes for convenient notations to put
+Lyf =f
+and
+Lyf =Lyf.
+Notice then how, by recurrence over n, properties (1), (2) and (3) can be extended to
+become
+Tw (af + Bg) =oLyf + plyg,
+(1,)
+n
+°
+n
+m
+>
+n—-m
+Ly (f ‘g)=
+m
+Lwf-Lw 9,
+(2,)
+O<mn
+n
+n
+m
+n—-m
+[w(fs; 9) =
+m (Lif; Lip 9).
+(3,,)
+O<mn
+Let the function W (y, Y) satisfy conditions sufficient to ensure that the exponential
+operator
+i
+exp(oLy) =) Ly
+5
+n!
+n20
+exists at any point (y, Y) of the phase space as an operator function analytic in « at
+é=Q0. The following properties are immediate consequences of the corresponding
+formulas (1,), (2,,) and (3,):
+exp(eLy) (af + Bg) = a-exp(eLy) f + B-exp(eLy) g,
+(1,)
+exp (eLy) (fg) = Lexp(eLy) f| x Lexp(eLy) g],
+(2.)
+exp (éLy) (f; 9) = (exp (eLw) f; exp (eLy) g).
+(3.)
+Formula (3,) obviously implies that the transformation (y, Y, é)>(x, X) defined by
+the formulas
+x =exp(eLy)(y),
+X =exp(eLy)(Y)
+(6)
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1969CeMec...1...12D
+16
+ANDRE DEPRIT
+is completely canonical. For it establishes that
+(xj; X,) = exp (eLy) (¥j3 Ye) = exp (eLy):0 = 0,
+(x;; X;,) = exp (eLy) (yj; Yi.) = exp (eLy)
++6 jn =
+jx;
+(X;; X;) = exp(eLy) (Yj; ¥,) = exp (eLy)-0 = 0.
+Take an indefinitely differentiable function f(x, X) that does not depend explicitly
+on ¢, and substitute in it for
+x and X their expressions given by (6)
+f(y, Y3 2) =f(x(, Ys 8), X(y, Ys 6).
+One computes that
+of
+of
+a
+oe
+X,3; W)— +
+(X,; W)
+M=
+E foamy
+40% |
+which, of course, can be written as
+Lyf =(f.|Lwx) + (fx|LwX).
+But
+dx
+1
+—= ) —"Ty'y
+= Lyx,
+de
+n!
+n20
+and, similarly
+dx
+Lx
+de
+”
+Consequently
+.
+Of dx
+Of
+dx,
+df
+|
+(f; W)=
+Of dx, | Of AX —
+Ox, de
+OX, dé
+de
+1<k<n
+Hence, by recurrence over n,
+d"f
+;
+——=[",f,
+de”
+wJ
+which implies that
+a"f
+;
+(=)
+= Lyf (y, Y).
+&
+/s=0
+Therefore, under the canonical mapping (6),
+:
+1
+/da"f
+1
+|
+f(y, Yse)= ) —e->]
+= ) — lyf
+(y, Y),
+n!
+de"
+/,=0
+n!
+n20
+n20
+and this conversion rule can be written concisely as
+f (exp (eLy) (y), exp (eLw) (Y)) = exp (eLyw) (Ff y, Y)).
+(7)
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1969CeMec...1...12D
+CANONICAL TRANSFORMATIONS DEPENDING ON A SMALL PARAMETER
+17
+In particular
+W(x(y, Ys), X(y, Y3 )) = WO, Y),
+which can be interpreted by saying that the generator is ‘conserved’ under the canon-
+ical mapping (6).
+If the function f (x, X; €) depends analytically on é so that
+1
+f (x, X36) = ) 7 Bin (Xs X),
+(8)
+n2O
+,
+then its transform under (6) is
+1
+n\
+_
+f (x(y, Y3 6), XV, Y; 8); €) = ) = g" ) (") Lwfn-m(y, Y).
+(9)
+n2O
+,
+O<m<n
+For, on applying rule (7) to each coefficient f,, one obtains that
+i
+falx(y, ¥3 8), X(y, Y; €)) = ) 8 Ewha, Y);
+m2 0
+then substituting these expressions into (8) and grouping like powers of ¢ establishes
+conversion rule (9).
+As an application of rule (9), consider the transformation (z, Z, )>(y, Y) generated
+by the function V (z, Z):
+y=exp(eL,)(z),
+Y =exp(eLy)(Z).
+(10)
+In view of (9), the mapping (z, Z, ¢)(x, X) that is the composition of (6) and (10)
+can be written explicitly as follows:
+I
+A
+mypn—-m
+x=
+-
+Ly Ly (z,Z)*>
+g
+m
+n=0
+O<m<n
+I
+n
+myn-m
+€
+m
+n2zO
+O<mn
+These expressions are basic in establishing that the inverse of transformation (6) is
+y =exp(eL_wyx,x) (x),
+Y =exp(eL_w x, x») (X).
+(12)
+Indeed, make V (x, Y)= — W (x, X) in (11). According to (4,),
+L_wLy = LywL_yw,
+so that
+n
+m
+n—-m
+n
+DI" wl” = (L_w + Ly)’.
+m
+O<m<n
+But Ly+Ll_yw=O0; thus, by taking
+V (x, X¥)=—W (x, X) in the composition rules
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1969CeMec...1...12D
+18
+ANDRE DEPRIT
+(11), one obtains that x=z, X¥=Z, and this proves that (12) is the inverse of (6).
+Definition (6) of a canonical mapping analytic in a small parameter extends to
+nonconservative transformations. This can be done in principle by observing what
+becomes of the expressions (6) when a moment is ignorable in the generator W(y, Y).
+In order to present these modifications in a form immediately suitable to routine
+calculations, consider the usual (m-+1)-dimensional space of events (Synge, 1960)
+with coordinates v; expressed in alternative notation as
+vj = Jj
+(1 <j<m),
+Vne1 =F,
+and a moment-energy space with components V, to be expressed as
+It will be convenient to maintain the notation
+Of oW
+of dW
+Lyf =
+> YAY Oe
+yj OY;
+OY; oy;
+1<j<m
+for the usual Poisson bracket in the phase space (y, Y), and to introduce the notation
+Of oW
+of ow
+we J (e-)
+v,; OV;
+OV; Ov;
+1<j<mt+1
+for the Poisson bracket in the space (v, V) of states and energy.
+Consider the canonical mapping in the space of states and energy
+u = exp(eAy)(v)
+U = exp(eAy) (V)
+(13)
+generated from a function W (v, V), and introduce the alternative notation
+xj=u;
+(L<j<m),
+S = Un+1>
+X;=U,;
+(l<j<m),
+K=—Uy:1.
+Assume that the generator W does not depend on A
+(i.e., OW/0H=O0 identically).
+Consequently, for any function f(v, V),
+Ayf = Lyf +2
+(14)
+We"
+OH at”
+Moreover, iff itself does not depend on H, then
+Awf — Lyf .
+There results that, in the alternative notation, the transformation (13) takes on the
+form
+1
+nyn
+x(y, Y,t;é)=
+Te bw, ¥sny >
+nzO
+)
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1969CeMec...1...12D
+CANONICAL TRANSFORMATIONS DEPENDING ON A SMALL PARAMETER
+19
+1
+nyn
+X (y, Y,t;e)=
+He worn
+»
+(15)
+n2O
+similar to that of (6). Also
+hence definition (13) implies that
+S=t.
+At last, applying (14) to the function
+f= H, one readily obtains that
+and more generally, by induction over n, that
+AwH = Liy* ow
+Therefore definition (13) implies that
+1. _,0W
+K=H+
+—e'lLy —,
+(16)
+n}
+Ot
+n21
+which means that
+1
+0
+R(y, Y;t)=— ) 7h Ly oY) 5, W(y, Y3t)
+(17)
+n21
+is the remainder function (Wintner, 1941) of the nonconservative canonical trans-
+formation (15) generated from W(y, Y; t).
+3. Lie Transforms as Canonical Mappings
+The preceding developments are not valid unless
+W does not depend explicitly on
+the small parameter ¢. However, this restriction can be discarded, provided suitable
+modifications
+are introduced
+in the formalism.
+Given a function W(y, Y;¢), define for any function f(y, Y; e) the application
+of
+f > Awf = Lyf Tae
+g
+It has properties similar to those of the operator Ly, namely that
+Aw (af + Bg) =1dyf + BAyg,
+(181)
+Aw(fg)=f:4w9 +9°4wf ,
+(19,)
+Aw(f; 9) =(Awfs 9) + Ff: 4w9),
+(20,)
+AyAy = AwAy + Livy + Leew/ee-av
+ae) «
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1969CeMec...1...12D
+20
+ANDRE DEPRIT
+In the same way, define successively
+Awf =Ay(4wf),
+Awf =4w(4wS),
+and so on; for convenient notations, put
+Ayf =f
+and
+Ayf =Ayf.
+Exactly like for the operator Ly, one easily checks that, for any n>0,
+Aw (af + Bg) =odwf + BAyg,
+(18,)
+n
+m
+n—m
+Aw(fg) = )
+(") Ant Ay "9;
+(19,)
+O<mn
+n
+n
+m
+n—-m
+Aw(f39)=
+on (AWS;
+Aw
+"9)-
+(20,)
+O<m<n
+In order to simplify the notations, the function of y and Y which results from
+making e=0 in the expression Ajy,, y..) f(y, Y; e) will be more simply written as
+f
+(y, Y; 0).
+Consider now the formal power series
+1
+Ey()= ) Sef. ¥:0),
+en
+n2zO
+The mapping
+will be called the Lie transform generated by W.
+In view of (18,), (19,) and (20,), one sees immediately that
+|
+Ey (af + 6g) = «Ey(f) + BEy(g),
+(18;)
+Ew(f °9) = Ew(f):Ew(g),
+(19,)
+Ew(f; 9) = (Ewf: Ewg).
+(20,)
+This last formula serves in particular to establish that the formal power series
+1
+n_(n)
+x= Ew(y)= ) —
+ely
+(y, ¥50),
+n20
+1
+n(n)
+X= Ey(¥Y)= } — e"¥(y, ¥50)
+(22)
+n20
+,
+define a completely canonical mapping (y, Y, «)>(x, X).
+The transformation (22) admits a fundamental interpretation. If (x, X) is the solu-
+tion starting from (y, Y) at the point e=0 for the canonical system
+dx
+0 W (x,
+Xt
+8)
+dx
+0
+W(x.
+X
+33
+7.
+AV
+xX,
+» €),
+{T= TD
+9
+5
+’
+de
+aX
+de
+x
+VO
+X54)
+(23)
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1969CeMec...1...12D
+CANONICAL TRANSFORMATIONS DEPENDING ON A SMALL PARAMETER
+21
+then, because
+dx
+d°x
+OW
+—=(x;W)=Ayx,
+—=((x;W);W)+(x;
+—)=A2x,
+se
+=
+W) =
+ws
+T=
+(608
+1):
++ (5 SE) = dis
+and so on, the expansion of the solution (x, X) in power series of ¢ result in the
+expressions (22).
+More generally, for a functionf (x, X; ¢), along the solution (x(y, Y; ¢), X(y, Y; ))
+of Equation (23), one has that
+and so on; consequently
+1
+f (x(y, Y; €), X (y, X3 €); €) = ) 8 (Ait )e=o »
+n20O
+which can be written symbolically as
+f (Ew(y), Ew (¥); €) = (Ew (f)) (
+Y¥3 8).
+(24)
+This is the rule to convert a function f of x,
+X and ¢ into one with arguments y, Y
+and ¢ through the canonical mapping (22).
+When both the generating function W(y, Y; e) and the functionf are power series
+of e, the coefficients f(y, Y; 0) in (21) can be constructed in a simple recursive
+fashion.
+Assuming that
+1
+n20O
+|
+n
+n2ZO
+and, for the sake of simple notations, putting
+Ly, — Ly
+(p 2 1),
+one finds that
+4)
+1,
+0€
+n!}
+n2O
+1
+,
+n
+n!}
+m
+n2O
+O<m<n
+Thus, if one represents 4y(f ) by the formal power series
+1
+ay(f)=
+) Sen).
+nZ20
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1969CeMec...1...12D
+22
+ANDRE DEPRIT
+one finds that, for n>0,
+n
+WWD =Soro
+) (")besifenOr YD
+7
+O<m<n
+Consequently, as one expects,
+{PO Y;0)= for, Y) =fitLifo =fi + (fo; Wi):
+Repeating the construction for
+:
+;
+.
+B=)
+eHPnY),
+n20O
+one finds that
+n
+O<mn
+so that
+fO(y, Y30) = f5?(y, Y) = FPP + Lifor = fiP + Lf.
+But, in view of (27),
+FL? = fr + (fis Ws) + (fo; Wo),
+and the expression for f{”) in explicit form is
+FS? = fo +2061; Wi) + fo; Wo) + (CHA HLAE
+The recurrence extends to any n: thus, for
+k
+1
+n
+¢(k)
+n20
+one finds that, for any n>0,
+_
+n
+(k-
+O<mn
+In particular
+f(y, ¥50 = fo. Yigal
+P+ Lyfe”.
+The recursion (29) is easily visualized in Figure ]. For instance, assume that all the
+elements of the first three lines have been computed. The filling of the 4th row begins
+‘with the computation off{") which involves only the elements above and including /;
+on the diagonal passing through /;:
+fo? = f3 + Lif + 2Lof; + Lsfo:
+then one is ready to compute f{”, which involves f$? and the elements above it on
+the diagonal through f{”:
+|
+FP =f2P FLAP + LifS?;
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1969CeMec...1...12D
+CANONICAL TRANSFORMATIONS DEPENDING ON A SMALL PARAMETER
+23
+_ -(0)
+/
+fy =f
+(1) _
+.Q)
+f£, —————
+> {=
+fo> 1) —$—$—<$$_$$_<_> £7) = ¢@)
+(1)
+(2)
+3
+3
+f, ——_____>
+f,
+—_—_—>- f, > 2
+= ©
+Fig. 1.
+Recursive transformation of an analytic function under a Lie transform.
+the calculation ends with
+FO = f= FP + LIS.
+The construction is reminiscent of that of Pascal’s triangle.
+By applying the recurrence (29) to the series
+fio=Y;,
+Sfyn=90
+for
+nol,
+one easily constructs the coefficients of the various powers of ¢ in the formal series
+defining the canonical mapping (22). For the first few orders, one finds for instance
+that
+yO=Liy,
+ys? = Liy 9
+y=
+yi 4 Ly,
+yy? =Lsy,
+YP = ys? + Lyyy? + Lay,
+y= yP + Lyy™,
+ys? = Lay,
+2) = yO + Ly? + 2Day\ + Lay,
+YP = y+ Liye + Lay,
+yO = YP + Ly”.
+The case of a nonconservative canonical mapping generated from a function
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1969CeMec...1...12D
+24
+ANDRE DEPRIT
+W (y, Y, t; €) can be treated as in Section 2 of this paper. On using the alternative
+notations introduced there, we define the differential operators
+7)
+0
+0&
+0&
+Then, for any function f(v, V),
+Of oW
+V
+= A
++ ——*—,
+wil
+=Awf
+aH dl
+and therefore, if f does not depend explicitly on H,
+Vol = Awf.
+Hence, the transformation of the state variables can still be expressed by Equation (22):
+1
+x =x(y, Y3t;e)= ) — e"y™(y, ¥; 30),
+n!
+n2=O0O
+i
+X=X(y, Y;t;e)= ) — e"Y™(y, Y; 1; 0).
+n!
+n20O
+As in the case of a mapping defined by Lie series from a nonconservative generating
+function, we find that
+hence, by induction over n, that
+wee
+=
+Ow
+ae
+Consequently, the energy variable transforms according to the equation
+K=H+
+tgs Ay ow
+=
+— §
+—
+5
+n!
+"at
+c=0
+n21
+which establishes that
+I
+n
+n—-1 ow
+R(y, Y;tse)=— ) —8"|
+Ay
+(30)
+n!
+Ot
+J.=o
+n21
+is the remainder function of the nonconservative transformation. In the particular
+case when W
+is the power series (28), the preceding formula indicates that the remain-
+der is to be constructed from the sequence (OW,/dt, OW,/dt,..., OW,/0t,...) by the
+recursion:
+i-
+J
+i-
+sy = sisi+ )
+(/) (s}-y”; Wie+1)>
+O<k<j
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1969CeMec...1...12D
+CANONICAL TRANSFORMATIONS DEPENDING ON A SMALL PARAMETER
+25
+so that
+i
+R=- ) — e"s'P(y, Y; 2).
+(31)
+n!
+n21
+The inversion of the mapping (22) is a straightforward affair. Indeed (22) being
+essentially the flow defined by the Hamiltonian Equations (23), we know (Wintner,
+1941) that its remainder function must be the function
+R(y, Y; 2) =— W(x(y, ¥; 8), X(y, ¥; 6); 8),
+(32)
+and that under the mapping (22) the Equations (23) become
+dy/de=OR/OY,
+dY/de=— OR/dy.
+(33)
+Now that the inverse of (23) appears as the flow defined by (33), its generators turn
+out to be the coefficients of the various powers of é in (32). But we obtain that expan-
+sion by applying the algorithm we just described for transforming a function f(x, X;
+é). To conclude, if W is the power series (25), we enter in the starting diagonal of
+Figure 1 the coefficients — W,(x, X; «)—W,(x, X;¢), and so on, and thus collect
+recursively the coefficients in the series
+1
+R(x, X36) = ) — &'V, (x, X).
+(34)
+n!
+n21
+For the first few steps, we easily see that
+V2 (x, X) = — W(x, X),
+4. Perturbation Theory Based on Lie Transforms
+Consider the system of vector differential equations
+X=Hy,
+X=-H,
+(36)
+derived from the Hamiltonian
+i
+H (x, X3t3&)
+= Ho(x, X31)
++ eH,
+(x, X; t) + 5
+8 #2 (x, X;1)
+i+8 #s(x, Xs) +,
+(37)
+The essence of the technique proposed here consists as is customary in constructing
+a canonical transformation (x, X, t, €)>(y, Y) analytic in e at e=0 so as to achieve
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1969CeMec...1...12D
+26
+ANDRE DEPRIT
+in the transformed Hamiltonian
+1
+HY, V3 t3e)=Ho(Y, Vs t) + eH, Vit + 5 8H2(y, Ys 0)
+1
++38 Us
+Ys t) +
+(38)
+specific requirements (suppression of periodic terms of assigned type, elimination of
+some or all angle coordinations, normalization, and so on). Where we differ from the
+usual von Zeipel’s method is that we plan to build the mapping explicitly in the form
+of power series
+1
+1
+x=ytey(y, Yi t+ x1 ey (y, Y; t) + rapa eZ Y;t)t-.,
+(1)
+/
+2y(2)
+/
+3y(3)
+X=Yr+eY’(y, Ysi)+ se Y“?(y, Yyj+ ze YO(y, Y3t)+-",
+(39)
+together with its inverse
+1
+1
+(1)
+/
+2y(2)
+/
+3y
+(3)
+Y=X+6eX
+(x Xs)+ se xX
+(x, Xs H+
+6 X
+(x, X3t) +e,
+(40)
+and its remainder function
+1
+1
+R(y, Y; t)=eR“?(y, Y; 0) 4+ 71eR
+(y, ¥;t) + 31 eR (y, ¥3t) +...
+(41)
+We shall describe in full detail the sequence of operations one has to perform in
+order to carry the transformation up to order 3 in e.
+The scheme is basically a recursive one; it is based on the principle that, with respect
+to the transformation (39), the canonical system (36) is equivalent to the system
+pH H,,
+Y=-— 2%,
+(42)
+derived from the Hamiltonian
+K (y, Y; t3 8) = #(x(y, Y; t3e), X(y, Y3 t3e)3 t,e)
++ Ry, Y;t).
+(43)
+As we impose that the mapping (39) be of the form
+we have that
+H (x(y, Y; t3 8), X(y, Y3 t; 6); t3 6) = Ey (#).
+Accordingly the target is now the construction of W and &
+to satisfy prescribed
+requirements in (42).
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1969CeMec...1...12D
+CANONICAL TRANSFORMATIONS DEPENDING ON A SMALL PARAMETER
+27
+The recursion is entered by putting
+K o(y, Y3th= Ho(y, Y;1).
+(44)
+The operations at order
+| in € begins, as is obvious from the conversion rule
+established in Section 3, by considering the linear partial differential relation
+OW,
+(403 Wi) — —— + Hy =
+Gay)
+to be taken as an identity over the phase space (y, Y). Notice that (#4); W,)+#,
+is the coefficient #$” of ¢ in the Lie transform of #, and that —dW,/dt is the coeffi-
+cient of ¢ in the remainder of the transformation. Assuming that a certain selection
+has been made for %,(y, Y; t), we then have in (43) a linear partial differential
+equation
+|
+7)
+which one solves to find the coefficient
+of ¢ in the generating function. Then one computes that
+HS
+=HS?(y, Ys t)= (Hos Wi) + #,,
+(47)
+OW.
+y = y%y, ¥;)=0;W) =,
+Cr)
+oY
+OW.
+YV=YYO(y, Y;H)=(Y; Wi)=-——,
+(49)
+yo.
+OW.
+As we have shown in Section 3, the coefficients of ¢ in the inverse mappings are
+obtained by replacing the letters
+y and Y by x and X
+respectively in the coefficients
+y and Y, and putting
+xD) = x(x, Xp) =— yO,
+XY =X
+(x,
+X;)=-Y™.
+(51)
+At order 2 in ¢, the provisional functions
+HY =H?
+(y,V3 th=H,+(#,; Wi),
+Hy? =H
+(y, Y3t)= HP + (Hos M),
+R™= R
+(y, Y; t) =(R™; W,)
+(52)
+are prepared. The tildes surmounting the coefficients are there to remind us that,
+for instance,
+HY is only part of the coefficient of e” in the Lie transform of #: the
+complete coefficient will be obtained in (57) after W, has been computed. In view of
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1969CeMec...1...12D
+28
+ANDRE DEPRIT
+(43), we set up the partial differential relation
+OW.
+(#5; W2) + HY — = + R= 4,
+(53)
+The first two terms in the left hand member are the coefficient of e* in Ey(#”), the
+last two terms the coefficient of e* in the remainder. The unknown function %,
+is
+selected in compliance with the goals proposed for the transformation, and the re-
+sulting linear partial differential equation
+0
+Pp (2)
+po(2)
+is integrated to yield the coefficient W,(y, Y; t) of ¢ in the generating function. The
+step of second order is completed by computing
+OW.
+(1) —
+(1)
+,Y:t)h=—.,
+y = yO(y, Ys) = iP + (Vs MH),
+OW.
+YP = VM(y, Yi) =-—,
+dy
+YV=YO(y, Ys =YP+(Y™; WM),
+OW.
+R = RO(y, ¥3 1) = RO —
+(55)
+The coefficients of 7 in the inverse mapping are found by replacing the letters
+y
+_
+and Y by x and X respectively in the functions y§, Y{?, (y™; W,), (Y™: W,), and
+then by putting
+x) = x(x, Xs N= y§P +0; WH),
+X? =X (x, X¥;)=-— Y{P+ (VM; WH).
+(56)
+We prepare the operations at order 3 by first completing the coefficients of order 2
+in Ey (#):
+H' = KH (y, Y;t)= KH” + (Ho; W2),
+HS) =H
+(y,Y3 t= HY + (Ho; Wo),
+(57)
+and then, by computing the provisional elements
+HY SHY
+(y, V3 t) = #3 + (Hr; Ws) + 2(15 Wa),
+HY = HD
+(y, Y3 th = HY + (YP; W,) + (0s W.),
+#3)
+= #P(y, Ys1) = #P + (HP; M),
+~
+OW.
+RY? = RP (y, Y; 1) =(R™W,) (Se m),
+RO = RO(y, ¥31) = RO + (R®: W,).
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1969CeMec...1...12D
+CANONICAL TRANSFORMATIONS DEPENDING ON A SMALL PARAMETER
+29
+From the linear partial differential relation
+OW.
+(03 Wa) + 90? + RO —~— = Hs,
+the unknown function 1s selected, and the resulting linear partial differential equation
+0
+P(3) 4. BCS)
+is solved to yield the coefficient W;(y, Y; t) of order 3 in the generating function.
+Then the sequence of operations
+yd)
+OW;
+2
+ay
+9
+yy = ya? + (ys Wi) + (vos WH),
+y = y+ (y0?s Mi),
+y{o a OW,
+dy
+°
+Y}? = ¥3P + (Y2?; W,) + (YS? Wa),
+Yor = Yy? + (Ys Wi)
+will produce the 3rd order coefficients in the canonical mapping, whereas
+R® = R© — aw,/at
+is the 3rd order coefficient in the remainder function.
+We explained at the end of Section 3 how to compute the coefficient of third order
+in the function generating the inverse mapping.
+Clearly, if need be, the entire procedure can be extended to any order N>3.
+5. Conclusions
+Canonical mappings defined by Lie transforms as formal power series of a small
+parameter constitute the natural ingredient of Transformation Theory applied to
+Hamiltonian systems.
+The formalism we just described is now being developed in four areas: a revision
+of Brouwer’s theory of an artificial satellite, its extension to Lunar Orbiters, Birkhoff’s
+normalization of the triangular centers of libration in the reduced problem of three
+bodies, and the analysis of resonances.
+Acknowledgments
+This work was carried out while the author wasa resident visitor at the Bell Telephone
+Laboratories, Whippany, New Jersey. The suggestions and comments of Dr. Franz
+Geyling and Dr. Ralph Pringle are appreciated.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1969CeMec...1...12D
+30
+ANDRE DEPRIT
+References
+Barton, D.: 1967, Astron. J. 72, 1281.
+Breakwell, J. and Pringle, R.: 1966, Progress in Aeronautics, vol. 17, Academic Press, New York,
+pp. 55-73.
+Deprit, A.: 1966, Proceedings of I.A.U. Symposium 25, Academic Press, London, pp. 170-175.
+Deprit, A. and Henrard, J.: 1967, Icarus 6, 381.
+Dziobek, O.: 1888, Die Mathematischen Theorien der Planetenbewegungen (reprint of the English
+translation by Dover Publications Inc., New York, 1962).
+Groébner, W.: 1960, Die Lie-Reihen und ihre Anwendungen, Springer-Verlag, Berlin.
+Hori, G.: 1966, Publ. Astron. Soc. Japan 18, 287.
+Hori, G.: 1967, Publ. Astron. Soc. Japan 19, 229.
+Iszak, I.: 1963, Astron. J. 68, 559.
+Lacina, J.: 1969, Ann. Phys. 51, 381.
+Leimanis, E.: 1965, The General Problem of the Motion of Coupled Rigid Bodies about a Fixed Point,
+Springer-Verlag, New York, pp. 121-128.
+Lyddane, R. H. and Cohen, C. J.: 1962, Astron. J. 67, 176.
+Schechter, H.: 1968, Second Compilation of Papers on Trajectory Analysis and Guidance Theory,
+NASA ERC Boston, PM-67-21, pp. 320-329.
+Stumpff, K.: 1968, NASA TN D-4460.
+Wintner, A.: 1941, The Analytical Foundations of Celestial Mechanics, Princeton University Press,
+Princeton, N.J., pp. 22-28.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System

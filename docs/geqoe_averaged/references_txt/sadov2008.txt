@@ -1,0 +1,824 @@
+Celest Mech Dyn Astr (2008) 100:287–300
+DOI 10.1007/s10569-008-9123-z
+
+ORIGINAL ARTICLE
+
+
+
+Analytic properties of Hansen coefficients
+
+Sergey Yu. Sadov
+
+
+
+
+Received: 16 October 2007 / Accepted: 5 February 2008 / Published online: 14 March 2008
+© Springer Science+Business Media B.V. 2008
+
+
+Abstract Hansen’s coefficients in the theory of elliptic motion with eccentricity e are
+studied as functions of the parameter η = (1 − e2 )1/2 . Their analytic behavior in the complex
+η plane is described and some symmetry relations are derived. In particular, for every Hansen
+coefficient, multiplication by suitable powers of e and η results in an entire analytic function
+of η. Consequently, Hansen’s coefficients can be in principle computed by means of rapidly
+convergent series in powers of η. A representation of Hansen’s coefficients in terms of two
+entire functions of e2 follows.
+
+Keywords Two-body problem · Elliptic motion · Hansen coefficients ·
+High eccentricity · Series expansion · Analytic functions · Poles and residues
+
+Mathematics Subject Classification (2000)            70F05
+
+
+1 Introduction
+
+This paper deals with properties of Hansen’s √ coefficients in the theory of elliptic motion
+considered as functions of the parameter η = 1 − e2 . Their expansions in powers of the
+eccentricity e have long been in use; comprehensive tables were compiled by Cayley in
+1861 and later extended (Deprit and Rom 1967; Jarnagin et al. 1965). Further analytical
+developments and efficient computational techniques for expansions of various functions
+of elliptic motion have continued to appear, motivated by applications of such expansions
+in perturbation calculations (Brumberg and Fukushima 1994; Hughes 1981; Klioner et al.
+1998). While classical expansions were primarily designed to handle the most important
+astronomical case of small eccentricities, more recent efforts have targeted the entire range
+0 ≤ e < 1 (Brumberg and Brumberg 1999; Klioner et al. 1998).
+
+
+
+
+S. Yu. Sadov (B)
+Memorial University of Newfoundland, St. John’s, NL, Canada A1C 5S7
+e-mail: sergey@math.mun.ca
+
+
+                                                                                          123
+288                                                                                 S. Yu. Sadov
+
+
+    We approach the problem of high eccentricities from the other end. The origin of our
+expansions, η = 0, corresponds to e = 1, a parabolic orbit.
+    As it turns out, the Hansen coefficients as functions of η possess nice analytic proper-
+ties. As Theorem 2 (Sect. 7) asserts, every Hansen coefficient can be split into product of
+a simple explicit factor and an entire analytic function of η of at most exponential growth.
+Consequently, the second factor is represented by a series which converges uniformly in any
+bounded domain, in particular, in the interval η ∈ [0, 1] corresponding to e ∈ [0, 1]. More-
+over, the convergence is factorially fast. If desired, one can dispense with η and return to the
+                         √ the entire function of η into the odd and even parts results in a
+master variable e. Breaking
+decomposition A(e2 ) + 1 − e2 B(e2 ), with A, B entire functions represented by factorially
+convergent series (Theorem 3).
+    My interest to expansions centered at η = 0 comes from the study of the equation of
+the attitude motion of a satellite (Beletsky 1965; Chernous’ko 1964; Lutze and Abbit 1969)
+in the mathematically challenging limiting case e → 1− . While such a limit problem may
+be perceived as a purely analytical exercise, it provides an insight into classification of
+generalized periodic motions and their stability in the moderate, realistic eccentricity range
+(Bruno and Varin 2004). Higher order perturbation theory for the limit problem (Sadov 1997,
+2008) requires a systematic study of expansions in η of a subfamily of Hansen’s coefficients.
+Observations made in Sadov (2006) are generalized here.
+
+
+2 Notation and basic expressions
+
+We follow Abalakin et al. (1976) with regard to notation for orbital elements in the elliptic
+motion: e is the eccentricity, a the semi-major axis, M, v and E the mean, true and eccentric
+anomalies, r the radius vector. Introduce, as in Brumberg (1995), (2.1.9),
+                                            
+                                        η = 1 − e2 ,
+and the Newcomb ratio (Abalakin et al. 1976, (3.02.21))
+                                                       
+                            1−η           e        1 − η 1/2
+                        β=          =         =              .
+                               e        1+η        1+η
+Note that
+                                      2β              1 − β2
+                               e=          ,     η=          .                              (1)
+                                    1 + β2            1 + β2
+We recall that r/a is determined by the ellipse equation
+                                       r          η2
+                                          =               .
+                                       a     1 + e cos v
+The relation between v and M is the 2nd Kepler Law
+                                                  r 2
+                                    d M = η−1            dv,                             (2)
+                                                   a
+while E and v are related by
+                                                 r 
+                                     d E = η−1          dv.                              (3)
+                                                   a
+In addition to the differential Eqs. 2, 3, the normalization condition v| M=0 = E| M=0 = 0 is
+imposed.
+
+123
+Analytic properties of Hansen coefficients                                                        289
+
+
+   Hansen’s coefficients (Hansen 1855) X kn,m (e) are defined by the Fourier series
+                     r n                    ∞
+                                                                                 √
+                             exp(imv) =             X kn,m exp(ik M),        i=       −1.         (4)
+                      a
+                                             k=−∞
+
+Closely related are two other sets of coefficients. Cayley’s coefficients (Cayley 1861) of the
+real trigonometric expansions are defined as C0n,m = X 0n,m , Ckn,m = X kn,m + X −k
+                                                                                  n,m
+                                                                                       (k > 0),
+  n,m      n,m       n,m                                                 n,m       n,m
+Sk = X k − X −k . Newcomb’s coefficients (Newcomb 1895) Nk                   = X k+m     appear
+in the Fourier expansion of (r/a)n exp(im(v − M)). Our analysis of the functions (16) in
+fact covers more general Andoyer coefficients (Andoyer 1923; Hagihara 1970, p.498) of the
+expansion of the function (r/a)n exp{i(m 1 v + m 2 E)}, but we do not pursue further details.
+    The coefficients X kn,m as functions of e are represented by the Maclaurin series with real
+coefficients
+                                                n,m
+                                      X kn,m =     X̂ k,l el ,                              (5)
+                                                       l
+
+where
+                                        n,m
+                                     X̂ k,l = 0 if l < |m − k|.                                   (6)
+
+This property is called the D’Alembert characteristic; it will automatically follow from our
+main result in Sect. 7. The coefficients X̂ with shifted indices are known as Newcomb’s
+operators
+                                                   n,m
+                                          n,m
+                                        X ρ,σ = X̂ m+ρ−σ, ρ+σ .
+
+   Various formulas for the Hansen/Cayley/Newcomb coefficients are found, among other
+sources, in Abalakin et al. (1976, §3.02), Jarnagin et al. (1965), Hagihara (1970, §5.12),
+Tisserand (1889).
+   Let s = exp(i E), t = exp(iv), z = exp(i M). (This notation is consistent with Hagihara
+1970, (5.118).) It follows from (2), (3) that
+                              e                           s−β
+                   z = s exp       s −1 − s ,          t=         ,
+                               2                           1 − βs
+                                                                                       (7)
+                   r       dM         es 2 − 2s + e   e(s − β)(β −1 − s)
+                      = is     =−                   =                    .
+                   a       ds               2s                2s
+Hence
+                     e n+1 β −m                                            ke
+         X kn,m =                            (s − β) p (β −1 − s)q s r exp      (s − s −1 ) ds,   (8)
+                     2         2πi                                           2
+                                     |s|=1
+
+with
+
+                    p = n + m + 1,            q = n − m + 1,        r = −n − k − 2.               (9)
+
+Representation (8) goes back to Tisserand (1889, p. 253). Lyddane in Jarnagin et al. (1965,
+Ch. 6) used it for iterative calculations of X kn,m . A readily available modern reference is
+(Brumberg (1995), (2.3.20)).1
+
+1 In Sadov (2006) the author was unaware of the relevant references.
+
+
+
+                                                                                             123
+290                                                                                     S. Yu. Sadov
+
+
+3 Hansen coefficients in variable η: preliminaries
+
+Following (Sadov 2006), where the coefficients X k−3,2 (named the Chernousko functions
+k−2 ) are treated in detail, set
+                                                 s = βx.                                       (10)
+Define the functions (cf. relations (1))
+                        λ(x, η) = e(s −1 − s) = η(x + x −1 ) + (x −1 − x),
+                                                                                               (11)
+                          µ(x, η) = e(β −1 − s) = η(1 + x) + (1 − x).
+Let p, q, r ∈ Z and τ ∈ C be independent parameters. Introduce
+                                                           τ       
+                    p,q
+                  fr,τ (x, η) = (x − 1) p x r µ(x, η)q exp − λ(x, η) .                         (12)
+                                                            2
+Denote
+                                     γ (a, b) = (1 + η)a (1 − η)b ,                            (13)
+so that e = γ ( 21 , 21 ) and β = γ (− 21 , 21 ). For reference, note the properties
+                   γ (a, b)−1 = γ (−a, −b),                γ (a, b)|η→−η = γ (b, a).          (14)
+Set
+                                         ξ(η) = β −2 = γ (1, −1).                              (15)
+The functions (12) are analytic in x with possible singularities at the points x = 0, x = 1
+and x = ξ . The point x = 0 is essential singularity (unless τ = 0 or η = −1). The point
+x = 1 is a pole of order | p| if p < 0, and the point x = ξ is a pole of order |q| if q < 0.
+Let C be a simple contour enclosing the points x = 0 and x = 1 and leaving x = ξ outside.
+Such a contour exists if ξ  = 0 and ξ  = 1. Two exceptional cases are: ξ = 0 corresponding
+to η = −1, and ξ = 1 corresponding to η = 0.
+   Define (assuming positive direction of integration unless otherwise noted)
+                                     p,q         1           p,q
+                                   Fr,τ (η) =              fr,τ (x, η) d x.                    (16)
+                                                2πi
+                                                       C
+Equations (8)–(11) yield
+                                   em β −k p,q            2 , 2 )
+                                                     γ ( m+k  m−k
+                                                                    p,q
+                        X kn,m =      n+1
+                                          Fr,k (η) =        n+1
+                                                                  Fr,k (η).                    (17)
+                                    2                     2
+                                                                     p,q
+For further analysis we introduce, for the residues of fr,τ at x = σ , where σ = 0, 1, ξ ,
+or ∞, the notation
+                                         p,q            p,q
+                                     σ Fr,τ (η) = Res fr,τ (x, η).                             (18)
+                                                  x=σ
+
+The residue at infinity is understood as the corresponding Cauchy integral over a negatively
+oriented big circle. By the residue theorem, for η  = 0, −1
+                  p,q              p,q           p,q               p,q           p,q
+                Fr,τ (η) = 0 Fr,τ (η) + 1 Fr,τ (η) = −ξ Fr,τ (η) − ∞ Fr,τ (η).                 (19)
+    The integrand in (16) depends analytically on η as long as the point x = ξ can be avoided
+by the contour C under small variations of η. This last condition is fulfilled provided that
+η  = 0, −1. Summarizing, we state
+
+123
+Analytic properties of Hansen coefficients                                                    291
+
+
+Proposition 1 The Hansen coefficient X kn,m admits factorization (17), where p, q, r are
+                     p,q
+defined in (9) and Fr,k (η) is an analytic function in C \{0, −1}.
+
+
+4 Symmetry relations
+
+The ingredients of the function (12) possess the following transformation properties under
+two involutive changes of variable, x = ξ/x1 and x = 1/x2 :
+
+                        λ(x, η) = −λ(x1 , η) = −λ(x2 , −η),
+
+                        µ(x, η) = (1 + η)x1−1 (x1 − 1) = x2−1 µ(x2 , −η),                     (20)
+
+                        x − 1 = (1 − η)−1 x1−1 µ(x1 , η) = −x2−1 (x2 − 1).
+
+In addition, d x = −ξ x1−2 d x1 = −x2−2 d x2 . We have
+            p,q                                                  q, p
+          fr,τ (x, η) d x = −γ (q + r + 1, − p − r − 1) f − p−q−r −2,−τ (x1 , η) d x1 ,       (21)
+
+where γ is defined in (13). Using the notation
+
+                      p̃ = q, q̃ = p, r̃ = − p − q − r − 2, τ̃ = −τ,                          (22)
+
+the transformation (21) can be written in a symmetric form
+                                                               
+           p−r r −q          p,q                  p̃ − r̃ r̃ − q̃      p̃,q̃
+       γ         ,         fr,τ (x, η) d x = −γ          ,          fr̃ ,τ̃ (x1 , η) d x1 .
+             2       2                               2       2
+
+Similarly, with the change of variable x  → x2 we get
+                              p,q                        p,q
+                            fr,τ (x, η) d x = (−1) p fr̃ ,τ̃ (x2 , −η) d x2 .                 (23)
+
+   The considerations based on the involutions ψ1 : x  → x1 and ψ2 : x  → x2 lead to
+interesting and useful identities.
+
+Proposition 2 (Transposition of p and q)
+
+(a) The residues (18) satisfy the relation
+                            p,q                                       q, p
+                        σ Fr,τ (η) = −γ (q + r + 1, − p − r − 1) σ1 Fr̃ ,τ̃ (η),              (24)
+
+    where σ1 = ψ1 (σ ), that is, the (unordered) pair {σ, σ1 } is either {1, ξ } or {0, ∞}.
+                    p,q
+(b) The functions Fr,τ (16) satisfy the symmetry relation
+                              p,q                                          p̃,q̃
+                            Fr,τ (η) = γ (q + r + 1, − p − r − 1) Fr̃ ,τ̃ (η).                (25)
+
+Proof The map ψ1 : x  → x1 transposes 1 ↔ ξ and 0 ↔ ∞. A small contour enclosing
+x = 1 is carried to a likewise oriented small contour enclosing x 1 = ξ . A small contour
+enclosing x = 0 is carried to an oppositely oriented contour enclosing the points 0, 1 and ξ
+in the x1 -plane. Recalling a comment made after (18) about the sign of the residue at infinity
+and using (21), we obtain (24). Application of (24) to (19) yields (25).
+
+                                                                                        123
+292                                                                                      S. Yu. Sadov
+
+
+Proposition 3 (Changing sign of η)
+
+(a) The residues (18) satisfy the relation
+                               p,q                p,q
+                           0 Fr,τ (η) = (−1) ∞ Fr̃ ,τ̃ (−η),
+                                            p
+
+                                                                                                 (26)
+                               p,q                   p,q
+                           σ Fr,τ (η) = (−1) σ Fr̃ ,τ̃ (−η),       σ = 1, ξ.
+                                            p
+
+
+(b) The function F..p,q (η) can be expressed in terms of the values at −η of another function
+    (with different lower indices) F..p,q and the corresponding residue functions:
+                                                                                        
+                p,q                   p,q                       p,q              p,q
+              Fr,τ (η) = (−1) p+1 Fr̃ ,τ̃ (−η) + (−1) p    1 Fr̃ ,τ̃ (−η) − ξ Fr̃ ,τ̃ (−η)   .   (27)
+
+Proof Consider the transformations induced by the map ψ2 : x  → x2 = x −1 , see the right
+column in (20). Correspondence of the σ values 0 ↔ ∞ is analyzed in exactly same way as
+in the previous proof and leads to the first line in (26). The second line with σ = 1 follows
+from the fixed point property ψ2 (1) = 1. The case σ = ξ needs more attention due to a
+notational subtlety. The symbol ξ in the notation ξ F should be considered as a label (index)
+attached to the pole at x = ξ(η), which moves as η changes, and not as a fixed complex
+                                                                                        p,q
+number. Specifically, as a result of the change of variable x  → x 2 in the function fr,τ , a pole
+                                                                                     ∗
+at x = ξ(η) (if there is one) moves to the new location x = ξ(−η). Denote ψ2 (η) = −η;
+then ξ as a function of η has the transformation property
+
+                        ξ(ψ2∗ (η)) = ξ(−η) = [ξ(η)]−1 = ψ2 (ξ(η)).
+
+Thus ξ F(−η) should be understood as Resx=ψ2 (ξ ) f (x, ψ2∗ (η)) and not as Resx=ξ
+f (x, ψ2∗ (η)). With this in mind, the case σ = ξ in (26) follows from (20) like the other
+cases.
+   The identity (27) follows from (19) and (26).
+
+Remarks
+
+1.    Hansen’s functions X kn,m depend on three integer indices. The functions F have four
+      independent parameters p, q, r, τ . The reduction (17) of X ... to F.... imposes a linear
+      constraint on the values of p, q, r , and τ = k; from (9) we see
+
+                                     p + q + 2(r + τ + 1) = 0.                                   (28)
+
+      This constraint is preserved by the transformation (22).
+2.    When combining the transformation (26) and (27) with (24) and (25) one should care-
+      fully watch the indices and the arguments of the functions F and use the properties (14)
+      of the symbol γ .
+
+
+                 p,q
+5 Functions Fr,τ (η) are meromorphic
+                                                                               p,q
+According to Proposition 1, the only singular points of the functions Fr,τ (η) may occur at
+η = 0 and η = −1. Using the residue decomposition (19), we will show that singularities of
+  p,q
+Fr,τ (η), if they are present, are poles, that is, all these functions are meromorphic.
+
+123
+Analytic properties of Hansen coefficients                                                   293
+
+
+Analysis of the point η = 0
+                                                    p,q
+For every x with |x| = ε      1 the function fr,τ (x, η) has a finite limit as η → 0. Therefore,
+                         p,q                                                           p,q
+the residue function 0 Fr,τ (η) is regular at η = 0. Thus, a possible singularity of Fr,τ (η) at
+                                        p,q
+η = 0 can only be contributed by 1 Fr,τ (η). If p ≥ 0, then the integrand (12) has no pole
+                    p,q
+at x = 1, hence 1 Fr,τ ≡ 0. The next proposition covers the case p < 0.
+
+Proposition 4
+(a) If p < 0, q ≥ 0, then
+                                     p,q
+                                 1 Fr,τ (η) = Pq+ | p|−1  (η) exp(−τ η),
+                                                          2
+
+    where PN denotes a polynomial of degree at most N and · is the integral part function.
+(b) If p < 0, q < 0, then
+                                        p,q         |q|+| p|−1     p,q
+                                    1 G r,τ (η) = η            1 Fr,τ (η)
+
+     is an entire analytic function of the form PN (η)exp(−τ η), N =  23 (| p| − 1), and
+
+                                 p,q            (|q| + | p| − 2)!
+                             1 G r,τ (0) =                         21−|q|−| p| .             (29)
+                                             (| p| − 1)!(|q| − 1)!
+     In both cases the coefficients of the polynomial PN depend on p, q, r and τ .
+
+Proof By Cauchy’s formula, the dependence of 1 F on η comes from x-derivatives of orders
+≤ | p| − 1 at x = 1 of the functions exp(−τ λ(x, η)/2) and µ(x, η)q in the integrand (12).
+Since µ(x, η) is a linear function of x, we have
+            α 
+               d    
+                        µ(x, η)q = q(q − 1) . . . (q − α + 1)(2η)q−α (η − 1)α .      (30)
+              d x x=1
+Taking into account the identities
+                                      λ(1, η) = µ(1, η) = 2η,                                (31)
+an easy check by induction shows that
+                   α            τ          
+                    d     
+                             exp  −    λ(x, η)  = P α2  (η)exp(−τ η).
+                    dx         x=1   2
+   If q ≥ 0, then (30) is a polynomial of degree at most q for any α and part (a) of the
+Proposition follows.
+   In the case p < 0, q < 0 the right-hand side of (30) has a pole of order |q| + α at η = 0.
+The most singular term in 1 F at η = 0 occurs when all | p| − 1 derivatives with respect to x
+of the product (12) fall on the factor µ(x, η)q , that is, when α = | p| − 1 in (30). Hence the
+order of the pole: |q| + | p| − 1.
+   Formula (29) follows from (30) and the evaluations (31).
+
+Analysis of the point η = −1
+                                                  p,q
+It is convenient to study the behavior of Fr,τ (η) for η close to −1 by means of the second
+                                                                                       p,q
+decomposition (17), F = −ξ F −∞ F. For every x with |x| = R  1 the function fr,τ (x, η)
+                                                                  p,q
+has a finite limit as η → −1. Therefore, the residue function ∞ Fr,τ (η) is regular at η = −1.
+                                   p,q
+Thus, a possible singularity of Fr,τ (η) at η = −1 can only be contributed by the term
+
+                                                                                     123
+294                                                                                         S. Yu. Sadov
+
+       p,q                                                                            p,q
+−ξ Fr,τ (η). If q ≥ 0, then the integrand (12) has no pole at x = ξ , hence ξ Fr,τ ≡ 0. In the
+case q < 0 we use the relation (24) to express ξ F in terms of 1 F:
+                               p,q                                      q, p
+                         −ξ Fr,τ (η) = γ (q + r + 1, − p − r − 1) 1 Fr̃ ,τ̃ (η).                    (32)
+The factor 1 F is regular at η = −1. The first factor, γ (. . .), is regular at η = −1 if q+r +1 ≥ 0.
+In the case q + r + 1 < 0 the function (32) has pole at η = −1 of order at most −(q + r + 1).
+                                                                          q, p
+    The order is exactly equal to −(q + r + 1) if and only if 1 Fr̃ ,τ̃ (−1)  = 0. By (11), (12)
+and (22)
+      fr̃ ,τ̃ (x, −1) = (−2) p (x − 1)q x r̃ + p exp(τ̃ x) = (−2) p (x − 1)q x −q−r −2 exp(−τ x).
+       q, p
+
+                    q, p
+The condition 1 Fr̃ ,τ̃ (−1)  = 0 is equivalent (for q < 0 and q + r + 1 < 0) to
+                           |q|−1                           
+                                         −q−r −2            
+                              d                              
+                                         x         exp(−τ x)      = 0,                            (33)
+                            dx                               
+                                                                  x=1
+which holds true in general position (in the absence of a certain relation between the
+parameters q, r and τ ).
+                                                                                        p,q
+   A similar application of the relation (25) estimates the order of possible zero of Fr,τ (η)
+                           q, p                                                         p,q
+at η = 1. The function Fr̃ ,τ̃ (η) is regular at η = 1. Hence if p + r + 1 < 0, then Fr,τ (η)
+has zero of order at least −( p + r + 1) at η = 1.
+   Combining the above findings and noting that the value (29) is nonzero, we obtain
+                                        p,q
+Proposition 5 The functions Fr,τ (η) are meromorphic with only possible poles at η = 0
+and η = −1. More precisely, let
+                             
+                                − p − q − 1, if p < 0, q < 0
+                      κ0 =                                                         (34)
+                                     0,      otherwise
+and
+                                  
+                                      −q − r − 1,     if q < min(0, −r − 1)
+                           κ1 =                                                                     (35)
+                                          0,          otherwise
+
+The function F̂r,τ (η) = ηκ0 (η + 1)κ1 Fr,τ (η) is an entire analytic function. If κ0 > 0,
+                   p,q                              p,q
+               p,q                              p,q
+then always F̂r,τ (0)  = 0. If κ1 > 0, then F̂r,τ (−1)  = 0 under condition (33). Finally, if
+                                  p,q
+p + r + 1 < 0, then (d/dη) F̂r,τ (1) = 0 for j = 0, . . . , −( p + r + 2).
+                              j
+
+
+
+
+6 Local behavior of Hansen coefficients at η = 0, ±1
+
+Recall the notion of the order of an analytic function at a point (Ahlfors 1966, §4.3.3). If a
+function g(η) is analytic in a punctured neighborhood of η0 ∈ C, then the order of g at η0 is
+the integer (if it exists)
+                  ordη0 g = max{N ∈ Z : g(η) = O(η − η0 ) N as η → η0 }.
+The order is negative at poles and positive at zeros of the function. If η0 is an essential
+singular point for g, then by definition ordη0 g = −∞. The function g is meromorphic if
+ordη g > −∞ for all η ∈ C.
+   The notion of order directly extends to functions with algebraic branch points, like
+(η − η0 )1/2 . The order at a branch point will be fractional.
+
+123
+Analytic properties of Hansen coefficients                                                   295
+
+
+   In particular (see (13)), for any rational a and b
+                         ordη=−1 γ (a, b) = a,         ordη=1 γ (a, b) = b.                 (36)
+
+Theorem 1 If m − k is even, then X kn,m (η) is a meromorphic function. If m − k is odd, then
+(1 − η2 )1/2 X kn,m (η) is meromorphic. The orders of the function X kn,m (η) at η = 0, ±1 are
+described as follows:
+                                   
+                             n,m     = 2n + 3 < 0, if n + 1 + |m| < 0,
+                   ordη=0 X k (η)                                                         (37)
+                                          ≥ 0,         if n + 1 + |m| ≥ 0.
+
+                                                           |m − k|
+                                    ordη=1 X kn,m (η) ≥            ,                        (38)
+                                                              2
+                                         
+                                             (m + k)/2,      if − k < m ≤ n + 1,
+                 ordη=−1 X kn,m (η) ≥                                                       (39)
+                                             −|m + k|/2,     otherwise.
+
+Proof By Proposition 1, the function X kn,m (η)e(m−k) mod 2 is a single-valued analytic function
+in C \{0, −1}. It is meromorphic by Proposition 5.
+    To prove (37)–(39), we simply need to interpret Proposition 5 in terms of the functions
+X kn,m using (9), (17) and (36).
+                                 p,q
+    First, ord0 X kn,m = ord0 Fr,k . The condition p < 0, q < 0 translates into n +1+|m| < 0,
+and the order at 0 corresponding to this condition is −κ0 = p + q + 1 = 2n + 3. This proves
+                                                                                  p,q
+the first line in (37). In the case n + 1 + |m| ≥ 0, Proposition 5 implies that Fr,k is analytic
+at η = 0, hence the second line in (37).
+                                 p,q
+    Next, ord1 X kn,m = ord1 Fr,k + m−k 2 . The condition p+r +1 < 0 translates into m−k < 0.
+                                                                                           |m−k|
+If this is true, then by the last part of Proposition 5 ord1 X kn,m ≥ −(m − k) + m−k2 =      2 .
+                              n,m                 |m−k|
+If m − k ≥ 0, then ord1 X k ≥ 0 + 2 = 2 . Thus (38) holds true.
+                                           m−k
+                                        p,q
+    Finally, ord−1 X kn,m = ord−1 Fr,k + m+k   2 . The condition in (35), q < min(0, −r − 1),
+translates into m > max(n + 1, −k). If this is true, then ord−1 X kn,m ≥ −κ1 + m+k         2   =
+                         −|m+k|                                            n,m
+(−m − k) + m+k    2   =     2    . If m ≤  max(−k,  n +  1), then  ord   X
+                                                                       −1 k    ≥ 0 + m+k
+                                                                                      2  . In the
+subcase n + 1 ≥ m > −k we have m + k > 0. This completes the proof of (39) and the
+Theorem.
+
+
+7 Global analytic properties of Hansen coefficients
+
+Let κ0 = κ0 (m, n) = −2n − 3, if n + 1 + |m| < 0; otherwise let κ0 = 0. This definition is
+consistent with (34) upon substitutions (9).
+
+Theorem 2 The function
+                                   Ykn,m (η) = e|m+k| ηκ0 X kn,m (η)
+extends from the interval (0, 1) to an entire analytic function of complex variable η. Its growth
+as |η| → ∞ is estimated by the inequality
+                                |Ykn,m (η)| ≤ C(ε)exp{(|k| + ε)|η|}                         (40)
+for any ε > 0 and some constant C(ε) (possibly depending also on n, m, k).
+
+
+                                                                                     123
+296                                                                                  S. Yu. Sadov
+
+
+Proof According to (37), ordη=0 X kn,m (η) ≥ −κ0 (m, n) for all m, n, k. Theorem 1 together
+with obvious formula ordη=±1 e = 1/2 imply the estimates ordη=0,±1 Ykn,m (η) ≥ 0. Hence
+Ykn,m has no poles; so it is entire.
+   To estimate the growth rate of Ykn,m , notice that ξ(η) → −1 as |η| → ∞. Therefore,
+if ε > 0 is fixed and small, then for all η ∈ C with sufficiently large |η| the contour
+C = {|x − ε| = 1} encloses the point x = 1 but not x = ξ(η). So the integral representation
+(16) with such a contour is correct. The obvious inequality |λ(x, η)| ≤ 2|x|(|η| + 1) implies
+                                                                
+                              p,q
+                           |Fr,k (η)| = O |η| N exp{(1 + ε)|kη|}
+
+with some positive N independent of η but possibly depending on p, q, r and k. This estimate
+                          p,q
+shows that growth of Fr,k is dominated by exp((|k| + ε)|η|) as |η| → ∞, where ε can be
+                                                               p,q
+made as small as we wish. It remains to note that Ykn,m is Fr,k times a rational function of
+η; the rational factor does not affect the exponential estimates. A factor of the form O(|η| N )
+is not included in (40), since it can be removed by choosing a slightly greater value of ε.
+
+Corollary Coefficients in the Maclaurin series of the functions Ykn,m (η) in Theorem 2,
+                                                 ∞
+                                                 
+                                   Ykn,m (η) =      n,m j
+                                                   ck, j η ,                                (41)
+                                                 j=0
+
+satisfy the estimate
+
+                                    n,m             (|k| + ε) j
+                                  |ck, j | ≤ C(ε)               ,                           (42)
+                                                         j!
+where ε > 0 can be arbitrarily small and C(ε) may depend on n, m, k but is independent
+of j.
+
+Proof By (40), the integral of η− j−1 Ykn,m (η) over the circle |η| = R has an upper bound
+C R − j exp(A R), where√ A = |k| + ε. The minimum of this bound √ (attained at R = j/A) is
+A j j − j exp j = O(A j j/j!) by Stirling’s formula. The factor j is removed by choosing a
+slightly greater value of ε.
+
+Theorem 3 By the process of analytic continuation the Hansen coefficient X kn,m as a func-
+          √eccentricity e extends from the interval [0, 1] to the Riemann surface of the function
+tion of the
+η(e) = 1 − e2 . It admits a global representation involving two entire analytic functions
+A(e2 ) and B(e2 ) depending on n, m and k:
+                                                                           
+                X kn,m (e) = e−|m+k| (1 − e2 )−κ0 A(e2 ) + 1 − e2 B(e2 ) ,                   (43)
+
+with κ0 the same as in Theorem 2. The functions A(w) and B(w) satisfy the growth estimate
+as |w| → ∞
+
+                       max(|A(w)|, |B(w)|) ≤ C(ε) exp{(|k/2| + ε)|w|}.                      (44)
+
+Proof The entire function Ykn,m (η) in Theorem 2 can be written as the sum A1 (η2 )+ηB1 (η2 )
+with entire functions A1 and B1 . It remains to set A(u) = A1 (1 − u) and B(u) = B1 (1 − u).
+The estimate (44) follows from Theorem 2 and the asymptotic equivalence |η| ∼ |e| when
+|η|  1.
+
+123
+Analytic properties of Hansen coefficients                                                    297
+
+
+Remarks
+
+1.    The inequality (44) implies factorial decay estimates analogous to (42) for Maclaurin
+      coefficients of the functions A and B in powers of their argument w = e2 .
+2.    The point e = 0 is a regular point on the Riemann surface of the function η(e). On
+      the “physical sheet” the value of η corresponding to e = 0 is 1. Hence the order of the
+      function X kn,m (e) at e = 0 on the physical sheet is equal to ordη=1 X kn,m (η) ≥ |m − k|/2
+      as stated in Theorem 1. Thus the D’Alembert characteristic (6) is naturally incorporated
+      in our theory. Interestingly, however, the order of X kn,m (e) at e = 0 on the non-physical
+      sheet (where η = −1) can be less than |m − k|/2; it may even be negative.
+
+
+8 Examples
+
+Coefficients in the series (41) or expansions of the functions A(e2 ), B(e2 ) of Theorem 3 are
+not easily available in closed form. In practice it may be easier to derive representations in
+another form, from which power expansions can be obtained by re-development.
+
+Example 1 Consider the well-known hypergeometric series representation for X 0n,m
+(Brumberg 1995, (2.3.33))
+                                                                             
+              (−n − |m| − 1)|m|  e |m|     |m| − n − 1 |m| − n
+     X 0n,m =                            F              ,        , 1 + |m|; e2 .
+                    |m|!          2               2         2
+The series is terminating if n ≥ |m| − 1, so the function X 0n,m e−|m| is a polynomial (in e2 or
+in η2 ). This fact agrees with Theorem 2, but the exponent |m| of the regularizing factor e|m|
+in Theorem 2 is not optimal in this case.
+
+     In another hypergeometric representation (Brumberg 1995, (2.3.34))
+                            (−n − |m| − 1)|m|  e |m| 2n+3
+                   X 0n,m =                           η
+                                   |m|!         2
+
+                                                                               
+                                        |m| + n + 2 |m| + n + 3
+                              ×F                   ,            , 1 + |m|; e2
+                                             2           2
+the series terminates if n + 1 + |m| < 0 and the function X 0n,m e−|m| η−2n−3 is a polynomial.
+The exponent of η here is as that in Theorem 3 (cf. (37)), while the exponent of e in Theorem 3
+is, again, not optimal.
+    If −|m| ≤ n + 1 < 0, then X 0n,m ≡ 0. In the remaining range 0 ≤ n + 1 < |m|, the most
+convenient representation is (Brumberg 1995, (2.3.31))
+                                   (−n − |m| − 1)|m| |m|
+                        X 0n,m =                    β (1 + β 2 )−n−1
+                                         |m|!
+
+                                     
+                                   ×F |m| − n − 1, −n − 1, 1 + |m|; β 2 .
+
+The series here is a polynomial of degree n+1 in β 2 = (1−η)(1+η)−1 . An easy direct estima-
+tion of orders at η = ±1 gives: ordη=1 X 0n,m ≥ |m|, ordη=−1 X 0n,m ≥ −|m|+n+1−(n+1) =
+−|m|. These estimates coincide with those given by Theorem 2. Now the power factor e|m|
+in Theorem 3 required to kill the pole at η = −1 cannot be reduced.
+
+                                                                                      123
+298                                                                                    S. Yu. Sadov
+
+                                                0,−4
+Example 2 A detailed analysis of the functions F1−k,k corresponding to Hansen’s coefficients
+X k−3,2 is carried out in Sadov (2006). In particular, it is shown that for k > 0
+                                                                aj    ∞
+                            0,−4            (1 − η)k−2
+                           F1−k,k (η) =                exp(kη)      ηj.                       (45)
+                                            (η + 1)k+2           j!
+                                                                      j=0
+
+The power series here represents an entire function (denoted Fk (η) in Sadov (2006)). For
+k = 0 and k = 1 the singularity of the prefactor (1 − η)k−2 at η = 1 is compensated by
+zero of the corresponding order of the power series (Sadov 2006, (41)), in agreement with
+Proposition 1. The first few coefficients of the series are (Sadov 2006, Theorem 5a)
+                        ⎛                                                       ⎞
+                                         k                
+                                                           k−1
+                    k ⎝
+              a0 =        −1 + J0 (k) + J0 (x) d x − 2         Jl (k) − Jk−1 (k)⎠,
+                   12
+                                                 0                   l=0
+
+                      k2                                       k2
+               a1 =        (Jk−1 (k) − Jk (k)),         a2 =        Jk (k),
+                     4                                        4
+               a3 = 0,        a4 = −ka1 ,            a5 = 2ka2 ,       a6 = −6ka1 .
+Here Jk are Bessel functions. In general, the coefficients a j in (45) satisfy recurrence relations
+of order 3 (Sadov 2006, (42))
+                              a j+3 = j ( j − 1)a j+1 + k j (2 j − 3)a j .                    (46)
+Example 3 In this example we demonstrate one application of the identities (27) and (24). A
+general result—Proposition 6—is then specialized to cover the functions of Example 2 with
+subscript k < 0.
+Proposition 6
+                                     p,q                       p,q
+(a) If p ≥ 0 and q ≥ 0, then Fr,τ (η) = (−1) p+1 Fr̃ ,τ̃ (−η).
+                              p,q                  p,q
+(b) If p ≥ 0 or q ≥ 0, then Fr,τ (0) = (−1) p+1 Fr̃ ,τ̃ (0) and
+
+              Fr,τ (η) = (−1) p+1 Fr̃ ,τ̃ (η) + P(η)(η + 1)−ν1 (η − 1)−ν2 exp(τ η),
+                p,q                        p,q
+                                                                                              (47)
+      where P(η) is a polynomial depending on p, q, r, τ and ν1,2 ≥ 0 are some integers.
+Proof If p ≥ 0 and q ≥ 0, then 1 F =ξ F = 0 and the result (a) follows from (27). If
+p ≥ 0 or q ≥ 0, then according to Proposition 4(a) and reciprocity (24), the extra term
+1 F(−η) − ξ F(−η) in the right-hand side of (27) is analytic at η = 0. But ξ = 1 when
+η = 0, so the difference is 0, which proves the first part of (b). For general η, we have by
+(24) and Proposition 4(a)
+                           p,q            q, p
+                      ξ Fr̃ ,τ̃ (−η) =1 Fr,τ (−η)R1 (η) = exp(τ η) R2 (η),
+
+where R1 , R2 are rational functions with possible poles at η = ±1. Hence R2 (η) =
+P(η)(η + 1)−ν1 (η − 1)−ν2 , ν1,2 ≥ 0.
+   For the Hansen coefficients of Example 2, the rational function R2 (η) is computed in the
+explicit form (Sadov 2006, Theorem 5(b)):
+
+                       0,−4         0,−4                   k (1 − η)k−2
+                      F1−k,k (η) = F1+k,−k (−η) −                       exp(kη).
+                                                           6 (η + 1)k+2
+Consequently, the following relation holds (Sadov 2006, Theorem 6(c)):
+                                                                      2k
+                                  X k−3,2 |η=0 = X −k
+                                                   −3,2
+                                                        |η=0 −           .
+                                                                       3
+
+123
+Analytic properties of Hansen coefficients                                                                   299
+
+
+9 Conclusion
+
+The main results of the paper are stated in three theorems. Theorem 1 asserts that Hansen’s
+                                                                                        √
+coefficient X kn,m with even m − k is a meromorphic function of the variable η = 1 − e2
+with possible poles only at η = 0, ±1. Lower estimates for orders (of poles or zeros) at these
+special points are obtained; the result for η = 1 is consistent with the classical D’Alembert
+characteristic of the Maclaurin series of X kn,m in powers of e (Remark 2 in Sect. 7). If m − k
+is odd, the above statements hold true for the function (1 − η2 )1/2 X kn,m (η). Factoring away
+the poles yields an entire function of η with exponential growth estimates (Theorem 2). The
+entire function of η can be split into the odd and even parts and thus expressed in terms of
+two entire functions of e2 (Theorem 3).
+    On a technical level, a residue decomposition of the contour integral that defines the
+nontrivial factor in the multiplicative decomposition of X kn,m is studied (Sect. 3). A more
+general family of functions depending on four parameters, from which Hansen’s coefficients
+are derived by specialization, is considered. Two involutive transformations of variables
+(Sect. 4) are employed to derive useful relations between the members of the family.
+    The qualitative results stated in Theorems 2 and 3 provide, in particular, for a possibility
+to construct rapidly convergent series in any of the two parameters, η or e, for evaluation of
+X kn,m uniformly on the interval [0, 1]. The word “rapidly” refers to the rate of decay of Taylor
+coefficients when n, m, and k are fixed. We did not attempt to address practical computational
+issues arising due to non-uniformness of the estimate (42) in n, m, and k. Also, algorithmic
+aspects of evaluation of the coefficients are beyond the scope of this paper.
+
+Acknowledgements I am indebted to Prof. V.V. Sidorenko for pointing out the connection between the
+Chernousko functions in Sadov (2006) and Hansen’s coefficients. A financial support by a grant from NSERC
+the Natural Sciences and Engineering Research Council of Canada, is acknowledged.
+
+
+
+References
+
+Abalakin, V.K., Aksenov, E.P., Grebennikov, E.A., Ryabov, Yu.A.: Handbook on Celestial Mechanics and
+     Astrodynamics (Spravochnoe rukovodstvo po nebesnoj mehanike i astrodinamike), in Russian. Nauka,
+     Moscow (1976)
+Ahlfors, L.: Complex Analysis. McGraw-Hill (1966)
+Andoyer, H.: Cours de Mécanique Céleste. Gauthier-Villars (1923)
+Beletsky, V.V.: Motion of an Artificial Satellite about Its Center of Mass. NASA TT F-429, 257–261 (1965)
+Brumberg, V.A.: Analytical Techniques of Celestial Mechanics. Springer (1995)
+Brumberg, V.A., Brumberg, E.V.: Celestial Dynamics at High Eccentricities. Gordon and Breach (1999)
+Brumberg, E., Fukushima, T.: Expansions of elliptic motion based on elliptic function theory. Celest.
+     Mech. 60, 69–89 (1994)
+Bruno, A.D., Varin, V.P.: Classes of families of generalized periodic solutions to the Beletsky equation. Celest.
+     Mech. 88, 325–341 (2004)
+Cayley, A.: Tables of the development of functions in the theory of elliptic motion. Mem. Roy. Astron. Soc.
+     29, 191–306; Collected Math. Papers 3, 360–474 (1861)
+Chernous’ko, F.L.: Resonance phenomena in the motion of a satellite relative to its mass center. USSR Comp.
+     Math. and Math. Phys. 3, 699–713 (1964)
+Deprit, A., Rom, A.R.M.: Computerized expansions in elliptic motion. Bull. Astron. 2 Fasc. 3, 425–447 (1967)
+Hagihara, Y.: Celestial Mechanics, vol. 1: Dynamical Principles and Transformation Theory. MIT Press (1970)
+Hansen, P.A.: Abhandlungen der Mathematisch-Physischen Class der Königlich Sachsischen Gesselschaft der
+     Wissenschaften, vol. 2, pp. 181–281. Leipzig (1855)
+Hughes, S.: The computation of tables of Hansen coefficients. Celest. Mech. 25, 101–107 (1981)
+Jarnagin, M.P.: Expansions in elliptic motion. Astron. Papers Am. Ephemeris 18, IX–XXXVI (1965)
+Klioner, S.A., Vakhidov, A.A., Vasiliev, N.N.: Numerical computation of Hansen-like expansions. Celest.
+     Mech. 68, 257–272 (1998)
+
+
+                                                                                                    123
+300                                                                                                   S. Yu. Sadov
+
+
+Lutze, F.H., Jr., Abbit, M.W., Jr.: Rotational locks for near-symmetric satellites. Celest. Mech. 1, 31–35 (1969)
+Newcomb, S.P.: Development of the perturbative function in cosines of muliples of the mean anomalies
+     and of angles between the perihelia and common node and in powers of the eccentricities and mutual
+     inclination. Astron. Papers Am. Ephemeris 5, 1–48 (1895)
+Sadov, S.: Singular normal form for a quasilinear ordinary differential equation. Nonlinear Analysis: Theory,
+     Methods and Applications 30(8), 4973–4978 (1997)
+Sadov, S.: Stability of resonance rotation of a satellite with respect to its mass center in the orbit plane. Cosmic
+     Res. 44, 160–171; Errata: Cosmic Res. 44, 461 (2006)
+Sadov, S.: Averaging of the equation of motion of a satellite with respect to its center of mass in degenerate
+     cases: I. Oscillations in the absolute frame of reference. Cosmic Res. 46(2), 172–180 (2008)
+Tisserand, F.F.: Traité de Mécanique Céleste, t.I. Paris: Gauthier-Villars (1889)
+Vinh, N.X.: Recurrence formulae for the Hansen’s developments. Celest. Mech. 2, 64–76 (1970)
+
+
+
+
+123
+

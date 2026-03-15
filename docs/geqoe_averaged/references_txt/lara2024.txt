@@ -1,0 +1,1445 @@
+                                                        Higher-order composition of short- and long-period effects for improving
+                                                                         analytical ephemeris computation⋆
+
+                                                                      Martin Laraa,b,1,2 , Elena Fantinoa,1,∗, Hadi Susantoa,3 , Roberto Floresa,c,1,4
+                                                                                       a P.O. Box 127788, Abu Dhabi, United Arab Emirates
+                                                                                 b Edificio CCT, C/ Madre de Dios, 53, ES-26006 Logroño, Spain
+                                                                                            c Gran Capità s/n, 08034, Barcelona, Spain
+arXiv:2307.06864v1 [physics.class-ph] 10 Jul 2023
+
+
+
+
+                                                    Abstract
+                                                    The construction of an analytic orbit theory that takes into account the main effects of the Geopotential is
+                                                    notably simplified when splitting the removal of periodic effects in several stages. Conversely, this splitting
+                                                    of the analytical solution into several transformations reduces the evaluation efficiency for dense ephemeris
+                                                    output. However, the advantage is twofold when the different parts of the mean–to–osculating transformation
+                                                    are composed into a single transformation. To show that, Brouwer’s solution is extended to the second order
+                                                    of the zonal harmonic of the second degree by the sequential elimination of short- and long-period terms.
+                                                    Then, the generating functions of the different transformations are composed into a single one, from which
+                                                    a single mean–to–osculating transformation is derived. The new, unique transformation notably speeds up
+                                                    the evaluation process, commonly improving evaluation efficiency by at least one third with respect to the
+                                                    customary decomposition of the analytical solution into three different parts.
+                                                    Keywords: Orbit propagation; Artificial satellite theory; Brouwer’s solution; Hamiltonian simplification;
+                                                    Lie transforms;
+
+
+                                                    1. Introduction                                                 the secular elements —also called mean elements—
+                                                                                                                    into ephemeris. In the implementation of an ana-
+                                                       Simple analytic orbit prediction programs still              lytical ephemeris generator one customarily takes
+                                                    find different astrodynamics applications [1, 2, 3,             the point of view of using programming techniques
+                                                    4, 5, 6, 7, 8, 9]. They commonly rely on perturba-              that minimize both memory requirements and exe-
+                                                    tion solutions that are made of secular and periodic            cution time [10]. However, these two aims are mu-
+                                                    terms. The former provide the average evolution                 tually exclusive regarding accuracy (understood as
+                                                    of the orbit while the latter are needed to convert             the time span for which the errors remain below a
+                                                                                                                    given tolerance).
+                                                      ⋆ A preliminary version of this research was presented as        Minimizing memory requirements is obviously
+                                                    paper IAC-21-C1.7.2 at the 72nd International Astronauti-       achieved when reducing the truncation order, and,
+                                                    cal Congress (Dubai, United Arab Emirates, 25-29 October        therefore, the accuracy of the perturbation solution.
+                                                    2021)                                                           On the other hand, reducing memory needs for a
+                                                       ∗ Corresponding author
+
+                                                         Email addresses: mlara0@gmail.com (Martin Lara),           given truncation order can be achieved by split-
+                                                    elena.fantino@ku.ac.ae (Elena Fantino),                         ting the periodic terms of the analytical solution
+                                                    hadi.susanto@ku.ac.ae (Hadi Susanto),                           into a sequence of simpler corrections. Separation
+                                                    robertomaurice.floresleroux@ku.ac.ae (Roberto Flores)
+                                                       1 Aerospace Engineering Department, Khalifa University       of the periodic corrections into short- and long-
+                                                    of Science and Technology                                       period terms is a natural choice with whole dynam-
+                                                       2 Scientific Computing and Technological Innovation Cen-     ical sense [11, 12]. Moreover, it is well known that
+                                                    ter, University of La Rioja                                     the preliminary elimination of the parallax trans-
+                                                       3 Mathematics Department, Khalifa University of Science
+
+                                                    and Technology
+                                                                                                                    formation [13, 14] makes notably easier the imple-
+                                                       4 Centre Internacional de Mètodes Numèrics en Enginye-       mentation of the short-period elimination [15, 16].
+                                                    ria (CIMNE)                                                     On the contrary, the long-period elimination is tra-
+                                                    Preprint submitted to arXiv.org
+ditionally achieved with a single set of corrections,         this zonal harmonic from Brouwer’s Geopotential
+which is obtained either with Brouwer’s traditional           model. In addition, our approach takes the proper
+method [11], in the reverse normalization style [17],         calibration of the mean semi-major axis into ac-
+or like Alfriend and Coffey’s halfway option [18, 19].        count [22]. In this way, the dominant long-term
+Splitting the elimination of long-period terms into           secular drift of the position errors in the along-
+two simpler transformations is also possible, and             track direction —which is typical of perturbation
+helps in pruning away non-essential terms of the              solutions relying on the physical time as the inde-
+rotating-perigee regime, in this way effectively iso-         pendent variable [23]— is reduced by at least one
+lating the resonant, long-period terms of the dy-             order of magnitude with respect to traditional im-
+namics about the critical inclination. However, the           plementations of the Geopotential disturbing effect.
+interest of this additional simplification is mostly
+theoretical since it yields negligible savings in mem-
+                                                              2. Analytic perturbation solutions. General
+ory storage and usually increases the execution time
+                                                                 features
+[20].
+   While decomposing the transformation from                     Analytical solutions to orbital perturbation prob-
+mean to osculating elements into different parts              lems are commonly approached in a set of three os-
+clearly simplifies the periodic terms of the solution         cillating and three rotating variables. The latter are
+by notably reducing their size, the splitting proce-          naturally angles whereas the former may have dif-
+dure has the undesired side effect of slowing the             ferent nature. A common choice is the traditional
+evaluation of dense output ephemeris. This para-              set of Keplerian elements given by the semi-major
+dox stems from the fact that the eccentricity and             axis a, eccentricity e, inclination I, right ascension
+inclination remain constant in the secular variables.         of the ascending node Ω, argument of the periap-
+Because of that, when the different transformations           sis ω, and mean anomaly M . The perturbation
+used in the construction of the analytical perturba-          solution is obtained through an analytical transfor-
+tion theory are combined into a single transforma-            mation to mean elements (a′ , e′ , I ′ , Ω′ , ω ′ , M ′ ) such
+tion, the coefficients of the trigonometric polyno-           that the first three remain constant, namely,
+mials comprising the periodic corrections only need
+to be evaluated once, which is done jointly with the                             da′   de′   dI ′
+                                                                                     =     =      = 0,
+initialization of the secular terms of the analytical                            dt    dt    dt
+solution [21]. In this way, the repeated evaluation           whereas the last three evolve at constant rates
+of the perturbation solution in the computation of
+ephemeris is notably accelerated. On the contrary,                   dΩ′               dω ′              dM ′
+                                                                         = nΩ ,             = nω ,            = nM .
+if a sequence of different transformations is used,                   dt                dt                dt
+then these coefficients only remain constant in the
+                                                                Because the exact transformation from mean to
+first transformation of the sequence, although some
+                                                              osculating variables does not exist in general, it is
+of them may remain constant also in the second one
+                                                              approximated with
+[10] —the most favorable case being provided by the
+reverse normalization scheme [17] in which the only            T : (a, e, I, Ω, ω, M ; ϵ) 7→ (a′ , e′ , I ′ , Ω′ , ω ′ , M ′ ) (1)
+terms that need reevaluation are eccentricity poly-
+nomials. This need of repeatedly evaluating coeffi-           given by a truncated Taylor series in ϵ. The small
+cients made of inclination and eccentricity polyno-           parameter ϵ may be a physical quantity, the most
+mials may counterbalance the advantages provided              desirable case, or a formal parameter —a token that
+by the simpler form of the sequential periodic cor-           indicates the strength of the disturbing forces rela-
+rections, in this way clearly penalizing the efficiency       tive to the integrable non-perturbed model. With
+of the analytical theory for dense output.                    formal parameters, the analytical solution is con-
+   In order to demonstrate these facts, two alterna-          strained to a particular dynamical regime, while
+tive higher-order extensions of Brouwer’s classical           physical quantities allow for greater generality.
+solution [11] have been implemented. More pre-                   The perturbation approach is not constrained to
+cisely, since the Earth’s zonal harmonic coefficient          the use of Keplerian elements. It can be applied to
+of the fifth degree is at least one order of magnitude        different sets of singular or non-singular variables.
+smaller than the zonal harmonic coefficients of low-          In particular, canonical variables assign uniform di-
+ers degrees, we neglected the contribution of the             mension to the oscillating-type quantities. In that
+                                                          2
+case, (a, e, I) are customarily replaced by (L, G, H).                      An intrinsic characteristic of perturbation solu-
+      √
+L = µa is the Delaunay action, with µ denoting                           tions is that, due to the truncation of the series
+the gravitational parameter. G = Lη is the specific                      comprised in the solution, they always introduce an
+angular momentum, where η = (1 − e2 )1/2 . Finally,                      error in the secular frequencies. This happens even
+H = G cos I denotes the third component of the an-                       when the truncation is made to machine precision
+gular momentum vector. The set (L, G, H, ℓ, g, h),                       [17]. In consequence, the errors always undergo a
+with ℓ = M , g = ω, and h = Ω, is known as the                           secular drift which, eventually, prevails over the in-
+Delaunay canonical variables. They are the action-                       accuracies due to the truncation of the periodic cor-
+angle variables in which a complete reduction of the                     rections. Therefore, it is common practice to com-
+Kepler Hamiltonian is achieved [24, 25, 26].                             pute the periodic terms to one order less than their
+   It is worth remarking that, in the analytical solu-                   secular counterparts [11, 31, 25, 16, 10]. However,
+tion by canonical methods, the transformation (1)                        the proper propagation of the secular frequencies
+can be derived from a scalar generating function                         up to a given order requires the initialization of the
+W = W (L, G, H, ℓ, g, h), simplifying the computa-                       constants of the perturbation theory to the same
+tional process [27].                                                     truncation order as the secular terms.
+   Hereafter, we shall limit the discussion to per-                         In the case of perturbed Keplerian motion, this
+turbed Keplerian motion and Hamiltonian pertur-                          accuracy can be relaxed in the initialization of nω
+bations in Delaunay variables. Then, the secular                         and nΩ because they are proportional to ϵ, as shown
+frequencies can be written in the general form [28]                      by the lower limit 1 of the summation index in
+                       X ϵi                                              Eqs. (3) and (4). Nevertheless, the higher accu-
+              nM = ñ        Φi (a′0 , e′0 , I0′ ) (2)                   racy is mandatory in the initialization of the secular
+                          i!
+                          i≥0
+                                                                         mean motion nM , for which the summation index in
+                          X ϵi                                           Eq. (2) starts from zero. Neglecting this considera-
+                nω = ñ              Γi (a′0 , e′0 , I0′ )    (3)
+                                i!                                       tion causes errors in the in-track direction that are
+                          i≥1
+                                                                         inconsistent with the truncation order of the secular
+                          X ϵi
+                nΩ = ñ              Ψi (a′0 , e′0 , I0′ )    (4)        terms of the analytical solution [39]. The remedy is
+                                i!                                       to extend the computation of the periodic correc-
+                          i≥1
+                                                                         tions of the semi-major axis to the same order as
+where Φi , Γi , and Ψi , are functions of the ini-
+                                                                         the secular terms [40, 41]. When the perturbation
+tial conditions in prime (mean) variables. Namely,
+                                                              2          solution is computed stepwise, in Brouwer’s seminal
+cos I0′ = H0′ /G′0 , e′0 = (1−G′2    0 /L0 )
+                                            ′2 1/2
+                                                   , a′0 = L′0 /µ,       style of removing the short-period terms before the
+                  3                      3
+and ñ = (µ/a′0 )1/2 = µ2 /L′0 . The periodic cor-                       long-period ones, these additional computations are
+rections take the form of truncated multivariate                         limited to the short-period corrections of the semi-
+Fourier series in the angle variables, with coeffi-                      major axis.
+cients that are truncated series in the action vari-
+ables. Commonly, these are expressed as eccentric-                          For Hamiltonian perturbations, rather than com-
+ity polynomials, with the coefficients given by incli-                   puting additional terms of the periodic corrections
+nation polynomials [16, 29, 30].                                         to the semi-major axis, the semi-major axis can be
+   The computation of the constants of the pertur-                       calibrated to higher-order effects using the energy
+bation theory ñ, a′0 , e′0 , I0′ , Ω′0 , ω0′ , and M0′ , in mean        equation in the clever way proposed by Breakwell
+elements, can be derived from a fit to observations                      and Vagners [22]. The procedure relies on the fact
+[31], which are obtained either from real data or                        that the energy value for given initial conditions
+synthetically generated by a preliminary numerical                       does not change by a transformation of variables.
+integration of one or two orbits [22]. Alternatively,                    When using orbital elements, the energy equation
+the initialization constants can be obtained from                        H ≡ T + V = E, where T and V denote the kinetic
+an initial state vector in osculating elements by in-                    and potential energy, respectively, can be written
+verting the mean–to–osculating transformation of                         in osculating variables like
+the perturbation theory [32, 33], an operation that
+is sometimes replaced by root–finding procedures                                        µ
+                                                                                H≡−        + ϵP(a, e, I, Ω, ω, M ) = E.    (5)
+[34, 35, 36]. Moreover, modern perturbation meth-                                       2a
+ods allow for the computation of both the direct and
+inverse transformations in explicit form [37, 38].                       On the other hand, after the complete Hamiltonian
+                                                                     3
+reduction, the energy equation takes the form                        into a single one [42] to take advantage of the previ-
+                                                                     ously mentioned fact. This composition into a sin-
+                 k
+          µ     X   ϵm                                               gle transformation is immediate when the periodic
+ E =−       ′
+              +        Hm (a′ , e′ , I ′ ) + O(ϵk+1 ), (6)
+         2a         m!                                               corrections are constrained to the first order of the
+                m=1
+                                                                     perturbation, as done by Brouwer [11]. Conversely,
+where Hm are the computed Hamiltonian                                when higher-order terms of the periodic corrections
+terms.           Then, for a given initial state                     are included, they are usually arranged in separate
+(a0 , e0 , I0 , Ω0 , ω0 , M0 ), we compute the energy                blocks. This simplifies the implementation of an an-
+value H(a0 , e0 , I0 , Ω0 , ω0 , M0 ) = E0 exactly from              alytic ephemeris generator and reduces memory re-
+Eq. (5) and replace E = E0 in Eq. (6), from which                    quirements [25, 16, 10]. The downside is that both
+                                                                     action and angle mean variables must be updated
+                    k
+               µ    X ϵm                                             at each step. This degrades the efficiency of dense
+      E0 +      ′ −      Hm (a′0 , e′0 , I0′ ) = ∆,        (7)
+              2a0 m=1 m!                                             ephemeris evaluation.
+
+where a′0 , e′0 , and I0′ are obtained from the transfor-
+mation from mean (prime) to osculating variables.                    3. Geopotential model and perturbation so-
+If this transformation is known to O(ϵk ), the energy                   lution.
+equation (7) is certainly accurate to ∆ = O(ϵk+1 ).
+However, if the transformation is only known to                         For reference, we deal with the popular Geopo-
+O(ϵk−1 ), as it is commonly the case, then the er-                   tential solution derived by Brouwer [11]. More pre-
+ror in the energy equation will be only ∆ = O(ϵk )                   cisely, in view of the small value of the Earth’s zonal
+due to the propagation of errors in the Keplerian                    harmonic coefficient of degree 5, we limit the dy-
+term. The issue is easily fixed by replacing the value               namical model to the contribution of the 2nd, 3rd,
+a′0 obtained from the O(ϵk−1 ) mean to osculating                    and 4th zonal harmonics, which is the same model
+transformation by the calibrated value                               used in [10]. The disturbing function of the corre-
+                                                                     sponding Hamiltonian is
+                        k
+            1 h        X   ϵm                      i−1
+    â0 =     µ − E0 +        Hm (a′0 , e′0 , I0′ )    ,                                µ X R⊕i
+            2          m=1
+                           m!                                                      P=           Ji Pi (sin φ),            (8)
+                                                                                        r   r i
+                                                                                           i≥2
+which is obtained by solving Eq. (7) with ∆ = 0
+for the Keplerian term. Then, a′0 is replaced by                     in which r is distance from the Earth’s center of
+â0 in the computation of ñ. That is, we replace                    mass, R⊕ is the Earth’s equatorial radius, Ji stands
+ñ = (µ/â30 )1/2 in Eqs. (2)–(4).                                   for the zonal harmonic coefficient of degree i, Pi
+   This calibration procedure avoids the need of car-                denotes the Legendre polynomial of degree i, and φ
+rying out the heavy computations required for ex-                    is latitude.
+tending the truncation order of the mean to osculat-                    We adhere to Kaula’s style [44, 45] yet in the
+ing transformation, and generally guarantees that                    slightly different arrangement of [46, 47]. Thus, we
+the predictions of the perturbation theory are close                 write the disturbing potential (8) in the form
+to the expected accuracy for a given truncation or-                                            2 X
+der [21].                                                                                 µ    a
+                                                                                    P=            η  Ji Vi ,              (9)
+   Regarding the periodic corrections, when they                                          a    r2
+                                                                                                       i≥2
+are given by a single set of corrections from mean
+to osculating elements, we only need to update the                   in which
+mean angles of the analytical perturbation solution
+for ephemeris evaluation. Indeed, because the ac-                             i   i          i−1    
+                                                                             R⊕   X          X    i−1 k
+tion variables remain constant in mean elements,                         Vi = i η   Fi,j (s)           e cosk f
+                                                                             p j=0                 k
+they only need to be computed once, during the                                                   k=0
+initialization of the solution [21]. However, pertur-                           × cos[(i − 2j)(f + ω) − 21 π(i mod 2)],
+bation solutions are normally constructed stepwise,
+by splitting the transformation (1) into two or more                 where p = aη 2 is the orbit parameter, f is the true
+canonical steps (see summary in Table 1). In that                    anomaly, s stands for the sine of the inclination,
+case, the different transformations can be combined                  and Fi,j are particularizations of Kaula inclination
+                                                                 4
+                               Table 1: Basic types of analytic Hamiltonian perturbation solutions
+ Based on partial normalization:
+      Brouwer [11]         short- and long-period elimination
+ Scheifele and Graf [43]   short- and long-period elimination (regularization in the extended phase space)
+        Lara [17]          long- and short-period elimination (reverse)
+ Based on Hamiltonian simplification:
+  Coffey and Deprit [16]  elimination of the parallax, Delaunay normalization, and long-period elimination
+ Coffey and Alfriend [10] elimination of the parallax, elimination of the perigee, and Delaunay normalization
+ Based on Poincaré’s normalization for degenerate Hamiltonians:
+        Lara [21]         Hamiltonian reduction by a single transformation
+
+
+                                                                             2 2i+3 1
+functions for the zonal problem. Namely, for i ≥                             X X X
+2l, j ≥ l,                                                                                    e2k s2i e|j−2i| Pi,j,k sin(jf + 2iω),
+                                                                             i=0 j=2i−3 k=0
+       min(j,i0 )        j−l−i0
+                                                                                               (13)
+         X (−1)             2i − 2l i i − 2l i−2l
+Fi,j =                                         s  ,
+                 22i−2l        i     l   j−l        where J˜n ≡ Jn /J22 , and the inclination polynomials
+         l=0
+                                                    Qi,j,k and Pi,j,k can be found in Tables A.2 and A.3
+                                                    of the Appendix.
+             1 
+where i0 = 2 i denotes the largest integer less
+                 1
+than or equal to 2 i.                                  The transformation (11) is obtained by simple
+                                                    evaluation of Poisson brackets in a convenient set
+3.1. Short-period elimination                       of variables [25]. In particular, we compute
+
+  The removal of short-period terms is standard                      y 1 = {x, W1P },     y 2 = {x, W2P } + {y 1 , W1P },
+[31, 16, 28]. The solution of the integrals involved                Y 1 = {X, W1 }, Y 2 = {X, W2P } + {Y 1 , W1P },
+                                                                                     P
+
+in the perturbation approach becomes easier ap-                                                                         (14)
+plying the elimination of the parallax simplification              where the braces denote the Poisson bracket oper-
+[13] before addressing the short-period terms. To                  ator. Replacing (x, X) with (x′ , X ′ ) in y 1 , Y 1 ,
+the first order of J2 , the elimination of the parallax            and y 2 , Y 2 , the mean to osculating transformation
+transformation                                                     takes the form
+                                                                                            (εj /j!)y j (x′ , X ′ ),
+                                                                                       P
+                               T                                            x =
+                               1
+                    (x, X; ϵ) −→ (x′ , X ′ ),           (10)                          P j≥0 j              ′     ′      (15)
+                                                                           X =          j≥0 (ε /j!)Y j (x , X ).
+where x denotes the coordinates of the canonical                     The new Hamiltonian, with the parallax elimi-
+set and X their conjugate momenta, is derived from                 nated, depends on the Delaunay prime variables.
+the generating function                                            Next, the complete removal of short-period terms is
+                                                                   achieved by the Delaunay normalization [48]. The
+                     W P = W1P + J2 W2P .               (11)
+                                                                   transformation to double-prime variables
+The terms on the right-hand side of Eq. 11 are given                                            T
+                                                                                  (x′ , X ′ ; ϵ) −→
+                                                                                                  2
+                                                                                                    (x′′ , X ′′ ),        (16)
+by
+              2                                                   is derived from the new generating function
+          G R⊕
+  W1P =          2e(3s2 − 2) sin f − s2 3e sin(f + 2ω)
+                                       
+          8 p 2                                                                      W D = W1D + J2 W2D ,
+                                             
+          + 3 sin(2f + 2ω) + e sin(3f + 2ω) , (12)
+                                                                   with
+                    1   2i+3  1
+           R3 X X X 2k 2i+1 |j−2i−1|                                        2
+  W2P = − G 3⊕ J˜3              e s e                              W1D = G
+                                                                           R⊕  1 2
+                                                                                (3s − 2)ϕ,                          (17)
+           p       i=0 j=2i−1                                               2
+                                                                           p 4
+                                    k=0
+
+                                                 R⊕4                         R4 (3s2 − 2)2
+          × Qi,j,k cos[jf + (2i + 1)ω] + G         4
+                                                                   W2D = − G 4⊕            (4e sin f + e2 sin 2f ) − G
+                                                 p                            p 32(η + 1)
+                                                               5
+             3                                 4
+          R⊕   ˜3 3 es(4 − 5s2 )ϕ sin ω − G R⊕ 3 ϕ 35
+                                                     n
+                                                                 The generating function of the long-period elimina-
+        ×      J
+           p3 4                               p4 64              tion is
+        × s4 (1 − 5J˜4 ) − 40s2 (2 − 5J˜4 ) + 40(1 − J˜4 )                      W L = W1L + J2 W2L ,
+        + η 2 5s4 (21J˜4 + 1) + 8s2 (1 − 15J˜4 ) + 8(3J˜4        where
+             
+
+        − 1) + 2 5s2 (7J˜4 + 3) − 2(15J˜4 + 7)                            2
+                                                                            5s2 (7J˜4 + 3) − 2(15J˜4 + 7) 2 2
+                                                
+                                                                        R⊕
+                                                                 W1L = G                                    e s sin 2ω
+                                                                        p2           32(5s2 − 4)
+                       o
+        × e2 s2 cos 2ω ,                             (18)
+                                                                          R⊕ 1 ˜
+                                                                       +G       J3 es cos ω,                       (21)
+where ϕ = f − ℓ denotes the equation of the center.                         p 2
+The transformation (16) is obtained analogously to                      R4 1 − η n X
+                                                                                           3
+the previous case, simply replacing W P with W D                 W2L = G 4⊕                   u0,j η j sin 2ω + (1 + η)
+                                                                        p (5s2 − 4)3 j=0
+and adding one prime to the variables in Eqs. (14)
+and Eq. (15).                                                                             o     R3      J˜3       1
+  Once the short-period terms have been removed,                         × u0,4 e2 sin 4ω − G 3⊕       2      2
+                                                                                                p (5s − 4) η + 1
+up to the third order of J2 we obtain the Hamilto-                         X 3                                        
+nian,                                                                    ×              j                       3
+                                                                                 u1,j η e cos ω + (1 + η)u1,4 e cos 3ω
+     H = H0 + J2 H1 + 12 J22 H2 + 3!
+                                  1 3
+                                     J2 H3 ,          (19)                   j=0
+                                                                                2
+                                                                              R⊕       15s2 − 13 2 2
+where                                                                    −G    2
+                                                                                  J˜32            s e sin 2ω.             (22)
+                                                                              p        8(5s2 − 4)
+       µ
+H0 = −    ,                                                      The inclination polynomials ui,j are given in Ta-
+       2a
+       µ R⊕  2
+                1                                                ble A.6 of the Appendix. The transformation (20)
+H1 = −       2
+               η (2 − 3s2 ),                                     achieving the complete Hamiltonian reduction is
+       2a p 2
+                                                                 obtained from an analogous to Eqs. (14)–(15), using
+          3
+     µ R⊕      3                                                 W L as generating function.
+H2 =      3
+            J˜3 (5s2 − 4)ηes sin ω
+     2a p      2                                                   The Hamiltonian with the periodic terms re-
+       µ R⊕  4 X 1 2−2i
+                   X                                             moved takes the form
+     +       4
+                        t2,i,j η j+1 e2i cos 2iω,                                        3
+       2a p i=0 j=0                                                                      X
+                                                                                    K=     (J2i /i!)Ki ,                  (23)
+           6  ˜    2 6−3i
+       µ R⊕    J3 X X e2i−1 sin(2i − 1)ω                                                 i=0
+H3 = −
+       2a p6 R⊕ /p i=1 j=0 (1 + η)i mod 2                        in triple prime variables. Up to O(J23 ), the Ham-
+                             4−i
+                           2 X                                   iltonian terms K0 = H0 and K1 = H1 remain the
+                                 t3,i,j e2i cos 2iω
+                           X                            
+        × η j+1 u3,i,j +                          η j+1
+                                                         .       same in the new variables, whereas
+                           i=0 j=0
+                                   (1 + η)i mod 2
+                                                                                4
+                                                                            µ R⊕  3  2
+                                                                  K2 = −        4
+                                                                                     η η 5(21J˜4 + 1)s4 − 8(15J˜4 − 1)
+The non-vanishing inclination polynomials tl,k,j ,                         2a p 32
+u3,k,j , are listed in Tables A.4 and A.5 of the Ap-                     × s2 + 8(3J˜4 − 1) + 4η(3s2 − 2)2 + 35s4 (1
+                                                                                           
+pendix. We recall that the variables in these ex-
+pressions must be written in terms of the double-                      − 5J˜4 ) − 40(2 − 5J˜4 )s2 + 40(1 − J˜4 ) , (24)
+primed Delaunay variables.         Note that H =                       µ R⊕ 6 n
+                                                                                    9J˜32  2
+H(a, e, I, −, ω, −) is free of the mean anomaly up                K3 =      6
+                                                                               η     2 /p2
+                                                                                            η (20s4 − 22s2 + 4) − 25s4
+                                                                       2a p       8R⊕
+to the truncation order. Therefore, the mean semi-                                       1 X2−j
+                        2
+major axis a = µ/L′ becomes a formal integral of                                    X               η j (3s2 − 2)j     o
+                                                                       + 26s2 − 4 −             e2k      2     2−2j
+                                                                                                                    lj,k ,
+the long-period Hamiltonian (19).                                                       j=0
+                                                                                                    (5s − 4)
+                                                                                               k=0
+                                                                                                                          (25)
+3.2. Long-period elimination
+  Removal of long-period terms from the Hamilto-                 with the inclination polynomials lj,k given in Table
+nian (19) is achieved by a transformation to triple-             A.7. Finally, the Hamilton equations of Eq. (23)
+prime variables                                                  yield the secular variations
+
+                              T                                               ∂K                ∂K               ∂K
+              (x′′ , X ′′ ; ϵ) −→
+                                3
+                                  (x′′′ , X ′′′ ).    (20)           nΩ =           ,   nω =         ,   nM =         ,
+                                                                             ∂H ′′′            ∂G′′′            ∂L′′′
+                                                             6
+                                                                                            ∗
+which are commonly reformulated in non-singular                     e2k s2i+1 (5s2 − 4)1−i qi,j,k cos[jf + (2i + 1)ω],
+variables to avoid issues with circular and equa-                                                                 (27)
+torial orbits. Nonetheless, the critical inclination
+                                                              also expressed in osculating variables. The inclina-
+singularity occurring when s2 = 4/5, as follows                                  ∗
+                                                              tion polynomials qi,j,k and Q∗i,j,k are given in Tables
+from denominators in Eqs. (21), (22), and (25),
+                                                              A.8 and A.9.
+cannot be avoided due to its essential character
+                                                                 Analogously, the composition of the short- and
+[49]. Because the Hamiltonian (23) is not applica-
+                                                              long-period elimination into a single transformation
+ble to librating-perigee orbits, accidental overflows
+                                                              T = T S ◦T3 requires the reformulation of W L in os-
+can happen in a general propagation with the an-
+                                                              culating variables. The first-order term is obtained
+alytical solution. Several ways to circumvent this
+                                                              from Eqs. (21) and (26) as
+problem exist [8].
+                                                                                        W1 = W1S + W1L ,           (28)
+3.3. Composition of transformations
+                                                              where W1L results from swapping double-prime with
+   The generating function of the short-period elim-
+                                                              non-primed variables. The second-order term W2 =
+ination is obtained by composing the elimination of
+                                                              W2S + W2L is given by
+the parallax and the Delaunay normalization into
+a single canonical transformation T S = T1 ◦ T2 us-                   R⊕3                                 2
+                                                              W2 = G      J˜3 3 ϕ(5s2 − 4)es sin ω − G R⊕ J˜32 e2 s2
+ing the Lie transforms technique (see [42], or §2.1.4                 p3 8                              p2
+of [17]). The composite transformation is readily                          2                     4
+                                                                       15s − 13                R 3    n
+                                                                                   sin 2ω + G 4⊕ ϕ 2(15J˜4 + 7)
+                                                                                                         
+derived from a generating function obtained as the                  ×       2
+                                                                      8(5s − 4)                 p 64
+direct sum of the respective generating functions,
+                                                                    − 5s2 (7J˜4 + 3) e2 s2 cos 2ω + e2 5s4 (21J˜4 + 1)
+                                                                                                     
+both written in the same set of variables. Thus,
+the first step is to reformulate W D in the osculat-                − 8s2 (15J˜4 − 1) + 8(3J˜4 − 1) + 2 5s4 (7J˜4
+                                                                                                         
+ing (non-primed) variables. Instead of replacing the
+                                                                    − 4) − 4s2 (10J˜4 − 9) + 8(J˜4 − 2) + 4(5s2
+                                                                                                        
+transformation equations and rearranging terms of
+                                                                    − 4)s2 3e cos(f + 2ω) + e cos(3f + 2ω) + 3
+                                                                           
+the same order of the small parameter, the standard
+Lie transforms method can be applied to reformu-                                                         1 2i+3 3
+                                                                                     o      R3 J˜3 s X X X
+late the generating function [38, 42].                              × cos(2f + 2ω) − G 3⊕
+   The first-order term of the generating function                                            p 1 + η i=0 j=i−1
+                                                                                                                   k=0
+for the composite transform T S is                                       e   |j−2i−1|
+                                                                                    qi,j,k                        R4
+                                                                    ηk                     cos[jf + (2i + 1)ω] + G 4⊕
+                 W1S = W1P + W1D ,                 (26)                      (5s2 − 4)2                           p
+                                                                     2 2i+3  3
+where the last summand is obtained by substituting
+                                                                    X    X X     η k e|j−2i| Qi,j,k
+                                                                                                    sin(jf + 2iω),
+prime with non-primed variables in Eq. (17). The                    i=0 j=−1
+                                                                               1 + η (5s2 − 4)3
+                                                                                  k=0
+second-order term W2S = W2P + W2D results in                                                                       (29)
+          3                               4                   with the inclination polynomials qi,j,k , Qi,j,k listed
+        R⊕   ˜3 3 (5s2 − 4)esϕ sin ω + G R⊕ 3 ϕ 4
+                                                 n
+W2S = G      J                                                in Tables A.10 and A.11.
+        p3 4                             p4 64
+             ˜                ˜      2 2 2
+                                                                One can arrive to the fully-reduced Hamiltonian
+      × (15J4 + 7) − 10(7J4 + 3)s e s cos 2ω
+                                                              (23) through different transformations. For exam-
+      + e2 5s4 (21J˜4 + 1) − 8s2 (15J˜4 − 1) + 8(3J˜4
+           
+                                                              ple, the alternative sequence given by the elimi-
+      − 1) + 2 5s4 (7J˜4 − 4) − 4s2 (10J˜4 − 9) + 8
+                                                            nation of the parallax, followed by elimination of
+                                                              the perigee and, lastly, Delaunay normalization
+      × (J˜4 − 2) + 4(5s2 − 4)s2 3e cos(f + 2ω)
+                                  
+                                                              [10]. This sequence will yield different second-order
+                                          o      R4          terms for the second and third transformations.
+      + e cos(3f + 2ω) + 3 cos(2f + 2ω) + G 4⊕                However, the composition of their generating func-
+                                                   p
+               2     2i+3               3    k |j−2i|
+                                                              tions will still yield the same W1 and W2 as in
+          1 X X                         Xη e
+                                                              Eqs. (28) and (29).
+      ×                   sin(jf + 2iω)
+        256 i=0 j=2i−3                       1+η                 Once the generating functions have been merged
+                                         k=0
+                           3    1 2i+3     1                  into a single one, the mean–to–osculating transfor-
+                          R⊕ ˜  X X         X
+                                                              mation is computed from expressions analogous to
+      × s2i Q∗i,j,k − G     3
+                              J3              e|j−2i−1|
+                          p      i=0 j=2i−1                   Eqs. (14) and (15).
+                                          k=0
+
+                                                          7
+4. Efficiency tests                                          inverse transformation.
+
+   Splitting the complete reduction of the zonal               The only manual optimization in the implemen-
+problem simplifies construction of the analytical so-        tation of the algorithms is the factorization of the
+lution, and helps understand essential aspects of the        inclination polynomials. Both codes were gener-
+dynamics. This kind of decomposition can be ap-              ated with the -O2 optimization option on Absoft
+plied also to the long-period elimination, but the           Pro Fortran 16.0.2 compiler. The size of the single-
+modest improvement in memory storage does not                transformation executable is 30% larger than the
+warrant implementation in an analytic orbit prop-            PPD implementation, a hint of its higher memory
+agator [20]. On the other hand, the composition              usage.
+into a single transformation has the drawback of
+                                                               We tested the execution time for different orbital
+increasing substantially the total size of the correc-
+                                                             regimes. For a dense ephemeris evaluation of 3000
+tions. However, we will show that the transforma-
+                                                             points we found that the single-transformation code
+tion from secular terms to osculating variables in
+                                                             was at least 30% faster than the classical PPD im-
+different steps can also have important shortcom-
+                                                             plementation in all cases. Our implementations use
+ings in practice.
+                                                             transformations based on canonical polar variables
+   Increasing the size of the formal series repre-
+                                                             (compatible with circular orbits) widely recognized
+senting the solution does not necessarily lead to
+                                                             as faster to evaluate [50, 51, 52, 53]. Comparative
+increased computational burden. The factoriza-
+                                                             performance may change slightly for other sets of
+tion of the inclination polynomials in the single-
+                                                             variables, but the overall trend is expected to re-
+transform solution reveals multiple occurrences of
+                                                             main the same.
+common factors. This makes the composite trans-
+form amenable to additional optimizations com-                  Regarding accuracy, both implementations be-
+pared to a sequence of different transformations.            have as expected from a perturbation theory. There
+This was the case for the simpler J2 -problem solu-          are differences in the errors for each test case, but
+tion, where an optimizing compiler produced code             they are of the same order as the neglected terms
+competitive with the stepwise evaluation of the              of the perturbed solution. Figures 1-3 compare the
+analytical solution [21]. Additionally, when im-             evolution over 30 days of the errors in the along-
+plementing an ephemeris generator, the splitting             track, radial, and cross-track directions for three
+approach faces the obvious handicap of evaluat-              representative orbits borrowed from [21]. Namely,
+ing both action and angle variables at each step,            a TOPEX-type orbit, close to the critical inclina-
+whereas the single transformation only updates the           tion but still within the realm of validity of the an-
+angles. Thus, if memory requirements are not crit-           alytical solution (a = 7707.270 km, e = 0.0001,
+ical, the single transformation is preferable in prac-       I = 66.04◦ ); a PRISMA-type orbit, strongly af-
+tice.                                                        fected by the zonal perturbation due to its low alti-
+   To compare the relative merits of each approach,          tude (a = 6878.14 km, e = 0.001, I = 97.42◦ ); and
+we implemented two analytical orbit generators               a highly elliptic geostationary transfer orbit (GTO,
+based on the extended Brouwer’s solution, retain-            a=24460 km, e = 0.73, I = 30◦ ), with large varia-
+ing secular terms up to the third order of J2 and            tions in the strength of the perturbations.
+periodic corrections up to the second order. Both
+codes were written in Fortran 77. The composite                 As shown in the figures, both approaches yield
+code uses the results from Section 3. The algorithm          very similar error trends. The largest difference lies
+split in multiple transformations follows the classi-        in the cross-track error of the Topex orbit (Fig. 1,
+cal approach of eliminating the parallax first, fol-         bottom), for which there is no immediate explana-
+lowed by removal of the perigee, and final Delaunay          tion. Even in this case, the error magnitude re-
+normalization. This sequence, denoted hereafter as           mains within the expected bounds given the trun-
+PPD, is usually considered the most efficient ap-            cation order of the theory. It is worth recalling
+proach [18, 10]. The inverse transform (osculating           that the constants of the solution have been initial-
+to mean elements) is only evaluated once, during             ized in Breakwell and Vagners’ style [22] for both
+initialization of the analytical solution. Given that        codes. This balances the errors in the three direc-
+the impact for dense ephemeris output is negligi-            tions, commonly improving by one or two orders of
+ble, we always used the simpler code (PPD) for the           magnitude the secular growth of the errors.
+                                                         8
+along-track (cm)
+
+
+
+
+                                                                                along-track (cm)
+                     20                                                                             20
+                      0                                                                              0
+                    -20                                                                            -20
+                    -40                                                                            -40
+                          0      5      10      15      20     25      30                                0   5   10    15    20   25   30
+                                               days                                                                   days
+                      5                                                                              5
+
+
+
+
+                                                                                 radial (cm)
+radial (cm)
+
+
+
+
+                      0                                                                              0
+                     -5                                                                             -5
+                    -10                                                                            -10
+                    -15                                                                            -15
+                    -20                                                                            -20
+                          0      5      10      15      20     25      30                                0   5   10    15    20   25   30
+                                               days                                                                   days
+
+
+                                                                                cross-track (cm)
+cross-track (cm)
+
+
+
+
+                     10                                                                             10
+                      0                                                                              0
+                    -10                                                                            -10
+                    -20                                                                            -20
+                    -30                                                                            -30
+                          0      5      10      15     20      25      30                                0   5   10    15    20   25   30
+                                               days                                                                   days
+
+
+                              Figure 1: Topex orbit. Errors for PPD (left) and single-transformation (right) approaches.
+along-track (cm)
+
+
+
+
+                                                                                along-track (cm)
+
+
+
+
+                     30                                                                             30
+                     20                                                                             20
+                     10                                                                             10
+                      0                                                                              0
+                    -10                                                                            -10
+                    -20                                                                            -20
+                          0      5      10      15     20      25      30                                0   5   10    15    20   25   30
+                                               days                                                                   days
+                     10                                                                             10
+radial (cm)
+
+
+
+
+                                                                                radial (cm)
+
+
+
+
+                      5                                                                              5
+                      0                                                                              0
+                     -5                                                                             -5
+                    -10                                                                            -10
+                          0      5      10      15      20     25      30                                0   5   10    15    20   25   30
+                                               days                                                                   days
+ cross-track (cm)
+
+
+
+
+                                                                                cross-track (cm)
+
+
+
+
+                     6                                                                              6
+                     4                                                                              4
+                     2                                                                              2
+                     0                                                                              0
+                    -2                                                                             -2
+                    -4                                                                             -4
+                    -6                                                                             -6
+                          0     5       10     15      20      25      30                                0   5   10   15     20   25   30
+                                              days                                                                    days
+
+
+                              Figure 2: Prisma orbit. Errors for PPD (left) and single-transformation (right) approaches.
+
+
+
+
+                                                                            9
+    along-track (cm)
+
+
+
+
+                                                                                  along-track (cm)
+                        2                                                                             2
+                        0                                                                             0
+                       -2                                                                            -2
+                       -4                                                                            -4
+                       -6                                                                            -6
+                            0    5       10     15      20      25     30                                 0   5   10    15    20   25    30
+                                               days                                                                    days
+                        2                                                                             2
+    radial (cm)
+
+
+
+
+                                                                                 radial (cm)
+                        1                                                                             1
+                        0                                                                             0
+                       -1                                                                            -1
+                       -2                                                                            -2
+                            0    5       10     15      20      25     30                                 0   5   10    15    20   25    30
+                                               days                                                                    days
+    cross-track (cm)
+
+
+
+
+                                                                                 cross-track (cm)
+                        6                                                                             6
+                        4                                                                             4
+                        2                                                                             2
+                        0                                                                             0
+                       -2                                                                            -2
+                            0    5       10     15      20      25     30                                 0   5   10   15     20   25    30
+                                               days                                                                    days
+
+
+                                Figure 3: GTO orbit. Errors for PPD (left) and single-transformation (right) approaches.
+
+
+Conclusions                                                                                accuracy of a popular multi-step implementation
+                                                                                           —PPD, short for parallax elimination, removal of
+   We present a higher-order extension (second or-                                         perigee and Delaunay normalization— against the
+der for periodic corrections and third for secular                                         monolithic transformation for three representative
+terms) of Brouwer’s gravitational solution to the ar-                                      orbits (TOPEX, PRISMA and GTO typologies).
+tificial satellite problem. Routinely, analytical the-                                     The composite approach lowered run times by more
+ories are constructed removing the periodic terms                                          than 30% in all cases, while maintaining the accu-
+in multiple stages. A standard approach is pre-                                            racy expected from the truncation order or the the-
+liminary simplification (parallax elimination) fol-                                        ory. On the negative side, the code size, 30% larger
+lowed by removal of long- and short-period terms.                                          than the PPD version, reflects the higher complex-
+This step-by-step strategy simplifies the construc-                                        ity of the associated formulas. Our results show
+tion of higher-order solutions and yields more com-                                        that, for the cases tested, the single-transformation
+pact formulas for the periodic corrections. Alter-                                         algorithm delivers a substantial improvement in
+natively, the different stages can be composed into                                        computational performance. This gain in speed
+a single transformation between mean and osculat-                                          must be balanced out against code simplicity and
+ing variables. The composite transform gives rise                                          size, areas where the PPD implementation excels.
+to more complex expressions, a disadvantage for                                            In situations where the trade-off is acceptable, the
+understanding fundamental aspects of the dynam-                                            monolithic approach should be considered seriously
+ics, as well as for code readability. However, while                                       for building analytical propagators.
+the formal series representing the solution increases
+in size, it contains multiple repetitions of common                                        Acknowledgments
+factors in the inclination polynomials. These re-
+curring terms open the door for additional opti-                                             The authors acknowledge Khalifa University of
+mization of the calculations. Furthermore, gener-                                          Science and Technology’s internal grant CIRA-
+ating ephemeris with the standard —multi-step—                                             2021-65/8474000413. ML also acknowledges partial
+approach requires evaluating action and angle vari-                                        support from the European Research Council (Hori-
+ables at each step. The composite transform, on the                                        zon 2020 grant agreement No 679086 COMPASS)
+other hand, only updates the angles further improv-                                        and the Spanish State Research Agency and the
+ing performance. We compared the efficiency and                                            European Regional Development Fund (Projects
+                                                                            10
+PID2020-112576GB-C22 and PID2021-123219OB-                                 (Eds.), Astrodynamics 2013, Vol. 150 of Advances in
+I00, AEI/ERDF, EU). EF has been partially sup-                             the Astronautical Sciences, American Astronautical So-
+                                                                           ciety, Univelt, Inc., P.O. Box 28130, San Diego, Califor-
+ported by the Spanish Ministry of Science and Inno-                        nia 92198, USA, 2014, pp. 315–331.
+vation under projects PID2020-112576GB-C21 and                        [15] A. Deprit, The Main Problem in the Theory of Artificial
+PID2021-123968NB-100.                                                      Satellites to Order Four, Journal of Guidance Control
+                                                                           Dynamics 4 (2) (1981) 201–206. doi:10.2514/3.56072.
+                                                                      [16] S. L. Coffey, A. Deprit, Third-Order Solution to the
+References                                                                 Main Problem in Satellite Theory, Journal of Guidance,
+                                                                           Control and Dynamics 5 (4) (1982) 366–371.
+ [1] G. Campiti, G. Brunetti, V. Braun, E. Di Sciascio,               [17] M. Lara, Solution to the main problem of the ar-
+     C. Ciminelli, Orbital kinematics of conjuncting objects               tificial satellite by reverse normalization, Nonlinear
+     in low-earth orbit and opportunities for autonomous                   Dynamics 101 (2) (2020) 1501–1524. doi:10.1007/
+     observations, Acta Astronautica 208 (2023) 355–366.                   s11071-020-05857-3.
+     doi:10.1016/j.actaastro.2023.04.032.                             [18] K. T. Alfriend, S. L. Coffey, Elimination of the perigee
+ [2] M. Lara, On perturbation solutions in the restricted                  in the satellite problem, Celestial Mechanics 32 (2)
+     three-body problem dynamics, Acta Astronautica 195                    (1984) 163–172. doi:10.1007/BF01231123.
+     (2022) 596–604. doi:10.1016/j.actaastro.2022.01.                 [19] M. Lara, J. F. San-Juan, L. M. López-Ochoa, De-
+     022.                                                                  launay variables approach to the elimination of the
+ [3] M. Lara, Design of distant retrograde orbits based on                 perigee in Artificial Satellite Theory, Celestial Mechan-
+     a higher order analytical solution, Acta Astronautica                 ics and Dynamical Astronomy 120 (1) (2014) 39–56.
+     161 (2019) 562–578. doi:10.1016/j.actaastro.2019.                     doi:10.1007/s10569-014-9559-2.
+     01.039.                                                          [20] M. Lara, Improving efficiency of analytic orbit propaga-
+ [4] B. Li, Y. Zhang, J. Huang, J. Sang, Improved orbit pre-               tion (IAC-21-C1.7.2), in: Proceedings of the 72nd Inter-
+     dictions using two-line elements through error pattern                national Astronautical Congress (IAC), Dubai, United
+     mining and transferring, Acta Astronautica 188 (2021)                 Arab Emirates, 25–29 October 2021, International As-
+     405–415. doi:10.1016/j.actaastro.2021.08.002.                         tronautical Federation (IAF), International Astronau-
+ [5] C. Levit, W. Marshall, Improved orbit predictions using               tical Federation (IAF), 2021, pp. 1–10.
+     two-line elements, Advances in Space Research 47 (7)             [21] M. Lara, Brouwer’s satellite solution redux, Celestial
+     (2011) 1107–1115. arXiv:1002.2277, doi:10.1016/j.                     Mechanics and Dynamical Astronomy 133 (47) (2021)
+     asr.2010.10.017.                                                      1–20. doi:10.1007/s10569-021-10043-7.
+ [6] J. F. San-Juan, I. Perez, M. san-Martin, E. Vergard,             [22] J. V. Breakwell, J. Vagners, On Error Bounds and Ini-
+     Hybrid SGP4 orbit propagator, Acta Astronautica 137                   tialization in Satellite Orbit Theories, Celestial Mechan-
+     (2017) 254–260. doi:10.1016/j.actaastro.2017.04.                      ics 2 (1970) 253–264. doi:10.1007/BF01229499.
+     015.                                                             [23] M. Lara, Note on the analytical integration of circum-
+                                                                           terrestrial orbits, Advances in Space Research 69 (2022)
+ [7] D. A. Vallado, P. Crawford, R. Hujsak, T. S. Kelso,
+     Revisiting Spacetrack Report #3 (AIAA 2006-6753), in:                 4169–4178. doi:10.1016/j.asr.2022.04.007.
+                                                                      [24] C. E. Delaunay, La Théorie du Mouvement de la Lune,
+     AIAA/AAS Astrodynamics Specialist Conference and
+     Exhibit, Guidance, Navigation, and Control and Co-                    Premier volume, Vol. 28 of Mémoires de l’Academie
+                                                                           des Sciences de l’Institut Impérial de France., Mallet-
+     located Conferences, American Institute of Aeronautics
+     and Astronautics, USA, 2006, pp. 1–88. doi:10.2514/                   Bachellier, Paris, 1860.
+                                                                      [25] A. Deprit, A. Rom, The Main Problem of Artificial
+     6.2006-6753.
+ [8] F. R. Hoots, P. W. Schumacher, Jr., R. A. Glover, His-                Satellite Theory for Small and Moderate Eccentricities,
+                                                                           Celestial Mechanics 2 (2) (1970) 166–206.
+     tory of Analytical Orbit Modeling in the U. S. Space
+     Surveillance System, Journal of Guidance, Control, and           [26] M. Lara, Analytical and Semianalytical Propagation
+     Dynamics 27 (5) (2004) 174–185. doi:10.2514/1.9161.                   of Space Orbits: The Role of Polar-Nodal Variables,
+ [9] F. R. Hoots, R. L. Roehrich, Models for Propagation                   in: G. Gómez, J. J. Masdemont (Eds.), Astrody-
+     of the NORAD Element Sets, Project SPACETRACK,                        namics Network AstroNet-II: The Final Conference,
+     Rept. 3, U.S. Air Force Aerospace Defense Command,                    Vol. 44 of Astrophysics and Space Science Proceed-
+     Colorado Springs, CO (Dec. 1980).                                     ings, Springer, Cham, 2016, pp. 151–166. doi:10.1007/
+[10] S. Coffey, K. T. Alfriend, An analytical orbit prediction             978-3-319-23986-6\_11.
+     program generator, Journal of Guidance, Control and              [27] H. Poincaré, Les méthodes nouvelles de la mécanique
+     Dynamics 7 (5) (1984) 575–581. doi:10.2514/3.19897.                   céleste. Tome 2, Gauthier-Villars et fils (Paris), 1893.
+[11] D. Brouwer, Solution of the problem of artificial satel-         [28] M. Lara, Review of analytical solutions for low earth
+     lite theory without drag, The Astronomical Journal 64                 orbit propagation and study of the precision improve-
+     (1959) 378–397. doi:10.1086/107958.                                   ment in the conversion of osculating to mean elements,
+[12] Y. Kozai, The motion of a close earth satellite, The                  Technical Report CM 2019/SER0023, Universidad de
+     Astronomical Journal 64 (1959) 367–377. doi:10.1086/                  La Rioja, Logroño, La Rioja (2019).
+     107957.                                                          [29] S. L. Coffey, A. Deprit, E. Deprit, Frozen orbits for
+[13] A. Deprit, The elimination of the parallax in satellite               satellites close to an earth-like planet, Celestial Me-
+     theory, Celestial Mechanics 24 (2) (1981) 111–153. doi:               chanics and Dynamical Astronomy 59 (1) (1994) 37–72.
+     10.1007/BF01229192.                                                   doi:10.1007/BF00691970.
+[14] M. Lara, J. F. San-Juan, L. M. López-Ochoa, Proper               [30] M. Lara, J. F. San-Juan, D. Hautesserres, HEOSAT:
+     Averaging Via Parallax Elimination (AAS 13-722), in:                  a mean elements orbit propagator program for highly
+     S. B. Broschart, J. D. Turner, K. C. Howell, F. R. Hoots              elliptical orbits, CEAS Space Journal 10 (2018) 3–23.
+
+                                                                 11
+     doi:10.1007/s12567-017-0152-x.                                         tion in high degree potential fields, Communications in
+[31] Y. Kozai, Second-order solution of artificial satellite                Nonlinear Science and Numerical Simulations 82 (2020)
+     theory without air drag, The Astronomical Journal 67                   105053. doi:10.1016/j.cnsns.2019.105053.
+     (1962) 446–461. doi:10.1086/108753.                               [48] A. Deprit, Delaunay normalisations, Celestial Mechan-
+[32] B. J. Cain, Determination of mean elements for                         ics 26 (1982) 9–21. doi:10.1007/BF01233178.
+     Brouwer’s satellite theory, Astronomical Journal 67               [49] S. L. Coffey, A. Deprit, B. R. Miller, The critical incli-
+     (1962) 391–392. doi:10.1086/108745.                                    nation in artificial satellite theory, Celestial Mechanics
+[33] B. A. Ustinov, Motion of Satellites in Small-Eccentricity              39 (4) (1986) 365–406. doi:10.1007/BF01230483.
+     Orbits in the Noncentral Gravitational Field of the               [50] I. G. Izsak, A note on perturbation theory, The Astro-
+     Earth, Cosmic Research 5 (1967) 159–168.                               nomical Journal 68 (8) (1963) 559–561. doi:10.1086/
+[34] H. G. Walter, Conversion of osculating orbital elements                109180.
+     into mean elements, Astronomical Journal 72 (1967)                [51] K. Aksnes, On the Use of the Hill Variables in Artificial
+     994–997. doi:10.1086/110374.                                           Satellite Theory, Astronomy and Astrophysics 17 (1)
+[35] M. Lara, J. F. San-Juan, L. M. López-Ochoa, Aver-                      (1972) 70–75.
+     aging Tesseral Effects: Closed Form Relegation versus             [52] M. Lara, Efficient Formulation of the Periodic Cor-
+     Expansions of Elliptic Motion, Mathematical Problems                   rections in Brouwer’s Gravity Solution, Mathematical
+     in Engineering 2013 (Article ID 570127) (2013) 1–11.                   Problems in Engineering vol. 2015 (Article ID 980652)
+[36] M. Lara, J. F. San-Juan, L. M. López-Ochoa, Efficient                  (2015) 1–9. doi:10.1155/2015/980652.
+     semi-analytic integration of GNSS orbits under tesseral           [53] M. Lara, LEO intermediary propagation as a feasible
+     effects, Acta Astronautica 102 (2014) 355–366. doi:                    alternative to Brouwer’s gravity solution, Advances in
+     10.1016/j.actaastro.2013.11.006.                                       Space Research 56 (3) (2015) 367–376. doi:10.1016/j.
+[37] G.-i. Hori, Theory of General Perturbation with Un-                    asr.2014.12.023.
+     specified Canonical Variables, Publications of the As-
+     tronomical Society of Japan 18 (4) (1966) 287–296.
+[38] A. Deprit, Canonical transformations depending on a
+     small parameter, Celestial Mechanics 1 (1) (1969) 12–
+     30. doi:10.1007/BF01230629.
+[39] N. L. Bonavito, S. Watson, H. Walden, An Accuracy
+     and Speed Comparison of the Vinti and Brouwer Orbit
+     Prediction Methods, Technical Report NASA TN D-
+     5203, Goddard Space Flight Center, Greenbelt, Mary-
+     land (1969).
+[40] R. H. Lyddane, C. J. Cohen, Numerical comparison
+     between Brouwer’s theory and solution by Cowell’s
+     method for the orbit of an artificial satellite, Astronom-
+     ical Journal 67 (1962) 176–177. doi:10.1086/108689.
+[41] D. Hautesserres, M. Lara, A fast and efficient algorithm
+     for onboard LEO intermediary propagation, in: Pro-
+     ceedings of the 6th International Conference on Astro-
+     dynamics Tools and Techniques, ICATT, ESA, 2016.
+[42] J. Henrard, On a perturbation theory using Lie trans-
+     forms, Celestial Mechanics 3 (1970) 107–120. doi:
+     10.1007/BF01230436.
+[43] G. Scheifele, O. Graf, Analytical satellite theories based
+     on a new set of canonical elements, in: Mechanics and
+     Control of Flight Conference, American Institute of
+     Aeronautics and Astronautics, Reston, Virginia, 1974,
+     pp. 1–20. doi:10.2514/6.1974-838.
+[44] W. M. Kaula, Analysis of Gravitational and Geomet-
+     ric Aspects of Geodetic Utilization of Satellites, Geo-
+     physical Journal 5 (1961) 104–133. doi:10.1111/j.
+     1365-246X.1961.tb00417.x.
+[45] W. M. Kaula, Theory of satellite geodesy. Applica-
+     tions of satellites to geodesy, Blaisdell, Waltham, Mas-
+     sachusetts, 1966, reprint: Dover, Mineola, New York,
+     2000.
+[46] M. Lara, Exploring Sensitivity of Orbital Dynamics
+     with Respect to Model Truncation: The Frozen Or-
+     bits Approach, in: M. Vasile, E. Minisci, L. Sum-
+     merer, P. McGinty (Eds.), Stardust Final Conference,
+     Vol. 52 of Astrophysics and Space Science Proceedings,
+     Springer International Publishing, Cham, 2018, pp. 69–
+     83. doi:10.1007/978-3-319-69956-1\_4.
+[47] M. Lara, R. López, I. Pérez, J. San-Juan, Exploring
+     the long-term dynamics of perturbed Keplerian mo-
+
+                                                                  12
+Appendix A. Tables of inclination polynomials
+
+
+                   Table A.2: Non-null inclination polynomials Qi,j,n in Eq. (13); ρ = 5s2 − 4
+                         3            3              3                   3              1
+            0,−1,0 : − 16 ρ   0,1,0 : 4 ρ    0,1,1 : 8 ρ         0,2,0 : 8 ρ    0,3,0 : 16 ρ
+                      5                  5              5                   5              1              5
+            1,1,0 : − 16      1,2,0 : − 8    1,3,0 : − 12        1,4,0 : − 16   1,5,0 : − 16   1,3,1 : − 24
+
+
+
+
+                         Table A.3: Non-null inclination polynomials Pi,j,k in Eq. (13)
+                         9       ˜         4   9      ˜     2   1
+           0,±1,0 : ± 64 (35J4 − 3)s ∓ 16 (10J4 − 3)s ∓ 8 (8 − 9J4 )
+                                                                      ˜                        35 ˜
+                                                                                      2,1,0 : 256 J4
+                        315 ˜ 4        45 ˜ 2      9 ˜                                         15    ˜
+           0,±1,1 : ± 256 J4 s ∓ 32 J4 s ± 32 J4                                      2,2,0 : 256 (7J4 − 1)
+                         15       ˜         4   3      ˜      2   3 ˜
+           0,±2,0 : ± 256 (21J4 + 1)s ∓ 32 (15J4 − 1)s ± 32 (3J4 − 1)
+                                                                                               1     ˜
+                                                                                      2,3,0 : 64 (35J4 − 3)
+                         35 ˜ 4         5 ˜ 2      1 ˜                                         35 ˜
+           0,±3,0 : ± 256 J4 s ∓ 32 J4 s ± 32 J4                                      2,3,1 : 256 J4
+                      35 2 ˜       15J˜4                                                        1     ˜
+           1,−1,0 : 64 s J4 − 32                                                      2,4,0 : 128 (35J4 + 6)
+                    1        ˜             21  ˜
+           1,1,0 : 16 (90J4 + 77) − 16 (5J4 + 4)s
+                                                         2                                      3     ˜
+                                                                                      2,4,1 : 256 (35J4 − 1)
+                   45 ˜        105 2 ˜                                                         3    ˜
+           1,1,1 : 32 J4 − 64 s J4                                                    2,5,0 : 64 (7J4 + 1)
+                   5     ˜             7     ˜
+           1,2,0 : 8 (3J4 + 2) − 16 (5J4 + 3)s
+                                                     2                                         21 ˜
+                                                                                      2,5,1 : 256 J4
+                    3        ˜            3    ˜
+           1,2,1 : 16 (15J4 + 1) − 32 (35J4 + 1)s
+                                                         2                                      1     ˜
+                                                                                      2,6,0 : 256 (35J4 + 3)
+                    1             ˜ 2        5
+           1,3,0 : 16 (8 − 35J4 )s + 16 (6J4 − 1)
+                                                 ˜                                              5 ˜
+                                                                                      2,7,0 : 256 J4
+                   15 ˜        35 ˜ 2
+           1,3,1 : 32 J4 − 64 J4 s
+                   15      ˜             3     ˜
+           1,4,0 : 64 (3J4 − 1) − 128 (35J4 − 13)s
+                                                          2
+
+                    3 ˜         7 ˜ 2
+           1,5,0 : 32 J4 − 64 J4 s
+
+
+
+
+                                                            13
+                     Table A.4: Non-null inclination polynomials tl,i,j in Hamiltonian (19)
+         105 4     ˜            15 2     ˜
+ 2,0,0 : 32 s (5J4 − 1) − 4 s (5J4 − 2) + 4 (J4 − 1)
+                                                    15 ˜
+
+            27 4     9 2     3
+ 2,0,1 : − 8 s + 2 s − 2
+            15 4      ˜           3 2       ˜          3
+ 2,0,2 : − 32 s (21J4 + 1) + 4 s (15J4 − 1) − 4 (3J4 − 1)
+                                                            ˜
+         3 2      ˜            15 4
+ 2,1,0 : 8 s (15J4 + 7) − 16 s (7J4 + 3)
+                                        ˜
+         225 6        ˜                9    4       ˜                9 2       ˜      315
+ 3,0,0 : 512 s (413J4 − 244) − 256 s (14175J4 − 6364) + 64 s (2895J4 − 1076) − 32 (9J4 − 4)
+                                                                                            ˜
+         2835 6     ˜            135 4        ˜          135 2     ˜
+ 3,0,1 : 128 s (5J4 − 1) − 64 s (95J4 − 31) + 16 s (13J4 − 7) − 8 (J4 − 1)
+                                                                             135 ˜
+
+             9 6        ˜                  27 4      ˜              9 2      ˜     27
+ 3,0,2 : − 256 s (735J4 − 1462) + 128 s (955J4 − 418) − 32 s (825J4 − 158) + 16 (35J4 − 6)
+                                                                                          ˜
+            675 6      ˜           45   4       ˜         45  2    ˜
+ 3,0,3 : − 128 s (21J4 + 1) + 64 s (285J4 − 7) − 16 s (39J4 − 5) + 8 (3J4 − 1)
+                                                                              45 ˜
+            6615 6 ˜      1485 4 ˜        675 2 ˜    135J˜4
+ 3,0,4 : − 512 s J4 + 256 s J4 + 64 s J4 − 32
+         135 6        ˜             9 4         ˜             45 2
+ 3,1,0 : 512 s (385J4 − 58) − 32 s (495J4 − 118) + 32 s (29J4 − 12)
+                                                                       ˜
+         135 6        ˜               9 4         ˜             9 2
+ 3,1,1 : 512 s (217J4 − 130) − 32 s (255J4 − 226) + 32 s (55J4 − 102)
+                                                                         ˜
+             45 6         ˜               45 4      ˜            45 2
+ 3,1,2 : − 512 s (1211J4 + 360) + 32 s (113J4 + 36) − 32 s (41J4 + 14)
+                                                                           ˜
+            16695 6 ˜       1485 4 ˜       495 2 ˜
+ 3,1,3 : − 512 s J4 + 32 s J4 − 32 s J4
+         2565 4 ˜       5355 ˜ 6
+ 3,2,0 : 512 s J4 − 1024 J4 s
+
+
+
+
+                     Table A.5: Non-null inclination polynomials u3,i,j in Hamiltonian (19)
+                 45 5  513 3   99                   1395 5  927s3                   315 5  75 3
+           1,0 : 4 s − 8 s + 2 s              1,2 :  16 s −   8   + 36s       2,0 : 32 s − 8 s
+                 495 5  1107 3   153                315 5  135 3
+           1,1 : 8 s − 8 s + 2 s              1,3 : 16 s − 8 s
+
+
+
+
+                    Table A.6: Non-null inclination polynomials uj,k in Eq. (22); ρ = 5s2 − 4
+       1
+                 − 25(2695J˜42 − 539J˜4 − 57)s6 + 10(14525J˜42 − 3990J˜4 − 537)s4
+            2
+                
+0,1 : 512 ρs
+      − 16(6175J˜42 − 2455J˜4 − 393)s2 + 80(255J˜42 − 162J˜4 − 29)
+                                                                       
+       1                ˜2        ˜                   ˜2       ˜
+             2
+                                          6                              4
+0,2 : 512 ρs 25(1323J4 − 77J4 − 117)s − 90(805J4 − 88J4 − 95)s
+      + 16(3150J˜42 − 625J˜4 − 512)s2 − 16(675J˜42 − 250J˜4 − 161)
+                                                                       
+       1                ˜2         ˜                    ˜2         ˜
+             2
+                                          6                                4
+0,3 : 512 ρs 25(1323J4 + 259J4 + 27)s − 10(7245J4 + 1160J4 + 9)s
+      + 336(150J˜42 + 15J˜4 − 4)s2 − 16(675J˜42 − 10J˜4 − 49)
+                                                               
+       1                ˜2         ˜                   ˜2        ˜
+            4
+                                          6                                 4
+0,4 : 2048 s 125(294J4 + 133J4 + 54)s − 50(1897J4 + 913J4 + 369)s
+      + 480(170J˜4 + 87J˜4 + 35)s − 8(2925J˜4 + 1590J˜4 + 637)
+                    2                 2          2
+                                                                     
+       1              ˜                      ˜                       ˜               ˜
+                               6                     4                         2
+                                                                                          
+1,1 : 128 s 175(271J4 − 13)s − 10(9791J4 − 537)s + 4(15845J4 − 939)s − 32(385J4 − 23)
+       1                 ˜                     ˜                      ˜             ˜
+                                   6                    4                       2
+                                                                                         
+1,2 : 128 s − 25(1029J4 − 55)s + 50(1079J4 − 81)s − 4(8925J4 − 979)s + 96(75J4 − 13)
+       1                 ˜                     ˜                        ˜           ˜
+                                   6                      4                   2
+                                                                                       
+1,3 : 128 s − 25(1029J4 + 41)s + 10(5395J4 + 139)s − 60(595J4 + 3)s + 32(225J4 − 7)
+        1
+                 − 75(175J˜4 + 19)s4 + 10(2253J˜4 + 269)s2 − 4(2415J˜4 + 319)
+            3
+                                                                                 
+1,4 : 1152 s
+u0,0 = u1,0
+
+
+                                                       14
+                              Table A.7: Non-null inclination polynomials lj,k in Eq. (25)
+                   225 10       ˜            45 8       ˜                  9 6    ˜
+             0,0 : 64 s (1015J4 − 397) − 32 s (9235J4 − 3998) + 8 s (16505J4 − 7989)
+                     27 4        ˜                  2    ˜
+                   − 4 s (1915J4 − 1063) + 1440s (3J4 − 2) − 36(15J4 − 13)   ˜
+                 : 225 10      ˜2         ˜             45 8          ˜2
+             0,1 256 s (245J4 + 1680J4 − 1417) − 64 s (770J4 + 11195J4 − 5909)
+                                                                                ˜
+                   + 64 s (3225J˜4 + 106910J˜4 − 38163) − 16 s (75J˜4 + 7840J˜4 − 2023)
+                      9 6         2                            27   4      2
+
+                   + 36s2 (150J˜4 − 31) − 162(5J˜4 − 1)
+                   3375 10    ˜2       ˜          225 8          ˜2
+             0,2 : 512 s (98J4 + 35J4 + 18) − 512 s (4207J4 + 2180J4 + 807)
+                                                                              ˜
+                   + 64 s (2725J˜4 + 2189J˜4 + 545) − 128 s (2385J˜4 + 3414J˜4 + 497)
+                     45 6         2                      45   4          2
+
+                   + 16 s (225J˜42 + 810J˜4 + 49) − 135
+                      9 2
+                                                     2 J4
+                                                         ˜
+                     585 4   225 2     45
+             1,0 : − 64 s + 16 s − 8
+                   225 4    ˜          45 2     ˜          45     ˜
+             1,1 : 128 s (21J4 + 1) − 16 s (15J4 − 1) + 16 (3J4 − 1)
+
+
+
+
+                                                                 ∗
+                    Table A.8: Non-null inclination polynomials qi,j,k in Eq. (27); ρ = 5s2 − 4
+                    4 ˜            2 ˜           ˜                                            ˜          2   ˜
+0,±1,3 : ∓315s J4 ± 360s J4 ∓ 72J4                                               1,4,1 : 60(3J4 − 1) − 6s (35J4 − 13)
+                4       ˜                 2     ˜
+0,±1,2 : ∓9s (35J4 + 6) ± 72s (5J4 + 1) ∓ 24(3J4 + 1)
+                                                               ˜                              ˜          2   ˜
+                                                                                 1,5,0 : 12(2J4 − 1) − 2s (14J4 − 9)
+                  4       ˜                 2      ˜
+0,±1,1 : ±45s (35J4 − 4) ∓ 24s (75J4 − 22) ± 72(5J4 − 4)
+                                                                    ˜                       ˜      2 ˜
+                                                                                 1,5,1 : 24J4 − 28s J4
+                4         ˜                   2     ˜
+0,±1,0 : ±9s (175J4 − 38) ∓ 24s (75J4 − 31) ± 360(J4 − 1)
+                                                                     ˜                     ˜
+                                                                                 2,1,0 : 35J4
+                4         ˜                   2     ˜
+0,±2,0 : ±3s (105J4 − 31) ∓ 24s (15J4 − 7) ± 72(J4 − 1)
+                                                                  ˜                        ˜
+                                                                                 2,1,1 : 35J4
+0,±2,1  : ±15s    4
+                    (21  J˜4 +  1) ∓  24s   2
+                                              (15 J˜4 − 1) ± 24(3J˜4 − 1)                      ˜
+                                                                                 2,2,0 : 15(7J4 − 1)
+              4       ˜                2      ˜
+0,±3,0 : ±s (35J4 − 18) ∓ 8s (5J4 − 3) ± 8(J4 − 1)
+                                                            ˜                                  ˜
+                                                                                 2,2,1 : 15(7J4 − 1)
+                  4 ˜           2 ˜         ˜                                                 ˜
+0,±3,1 : ±35s J4 ∓ 40s J4 ± 8J4                                                  2,3,0 : 175J4 − 12
+            2        ˜
+1,−1,0 : 2s (70J4 − 9) − 12(10J4 − 1)
+                                           ˜                                                  ˜
+                                                                                 2,3,1 : 175J4 − 12
+                 2 ˜            ˜                                                              ˜
+1,−1,1 : 140s J4 − 120J4                                                         2,3,2 : −35J4
+1,0,0 : 72 −   108s    2
+                                                                                 2,3,3 : −35  J˜4
+                   ˜                 2
+1,1,0 : 180(10J4 + 7) − 42s (50J4 + 33)
+                                             ˜                                                ˜
+                                                                                 2,4,0 : 175J4 + 9
+                 ˜                   2
+1,1,1 : 72(25J4 + 16) − 12s (175J4 + 102)
+                                               ˜                                              ˜
+                                                                                 2,4,1 : 175J4 + 9
+            2        ˜
+1,1,2 : 30s (14J4 + 3) − 60(6J4 + 1)
+                                         ˜                                                        ˜
+                                                                                 2,4,2 : −3(35J4 − 1)
+              2 ˜             ˜                                                                   ˜
+1,1,3 : 420s J4 − 360J4                                                          2,4,3 : −3(35J4 − 1)
+                 ˜                 2
+1,2,0 : 240(5J4 + 1) − 56s (25J4 + 3)
+                                           ˜                                                   ˜
+                                                                                 2,5,0 : 3(35J4 + 4)
+1,2,1 : 240(5   J˜4  +   1)  − 56s 2
+                                     (25  J˜4 + 3)                               2,5,1 : 3(35 J˜4 + 4)
+            2        ˜
+1,2,2 : 24s (35J4 + 1) − 48(15J4 + 1)
+                                           ˜                                     2,5,2 : −21J4
+                                                                                               ˜
+            2        ˜
+1,2,3 : 24s (35J4 + 1) − 48(15J4 + 1)
+                                           ˜                                     2,5,3 : −21J4
+                                                                                               ˜
+                 ˜                 2
+1,3,0 : 4(150J4 − 59) − 2s (350J4 − 181)
+                                             ˜                                              ˜
+                                                                                 2,6,0 : 35J4 + 3
+               ˜
+1,3,1 : 8(75J4 − 16) − 100s (7J4 − 2)
+                                     2     ˜                                                ˜
+                                                                                 2,6,1 : 35J4 + 3
+1,3,2 : 2s2
+            (70   ˜
+                  J 4 +   3)  − 4(30  J˜4  +   1)                                2,7,0 : 5J˜4
+              2 ˜             ˜                                                            ˜
+1,3,3 : 140s J4 − 120J4                                                          2,7,1 : 5J4
+                 ˜                 2
+1,4,0 : 12(15J4 − 11) − 6s (35J4 − 31)
+                                           ˜
+
+
+
+                           Table A.9: Non-null inclination polynomials Q∗i,j,k in Eq. (27)
+                          3             3             3                   3                1
+             0,−1,0 : − 16      0,1,1 : 8     0,1,0 : 4           0,2,0 : 8       0,3,0 : 16
+                        5                 5              5                  5                5             1
+             1,1,0 : − 16       1,2,0 : − 8   1,3,0 : − 12        1,3,1 : − 24    1,4,0 : − 16   1,5,0 : − 16
+
+
+
+                                                             15
+                     Table A.10: Non-null inclination polynomials qi,j,k in Eq. (29)
+            375 6    225 4     45 2
+0,−1,0 : − 64 s + 16 s − 4 s + 3
+        175 6      ˜             5 4     ˜            5 2      ˜             7   ˜
+0,0,0 : 128 s (271J4 − 25) − 64 s (9791J4 − 1073) + 32 s (3169J4 − 415) − 4 (55J4 − 9)
+          175 6      ˜            5  4    ˜          1  2            ˜      1     ˜
+0,0,2 : − 128 s (147J4 − 1) + 64 s (5395J4 − 133) + 32 s (467 − 8925J4 ) + 4 (225J4 − 23)
+          25 6         ˜             5 4    ˜          15 2     ˜         1     ˜
+0,0,3 : − 128 s (1029J4 + 41) + 64 s (5395J4 + 139) − 32 s (595J4 + 3) + 4 (225J4 − 7)
+        2625 6    1575 4     315 2
+0,1,0 : 32 s − 8 s + 2 s − 42
+          375 6    225 4     45 2
+0,1,2 : − 32 s + 8 s − 2 s + 6
+        375 6    225 4        2
+0,2,0 : 16 s − 4 s + 45s − 12
+        125 6    75 4    15 2
+0,3,0 : 64 s − 16 s + 4 s − 1
+          25 6       ˜              5 4     ˜           1 2        ˜
+1,0,0 : − 384 s (175J4 + 19) + 576 s (2253J4 + 269) + 288 s (−2415J4 − 319)
+          125 6    25 4     5 2
+1,1,0 : − 64 s + 8 s − 4 s
+          25 6    5 4     2
+1,2,0 : − 16 s + 2 s − s
+          25 6    5 4    1 2
+1,3,0 : − 32 s + 4 s − 2 s
+        125 6    25 4    5 2
+1,3,2 : 96 s − 12 s + 6 s
+          25 6    5 4    1 2
+1,5,0 : − 64 s + 8 s − 4 s
+q0,j,1 = q0,j,0 , q1,j,1 = q1,j,0 , q0,1,3 = q0,1,2 , q1,3,3 = q1,3,2 , and q1,4,0 = q1,3,0
+
+
+
+
+                                                    16
+                           Table A.11: Non-null inclination polynomials Qi,j,k in Eq. (29); ρ = 5s2 − 4
+                           ˜                                 ˜                            ˜                      ˜                 ˜
+           1575 8                         165 6                              405 4                    45 2
+                                                                                                                                           
+0,1,0 : ρ 512 s (97J4 − 23) − 256 s (1273J4 − 407) + 8 s (16J4 − 7) − 8 s (59J4 − 37) + 45(J4 − 1)
+                            ˜                                ˜                              ˜                          ˜                 ˜
+           225 8                          165 6                               9 4                          9 2
+                                                                                                                                               
+0,1,1 : ρ 512 s (679J4 − 89) − 256 s (1273J4 − 263) + 16 s (1440J4 − 449) − 8 s (295J4 − 141) + 9(5J4 − 4)
+                  75 8           ˜               45 6           ˜                3 4         ˜               3 2        ˜               ˜
+                                                                                                                                             
+0,1,2 : ρ − 512 s (329J4 + 33) + 256 s (789J4 + 101) − 16 s (765J4 + 127) + 8 s (165J4 + 37) − 3(3J4 + 1)
+                  75 8           ˜              135     6       ˜              27   4     ˜            3  2      ˜             ˜
+                                                                                                                                
+0,1,3 : ρ − 512 s (329J4 − 39) + 256 s (263J4 − 25) − 16 s (85J4 − 6) + 8 s (165J4 − 7) − 9J4
+                          ˜                               ˜                            ˜                     ˜               ˜
+           525 8                         45 6                             1863 4                   9 2
+                                                                                                                                     
+0,2,0 : ρ 256 s (25J4 − 11) − 128 s (409J4 − 207) + 64 s (5J4 − 3) − 8 s (55J4 − 41) + 9(J4 − 1)
+                          ˜                              ˜                           ˜                        ˜               ˜
+           375 8                        45 6                           15 4                       15 2
+                                                                                                                                     
+0,2,1 : ρ 256 s (35J4 − 1) − 128 s (409J4 − 31) + 64 s (621J4 − 83) − 8 s (33J4 − 7) + 3(3J4 − 1)
+                        ˜                              ˜                             ˜                        ˜            ˜
+           525 8                       5   6                            1 4                         3 2
+                                                                                                                                   
+0,3,0 : ρ 512 s (3J4 − 5) − 256 s (505J4 − 727) + 32 s (365J4 − 463) − 8 s (15J4 − 17) + J4 − 1
+                          ˜                               ˜                             ˜                             ˜      ˜
+           75 8                           5    6                           1 4                         1 2
+                                                                                                                               
+0,3,1 : ρ 512 s (21J4 − 11) − 256 s (505J4 − 199) + 32 s (365J4 − 101) + 8 s (7 − 45J4 ) + J4
+            2         5
+                         s (7J˜4 + 81) + 64 s (25J˜4 + 174) − 64 s (J˜4 + 5)
+                          6                      1    4                       15  2
+                                                                                              
+1,−1,0 : ρ       −
+               256   35 6 ˜
+            2                                1 4
+                                                s (25J˜4 + 141) − 64       3 2
+                                                                              s (5J˜4 + 21)
+                                                                                               
+1,−1,1 : ρ       −       s (J4 + 9) + 64
+           1752568
+                                 ˜2          ˜                5    6          ˜2           ˜
+1,0,0 : ρ − 512 s (385J4 − 137J4 − 3) + 256 s (14525J4 − 6430J4 − 393) + 32 s (−6175J4 + 3630J4 + 352)
+                                                                                                            1 4           ˜2          ˜
+        + 32 s (425J˜4 − 370J˜4 − 47)
+             3 2            2
+                                                    
+                  25 8             ˜2         ˜                    5   6          ˜2            ˜                1 4            ˜2          ˜
+          
+1,0,1 : ρ − 512 s (2695J4 − 959J4 − 237) + 256 s (14525J4 − 6430J4 − 1617) + 32 s (−6175J4 + 3630J4 + 928)
+
+        + 32 s (85J˜4 − 74J˜4 − 19)
+            15 2          2
+                                               
+
+                              ˜2        ˜                                 ˜2          ˜                            ˜2         ˜
+           25 8                                           5    6                                      1 4
+1,0,2 ρ 512 s (1323J4 + 91J4 − 45) − 256 s (7245J4 + 184J4 − 423) + 32 s (3150J4 − 155J4 − 298)
+      :
+             5 2          ˜ 2         ˜
+                                                  
+        − 32 s (135J4 − 26J4 − 21)
+                              ˜2          ˜                                ˜2            ˜                       ˜2        ˜
+           25 8                                             5    6                                   21 4
+1,0,3 : ρ 512 s (1323J4 + 259J4 + 27) − 256 s (7245J4 + 1160J4 + 9) + 32 s (150J4 + 15J4 − 4)
+             1 2             ˜ 2        ˜
+                                                     
+        + 32 s (−675J4 + 10J4 + 49)
+          2        45 6
+                       s (91J˜4 + 66) + 64      15 4
+                                                    s (229J˜4 + 170) − 16         s (120J˜4 + 91)
+                                                                                3 2
+                                                                                                     
+1,1,0 : ρ     − 128
+          2        45 6
+                       s (91J˜4 + 57) + 64       3 4
+                                                    s (1145J˜4 + 751) − 38 s2 (60J˜4 + 41)
+                                                                                                    
+1,1,1 : ρ     − 128
+          3 105 4 ˜            3 2
+                                  s (15J˜4 − 2)
+                                                    
+1,1,2 : ρ          s J4 − 64
+             128
+          3 15 4         ˜                 s (15J˜4 − 7)
+                                         3 2
+                                                               
+1,1,3 : ρ     128
+                   s (7J4 − 3) − 64
+          2         5
+                       s6 (637J˜4 + 57) + 16       5 4
+                                                      s (133J˜4 + 18) − 32        s (185J˜4 + 33)
+                                                                                3 2
+                                                                                                     
+1,2,0 : ρ     − 128
+          2 15 6
+                   s (119J˜4 − 5) − 16      3 4
+                                               s (125J˜4 − 2) + 32         s (105J˜4 + 1)
+                                                                         3 2
+                                                                                             
+1,2,2 : ρ
+             128 35 6
+          2
+              − 256 s (97J˜4 − 53) + 64 s (94J˜4 − 45) − 64
+                                                15    4
+                                                                               s (65J˜4 − 27)
+                                                                             9 2
+                                                                                                 
+1,3,0 : ρ
+          2         5
+                       s6 (679J˜4 − 209) + 32        3 4
+                                                        s (235J˜4 − 63) − 45        s2 (13J˜4 − 3)
+                                                                                                   
+1,3,1 : ρ     − 256                                                              64
+          2     5
+                   s6 (119J˜4 − 3) + 64     1 4
+                                               s (7 − 250J˜4 ) + 64        s (35J˜4 − 1)
+                                                                         3 2
+                                                                                           
+1,3,2 : ρ
+             256
+          2     5
+                   s (119J˜4 − 9) + 32 s (9 − 125J˜4 ) + 64 s2 (15J˜4 − 1)
+                    6                       1   4                        7
+                                                                                            
+1,3,3 : ρ     256
+          3 3 2
+                  s (15J˜4 − 11) − 128     3
+                                               s4 (35J˜4 − 31)
+                                                                    
+1,4,0 : ρ     64
+          3 15 2
+                  s (3J˜4 − 1) − 128    3
+                                           s4 (35J˜4 − 13)
+                                                                
+1,4,1 : ρ
+             641 4
+          3
+                   s (9 − 14J˜4 ) + 64 s2 (2J˜4 − 1)
+                                          3
+                                                               
+1,5,0 : ρ     128
+          3 3 2 ˜
+1,5,1 : ρ (   32
+                  s J4 − 7 s4 J˜4 )
+                            64
+         125 10            ˜2      ˜               25 8         ˜2   ˜       15 6 ˜2  ˜
+2,0,0 : 2048 s (294J4 + 133J4 + 54) − 1024 s (1897J4 + 913J4 + 369) + 64 s (170J4 + 87J4 + 35)
+              1    4           ˜2
+        + 256 s (−2925J4 − 1590J4 − 637) ˜
+                        ˜                     ˜                    ˜
+           25 8                    5    6                   1 4
+                                                                         
+2,1,0 : ρ 512 s (7J4 − 27) − 256 s (7J4 − 129) + 32 s (−5J4 − 39)
+                        ˜                    ˜            375s8
+           15 6                   15 4
+                                                                
+2,2,0 : ρ 128 s (7J4 + 87) − 64 s (3J4 + 19) − 64
+                         ˜                      ˜                  ˜
+           25 8                     5 6                     5 4
+                                                                        
+2,3,0 : ρ 256 s (49J4 − 66) − 32 s (44J4 − 71) + 64 s (31J4 − 61)
+                  25 8      ˜           5 6       ˜            1 4     ˜
+                                                                          
+2,3,2 : ρ − 256 s (7J4 − 12) + 64 s (11J4 − 27) + 64 s (61 − 15J4 )
+          2
+                   s (56J˜4 − 9) − 128   s4 (43J˜4 − 9)
+             5 6                     5
+                                                        
+2,4,0 : ρ     128
+          2     3
+                   s4 (25J˜4 − 23) − 128
+                                       15 6
+                                           s (7J˜4 − 5)
+                                                       
+2,4,2 : ρ     128
+          2 15 6
+                   s (63J˜4 + 5) − 2563
+                                         s4 (125J˜4 + 9)
+                                                         
+2,5,0 : ρ     512
+          2     3
+                   s4 (13J˜4 − 7) − 512
+                                     15 6
+                                         s (7J˜4 − 3)
+                                                     
+2,5,2 : ρ     256
+          1     3 4
+2,6,0 : 256 ρ s (35J4 + 3)
+                          ˜
+          5     3 4 ˜
+2,7,0 : 256
+              ρ   s  J4
+
+
+                                                                       17
+

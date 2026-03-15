@@ -1,0 +1,530 @@
+                                                                                                                  366                                                            J. GUIDANCE                                                        VOL. 5, NO. 4
+
+                                                                                                                  AIAA80-1657R
+
+
+                                                                                                                                                       Third-Order Solution to
+                                                                                                                                                  the Main Problem in Satellite Theory
+                                                                                                                                                                           Shannon Coffey*
+                                                                                                                                                             Naval Research Laboratory, Washington, D.C.
+                                                                                                                                                                                  and
+                                                                                                                                                                            Andr6 Depritt
+                                                                                                                                                            National Bureau of Standards, Washington, D.C.
+
+
+                                                                                                                                      In the present paper we announce a completely analytic closed-form third-order solution to the main problem
+Downloaded by UNIVERSITY OF CALIFORNIA - DAVIS on January 29, 2015 | http://arc.aiaa.org | DOI: 10.2514/3.56183
+
+
+
+
+                                                                                                                                   in the theory of an artificial satellite. This is the first time an analytic solution of the main problem has been
+                                                                                                                                   produced to order 3 which is valid for satellites with any eccentricity 0<Kl. The solution is accomplished by
+                                                                                                                                   constructing a progression of three canonical transformations from the state variables to a set of action-angle
+                                                                                                                                   variables in which the Hamiltonian for the problem is a function of the action variables only. The transformed
+                                                                                                                                   Hamiltonian is developed, without omitting terms, to order 4 in the small parameter €= -J2; by way of
+                                                                                                                                   verification it was found to agree through order 3 with the theory of Brouwer as extended by Kozai. The
+                                                                                                                                   algebraic expressions for these transformations were produced by computer in a very compact form; conciseness
+                                                                                                                                   is achieved in two ways, by eliminating the parallax and by controlling the computer automated calculations so
+                                                                                                                                   as to avoid infinite series expansions in the eccentricity. Our programs prove that the main problem in satellite
+                                                                                                                                   theory can be solved in closed form to order 3.
+
+
+                                                                                                                                          I. Introduction                                      singularities and likewise it also shows that at least to order 3
+                                                                                                                  I  N the present paper we develop a completely analytic third-
+                                                                                                                     order solution to the main problem in the theory of an
+                                                                                                                  artificial satellite. The theories of Deprit and Rom1 and
+                                                                                                                                                                                               small inclinations are not intrinsic singularities.
+                                                                                                                                                                                                  At last Brouwer's dream of a solution to the main problem
+                                                                                                                                                                                               developed automatically by machine has been made real.
+                                                                                                                  Claes2 rely on eccentricity expansions of the perturbation to                Several authors (e.g., Aksnes7 and Jefferys8) have considered
+                                                                                                                  effect the integrations necessary to eliminate the short period              that sort of automation. Here, however, the task has been
+                                                                                                                  terms. A more recent report by Kinpshita3 expands upon the                   brought to completion. We use a revised version of MAO
+                                                                                                                  theory of Deprit and Rom by including the J3 and J4 zonal                    (Mechanized Algebraic Operations)9 written in PL/I by the
+                                                                                                                  harmonics. But there again the perturbations were expanded                   second author and the Fortran package for algebraic
+                                                                                                                  as truncated series in the eccentricity, limiting that theory to             manipulation developed by R. Dansenbrock.10
+                                                                                                                  near circular orbits.                                                           The elimination of the short period terms was accomplished
+                                                                                                                     The secular and the long period Hamiltonians have been                    by constructing two canonical transformations of the Lie type
+                                                                                                                  produced to order 4 in the small parameter e= — J2. Here we                  rather than a unique von Zeipel tranformation as done by
+                                                                                                                  denote the long period Hamiltonian as that derived from the                  Brouwer and Kozai. However the total number of terms in the
+                                                                                                                  main problem after averaging over the mean anomaly. By                       generators for our short period transformations contain only
+                                                                                                                  maintaining Delaunay's elements as the phase space coor-                     25% of the number of terms to be found in the corresponding
+                                                                                                                  dinates, we were able to compare directly the first three orders             single transformation. In fact, so concise were the expressions
+                                                                                                                  of our averaged Hamiltonians with the earlier work of                        for our generators that at order 4 we went beyond averaging
+                                                                                                                  Brouwer,4 and its extension by Kozai.5 Comparison with                       over the mean anomaly to construct the corresponding terms
+                                                                                                                  Kozai through order 3 established that our long period                       in each of the generators. Indeed, armed with these generators
+                                                                                                                  Hamiltonians are equivalent and our secular Hamiltonians                     one could easily, in principle at least but discounting the
+                                                                                                                  are identical (save for what we assume to be a misprint in                   computational complexity, compute the fifth order in the long
+                                                                                                                  Kozai's formula 6.21 where/? should be replaced by P). On                    period Hamiltonian and thus construct a fourth-order theory
+                                                                                                                  the other hand, comparison formula by formula with                           for the main problem. We note that at third order our
+                                                                                                                  Kinoshita is not possible since the latter produces only ex-                 generators contain 112 and 125 terms, respectively, as
+                                                                                                                  pressions truncated in the eccentricity.                                     compared to the more than 2000 terms required for the third
+                                                                                                                     Our theory has been kept nonsingular for all eccentricities               order in Kozai's von Zeipel generator. This will drastically
+                                                                                                                  and all inclinations except for the so-called critical inclination.          reduce the computational times required for orbit prediction,
+                                                                                                                  Of course the singularities of small inclination and small                   which is especially important in the area of real time
+                                                                                                                  eccentricity will occur if the user insists on expressing the state          processing. The increase in efficiency will become even more
+                                                                                                                  of the system by way of Delaunay's elements rather than a set                evident when the same technique is applied to the
+                                                                                                                  of uniformly regular variables such as those defined by Deprit               Hamiltonian consisting of the, main problem plus higher-
+                                                                                                                  and Rom1 or Hoots.6 Our reduced Hamiltonian establishes                      order zonal harmonics.
+                                                                                                                  that to order 4 small eccentricities do not constitute intrinsic                In the last section of the paper we complete the third-order
+                                                                                                                                                                                               theory by constructing yet another canonical transformation
+                                                                                                                    Presented as Paper 80-1657 at the AIAA/AAS Astrodynamics                   of the Lie type to eliminate the long period terms and thus
+                                                                                                                  Conference, Danvers, Mass., Aug. 11-13, 1980; submitted Jan. \2.             arrive at the secular Hamiltonian.
+                                                                                                                  1981; revision received Nov. 12,1981. ©" This paper is declared a work
+                                                                                                                  of the U.S. Government and therefore is in the public domain.
+                                                                                                                     * Mathematician, Advanced Systems Branch, Aerospace Division.
+                                                                                                                  Member AIAA.                                                                                  II. Short Period Elimination
+                                                                                                                    fMathematician, Mathematical Analysis Division. Center for                    The Hamiltonian for the main problem in the theory of an
+                                                                                                                  Applied Mathematics. Associate Fellow AIAA.                                  artificial satellite is given in Whittaker's variables by
+                                                                                                                  JULY-AUGUST 1982                            THIRD ORDER SOLUTION FOR ARTIFICIAL SATELLITES                                           367
+
+                                                                                                                              M(r,0, -,R,Q,N) =                                             and the rows of the triangle are known through order n — 1,
+                                                                                                                                                                                            then all the Poisson brackets in Eq. (3) can be evaluated
+                                                                                                                                                                                            except for (J0t0; Wn). Thus for / = 0,y = «, Eq. (3) defines the
+                                                                                                                                                                                     (1)    partial differential equation
+                                                                                                                                            (ot/r) 2('/2- 3/4S2 + 3/4S2cos20)
+                                                                                                                                                                                                                               ) +J 0>n                  (4)
+
+                                                                                                                                                                                            where f0>n consists of the known quantities from Eq. (3). The
+                                                                                                                  This defines a Hamiltonian with two degrees of freedom. The               function J0>n is chosen to be the average
+                                                                                                                  right ascension of the node, v, is ignorable, and 0=f+g is the
+                                                                                                                  argument of latitude. The variable r is the radial distance
+                                                                                                                  from the Earth's center of mass to the satellite. The variables
+                                                                                                                  R,Q, and Nare the momenta for r,0, and v, respectively. The
+                                                                                                                  constants //, and a stand for the Keplerian constant and the              Then Wn is found by solving Eq. (4). In our case this amounts
+                                                                                                                  equatorial radius of the Earth, while /is the inclination of the          to forming the quadrature
+                                                                                                                  satellite's orbital plane.
+                                                                                                                     The elimination of the short period terms from Eq. (1) is                                _\MO,O
+Downloaded by UNIVERSITY OF CALIFORNIA - DAVIS on January 29, 2015 | http://arc.aiaa.org | DOI: 10.2514/3.56183
+
+
+
+
+                                                                                                                  achieved through the construction of two canonical trans-
+                                                                                                                  formations of the Lie type.
+                                                                                                                     The first transformation is called the elimination of the              Of course this determines Wn only up to an additive function
+                                                                                                                  parallax and has been reported on elsewhere.11 Briefly we                 independent of the mean anomaly. Contrary to what Kozai
+                                                                                                                  recount that this transformation simplifies Eq. (1) by con-               did, we elected not to add terms in sin 2g and sin 4g to the
+                                                                                                                  verting the factors (n/r) (ot/r)2 to (n/p)(ot/r)2 while                   generator.
+                                                                                                                  eliminating the true anomaly from the angle 0. The resulting                 To illustrate the procedure for order 1 we have
+                                                                                                                  Hamiltonian has been constructed to order 4 and assumes the
+                                                                                                                  form
+                                                                                                                                                                                                                       J1>0=(Q2/r2)(ot/p)2(>/2-y4S2)
+                                                                                                                  M=                                                                        From the equations of a Delaunay transformation we have the
+                                                                                                                                                                                            following:
+                                                                                                                                E      -,         E «* E *?     /<*</
+
+                                                                                                                  This Hamiltonian, which we designate the parallax                                     dl
+                                                                                                                  Hamiltonian, was first developed by the second author in
+                                                                                                                  1978 using the Amdahl computer at the University of Cin-                  Then
+                                                                                                                  cinnati. It was later reproduced by the first author on the
+                                                                                                                  TI-ASC computer at the Naval^ Research Laboratory.
+                                                                                                                    Extracting the terms from M which are independent of the
+                                                                                                                  argument of perigee we get the intermediary Hamiltonian
+                                                                                                                                      02                        2n
+                                                                                                                                                                                            and the generator of first order becomes
+                                                                                                                                      -
+                                                                                                                                       r
+
+
+
+                                                                                                                  The normalization of R2, which is called the radial in-
+                                                                                                                  termediary, was described in Ref. 12. The present paper
+                                                                                                                  represents an extension of this normalization procedure to the
+                                                                                                                  full parallax Hamiltonian M.
+                                                                                                                      To normalize M a second canonical transformation is
+                                                                                                                  constructed to transform from the Whittaker variables                     Here we define 0 =/- 1 to be the equation of the center.
+                                                                                                                   (r,0,i>,jR,9,AO to a set of intermediate Delaunay elements                  Through order 2 it was possible to complete this procedure
+                                                                                                                   ( r , g f , h ' , L f , G ' , H f ) in such a way that the transformed   by hand, but beyond that point processing by computer was
+                                                                                                                  Hamiltonian depends only on the actions (L',G ' ,H') and                  required. At each order it was impossible to anticipate the
+                                                                                                                  the argument of perigee g' . In the following text we will not            elements appearing in the provisional term f0>n. Therefore the
+                                                                                                                  maintain any special notation such as primed variables to                 program stopped execution each time it had constructed and
+                                                                                                                  represent the different sets of averaged elements. In general,            printed / O w . We then analyzed how to construct Wn, and this
+                                                                                                                  Delaunay's variables (l,g,h,L,G,H) will be used throughout                information was coded into the program. The program was
+                                                                                                                  and the context in which they are used will make it clear which           then restarted to proceed to the next order. This procedure
+                                                                                                                  set of averaged elements they represent.                                  required many trials at each order. The elimination of one set
+                                                                                                                      We find from Deprit13 that the entries in the Lie triangle are        of terms from f0 >n would often give rise to others that had to
+                                                                                                                  given recursively by                                                      be added back into f0n to be eliminated in a subsequent
+                                                                                                                                                                                            iteration. We would have welcomed at this point the
+                                                                                                                                                                                            possibility of entering into an interactive mode with the
+                                                                                                                                              LJ \ ir                                (3)    program to introduce various terms in the generator and
+                                                                                                                                              k=0 X A C                                     receive immediate feedback on how these terms affected the
+                                                                                                                                                                                            normalization. As yet we know of no such system sufficiently
+                                                                                                                  The first column (Jn >0) of the triangle is, of course, initialized       large and flexible enough to handle a problem of this
+                                                                                                                  by the function to be transformed, which in our case is given             magnitude.
+                                                                                                                  by Eq. (2). If we assume that the generator                                  Several sets of elements were encountered, through order 4,
+                                                                                                                                                                                            that required individual consideration in the generator.
+                                                                                                                                                                                               Groups of terms of the form
+                                                                                                                                                                                                         (a/p)2n(G2/r2)F(ets2)cos(kg      + pf)
+                                                                                                                  368                                                 S. COFFEY AND A. DEPRIT                                         J. GUIDANCE
+
+                                                                                                                  where F is a power series in e and s2, were the easiest to                                e2                       -)
+                                                                                                                  handle. For these groups of elements the identity                     . . . +ecos(2g+f) + — cos(2g-2f)+ecos(2g-f)l
+                                                                                                                                                     = - (Q/r)2cos(kg+0f)       (5)
+                                                                                                                                                                                        There were variou^other groups of terms in the provisional
+                                                                                                                                                      2
+                                                                                                                  produced the term (G/p)F(e,s )sin(kg+pf)        for the gen-        elements f0>n which were systematically eliminated through
+                                                                                                                  erator with no contribution to the normalized Hamiltonian.          the application of identities similar to those described here.
+                                                                                                                    Terms such as                                                        Due to the different normalization procedures and because
+                                                                                                                                                                                      the short period generators are determined only up to the
+                                                                                                                                                                                      addition of an arbitrary function of g, our long period
+                                                                                                                                                                                      Hamiltonian to order 3 was not precisely the same as that
+                                                                                                                                                                                      derived by Kozai. However, our long period Hamiltbnians are
+                                                                                                                                                                                      equivalent; we checked that adding
+                                                                                                                  were processed by applying the identity
+
+                                                                                                                           >n v cos
+                                                                                                                       <t;^-G\       i   \          ,/e
+                                                                                                                                 . Ug) = -<£"-'( —2 -—;-
+                                                                                                                                                        2
+                                                                                                                                                          GV\T)
+                                                                                                                                                                 COST
+                                                                                                                                                                  . \kg
+                                                                                                                     O
+                                                                                                                          k L sin J /                \r   p2 / L sin J
+                                                                                                                                                                                             /?! 3 - H Z 2_15           1?1
+Downloaded by UNIVERSITY OF CALIFORNIA - DAVIS on January 29, 2015 | http://arc.aiaa.org | DOI: 10.2514/3.56183
+
+
+
+
+                                                                                                                                                                                (7)
+
+                                                                                                                  The only contribution to the Hamiltonian occurred for n- 1.         to the W2 of our second short period transformation
+                                                                                                                  For n > 1 a term such as                                            reproduces Kozai's Hamiltonian.
+                                                                                                                                                                                         During construction of the entries for the Lie triangle, it
+                                                                                                                                                                                      was found that a premature expansion of the factor 0 2 /r 2
+                                                                                                                                                             S ]*                     into the equivalent
+                                                                                                                  was always found to be paired with the term                                      (G2/p2)(l- e2 12 + 2ecos/+ e2 /2cos2/)
+                                                                                                                                                                                      in terms of Delaunay's elements, would have severely com-
+                                                                                                                                                               sin                    plicated the solution of the partial differential, Eq. (4). For
+                                                                                                                                                                                      this reason the program maintained automatically the entries
+                                                                                                                  As a result of cancellations the only terms like those in Eq. (6)          in the triangle as the sum JfJ -=J{j <+J*j, where /fy were
+                                                                                                                  that survived through order 2 were for n= 1 and k = Q. But at       completely normalized, and J*j were uhnormalized terms
+                                                                                                                  order 3 we found such terms for n = 2 and k = 2, and again at       having the general form
+                                                                                                                  order 4 for « = 2,3 and & = 2,4. It was precisely the integration
+                                                                                                                  of 0 terms like those in Eq. (6) that prevented previous efforts
+                                                                                                                  at extending Brouwer's theory beyond order 2. It was a                    r2 V/7         k=0
+                                                                                                                  consequence of the simplifications introduced by the
+                                                                                                                  elimination of the parallax transformation that these terms
+                                                                                                                  could now be integrated in closed form.                                   G2 f
+                                                                                                                                                                                        +
+                                                                                                                     The two terms                                                          ?(-            E *m E E
+                                                                                                                                                                                                           m=0
+                                                                                                                                                                                                                                                    (8)
+                                                                                                                                                     and
+                                                                                                                                                                                         The predominant terms occurring in J*j were those in the
+                                                                                                                  were found to always occur in tandem. They were normalized          first series in Eq. (8). Rather than tying ourselves to
+                                                                                                                  through the application of the identity                             Delaunay's elements we found it was convenient to construct
+                                                                                                                                                                                      the Poisson brackets in either of the two sets of coordinates
+                                                                                                                                                                                      (Delaunay or Whittaker) that were most appropriate. The
+                                                                                                                                                                                      bracket (Ju\Wk) = (J^W*) + (JJ/;^), where , (J[j\Wk)
+                                                                                                                          GV                                                          was computed in Delaunay's elements and (J*j'9Wk) was
+                                                                                                                          — j-                        —                               evaluated in Whittaker's variables. This is justified since a
+                                                                                                                                                                                      Poisson bracket is invariant with respect to two coordinate
+                                                                                                                                                                                      systems provided they are related by a canonical trans-
+                                                                                                                    A particularly troublesome set of terms encountered was of        formation. Since the generator was derived only in
+                                                                                                                  the form                                                            Delaunay's elements we had to prepare and transfer to the
+                                                                                                                                                                                      program the dictionary of partial derivatives of Delaunay's
+                                                                                                                        -V"—7- [^-cos(2g+2/)+ecos(2g+/)                               elements with respect to the Whittaker variables. We sum-
+                                                                                                                        p/  p2 14                                                     marize here the partial derivatives we used. To compute the
+                                                                                                                                                                                      Poisson brackets strictly in terms of Delaunay's elements we
+                                                                                                                          e2                        "I                                used the differentials of the fundamental terms
+                                                                                                                        + — cos(2g-2/) + ecos(2g-/)
+                                                                                                                          4                         J
+                                                                                                                                                                                                                                 s=V/-// 2 /G 2
+                                                                                                                  Elimination of these terms was accomplished by the identity
+                                                                                                                                        / A2       Q2rj3 >
+                                                                                                                                                     [  2
+                                                                                                                                                                                      given by
+                                                                                                                                          r2
+                                                                                                                                          r^   "   p2 )™ S
+
+
+                                                                                                                                                                                               dG                dG    dL                   dL    dG\
+                                                                                                                          'G\^                                                                 ——
+                                                                                                                     = - ( - )2{ (/ + ecos/)2 -V Jcos2g                                                                                     T ~~cf/
+                                                                                                                          ,p,
+                                                                                                                  JULY-AUGUST 1982                                  THIRD ORDER SOLUTION FOR ARTIFICIAL SATELLITES                                                           369
+
+                                                                                                                  The differential of the true anomaly is                                                                    III. Long Period Elimination
+                                                                                                                                                                                                             After elimination of the short period terms, the long period
+                                                                                                                                                                                                           Hamiltonian is expressed in Delaunay's elements. The general
+                                                                                                                                                                                                           form of the Hamiltonian is
+
+                                                                                                                   The differentials of Delaunay's elements with respect to
+                                                                                                                  Whittaker's variables are
+
+                                                                                                                                                                      d9
+                                                                                                                  de = - — cos/dr + - sinfdR + [ (2 + ecos/) cos/+ e]
+                                                                                                                         /*         0                                 0                                       P                          i=3
+                                                                                                                      sin/rp      d/?            de
+                                                                                                                  d/= -^ ^dr+ecosf- - (2 + ecosf) —
+                                                                                                                          6   Li                      J\                        v7                                                                                            (9)
+
+                                                                                                                                               )—
+                                                                                                                                                                                                           where the functions/^/, /^/, and/^/ are polynomials in s2 .
+                                                                                                                                                                                                             The elimination of the long period terms from LP was
+Downloaded by UNIVERSITY OF CALIFORNIA - DAVIS on January 29, 2015 | http://arc.aiaa.org | DOI: 10.2514/3.56183
+
+
+
+
+                                                                                                                              ft?              dR                            d0 1
+                                                                                                                                               — -                           —J                            accomplished by yet another canonical transformation of the
+                                                                                                                                                                                                           Lie type. This transformation was far simpler to construct
+                                                                                                                                                                                                           than for the short period terms since Eq. (9) defines an in-
+                                                                                                                  where ft = l                                                                             tegrable system with but one degree of freedom.
+                                                                                                                    As some measure of the computing effort required to                                       Since LP is secular through order 1, the Lie Eq. (4) dictates
+                                                                                                                  achieve order 4, we observed that the program run on the TI-                             that we impose the condition d Wl /dl=Q. This guarantees that
+                                                                                                                  ASC computer required 712 s of central processor time to                                 the final secular Hamiltonian will agree with LP through
+                                                                                                                  complete order 4 for the second short period transformation,                             order 1 . In general, in order not to reintroduce short period
+                                                                                                                  as compared to only 1 3 s for order 3 .                                                  terms we impose the condition that the generator at all orders
+                                                                                                                    We list in Table 1 the number of terms in the Hamiltonians                             be independent of the mean anomaly.
+                                                                                                                  and generators we produced and compare them to the same                                     At order 2 the differential Eq. (4) becomes
+                                                                                                                  numbers for Brouwer's theory as extended by Kozai.
+                                                                                                                    The long period Hamiltonian through order 2 is
+
+
+                                                                                                                                                                                                                               = J2>0+2(J 1>0
+
+
+                                                                                                                                                    --^-^ v + 7
+                                                                                                                                               <r      15 ,         3 . 3 ,            15
+                                                                                                                                                                                                           The term J0>2 is formed by choosing the secular terms from
+                                                                                                                                                                                                           J210. Wj is determined by the quadrature
+                                                                                                                    9^                       f_105        ¥   j    ^ 4 4_l_^         4 5
+                                                                                                                                                      S             5
+                                                                                                                   "4'                       ~~64~' ^ ^I6 ^ "64* ^
+                                                                                                                                                      45                45
+
+                                                                                                                                                                                                           Of course we now encounter the critical inclination since
+                                                                                                                    The corresponding generator through order 1 is
+
+                                                                                                                                                                                                                               ^-^^r j(/ -
+                                                                                                                                                                                                                               7,0   ^   *^   I ** \     ? / »
+
+
+
+
+                                                                                                                                                                                                           The remaining entries in the triangle are filled according to
+                                                                                                                                                                                                           Eq. (3) and each order for the generator and the secular
+                                                                                                                                                                                                           Hamiltonian is derived as we have described here for the first
+                                                                                                                     15                          21                45                                      order.
+                                                                                                                                                                                                              As expected, the critical inclination does not appear as a
+                                                                                                                                                                                                           small divisor in the Hamiltonian until order 3, but is present
+                                                                                                                                                                                                           in every order of the generator. The secular Hamiltonian we
+                                                                                                                                                                                                           produced agrees through order 3 with Kozai's.
+
+
+
+                                                                                                                                                                                            Table 1 Number of terms
+                                                                                                                                                               Elimination of                         Second short                                     Brouwer-Kozai
+                                                                                                                                                                the parallax                     period transformation                                   von Zeipel
+                                                                                                                                   Order          Hamiltonian                Generator       Hamiltonian          Generator          Hamiltonian                 Generator
+                                                                                                                                         1                     2                   7               2               '     2                     2                       7
+                                                                                                                                         2                     8                  32              13                    16                    15                    213
+                                                                                                                                         3                    11                 112              28                   125                    28                   2076a
+                                                                                                                                         4                    26                 264              72                   612                    7                      7
+                                                                                                                                     a
+                                                                                                                                         Estimated from the number of terms averaged over the mean anomaly.
+                                                                                                                  370                                                           S. COFFEY AND A. DEPRIT                                                                J. GUIDANCE
+
+                                                                                                                                                                        Table 2 Fourth-order secular Hamiltonian
+
+                                                                                                                       Coefficient                            Coefficient    l-5c* Sin I                    Coefficient        l-5c2 Sin I               Coefficient       l-5c2 Sin I
+
+                                                                                                                    -89775 / 4096              8            4683825 / 1024       -2        10              -402975 / 256 -1             8      8         3898125 / 4096     -3     14     3
+                                                                                                                  -2324295 /16384              8           23929425 / 4096       -2        10              -582795 / 2048 -1            8      7         -941625 / 4096     -3     12     9
+                                                                                                                    943245 / 2048              8               54675 / 512       -2         8                 44145 /    16 -1          8      6        -1974375 / 512      -3     12     8
+                                                                                                                  -2223495 / 8192              8           -1534815 / 256        -2         8               1379025 / 1024 -1           8      5       -17998875 / 4096     -3     12     7
+                                                                                                                  -2112075 / 4096              8          -16065855 / 2048       -2         8              -287955 / 256 -1             8      4         1974375 / 256      -3     12     6
+                                                                                                                  -2346795 /16384              8            1558575 / 128        -2         8             -2298375 / 2048 -1             8     3        38822625 / 4096     -3     12     5
+                                                                                                                    ,17955 / 512               6           17465355 / 1024       -2         8                394875 /. 256  -1           6   8          -1974375 / 512      -3     12     4
+                                                                                                                    -286335 / 1024             6           -1582335 / 256        -2         8                110493 / 256 -1             6   7         -19882125 / 4096     -3     12     3
+                                                                                                                   -143055 / 128               6          -19083555 / 2048       -2         8                -85401 / 32 -1              6   6             -91125 / 1024    -3     10     9
+                                                                                                                      84393 / 512              6             -81459    256       -2         6               -209223 / 128 -1             6   5           1703025 / 256      -3     10     8
+                                                                                                                    745389 / 512               6              970605   256       -2         6                275481 / 256 -1,            6   4          10204425 / 1024     -3     10     7
+                                                                                                                   1308375 / 1024              6            3297069 / 512        -2         6                320805 / 256 -1             6   3          -1703025 / 128      -3     10     6
+                                                                                                                      -8883    512             4            -981441    128       -2         6                -19215 / 32 -1              4   8         -20135475 / 1024     -3     10     5
+                                                                                                                    -70011     512             4           -1658079    128       -2         6                -14643 / 64 -1              4   7           1703025 / 256      -3     10     4
+                                                                                                                    255825     256             4              992277   256       -2         6                  8127 /     8 -1           4   6          10022175 / 1024     -3     10     3
+                                                                                                                      57735    128             4            3498165 / 512        -2         6                 47997 / 64 -1              4   5             556605 / 1024    -3      8     9
+                                                                                                                   -789399     512             4               88641   512       -2         4                 -3213 /     8 -1           4   4           -730755 / 128      -3      8     8
+                                                                                                                  -1183437     512             4            -134127    128       -2         4                 -8559 /    16 -1           4   3         -11114685 / 1024     -3      8     7
+Downloaded by UNIVERSITY OF CALIFORNIA - DAVIS on January 29, 2015 | http://arc.aiaa.org | DOI: 10.2514/3.56183
+
+
+
+
+                                                                                                                        189     32             2           -1165815    512       -2         4                  2205 / 32 -1              2   8             730755 / 64      -3      8     6
+                                                                                                                      -2727    256             2            . 135009    64       -2         4                     63 /    2 -1           2   7          20559555 / 1024     -3      8     5
+                                                                                                                    -13725      32             2            2185659    512       -2         4                  -441 /     4 -1           2   6           -730755 / 128      -3      8     4
+                                                                                                                    -63621     128             2            -135891    128       -2         4                 -1449 / 16 -1              2   5         -10001475 / 1024     -3      8     3
+                                                                                                                      12123     16             2           -1108485    512       -2         4                   1323 /   32 -1           2   4           -1.16865 / 256     -3      6     9
+                                                                                                                    400041     256             2               -3087   128       -2         2                    945 / 16 -1             2   3             155925     64    -3      6     8
+                                                                                                                       -189     64             0                1323    16       -2         2               -455625 / 4096 -2           12   9            1470105    256    -3      6     7
+                                                                                                                       1215    128             0               30429   128       -2         2.            '-2521125 / 2048 -2           12   8           -155925      32    -3      6     6
+                                                                                                                       2655     32             0               -1323             -2         2             -6773625 / 8192 -2            12   7          -2589615     256    -3      6     5
+                                                                                                                       8235     64             0              -51597   128       -2         2               2581875 / 1024 -2           12   6             155925     64    -3      6     4
+                                                                                                                      -9585     64             0                1323    16       -2         2               4748625 / 2048 -2           12   5            1236375    256    -3      6     3
+                                                                                                                    -45045     128             0               24255   128       -2.        2             -2642625 / 2048 -2            12 " 4              15435    128    -3      4     9
+                                                                                                                    577125 / 1024             10             455625 / 4096       -3        14            -11309625 / 8192 -2            12                  -6615     16    -3      4     8
+                                                                                                                      50625 / 1024            10              455625 / 512       -3        14                710775 / 4096 -2           10               -152145     128    -3      4     7
+                                                                                                                   -127575 / 128              10            2986875 / 4096       -3        14               4505625 / 1024 -2           10                   6615           -3      4     6
+                                                                                                                   -378675 / 1024             10            -455625 / 256        -3        14              17496675 / 4096 -2           10                 257985    128    -3      4     5
+                                                                                                                    419175 / 1024             10           -7340625 / 4096       -3        14             -4594725 / 512 -2             10                  -6615     16    -3      4     4
+                                                                                                                     176175 / 512             10              455625 / 512       -3        14            -42136875 / 4096 -2            10                -121275    128    -3      4     3
+
+
+
+                                                                                                                        The generator corresponding to the secular Hamiltonian is given to order 1 by
+
+                                                                                                                  „, ^/<*V/ / \ / 7 . 7 _ . 15 4 15 , A .   'f<*\4(f 1 W 385 ? 21 ' , 217 , > 21 - , ,
+                                                                                                                  Wm
+                                                                                                                     °(p) (7=5?) (ti' - 16SV-3T< + ^V)sm2g-MG(-) [(j^;) (-^-T^ + irV + 7*V
+
+                                                                                                                  _<?sV+
+                                                                                                                   32    —
+                                                                                                                         32 *<+—*<--—*V-—
+                                                                                                                               16  32   16 ,V + 8
+                                                                                                                                                -*V-—
+                                                                                                                                                    256 *«-—
+                                                                                                                                                           16 *«,+—5V
+                                                                                                                                                                  64  +—*V
+                                                                                                                                                                       16  +256
+                                                                                                                                                                             — *v +512
+                                                                                                                                                                                    —*••'
+
+                                                                                                                       *Z* 8 _!^Z! 8 2 _ ^ Z £ ' B 5_*Z* 8 4\ •                        (    ' 1     \(     15
+                                                                                                                                                                                                                '2    21
+                                                                                                                                                                                                                           2        2 2       ?1 2 3    & 4      ^_4
+
+
+                                                                                                                  _23 4 2 _ 4 5 4 5 _435 tf _135 6                   15_ 6 2     22? 6 A .                  /        1 ; y / 245' 4                    2._245
+                                                                                                                                                                                                                                               245 4. &4~)*, _ __
+                                                                                                                                                                                                                                                               245, c4 .w .385385  , 385
+                                                                                                                                                                                                                                                                                5 _385  (  ,
+                                                                                                                                                                                                                                                                            I ___ 9 _ __ ? n
+                                                                                                                                               f
+                                                                                                                       ir" ''        o " "'     J^f\"    (\A. " '' ' 9Sfi" "'    '    f\A "      ' /——° ' V 7 _ 5r2 )           \   f
+                                                                                                                                                                                                                                     )*i(\~    ' 198          9Sfi           198         f\A.
+
+                                                                                                                       385',6 4<_3225
+                                                                                                                       385       3225 8, 3225
+                                                                                                                                         3225 ,5 22 _3225
+                                                                                                                                                      3225 8, 4¥            U25 7700_- _H25
+                                                                                                                                                                            U25                      1125 w70 A
+                                                                                                                                                                                        U 2 5 w/0 22 1125     A
+                                                                                                                  -f
+
+                                                                                                                       /    1    \2 / 49      ¥_49 ¥ 2      _49_ ¥ ¥ _105 6            105 tf 2 _105 t f . ¥           225 , _ 2 2 5 , , 2          225 „ A . ^
+                                                                                                                  +                                                                                                                                -——S*K}* jsin^gj
+
+
+
+                                                                                                                                                                                                                                          IV. Conclusion
+                                                                                                                    We provide in Table 2 the coefficients for the terms in the                               A closed-form third-order solution to the main problem in
+                                                                                                                  series                                                                                   the theory of an artificial satellite is developed. The theory
+                                                                                                                                                                                                           begins with the preparation of an intermediate Hamiltonian
+                                                                                                                                                                                                           by the elimination of the parallax transformation. The
+                                                                                                                                                                                                           reduction by this transformation of the factors (1/r)" to
+                                                                                                                                                                                                           (l/r)-2 and the concentration of the short period terms in the
+                                                                                                                                                                                                           factor (l/r) 2 accrues enormous simplifications throughout
+                                                                                                                                                                                                           the normalization procedure. Following this transformation
+                                                                                                                                                                                                           we construct a second transformation to eliminate the
+                                                                                                                  representing the new fourth-order secular Hamiltonian. The                               remaining short period terms.
+                                                                                                                  coefficients a, are given by the fractions in the left column                               A comparison with Brouwer's theory, where the short
+                                                                                                                  followed by the exponents for the quantities that head the                               period terms are eliminated via a single transformation,
+                                                                                                                  columns. This table was composed and printed by computer                                 points to the value of the parallax transformation. In
+                                                                                                                  directly from the output of the program that produced the                                Brouwer's theory one experiences a rapid buildup in the
+                                                                                                                  results; thus it is free of the usual errors associated with                             unnormalized terms stemming principally from the ( l / r ) 3
+                                                                                                                  transcribing results of this nature.                                                     term at order 1 and culminating in an enormous number of
+                                                                                                                  JULY-AUGUST 1982                  THIRD ORDER SOLUTION FOR ARTIFICIAL SATELLITES                                                    371
+
+                                                                                                                   terms at order 3, which effectively limits the short period                                    References
+                                                                                                                   elimination at that order. On the other hand the elimination
+                                                                                                                   of the parallax transformation holds in check this buildup of                rit, A. and Rom, A., "The Main Problem of Artificial
+                                                                                                                   terms and allows our short period elimination to proceed to         Satellite Theory for Small and Moderate Eccentricities," Celestial
+                                                                                                                                                                                       Mechanics, Vol. 2,1970, pp. 166-206.
+                                                                                                                  order 4. An additional aspect of the parallax transformation           2
+                                                                                                                                                                                           Claes, H., "Analytical Theory of Earth's Artificial Satellites,"
+                                                                                                                  that assists the normalization is that the quantity (1/r) 2 is a     Celestial Mechanics, Vol. 21,1980, pp. 193-198.
+                                                                                                                  natural expression to have in the Hamiltonian since r2 is              3
+                                                                                                                                                                                           Kinoshita, H. "Third-Order Solution of an Artificial Satellite
+                                                                                                                  proportional to df/dl, and the generator of the second               Theory," Smithsonian Astrophysical Observatory, Kept. 379,1977.
+                                                                                                                                                                                         4
+                                                                                                                  transformation is developed as a function of true anomaly/.              Brouwer, D., "Solution of the Problem of Artificial Satellite
+                                                                                                                      In the second transformation we found that construction of       Theory Without Drag," Astronomical Journal, Vol. 64, 1959, pp.
+                                                                                                                  the generator was much facilitated by encouraging the ex-            378-397.
+                                                                                                                                                                                         5
+                                                                                                                  pressions coming from the Poisson brackets to have the factor            Kozai, Y., "Second-Order Solution of Artificial Satellite Theory
+                                                                                                                  (1/r) 2 . The factor (1/r) 2 was generated automatically by the      Without Air Drag," AstronomicalJournal, Vol. 67, 1962, pp. 446-
+                                                                                                                                                                                       461.
+                                                                                                                  Poisson brackets involving the parallax Hamiltonian, since in          6
+                                                                                                                                                                                           Hoots, F.R., "A Nonsingular Reformulation of the Brouwer
+                                                                                                                  this case the brackets were computed in Whittaker's variables.      Geopotential Theory," Paper 79-137, AAS/AIAA Astrodynamics
+                                                                                                                  This is in contrast to the Poisson brackets involving the           Conference, Provincetown, Mass., June 25-27,1979.
+                                                                                                                                                                                         7
+                                                                                                                  transformed Hamiltonian which were more naturally com-                   Aksnes, K., "A Second-Order Artificial Satellite Theory Based on
+                                                                                                                  puted in Delaunay's elements. Actually at times it was              an Intermediate Orbit," Astronomical Journal, Vol. 75, 1970, pp.
+                                                                                                                  necessary to combine terms arising from various brackets into       1066-1076.
+Downloaded by UNIVERSITY OF CALIFORNIA - DAVIS on January 29, 2015 | http://arc.aiaa.org | DOI: 10.2514/3.56183
+
+
+
+
+                                                                                                                                                                                         8
+                                                                                                                  the factor (1/r) 2 to aid in recognizing the appropriate ex-             Jefferys, W.H., "Automated, Closed Form Integration of
+                                                                                                                  pressions for the generator. The calculation of the Poisson         Formulas in Elliptic Motion," Celestial Mechanics, Vol. 3, 1971, pp.
+                                                                                                                                                                                      390-394.
+                                                                                                                  brackets in two equivalent sets of canonical variables is a           9
+                                                                                                                                                                                           Rom, A., "Mechanized Algebraic Operations (MAO)," Celestial
+                                                                                                                  radical departure from past practice. Indeed past practice          Mechanics, Vol. 1,1970, pp. 301-319.
+                                                                                                                  would lead one to believe that a normalization must be                 10
+                                                                                                                                                                                            Dasenbrock, R.R., "Algebraic Manipulation by Computer,"
+                                                                                                                  conducted in one set of canonical variables to the exclusion of     Naval Research Laboratory, Washington D.C., Rept. 73-1, June 29,
+                                                                                                                  any other. We have on the one hand Brouwer's theory ex-             1973.
+                                                                                                                  clusively developed in Delaunay's elements, whereas Aksnes14           H
+                                                                                                                                                                                           Deprit, A., "The Elimination of the Parallax in Satellite
+                                                                                                                  proposed to use exclusively the so-called modified Hill             Theory," Celestial Mechanics, Vol. 24,1981, pp. 111-153.
+                                                                                                                                                                                         12
+                                                                                                                  variables. The truth of the matter is that one should exploit             Deprit, A., "The Main Problem in the Theory of Artificial
+                                                                                                                  the freedom guaranteed by the invariance of Poisson brackets        Satellites to Order Four," Journal of Guidance and Control, Vol. 4,
+                                                                                                                                                                                      March-April 1981, pp. 201-206.
+                                                                                                                  with respect to canonical variables. In our case the elimination       13
+                                                                                                                                                                                            Deprit, A., "Canonical Transformations Depending on a Small
+                                                                                                                  of the parallax transformation is computed completely within        Parameter," Celestial Mechanics, Vol. 1,1969, pp. 12-30.
+                                                                                                                  the space of Whittaker's variables. This is in contrast with the      14
+                                                                                                                                                                                            Aksnes, K., "On the Use of the Hill Variables in Artificial
+                                                                                                                  already mentioned mixed computations followed in the                Satellite Theory: Brouwer's Theory," Astronomy and Astrophics,
+                                                                                                                  second transformation.                                              Vol. 17, 1975, pp. 70-75.
+
+
+
+
+                                                                                                                   From theAIAA Progress in Astronautics and Aeronautics Series...
+                                                                                                                      EXPLORATION OF THE OUTER SOLAR SYSTEM—v. 50
+                                                                                                                                              Edited by Eugene W. Greensladt, Murray Dryer, and Devrie S. Intriligator
+
+                                                                                                                    During the past decade, propelled by the growing capability of the advanced nations of the world to rocket-launch space
+                                                                                                                    vehicles on precise interplanetary paths beyond Earth, strong scientific interest has developed in reaching the outer solar
+                                                                                                                    system in order to explore in detail many important physical features that simply cannot be determined by conventional
+                                                                                                                    astrophysical observation from Earth. The scientifically exciting exploration strategy for the outer solar system—planets
+                                                                                                                    beyond Mars, comets, and the interplanetary medium—has been outlined by NASA for the next decade that includes ten or
+                                                                                                                    more planet fly-bys, orbiters, and entry vehicles launched to reach Jupiter, Saturn, and Uranus; and still more launchings are
+                                                                                                                    in the initial planning stages.
+                                                                                                                       This volumeof the AIAA Progress in Astronautics and Aeronautics series offers a collection of original articles on the first
+                                                                                                                    results of such outer solar system exploration. It encompasses three distinct fields of inquiry: the major planets and
+                                                                                                                    satellites beyond Mars, comets entering the solar system, and the interplanetary medium containing mainly the particle
+                                                                                                                    emanations from the Sun.
+                                                                                                                       Astrophysicists interested in outer solar system phenomena and astronautical engineers concerned with advanced scientific
+                                                                                                                    spacecraft will find the book worthy of study. It is recommended also as background to those who will participate in the
+                                                                                                                    planning of future solar system missions, particularly as the advent of the forthcoming Space Shuttle opens up new
+                                                                                                                    capabilities for such space explorations.
+
+                                                                                                                                                                                                   251 pp., 6x9, illus., $15.00Member $24.00List
+
+
+                                                                                                                                   TO ORDER WRITE: Publications Dept., AIAA, 1290 Avenue of the Americas, New York, N.Y. 10019
+

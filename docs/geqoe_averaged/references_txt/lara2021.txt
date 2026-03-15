@@ -1,0 +1,1068 @@
+                                                             Brouwer’s satellite solution redux*
+arXiv:2009.10665v2 [math.DS] 1 Nov 2020
+
+
+
+
+                                                                                   Martin Lara†‡
+
+                                                                               November 3, 2020
+
+
+
+                                                                                      Abstract
+                                                        Brouwer’s solution to the artificial satellite problem is revisited to show
+                                                    that the complete Hamiltonian reduction is rather achieved in the plain Poin-
+                                                    caré’s style, through a single canonical transformation, than using a sequence
+                                                    of partial reductions based on von Zeipel’s alternative for dealing with per-
+                                                    turbed degenerate Hamiltonian systems.
+
+
+                                          1        Introduction
+                                          Brouwer’s analytical solution to the artificial satellite problem [7] based on von
+                                          Zeipel’s partial reduction method for dealing with perturbed degenerate Hamilto-
+                                          nians [42] fiercely resists obsolescence sixty years after publication. Indeed, in
+                                          spite of the spectacular increase of the computational power, widespread software
+                                          packages for approximate ephemeris prediction still rely on Brouwer’s seminal re-
+                                          sults [18, 41]. Furthermore, the success of Brouwer’s closed-form solution among
+                                          practitioners as well as the reputation gained among theorists by Brouwer’s step-
+                                          wise normalization, make that these days some authors designate the method as
+                                          “the von Zeipel-Brouwer theory” [15].
+                                              Since then, the merits of Brouwer’s decomposition of the solution of perturbed
+                                          Keplerian motion into secular, long-, and short-period effects, seem not to have
+                                          been questioned. Moreover, after the invention of Hamiltonian simplification meth-
+                                          ods [10], it has been suggested that carrying out additional decompositions, thus
+                                          increasing the number of canonical transformations, could be the proper way to
+                                          success in the search for separable perturbation Hamiltonians of celestial mechan-
+                                          ics problems [11]. Conversely, it has been recently pointed out that the use of
+                                              * Submitted to Celestial Mechanics and Dynamical Astronomy
+                                              †
+                                                  GRUCACI, University of La Rioja, and Space Dynamics Group – UPM
+                                              ‡
+                                                  mlara0@gmail.com
+
+
+                                                                                          1
+Hamiltonian simplification procedures could be merely optional in the construc-
+tion of higher-order analytical approximations to the satellite problem [30]. Then,
+it emerges the question of which is the real value of splitting a normalization pro-
+cedure, either partial or complete, into several different stages, a topic that may
+well deserve additional study.
+    We walk a step in that direction and, in the classical style of Poincaré’s “new
+method” [37], undertake the construction of Brouwer’s second-order completely
+reduced Hamiltonian of the main problem in the artificial satellite theory (the J2
+problem) by means of a single canonical transformation. The difficulties stemming
+from the degeneracy of the Kepler Hamiltonian, who has two null frequencies, are
+easily overcome with the addition of suitable integration constants to the generating
+function of the transformation that yields the complete Hamiltonian reduction.
+    The use of arbitrary functions in the construction of perturbation solutions is
+not new at all [35]. In fact, it can be traced back to Poincaré’s efforts in approach-
+ing degenerate perturbation problems [37, Chap. XI]. They also play a fundamental
+role in a reverse partial normalization process in which the angular momentum is
+normalized in first place [3, 28, 38, 30]. On the other hand, in spite of average per-
+turbation Hamiltonians do not exist in general [14], the use of arbitrary constants to
+guarantee the purely periodic nature of the generating function became customary
+in attempts to bring the mean elements dynamics as close as possible to the true
+average dynamics [33, 39, 27].
+    To the first order, the construction of Brouwer’s closed-form solution by means
+a single transformation amounts to the sum of the two transformations computed
+by Brouwer for the short- and long-period elimination. This is due to the lineariza-
+tion provided by the first order truncation of a perturbation theory. In view of no
+differences arise between Brouwer’s and the current approach when the periodic
+corrections are constrained to first order effects, we feel compelled to supplement
+Brouwer’s analytical solution with second-order periodic corrections, yet limited
+to the J2 contributions. We compare our results with corresponding corrections
+obtained in the traditional way, in which the normalization is split into the elimina-
+tion of the parallax, the elimination of the perigee, and the Delaunay normalization
+[3, 26]. At the second order the single transformation is no longer the addition of
+the different canonical transformations. As expected, the (single) periodic correc-
+tions are now much more involved than those corresponding to each of the partial
+reductions or simplifications, and are also more intricate than the composition of
+all of them. However, the length of the series defining the solution is only a part
+of the whole picture, and we found clear computational advantages in the evalua-
+tion of the single transformation. The improvements stem from the fact that many
+inclination polynomials pertaining to the periodic corrections admit factorization.
+Because common factors repeat many times throughout the corrections, the com-
+
+                                          2
+piler is able to perform a higher optimization of the code in the case of the single
+transformation than in the case in which the transformation is split in different
+stages.
+     In the process of computing the second-order corrections, we will recognize
+how artificial the controversy created about the integration of the equation of the
+center was. Indeed, difficulties confronted by researchers involved in the automa-
+tization of celestial mechanics computations were, in fact, derived from their own
+programming strategies [12, 21]. On the contrary, the trouble had been easily
+sidestepped by celestial mechanicians relying on traditional hand computations
+[23, 1]. We will show that standard integration by parts reduces the equation of
+the center issue to the well known integration of cosine functions in elliptic mo-
+tion [22, 40]. We hasten to say that the controversy was in no way futile since
+it provoked the appearance of Hamiltonian simplification methods and led to the
+development of sophisticated computational strategies [16].1
+     In order to fully determine the second-order term of the generating function
+of Brouwer’s theory, the third-order term of the completely reduced Hamiltonian
+needs to be previously specified. The use of higher-order secular terms should im-
+prove further the long-term performance of Brouwer’s solution. However, to be
+effective in the propagation of an initial state vector, the initialization constants
+of the analytical solution, and, in particular, the secular frequencies, must be com-
+puted within comparable accuracy to that of the secular terms. Rather than carrying
+out the long and tedious computations required in the determination of the third-
+order generating function, we take the clever shortcut proposed by Breakwell and
+Vagners [6]. That is, we limit the computation of third-order corrections to the
+case of the secular mean motion, which, besides, is directly obtained from the sec-
+ular Hamiltonian. With this effortless procedure the addition of third-order secular
+terms clearly improves the performance of Brouwer’s solution.
+
+
+2       Brouwer’s complete reduction at once
+Constraining the dynamical model of the artificial satellite problem to the J2 per-
+turbation (main problem), Brouwer’s gravitational Hamiltonian takes the form [7]
+                      2
+                µ  µ R⊕ 1         3    3
+                                                                                
+             H=− +        C2,0 1 − s2 + s2 cos(2f + 2ω) ,                                     (1)
+                2a r r2 2         2    2
+where the Earth’s gravitational field is materialized by the physical constants µ,
+the gravitational parameter, R⊕ , the equatorial radius, and C2,0 = −J2 , the non-
+    1
+    A brief review of the history of Hamiltonian simplification methods can be found in the Intro-
+duction of [29].
+
+
+                                                3
+dimensional oblateness coefficient.2 The symbols a, r, f and ω, stand for semi-
+major axis, radius from the Earth’s center of mass, true anomaly, and argument of
+the perigee, respectively, whereas s ≡ sin I abbreviates the sine of the inclination
+I. Since we are dealing with Hamiltonian mechanics, these symbols must be un-
+derstood as functions of some set of canonical variables. In particular we assume,
+with Brouwer, that the Hamiltonian is written in terms of the Delaunay coordinates
+`, the mean anomaly, g = ω, and h, the longitude of the ascending node, and their
+                           √
+conjugate momenta L = µa, G = L(1 − e2 )1/2 , with e denoting the eccentricity,
+and H = G cos I, standing for the Delaunay action, the total angular momentum,
+and the projection of the angular momentum vector along the Earth’s rotation axis,
+respectively. That H is an integral of Eq. (1) becomes evident from the cyclic char-
+acter of h. Besides, the Hamiltonian itself is constant because the time does not
+appear explicitly on it.
+     The small value of the Earth’s J2 coefficient identifies Eq. (1) like a case of per-
+turbed Keplerian motion, which, therefore, can be reduced to a separable Hamil-
+tonian by perturbation methods. This is achieved by finding a canonical transfor-
+mation T : (`, g, h, L, G, H, ) 7→ (`0 , g 0 , h0 , L0 , G0 , H 0 ), from osculating to mean
+variables, depending on the small parameter  ∼ J2 , such that the transformed
+Hamiltonian in mean (prime) variables becomes a function of only the momenta,
+namely H ◦ T = K(−, −, −, L0 , G0 , H 0 ; ). The transformation T , we learned
+from Poincaré [37], is derived from a determining function that is solved in the
+form of a Taylor series up to some truncation order of the small parameter .
+     Brouwer, for his part, after introducing the method of solution, seems to refuse
+approching the direct computation of the transformation T since the beginning, by
+simply declaring that
+
+          “[. . . ] it is more convenient to choose a determining function in such
+          a manner that the mean anomaly is not present in the transformed
+          Hamiltonian while the argument of the perigee is permitted to appear.”
+
+Next, after invoking von Zeipel, he proceeded stepwise by partial reduction, first
+computing a canonical transformation that only removes the short-period terms
+from the Hamiltonian, and then carrying out a second canonical transformation
+that removes the long-period terms. In this way Brouwer outstandingly achieves
+the complete Hamiltonian reduction in closed form.
+    Conversely, we ignore the presumed convenience of Brouwer’s procedure and
+approach the perturbation problem searching for a single determining function in
+the original style of Poincaré, yet we better rely on the equivalent but more func-
+tional method of Lie transforms [19, 9, 13]. Thus, we write Eq. (1) in the usual
+   2                             2
+       Note that k2 = − 21 C2,0 R⊕ in Brouwer’s notation.
+
+
+                                                  4
+form of a perturbation Hamiltonian H =
+                                                P        m
+                                                   m≥0 ( /m!)Hm,0 , with
+
+                                      2
+             µ                     µ R⊕ 1    3    3
+                                                                               
+     H0,0 = − ,           H1,0 = −        1 − s2 + s2 cos(2f + 2ω) ,
+             2a                    r r2 2    2    2
+Hm,0 = 0 for m ≥ 2, and  ≡ J2 = −C2,0 . Recall, that all the symbols are
+functions of the Delaunay canonical variables, in which the Lie operator L0 =
+{ ; H0,0 }, where the curly brackets stand for the Poisson brackets operator, takes
+the simple form L0 = n∂/∂`, where n = µ2 /L3 is the mean motion. This al-
+lows us to compute the determining function W = m≥0 (m /m!)Wm+1 from
+                                                      P
+
+the sequence given by the homological equation
+                                1
+                                    Z
+                        Wm =            (H
+                                         e 0,m − H0,m )d` + Cm .                    (2)
+                                n
+
+At each step m, terms H  e 0,m in Eq. (2) are known, coming either from the origi-
+nal Hamiltonian or stemming from intermediate computations at previous orders.
+Terms H0,m are selected in such a way that they cancel those terms of H    e 0,m per-
+taining to the kernel of the Lie operator. Finally, the integration “constants” Cm
+—arbitrary functions of the Delaunay variables fulfilling the condition ∂Cm /∂` =
+0— will be chosen like such trigonometric functions of g that they prevent the ap-
+pearance of purely long-period terms at the next order of the perturbation approach,
+in this way making feasible the complete normalization at once. The method is
+standard these days, and the required details can be found in textbooks as, for in-
+stance, [34, 4].
+    In preparation of the solution, the equivalence
+                                                           j−2
+                            1     1          1 + e cos f
+                                         
+                              j
+                                = 2                               ,                 (3)
+                            r    r                p
+
+where p = aη 2 is the orbit parameter and η = (1 − e2 )1/2 is the so-called eccen-
+tricity function, is applied to the instances j > 2 in H
+                                                       e 0,1 = H1,0 , which is then
+written in the convenient form
+                        2    1        2i+1
+                       R⊕ 1 X
+                                           (2 − j ? )i e|j−2i| cos(jf + 2ig),
+                                      X
+        H
+        e 0,1 = H0,0
+                        2  2
+                               Bi (s)                                               (4)
+                       r η i=0         j=i
+
+where B0 = 1 − 32 s2 , B1 = 34 s2 , and we abbreviate j ? ≡ j mod 2. On account
+of j ≥ k in Eq. (4), we immediately verify that H   e 0,1 is not affected of purely
+long-period terms. Then, the complete reduction is achieved at the first order by
+choosing the new Hamiltonian term H0,1 like the average of H1,0 over the mean
+anomaly.
+
+                                               5
+     The average is obtained in closed form with the help of the Keplerian differen-
+tial relation between the true and mean anomalies ηa2 d` = r2 df . It is equivalent
+to removing all the terms with j > 0 from Eq. (4) after multiplied by the factor
+r2 /(a2 η). We trivially obtain the usual result
+                                              2 
+                                             R⊕      3 2
+                                                         
+                       H0,1 = hH0,1 i` ≡ H0,0 2 η 1 − s ,
+                               e
+                                                    p              2
+which is, of course, the same expression obtained by Brouwer. Then, Eq. (2) is
+rearranged in the form
+                          "                                        !    #
+                    1                             2
+                                           e 0,1 r − H0,1 df + C1 ,
+                                      Z
+               W1 =   H0,1 φ +             H                                                 (5)
+                    n                           a2 η
+
+where φ = f − ` denotes the equation of the center, and the integrand in Eq. (5)
+only embraces periodic functions of f . We obtain
+                   1       2i+1
+       R2 1                         (2 − j ? )i |j−2i|
+                                                                                      
+W1 = −G 2⊕ B0 φ +
+                  X        X
+                      Bi                       e       sin(jf + 2ig) + C1 ,
+       p 2        i=0    j=max(i,1)
+                                        j
+                                                                                          (6)
+where the first term of the right hand member is the same as Brouwer’s first or-
+der determining function of the short-period elimination, and C1 is an integration
+constant that is left undetermined by the time being.
+    On account of H2,0 ≡ 0, the known terms at the second order of the Lie trans-
+forms approach are H     e 0,2 = {H1,0 ; W1 } + {H0,1 ; W1 }, from which the terms per-
+taining to the kernel of the Lie operator must be cancelled by the adequate selection
+of H0,2 . The usual choice is H0,2 = hH     e 0,2 i` , yet additional terms could be left in
+the new Hamiltonian in particular cases [10, 29]. However, this process would
+leave purely long-period terms in the new Hamiltonian in addition to the secular
+terms, both certainly pertaining to the kernel of the Lie operator. Since this is
+against the total normalization criterion, purely long-period terms should vanish
+identically in He 0,2 , a requirement that is achieved with the proper selection of C1 ,
+whose partial derivatives with respect to g, G, and L, appear formally in H       e 0,2 .
+    We attack the computation of the second-order of the perturbation theory by
+parts. To that effect, we make H   e 0,2 = He0 + H     e ∗ with H e 0 = {H1,0 + H0,1 ; V1 }
+                                              0,2        0,2        0,2
+and He ∗ = {H1,0 + H0,1 ; C1 }. Straightforward evaluation of the Poisson brackets,
+       0,2
+followed by the use of Eq. (3) and standard trigonometric reduction, yields
+
+                            2                 i+4       3−|2i−j|
+e0            α4 a2 3 η 2 X
+                                                                   Bi,j,k η k e|j−2i| cos(jf + 2ig)
+                                              X           X
+H 0,2   = H0,0 4 2             s2i
+              p r 64 1 + η i=0
+                                           j=(−1)i i      k=0
+
+
+                                             6
+                                               3
+                α4 3                              2 − j ? j?
+                                             X                                              
+                         2    2      2      2
+           +H0,0 4 η η(3s − 2) + 3(5s − 4)s              e cos(jf + 2g)
+                p 8                           j=1
+                                                    j
+                                            3
+                     α4 9  2      p2 φ X
+                                     2                    ?
+           +H0,0      4
+                           5s − 4  s    2 2
+                                              (2 − j ? )ej sin(jf + 2g),                 (7)
+                     p 8               r η j=1
+
+where the needed coefficients Bi,j,k (s) are listed in Table 1.
+
+                   Table 1: Inclination polynomials Bi,j,k in Eq. (7).
+                                                         
+B0,0,0 = B0,0,1                    B1,1,0 = 3 37s2 − 38
+                                                                B2,2,0 = B2,2,1
+B0,0,1 = 10 7s4 − 16s2 + 8          B1,1,1 = 12 7s2 − 8          B2,2,1 = 5
+B0,0,2 = B0,0,3                    B1,1,2 = B1,5,0              B2,3,0 = B2,3,1
+B0,0,3 = 2 5s4 + 8s2 − 8           B1,2,0 = B1,2,1             B2,3,1 = 6
+B0,1,0 = 2 57s4 − 124s2 + 60       B1,2,1 = −16 4s2 − 1         B2,3,2 = B2,5,2 = 0
+B0,1,1 = 4 15s4 − 44s2 + 24         B1,2,2 = B1,2,3             B2,4,0 = B2,4,1
+B0,1,2 = B0,3,0                    B1,2,3 = −8 s2 − 2           B2,4,1 = −6
+B0,2,0 = 2 31s4 − 56s2 + 24
+                                   B1,3,0 = 150 − 221s2        B2,4,2 = B2,4,3
+B0,2,1 = −2 5s4 + 8s2 − 8           B1,3,1 = −4 35s2 − 24        B2,4,3 = −2
+                  2
+B0,3,0 = 2 3s2 − 2                  B1,3,2 = 2 − 3s2            B2,5,0 = B2,5,1
+B1,−1,0 = B1,3,2                    B1,4,0 = −4 31s2 − 22       B2,5,1 = −10
+B1,0,0 = B1,0,1                    B1,4,1 = −4 13s2 − 10       B2,6,0 = B2,6,1
+B1,0,1 = 4 15s2 − 14                B1,5,0 = −5 3s2 − 2          B2,6,1 = −3
+
+
+    We intentionally split H e 0 into three different blocks. Namely, all the terms
+                               0,2
+on the first row of Eq. (7) are free from the equation of the center and factored
+by a2 /r2 , hence being of trivial integration in the true anomaly. Terms of the
+second row are free from both φ and r; the integration of terms of this type reduces
+to the well-known case of the integration of cosine functions in elliptic motion
+[7, 22, 40]. Terms on the third row are of the form (p/r)2 φ sin(mf + α), with m
+integer, and are readily integrated by parts. That is, on account of d(cos mf )/d` =
+−(m/η 3 )(p/r)2 sin mf ,
+
+          m        p2                            sin mf
+               Z                                                 Z
+                       φ sin mf d` = −φ cos mf +        −            cos mf d`,        (8)
+          η3       r 2                              m
+in this way leading to the previous case of integration of cosine functions. Partic-
+ularization for definite integration follows from the fundamental theorem of calcu-
+lus.
+     It is worth noting that if, on the contrary, we replace r by the conic equation in
+
+
+
+
+                                            7
+the third row of Eq. (7), in order to arrange this row like the Fourier series
+                                          5
+                     α4 9 2
+                                             q|j−2| e|j−2| sin(jf + 2g),
+                                         X
+                                    2
+              H0,0        (5s − 4)s   φ
+                     p4 8               j=−1
+
+
+with q0 = 3e2 +2, q1 = 34 (e2 +4), q2 = 32 , and q3 = 14 , then the equation of the cen-
+ter shows as an isolated function of the mean anomaly when the summation index
+takes the value j = 0. This arrangement brings no problem in the computation of
+definite integrals, which can be carried out using the general rules for computing
+hφ sin mf i` and hφ cos mf i` provided in [32]. On the contrary, while indefinite
+integration is still possible, it requires the sophisticated use of special functions,
+which could make notably difficult to progress in the perturbation approach [36].
+     On the other hand, the evaluation of the Poisson brackets involving the integra-
+tion constant C1 yields
+
+               2                      1 2i+3                j?
+              R⊕ 1 ∂C1 3         a2 η X
+                                                                                          
+                                                               0
+e∗
+                                         X X
+                               2
+H 0,2   = H0,0 2         4 − 5s + 2              bi,j,k η 2k ej cos(jf + 2ig)
+              p L ∂g 2            r i=0 j=−i k=0
+                     2              3
+                    R⊕ ∂C1 3 2 a2 η X                  ?
+            −H0,0    2
+                            ηs   2
+                                      [1 + (j + 1)? ]ej sin(jf + 2g)
+                    p ∂G 2      r j=1
+                     2              1    2i+3
+                    R⊕ ∂C1 3 a2 η X      X           ?
+            +H0,0                     bi      qi,j ej sin(jf + 2ig),                   (9)
+                    p2 ∂L 16η 2 r2 i=0 j=−i
+
+where j 0 = (|j − 2i| − 2)j ? , (j + 1)? ≡ (j + 1) mod 2, and the inclination poly-
+nomials bi,j,k (s) and the eccentricity polynomials qi,j (e) are provided in Table 2.
+
+
+ Table 2: Non-null inclination bi,j,k and eccentricity polynomials qi,j in Eq. (9).
+ b0,0,0 = 4 − 5s2            b1,−1,0 = 18 s2          q0,1 = e2 + 4
+ b0,1,0 = − 14 (29s2 − 22)   b1,1,0 = 11    2
+                                       8 s −1         q0,2 = 4e2
+ b0,1,1 = 41 (17s2 − 14)     b1,1,1 = 1 − 15  8 s
+                                                  2
+                                                      q0,3 = q1,−1 = e2
+ b0,2,0 = 2 − 3s2                         2
+                             b1,2,0 = 5s − 2          q1,1 = −3q0,1
+ b0,3,0 = − 14 (3s2 − 2)     b1,3,0 = 47    2
+                                       8 s −1         q1,2 = −8(3e2 + 2)
+                             b1,3,1 = 1 − 19  8 s
+                                                  2
+                                                      q1,3 = −9q0,1
+                                          2
+                             b1,4,0 = 3s              q1,4 = −24e2
+                             b1,5,0 = 85 s2           q1,5 = −5e2
+
+
+     In the same way as we did in the first order, we choose H0,2 = hH        e 0,2 i` =
+ e 0           ∗
+hH0,2 i` + hH0,2 i` to guarantee that it cancels all the terms of H0,2 perteining to the
+             e                                                     e
+kernel of the Lie derivative. Firstly, we compute hH     e 0 i` as follows. To average
+                                                           0,2
+
+
+                                               8
+the first row of Eq. (7) over the mean anomaly, it is first multiplied by the factor
+r2 /(a2 η) to carry out the integration in the true anomaly, and then those terms that
+are free from f , which are those with j = 0, are selected. The term free from
+f in the second row averages to itself while the remaining terms in this row are
+averaged using the rule
+                  Z 2π                                 m
+              1                                   −e
+                                             
+                         cos(mf + α) d` =                   (1 + mη) cos α,       (10)
+             2π    0                             1+η
+cf. [22]. Finally, the terms on the third row of Eq. (7) are averaged by parts with
+the help of Eqs. (8) and (10). We finally obtain,
+
+                 R⊕4
+ e 0 i` = H0,0        3 h      4      2             2     2     2     4      2
+                                                                                    i
+hH 0,2                  η 5(7s   − 16s  + 8) + η(6s   − 4)  + η   (5s   + 8s   −  8)
+                  p4 32
+                   R4 3
+              +H0,0 4⊕ η(15s2 − 14)s2 e2 cos 2g,                                 (11)
+                    p 16
+which is precisely Brouwer’s second-order Hamiltonian after the elimination of
+short-period terms. The average of Eq. (9) is readily obtained with analogous pro-
+cedures, to obtain
+
+                                           R⊕2
+                          e ∗ i` = −H0,0                  1 ∂C1
+                         hH 0,2              2
+                                               3(5s2 − 4)       .                 (12)
+                                           p              L ∂g
+Visual inspection of Eqs. (11) and (12), immediately shows that if we complete the
+computation of the first-order term of the generating function in Eq. (6) choosing
+                                    2
+                                   R⊕  15s2 − 14 2 2
+                          C1 = G                  s e sin 2g,                     (13)
+                                   p2 32(5s2 − 4)
+
+then Eq. (12) turns into the opposite of the term in the last row of Eq. (11), the only
+one that depends on g, thus mutually canceling out. Hence
+
+              R⊕4
+                   3 h      4       2              2     2     2     4      2
+                                                                                  i
+H0,2 = H0,0          η 5(7s   −  16s  +  8) + η(6s   − 4)  + η   (5s   + 8s   − 8)  ,
+               p4 32
+                                                                                 (14)
+which is the same as the second-order term of Brouwer’s Hamiltonian after the
+elimination of long-period terms. In this way we have achieved Brouwer’s total
+Hamiltonian reduction of the main problem at once, with a single canonical trans-
+formation.
+    It is not a big surprise that C1 is the same integration constant obtained in
+Alfriend and Coffee’s elimination of the perigee [3, 28] or in the author’s reverse
+
+
+                                            9
+normalization of the angular momentum [30], since the motion in the orbital plane
+is decoupled from the rotation of that plane in each case.
+    The computation of first-order periodic corrections is now straightforward from
+the simple evaluation of Poisson brackets, namely ξ − ξ 0 = J2 ∆ξ, where ∆ξ ≡
+{ξ, W1 } and ξ denotes either a canonical variable or some wanted function of the
+canonical variables [9]. For instance, for the first-order periodic corrections to the
+semi-major axis we obtain
+                    2    1          3+2i
+                   R⊕ 1 X
+                                         Ai,j (η)e|j−2i| cos(jf + 2ig),
+                                     X
+          ∆a = a    2  2
+                            B i (s)                                              (15)
+                   p 4η i=0         j=−i
+
+where A0,0 = 10 − 6η 2 − 4η 3 , A0,1 = A1,1 = A1,3 = 15 − 3η 2 , A0,2 = A1,0 =
+A1,4 = 6, A0,3 = A1,−1 = A1,5 = 1, and the coefficients Bi are the same as
+those in Eq. (4). Recall that Eq. (15) must be evaluated in mean (prime) variables
+in the direct transformation from mean elements to osculating ones, and in orig-
+inal (unprimed) variables in the inverse transformation from osculating to mean
+variables.
+
+
+3    Second-order periodic corrections
+The second-order term of the generating function is now computed making m = 2
+in Eq. (2). Namely
+                                                1
+                                                    Z
+              W2 = V2 + C2 ,          with V2 =         (H
+                                                         e 0,2 − H0,2 )d`.
+                                                n
+The needed integrals in the computation of V2 are either trivial, solved with the
+help of Eq. (8) for those terms involving the equation of the center, or using the
+differential relation between the mean and true anomalies for those other that are
+free from φ but depend on trigonometric functions of f . Straightforward computa-
+tions yield
+
+        R4 3φ
+                   
+V2   = G 4⊕   − η 2 (5s4 + 8s2 − 8) − 5(7s4 − 16s2 + 8)
+        p 64
+                                                          3
+                                                            2 − j?
+                                                                                    
+                                                          X            ?
+         −(15s2 − 14)e2 s2 cos 2g + 12s2 (5s2 − 4)                   ej cos(jg + 2g)
+                                                          j=1
+                                                                 j
+                  2        3j                            ?
+           R4 1 X      max X
+                             βi,j,k (s)η k s2i ej sin(jf + 2ig)
+         +G 4⊕
+                      X
+                                                                ,                (16)
+           p 512 i=0 j=j k=0 (5s2 − 4)2−i? (1 + η)b 12 (3−i)c
+                                min
+
+
+
+
+                                           10
+            Table 3: Non-null inclination polynomials βi,j,k in Eq. (16).
+                2        6       4       2                                4     2
+0,1,0 : −15(3s − 2)(805s − 2448s + 2400s − 768)           1,2,3 : 12(−25s + 16s + 4)
+              2          6       4       2                               4         2
+0,1,1 : −3(3s − 2)(2225s − 8160s + 8928s − 3072)          1,3,0 : 2(1855s − 2700s + 972)
+                  8     6       4       2                                4         2
+0,1,2 : 3(−825s + 3030s − 4064s + 2368s − 512)            1,3,1 : 2(1045s − 1512s + 540)
+          2       6     4       2                                      2       2
+0,1,3 : 3s (975s − 2250s + 1728s − 448)                   1,3,2 : −2(3s − 2)(5s − 6)
+                                                                       2         2
+0,2,0 : −β0,2,2                                           1,3,3 : −2(3s − 2)(15s − 14)
+0,2,1 : −β0,2,3                                           1,4,0 : −β1,4,2
+                   8        6       4   2
+0,2,2 : 6(1925s − 6210s + 7452s − 3936s + 768)            1,4,1 : −β1,4,3
+                 8      6         4   2                                     2
+0,2,3 : 6(125s − 930s + 1660s − 1120s + 256)              1,4,2 : −12(5s     − 4)(31s2 − 22)
+                                                                            2           2
+0,3,0 : −β0,3,2                                           1,4,3 : −12(5s − 4)(13s − 10)
+0,3,1 : −β0,3,3                                           1,5,0 : −β1,5,2
+               8        6         4   2                                    2          2
+0,3,2 : 2625s − 7270s + 7408s − 3264s + 512               1,5,2 : −12(3s − 2)(5s − 4)
+         2         6        4       2
+0,3,3 : s (825s − 1990s + 1616s − 448)                    2,1,0 : −β2,1,2
+                                                                          4         2
+1,−1,0 : −β1,−1,2                                         2,1,2 : 3(225s − 430s + 208)
+1,−1,1 : −β1,−1,3                                         2,2,0 : −β2,2,2
+                    4      2                                              4       2
+1,−1,2 : 6(135s − 232s + 100)                             2,2,2 : 60(50s − 87s + 38)
+               2          2                                                  4           2
+1,−1,3 : 6(7s − 6)(15s − 14)                              2,3,0 : −20(165s − 284s + 122)
+                      4       2                                         4         2
+1,1,0 : −24(495s − 850s + 364)                            2,3,2 : 8(75s − 135s + 61)
+                      4         2                                          2          2
+1,1,1 : −12(855s − 1502s + 656)                           2,4,0 : −180(s − 1)(5s − 4)
+               2                                                        2            2
+1,1,2 : 48(5s − 4)                                        2,4,2 : 12(5s − 4)(25s − 23)
+                  2          2                                        2            2
+1,1,3 : −12(5s − 4)(15s − 14)                             2,5,0 : 3(5s − 4)(25s − 18)
+                    4      2                                          2            2
+1,2,0 : 12(−95s + 240s − 132)                             2,5,2 : 3(5s − 4)(15s − 14)
+                    4      2
+1,2,1 : 12(−95s + 240s − 132)                             2,6,0 : −β2,6,2
+                                                                         2      2
+1,2,2 : β1,2,3                                            2,6,2 : −6(5s − 4)
+
+
+
+
+where jmin = 2(i + 1)? − 1, jmax = 4 + i + b 12 (i − 1)c, and the inclination
+polynomials βi,j,k are listed in Table 3.
+    As before, the integration constant C2 will be determined by imposing to the
+known terms of the next order
+
+                   H
+                   e 0,3 = {H0,2 + H1,1 , W1 } + {H0,1 + 2H1,0 , W2 },
+
+where H1,1 = H0,2 + {H0,1 , W1 }, the condition of being free from pure long-
+periodic terms. Again, the known terms are split into terms directly computable
+and those depending on the arbitrary function C2 . That is, H       e0 + H
+                                                            e 0,3 = H     e∗ ,
+                                                                      0,3   0,3
+where
+                  e0
+                  H 0,3 = {H0,2 + H1,1 , W1 } + {H0,1 + 2H1,0 , V2 },
+                  e∗
+                  H 0,3 = {H0,1 + 2H1,0 , C2 }.
+
+It follows the customary computation of H0,3 so that it cancels the terms of H
+                                                                             e 0,3
+
+
+                                           11
+pertaining to the kernel of the Lie operator; namely
+
+                      H0,3 = hH           e 0 i` + hH
+                              e 0,3 i` = hH         e ∗ i` .
+                                            0,3       0,3
+
+After straightforward evaluation of the Poisson brackets, we obtain
+                            2 4−2i+i       ?
+                    6
+     e 0 i` = H0,0 R⊕   9 X     X      βi,k (s)η k s2i e2i
+    hH 0,3                η                                cos 2ig,             (17)
+                    6p 512 i=0 k=0 (5s2 − 4)2−i? (1 + η)i?
+
+where i? = i mod 2 and the inclination polynomials βi,k are given in Table 4.
+Analogously,
+                                     2
+                 hHe ∗ i` = −H0,0 R⊕ 9 (5s2 − 4) 1 ∂C2 .                 (18)
+                     0,3
+                                    p2 2         L ∂g
+In this process, we only found integrals of the same type as we did at the second
+order, and hence there were no special difficulties in solving them, yet in this case
+we needed to deal with notably longer series than in previous orders.
+
+                Table 4: Inclination polynomials βi,k in Eq. (17).
+                                                                    
+β0,0 = −5 28700s10 − 107205s8 + 158960s6 − 118492s4 + 45152s2 − 7168
+                               2                 
+β0,1 = −60 3s2 − 2 5s2 − 4         7s4 − 16s2 + 8                
+β0,2 = 2 28675s10 − 98005s8 + 130852s6 − 87164s4 + 30176s2 − 4608
+                              2                
+β0,3 = −20 3s2 − 2  5s2 − 4       5s4 + 8s2 − 8     
+β0,4 = s2 15s2 − 14 450s6 − 925s4 + 590s2 − 112
+β1,0 = 525s6 − 3930s4 + 5632s2 − 2256
+β1,1 = 5925s6 − 16170s
+                  
+                         4
+                           + 14848s2 − 4560
+                                         
+β1,2 = 14 − 15s  75s − 212s2 + 120
+                2        4
+                                       
+β1,3 = 15s2 − 14 45s4 + 36s2 − 56
+                  2             
+β2,0 = 15s2 − 14       15s2 − 13
+
+
+   Once more, the simple inspection of Eqs. (17) and (18) shows that if we now
+choose
+                        2 4−2i+i       ?
+                 R4 1 X           βi,k (s)η k s2i e2i     sin 2ig
+           C2 = G 4⊕
+                            X
+                                  2      i+1          i ?         ,             (19)
+                 p 256 i=1 k=0 (5s − 4) (1 + η)              2i
+
+then Eq. (18) cancels the terms of Eq. (17) depending on the argument of the
+perigee out, to yield
+                                6                 4
+                               R⊕  9       η     X
+                 H0,3 = H0,0                         β0,k (s)η k ,              (20)
+                               p6 512 (5s2 − 4)2 k=0
+
+
+                                           12
+which is completely reduced as desired.
+     Beyond the first order, direct and inverse transformations are no longer oppo-
+site. At the second order the direct transformation is given by ξ = ξ 0 + J2 ∆ξ +
+1 2 0            0
+2 J2 δ ξ, where δ ξ = {∆ξ, W1 } + {ξ, W2 } is evaluated in prime variables. The
+inverse transformation is ξ 0 = ξ − J2 ∆ξ + 21 J22 δξ, where δξ = {∆ξ, W1 } +
+{ξ, −W2 }, is evaluated in the original variables. For instance, replacing ξ by a we
+obtain the inverse second-order periodic correction to the semi-major axis
+
+      R4 1
+                         
+δa = a 4⊕ 4 4 24η 7 (5s4 + 8s2 − 8) + 48η 5 (152 − 14)s2 e2 cos 2g
+      p 4 η
+                 2    6+2i        6−|j−2i|                                                          
+                                                        ?
+                                             (3s2 − 2)i s2i Ai,j,k (s)η k e|j−2i| cos(jf + 2ig) , (21)
+                 X    X             X
+             +
+                 i=0 j=−i−3i?       k=0
+
+where the inclination coefficients Ai,j,k are provided in Table 21.
+
+               Table 5: Non-null inclination coefficients Ai,j,k in Eq. (21).
+2,−2,0 : 9           2,7,0 : 1980                 1,2,0 : −11088            0,0,0 : 462A0,6,0
+2,−1,0 : 108         2,7,2 : −540                 1,2,2 : 15120             0,0,2 : −630A0,6,0
+2,0,0 : 594          2,8,0 : 594                  1,2,3 : 480               0,0,3 : 10A0,3,3
+2,0,2 : −54          2,8,2 : −54                  1,2,4 : −5040             0,0,4 : 210A0,6,0
+                                                            288(13s2 −10)                 4       2
+2,1,0 : 1980         2,9,0 : 108                  1,2,5 : −    3s2 −2       0,0,5 : 24(71s − 128s + 56)
+                                                                                           4     2
+2,1,2 : −540         2,10,0 : 9                   1,2,6 : 240               0,0,6 : −4(63s − 24s + 8)
+2,2,0 : 4455         1,−4,0 : −12                 1,3,0 : −9504             0,1,0 : 792A0,6,0
+2,2,2 : −2430        1,−3,0 : −144                1,3,2 : 8640              0,1,2 : −720A0,6,0
+2,2,4 : 135          1,−2,0 : −792                1,3,3 : 360               0,1,3 : 15A0,3,3
+2,3,0 : 7128         1,−2,2 : 72                  1,3,4 : −1440             0,1,4 : 120A0,6,0
+                                                            24(49s2 −38)
+2,3,2 : −6480        1,−1,0 : −2640               1,3,5 : −    3s2 −2       0,1,5 : −3A0,3,3
+2,3,4 : 1080         1,−1,2 : 720                 1,4,0 : −5940             0,2,0 : 495A0,6,0
+2,4,0 : 8316         1,−1,3 : 24                  1,4,2 : 3240              0,2,2 : −270A0,6,0
+2,4,2 : −11340       1,0,0 : −5940                1,4,3 : 144               0,2,3 : 6A0,3,3
+2,4,4 : 3780         1,0,2 : 3240                 1,4,4 : −180              0,2,4 : 15A0,6,0
+2,4,6 : −180         1,0,3 : 144                  1,5,0 : −2640             0,3,0 : 220A0,6,0
+2,5,0 : 7128         1,0,4 : −180                 1,5,2 : 720               0,3,2 : −60A0,6,0
+                                                                                          2     2
+2,5,2 : −6480        1,1,0 : −9504                1,5,3 : 24                0,3,3 : −16(3s − 2)
+2,5,4 : 1080         1,1,2 : 8640                 1,6,0 : −792              0,4,0 : 66A0,6,0
+2,6,0 : 4455         1,1,3 : 360                  1,6,2 : 72                0,4,2 : −6A0,6,0
+2,6,2 : −2430        1,1,4 : −1440                1,7,0 : −144              0,5,0 : 12A0,6,0
+                               72(43s2 −34)                                              4     2
+2,6,4 : 135          1,1,5 : −    3s2 −2          1,8,0 : −12               0,6,0 : 2(27s − 24s + 8)
+
+
+
+
+                                                     13
+4    Initialization of the secular constants and performance
+     tests
+Soon after Brouwer’s solution appeared in print, different reports pointed out an
+apparent contradiction between the accuracy expected from the series truncation
+order and the comparatively large in-track errors obtained in a variety of tests
+against numerical integrations [5]. The issue, however, did not happen when fitting
+Brouwer’s solution to observational data. Hence, the apparent discrepancy was
+easily identified with an inconsistency in the use of Brouwer’s theory. Indeed, to
+get the expected accuracy provided by the secular terms, the initialization of the
+constants of Brouwer’s solution should be done with analogous accuracy. How-
+ever, Brouwer only provided the periodic corrections up to the first order of J2 ,
+and hence the direct initialization of the secular mean motion for given initial con-
+ditions yields analogous accuracy. The trouble is, of course, solved if the inverse
+periodic corrections are computed up to the same order as the secular terms.
+     On the other hand, since the trouble arises from an inaccurate computation of
+the secular mean motion, the theory can be patched by supplementing Brouwer’s
+first order corrections only with the inverse second-order correction to the semi-
+major axis, either using Eq. (21) or in the different much shorter formulation given
+by [31]. Alternatively, the errors in the initialization procedure can be palliated
+by fitting the secular frequencies to data obtained from a preliminary numerical
+integration over several revolutions, or by a calibration of the secular mean motion
+n0 = µ2 /L03 from the energy equation [6].
+     The latter approach is particularly appealing because it totally avoids the need
+of carrying out additional computations to those already carried out by Brouwer.
+Thus, for given initial conditions (`0 , g0 , h0 , L0 , G0 , H0 ), the initial Hamiltonian
+in osculating elements evaluates to H(`0 , g0 , −, L0 , G0 , H0 ) = E0 . On the other
+hand, after the complete Hamiltonian reduction
+                              k
+                         µ2      J2m
+                                     H0,m (L0 , G0 , H) + O(J2k+1 ).
+                              X
+              E0 = −        +                                                        (22)
+                        2L02 m=1 m!
+However, the constants L0 and G0 are computed from the osculating initial condi-
+tions through the inverse periodic corrections only up to O(J2k−1 ). While this fact
+does not compromise the accuracy of Eq. (22) in what respects to the terms H0,m
+(m ≥ 1) because they are multiplied by corresponding factors J2m , it certainly does
+in the case of the Keplerian term. What Breakwell and Vagners [6] propose is then
+to replace L0 by the calibrated value
+                                           µ
+             Lb=
+                   √ h                                          i1/2 ,          (23)
+                                Pk       m              0  0
+                     2 −E0 + m=1 (J2 /m!)H0,m (L , G , H)
+
+                                           14
+obtained by solving the Keplerian term from Eq. (22). If now L0 is replaced in
+Eq. (22) by the calibrated value L
+                                 b then the energy equation will remain certainly
+                 k+1
+accurate to O(J2 ). Therefore, the initialization of the secular frequencies is
+notably improved using the values
+                 k                        k                          k
+        µ2       X J m ∂H0,m
+                     2
+                                          X J m ∂H0,m
+                                                2
+                                                                     X J m ∂H0,m
+                                                                           2
+ n` =        +                 ,   ng =                   ,   nh =                    .
+        b3
+        L        m=1
+                     m! ∂L0               m=1
+                                              m! ∂G0                 m=1
+                                                                         m! ∂H
+
+     Obviously, the use of Breakwell and Vagners’ calibration procedure is not con-
+strained to the second-order of Brouwer’s theory, and also applies to any truncation
+order. In our particular case, in which we had already computed the second-order
+direct and inverse periodic corrections of Brouwer’s theory, the calibration of the
+(mean) Delaunay action allowed us to improve the accuracy of Brouwer’s secu-
+lar terms to the third order of J2 without need of computing the long series that
+comprise the third-order term of the generating function.
+     We checked that the new extended third-order Brouwer’s solution, in which
+the second-order corrections consist of a single transformation, enjoys the same
+accuracy as a third-order solution computed in the traditional way of splitting the
+Hamiltonian reduction into the sequence provided by the elimination of the paral-
+lax, followed by the elimination of the perigee, and ending with a Delaunay nor-
+malization [3]. At the third order, the initialization of the constants of the later was
+also calibrated in Breakwell and Vagners’ style. In both cases, the required direct
+and inverse transformations were computed in polar variables to avoid singularities
+in the case of circular orbits, but also for efficiency reasons [20, 2, 24, 25].
+     An example of the accuracy obtained with the new single-transformation ap-
+proach is presented in Fig. 1 for a Topex-type orbit, with a = 7707.270 km,
+e = 0.0001, I = 66.04, Ω = 180.001◦ , ω = 270◦ , and `0 = 180◦ , yet a variety
+of cases have been tested for different types of orbits with analogous results. The
+figure depicts the root sum square (RSS) of the position errors of the analytical so-
+lution for different truncations of the extended Brouwer’s solution when compared
+with the “true” solution along one month propagation. To guarantee the accuracy
+of the latter, the true solution was obtained from the numerical integration of the
+differential equations of the main problem in Cartesian coordinates using extended
+precision.
+     Labels {I:S:D} in the plot denote the truncation order of the Inverse correc-
+tions, Secular terms, and Direct corrections of the orbital theory. The notation
+{I+:S:D} means that the inverse corrections are improved in Breakwell and Vagn-
+ers’ style. Thus, the label {1:2:1} denotes the original Brouwer’s solution (with a
+single transformation), which at the end of one month accumulates a RSS error of
+about 2.5 km. The simple calibration of the secular mean motion using Eq. (23),
+
+                                          15
+                                  1000                                   {1:2:1}
+
+         RSS position error (m)   100
+                                                       {1+:2:1}
+                                   10
+
+                                    1                             {2:2:2}
+
+                                  0.10                                      {2+:3:2}
+
+                                  0.01
+                                         0   5   10        15       20        25       30
+                                                           days
+
+Figure 1: Root-sum-square error of the Cartesian coordinates provided by different
+versions of Brouwer’s solution. Abscissas are days.
+
+
+
+case {1+:2:1}, clearly bends the RSS errors curve towards the meter level with a
+negligible increase of the computational burden, reaching less than 20 m at the end
+of the propagation period. Figures are further improved when the orbit is prop-
+agated with the full second-order theory, in which the single second-order trans-
+formation is used both in the initialization of the constants of Brouwer’s secular
+terms (inverse periodic corrections) and in the ephemeris computation (direct peri-
+odic corrections). Now, the RSS errors fall below the meter level at day 30, curve
+labeled {2:2:2}, yet the computational burden increases by about one third due to
+evaluation of second-order direct corrections, contrary to the lighter first-order cor-
+rections. Finally, supplementing Brouwer’s theory with third-order secular terms
+and the consequent calibration of the secular mean motion, case {2+:2:2}, keeps
+the RSS errors to the level of just a few cm along the whole propagation interval
+with negligible increase of the computational burden with respect to the {2:2:2}
+case.
+    For efficiency in the evaluation of perturbation solutions, arrangement of the
+series that comprise the periodic corrections for optimal evaluation is an impor-
+tant consideration [8, 17]. In this task, we limited our efforts to minor arrange-
+ments of the code, like the factorization of the inclination polynomials involved
+in the different summations and the following use of Horner’s algorithm, and left
+the code optimization job to the compiler. Because we did the same for both an-
+alytical solutions (Brouwer’s with single periodic corrections, and the traditional
+
+
+                                                      16
+parallax-perigee-Delaunay solution), even if optimal evaluation is not achieved, the
+comparisons are not expected to be biased towards a particular theory.
+    After repeated evaluation of the periodic corrections for a variety of initial
+conditions, we found that the evaluation of the periodic corrections of the tra-
+ditional analytical solution spends roughly twice the time needed by the single-
+transformation approach in the evaluation of the periodic corrections. This result
+was a priori unexpected because the series comprising the corrections of the new
+approach, which only involves a single transformation, are clearly longer than the
+composition of those involved in the three transformations needed in the traditional
+approach. The improved evaluation efficiency is then attributed to the fact that the
+compiler is able to carry out a better optimization of the code in the case of the
+single-transformation approach. This fact may be understood when taking into ac-
+count that, for instance, the coefficient (5s2 − 4) appears about 300 times in our
+arrangement of the periodic corrections of the single transformation, but only 73
+times in the classical parallax-perigee-Delaunay transformation arranged with the
+same factorization criterion, where, in particular, this factor only appears in the
+corrections related to the elimination of the perigee. Thus, cancelling this common
+factor by the compiler is roughly four times more efficient in the first case. Unde-
+niably, making a smarter organization of the code before sending it to the compiler
+might modify these figures. However, the balance is so radical on the side of the
+single transformation that these presumed improvements due to an additional pre-
+processing of the code are not expected to be relevant enough to revert the figures.
+
+
+5    Conclusions
+Experience gained through the use of Hamiltonian simplification methods prompted
+us to question Brouwer’s splitting normalization strategy. The convenience of di-
+viding a normalization process into different stages has been taken for granted
+since the initial efforts in fully automatizing the computation of perturbation the-
+ories. Needless to say that we agree in which this way of proceeding may ease
+the construction of the perturbation solution. However, what is not so obvious is
+that the evaluation of the solution constructed this way must necessarily yield the
+less computational burden. On the contrary, results in this paper seem to point in
+the direction that the claimed benefits of partial normalization as well as Hamilto-
+nian simplification procedures can be counterbalanced by other type of considera-
+tions, at least for the lower orders of normalization that suffice in many practical
+cases. Prospective application of the strategy proposed here to other instances of
+perturbed Keplerian motion, or to the computation of higher orders of the main
+problem of artificial satellite theory, should contribute to make clear the issue.
+
+
+                                        17
+    Brouwer’s closed-form approach and full automatization of the computation
+of perturbation theories seem two legitimate aims in this epoch of computational
+plenty. However, as demonstrated by the equation of the center controversy, rather
+than running perturbation algorithms in batch processes, one should not disregard
+the power of modern hand computations carried out with the help of existing soft-
+ware tools. Indeed, as far as mathematical simplification remains in the category
+of arts, inspection of intermediate expressions turns into a convenient practice that
+may eventually lead the user to straightforward simplifications that make feasible
+or just simpler the next step of a partially automated procedure. Like chess players,
+celestial mechanicians are rarely able to anticipate more than a few moves in the
+outcome of a perturbation approach. On the contrary, they need to wait for the
+opponent’s reaction in order to implement a winning strategy, which, in addition,
+is most times settled on an empirical basis. It was, in particular, the case of the
+current research, in which the help provided by the computer algebra system con-
+verted into a simple task the critical inspection of the seminal solution obtained by
+Brouwer.
+
+Acknowledgements
+Partial support by the Spanish State Research Agency and the European Regional
+Development Fund under Projects ESP2016-76585-R and ESP2017-87271-P (AEI/
+ERDF, EU) is recognized. The author acknowledges with pleasure the help of
+Sylvio Ferraz-Mello in finding particular passages of volume 2 of Poincaré’s Méth-
+odes Nouvelles.
+
+
+References
+ [1] K. Aksnes. A note on ‘The main problem of satellite theory for small eccentricities,
+     by A. Deprit and A. Rom, 1970’. Celestial Mechanics, 4(1):119–121, September
+     1971.
+ [2] K. Aksnes. On the Use of the Hill Variables in Artificial Satellite Theory. Astronomy
+     and Astrophysics, 17(1):70–75, February 1972.
+ [3] K. T. Alfriend and S. L. Coffey. Elimination of the perigee in the satellite problem.
+     Celestial Mechanics, 32(2):163–172, February 1984.
+ [4] D. Boccaletti and G. Pucacco. Theory of orbits. Volume 2: Perturbative and ge-
+     ometrical methods. Astronomy and Astrophysics Library. Springer-Verlag, Berlin
+     Heidelberg New York, 1st edition, 2002.
+ [5] N. L. Bonavito, S. Watson, and H. Walden. An Accuracy and Speed Comparison
+     of the Vinti and Brouwer Orbit Prediction Methods. Technical Report NASA TN
+     D-5203, Goddard Space Flight Center, Greenbelt, Maryland, May 1969.
+
+
+                                           18
+ [6] J. V. Breakwell and J. Vagners. On Error Bounds and Initialization in Satellite Orbit
+     Theories. Celestial Mechanics, 2:253–264, June 1970.
+ [7] D. Brouwer. Solution of the problem of artificial satellite theory without drag. The
+     Astronomical Journal, 64:378–397, November 1959.
+ [8] S. Coffey and A. Deprit. Fast evaluation of Fourier series. Astronomy and Astro-
+     physics, 81:310–315, January 1980.
+ [9] A. Deprit. Canonical transformations depending on a small parameter. Celestial
+     Mechanics, 1(1):12–30, 1969.
+[10] A. Deprit. The elimination of the parallax in satellite theory. Celestial Mechanics,
+     24(2):111–153, 1981.
+[11] A. Deprit and B. Miller. Simplify or Perish. Celestial Mechanics, 45:189–200, 1989.
+[12] A. Deprit and A. Rom. The Main Problem of Artificial Satellite Theory for Small
+     and Moderate Eccentricities. Celestial Mechanics, 2(2):166–206, June 1970.
+[13] E. Deprit and A. Deprit. Poincaré’s méthode nouvelle by skew composition. Celestial
+     Mechanics and Dynamical Astronomy, 74(3):175–197, July 1999.
+[14] S. Ferraz-Mello. Do Average Hamiltonians Exist? Celestial Mechanics and Dynam-
+     ical Astronomy, 73:243–248, January 1999.
+[15] S. Ferraz-Mello. Canonical Perturbation Theories - Degenerate Systems and Reso-
+     nance, volume 345 of Astrophysics and Space Science Library. Springer, New York,
+     January 2007.
+[16] L. M. Healy. The Main Problem in Satellite Theory Revisited. Celestial Mechanics
+     and Dynamical Astronomy, 76(2):79–120, 2000.
+[17] L. M. Healy and J. J. Travisano. Automatic rendering of astrodynamics expressions
+     for efficient evaluation. Journal of the Astronautical Sciences, 46(1):65–81, 1998.
+[18] F. R. Hoots and R. L. Roehrich. Models for Propagation of the NORAD Element
+     Sets. Project SPACETRACK, Rept. 3, U.S. Air Force Aerospace Defense Command,
+     Colorado Springs, CO, December 1980.
+[19] G.-i. Hori. Theory of General Perturbation with Unspecified Canonical Variables.
+     Publications of the Astronomical Society of Japan, 18(4):287–296, 1966.
+[20] I. G. Izsak. A note on perturbation theory. The Astronomical Journal, 68(8):559–561,
+     October 1963.
+[21] W. H. Jefferys. Automated, Closed Form Integration of Formulas in Elliptic Motion.
+     Celestial Mechanics, 3:390–394, September 1971.
+[22] Y. Kozai. Mean values of cosine functions in elliptic motion. The Astronomical
+     Journal, 67:311, June 1962.
+[23] Y. Kozai. Second-order solution of artificial satellite theory without air drag. The
+     Astronomical Journal, 67:446–461, September 1962.
+
+
+                                           19
+[24] M. Lara. Efficient Formulation of the Periodic Corrections in Brouwer’s Gravity
+     Solution. Mathematical Problems in Engineering, vol. 2015(Article ID 980652):1–
+     9, 2015.
+[25] M. Lara. LEO intermediary propagation as a feasible alternative to Brouwer’s gravity
+     solution. Advances in Space Research, 56(3):367–376, August 2015.
+[26] M. Lara. Review of analytical solutions for low earth orbit propagation and study of
+     the precision improvement in the conversion of osculating to mean elements. Techni-
+     cal Report CM 2019/SER0023, Universidad de La Rioja, Logroño, La Rioja, Septem-
+     ber 2019.
+[27] M. Lara, J. F. San-Juan, Z. J. Folcik, and P. Cefola. Deep Resonant GPS-Dynamics
+     Due to the Geopotential. Journal of the Astronautical Sciences, 58(4):661–676, Oc-
+     tober 2011.
+[28] M. Lara, J. F. San-Juan, and L. M. López-Ochoa. Delaunay variables approach to
+     the elimination of the perigee in Artificial Satellite Theory. Celestial Mechanics and
+     Dynamical Astronomy, 120(1):39–56, September 2014.
+[29] M. Lara. A new radial, natural, higher-order intermediary of the main problem four
+     decades after the elimination of the parallax. Celestial Mechanics and Dynamical
+     Astronomy, 131(9):20, September 2019.
+[30] M. Lara. Solution to the main problem of the artificial satellite by reverse normaliza-
+     tion. Nonlinear Dynamics, 101(2):1501–1524, July 2020.
+[31] R. H. Lyddane and C. J. Cohen. Numerical comparison between Brouwer’s theory
+     and solution by Cowell’s method for the orbit of an artificial satellite. Astronomical
+     Journal, 67:176–177, April 1962.
+[32] G. Metris. Mean values of particular functions in the elliptic motion. Celestial Me-
+     chanics and Dynamical Astronomy, 52:79–84, March 1991.
+[33] G. Métris and P. Exertier. Semi-analytical theory of the mean orbital motion. Astron-
+     omy and Astrophysics, 294:278–286, February 1995.
+[34] K. R. Meyer, G. R. Hall, and D. Offin. Introduction to Hamiltonian Dynamical
+     Systems and the N-Body Problem, volume 90 of Applied Mathematical Sciences.
+     Springer, New York, 2nd edition, 2009.
+[35] J.A. Morrison. Generalized method of averaging and the von zeipel method. In
+     Raynor L. Duncombe and Victor G. Szebehely, editors, Methods in Astrodynamics
+     and Celestial Mechanics, volume 17 of Progress in Astronautics and Rocketry, pages
+     117 – 138. Elsevier, 1966.
+[36] C. Osácar and J. F. Palacián. Decomposition of functions for elliptical orbits. Celes-
+     tial Mechanics and Dynamical Astronomy, 60(2):207–223, October 1994.
+[37] Henri Poincaré. Les méthodes nouvelles de la mécanique céleste. Tome 2. Gauthier-
+     Villars et fils (Paris), 1893.
+
+
+                                            20
+[38] J. F. San-Juan, D. Ortigosa, L. M. López-Ochoa, and R. López. Deprit’s Elimination
+     of the Parallax Revisited. Journal of the Astronautical Sciences, 60:137–148, June
+     2013.
+[39] D. Steichen. An averaging method to study the motion of lunar artificial satellites
+     II: Averaging and Applications. Celestial Mechanics and Dynamical Astronomy,
+     68(3):225–247, July 1998.
+[40] F. Tisserand. Traité de mécanique céleste. Tome I: Perturbations des planètes d’aprés
+     la méthode de la variation des constantes arbitraries. Gauthier-Villars et fils, Quai
+     des Grands-Augustins, 55, Paris, 1889.
+[41] D. A. Vallado, P. Crawford, R. Hujsak, and T. S. Kelso. Revisiting Spacetrack Re-
+     port #3 (AIAA 2006-6753). In AIAA/AAS Astrodynamics Specialist Conference and
+     Exhibit, pages 1–88, USA, August 2006. Guidance, Navigation, and Control and Co-
+     located Conferences, American Institute of Aeronautics and Astronautics.
+[42] H. von Zeipel. Research on the Motion of Minor Planets. NASA TT F-9445, 1965.
+     (NASA Translation of: Recherches sur le mouvement des petites planètes, Arkiv för
+     matematik, astronomi och fysik, vol. 11, 1916, vol. 12, 1917, vol. 13, 1918).
+
+
+
+
+                                           21
+

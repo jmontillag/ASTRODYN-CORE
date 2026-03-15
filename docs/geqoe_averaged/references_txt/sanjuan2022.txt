@@ -1,0 +1,1507 @@
+The Journal of the Astronautical Sciences (2022) 69:1292–1318
+https://doi.org/10.1007/s40295-022-00342-y
+
+    ORIGINAL ARTICLE
+
+
+
+A Second‑Order Closed‑Form J2 Model for the Draper
+Semi‑Analytical Satellite Theory
+
+Juan F. San‑Juan1            · Rosario López1 · Paul J. Cefola2
+
+Accepted: 29 August 2022 / Published online: 29 September 2022
+© The Author(s) 2022
+
+
+
+Abstract
+A second-order closed-form semi-analytical solution of the main problem of the
+artificial satellite theory ( J2 contribution) consistent with the Draper Semi-analytic
+Satellite Theory (DSST) is presented. This paper aims to improve the computational
+speed of the numerical-based approach, which is only available in the GTDS-DSST
+version. The short-period terms are removed by means of an extension of the Lie-
+Deprit method using Delaunay variables. The averaged equations of motion are
+given explicitly and transformed to the non-singular equinoctial elements. Finally,
+the second-order terms in the equations of motion are included in the C/C++ ver-
+sion of the DSST orbit propagator.
+
+Keywords Semi-analytical satellite theory · J2 effect · Main problem · Lie transform
+method · Equinoctial elements
+
+
+
+
+Rosario López and Paul J. Cefola have contributed equally to this work.
+
+An earlier version of this article was first presented at the 31st AAS/AIAA Space Flight Mechanics
+Conference which was held February 1-4, 2021, virtually.
+
+* Juan F. San‑Juan
+  juanfelix.sanjuan@unirioja.es
+      Rosario López
+      rosario.lopez@unirioja.es
+      Paul J. Cefola
+      paulcefo@buffalo.edu
+1
+      Scientific Computation & Technological Innovation Center (SCoTIC), University of La Rioja,
+      Madre de Dios, 53, ES‑26004 Logroño, La Rioja, Spain
+2
+      Department of Mechanical and Aerospace Engineering, University at Buffalo, State University
+      of New York, Amherst, New York 14260‑4400, USA
+
+
+1Vol:.(1234567890)
+  3
+The Journal of the Astronautical Sciences (2022) 69:1292–1318                     1293
+
+
+1 Introduction
+
+The Draper Semi-analytic Satellite Theory (DSST) orbit propagator can be found
+in two forms, as an option within the Massachusetts Institute of Technology version
+of the Goddard Trajectory Determination System (GTDS) computer program [1, 2],
+and as the DSST Standalone orbit propagator package [3–7].
+   The original implementations of the DSST, both in GTDS and in the Standalone
+versions, were done in Fortran 77 (F77). Between 2012 and 2015, the DSST was
+re-implemented in Java and included in the Orekit flight dynamics library [5, 6].
+During the same time frame, the University of La Rioja provided web access to
+the F77 DSST Standalone via a friendly and intuitive interface [8]. In 2016, Setty
+[7] extended the F77-DSST-Standalone force models, state-transition matrix, and
+dynamic-parameter partial derivatives to provide the F77-DSST Standalone with
+orbit determination capability. More recently, the migration of the F77-DSST Stan-
+dalone code to C/C++ has been done at the University of La Rioja [9, 10].
+   The theory underlying DSST makes use of the non-singular equinoctial elements
+and is based on the generalized method of averaging [11–13]. The Lagrange Plan-
+etary equations are used for handling the conservative terms, 50 × 50 gravity fields
+(M-daily, tesseral resonance and approximate solution of the second-order effect
+in J2, J22, based on eccentricity expansions), lunar-solar point masses, and the solid
+Earth tides, whereas the Gauss equations are used for the atmospheric drag and the
+solar radiation pressure (SRP).
+   In particular, the J22 effect was formulated by Zeis [14] in DSST. This author
+developed an approximate second-order solution as a power series of the eccentric-
+ity in J2 for mean-element and short-periodic motions. This analytical model was
+implemented with the help of the computer algebra system, Macsyma. Latter, Fisher
+[15] described the computational procedure required to obtain the J22 effect in closed
+form. This author proposed two alternatives methods for completing this effect: first,
+using numerical quadratures and, second, symbolically expanding and manipulat-
+ing all the mathematical expressions. Unfortunately, time and computer constraints
+prevented obtaining the full second-order effect. Recently, Folcik and Cefola [16]
+ported this code to Maxima, the open-source descendant of Macsyma, to calculate
+the integrant of the mean element rate expressions. The averaged process was car-
+ried out using Gauss-Kronrod numerical quadrature. These authors also performed
+a detailed numerical comparison between Zeis and their numerical model. Finally,
+they concluded with the necessity of developing an analytical closed-form model to
+replace the numerical quadrature process and, so, improve the speed of evaluating
+the theory.
+   To obtain the closed-form averaged equations and the mean-to-osculating trans-
+formation, we propose an alternative method to build fully second-order closed-
+form analytical expressions for the J22 contribution based on the Lie-transform
+method [17–21] and canonical variables consistent with the DSST orbit propagator.
+
+
+
+
+                                                                           13
+1294                                  The Journal of the Astronautical Sciences (2022) 69:1292–1318
+
+
+The main difference between the Lie transform method and the generalized method
+of averaging is regarded more as a matter of the algorithm than the underlying idea.
+In fact, both methods are connected through an integration constant [22, 23]. It is
+worth noting that the Lie transform method allows us to obtain the transformations
+from osculating-to-mean and mean-to-osculating elements simultaneously from the
+generating function.
+   The main characteristic observed in the application of the generalized method of
+averaging in the zonal problem in DSST can be found in the calculation of the zonal
+harmonic short-periodic generator in DSST [24] to which must be added an integra-
+tion constant to guarantee that the short-period terms do not contain any long-period
+terms. The equivalent approach is followed by Kozai [25] using Von Zeipel method
+[26].
+   In this work, we present a second-order semi-analytical theory for the J2 problem
+to remove the short-period terms from the equations of motion using Hamiltonian
+formalism, an extension of the Lie-Deprit method [27], which is implemented in
+MathATESAT [28], and Delaunay variables. The resultant theory is equivalent to
+the elimination of mean anomaly in Kozai [25]. Then, the equations of motion are
+expressed in equinoctial elements. After that, the transformed equations of motion
+are analytically and numerically validated. Finally, the Mathematica expressions are
+migrated to C and included in DSST C.
+
+
+2 On the J2 Problem and its Normalization
+
+Extensive investigations dealing with the J2 problem, or classically called the main
+problem of artificial satellite theory, have been done since Brouwer’s work [29]. In
+this section, we present a semi-analytical theory equivalent to the first canonical
+transformation described in Kozai [25] using an extension of the Lie-Deprit method.
+   The J2 problem is defined as a Kepler problem perturbed by Earths oblateness.
+The Hamiltonian of this dynamical system can be written in a cartesian coordinate
+system (𝐱, 𝐗) as
+                                           [        ( )2 ( )]
+                             1           𝜇           𝛼       z
+                       H = (𝐗 ⋅ 𝐗) −         1 − J2      P2      ,                   (1)
+                             2           r           r       r
+                    √
+where r = ‖𝐱‖ = x2 + y2 + z2 , 𝐗 is the satellite velocity, 𝜇 is the gravitational
+constant, 𝛼 the equatorial radius of the Earth, J2 the oblateness coefficient and P2 the
+second-degree Legendre polynomial.
+   The first step to carry out the analytical transformation consists of expressing the
+Hamiltonian (1) in terms of Delaunay variables (𝓁, g, h, L, G, H) [30, 31]. This set of
+canonical action-angle variables can be defined in terms of the orbital elements such
+as
+
+
+
+
+13
+The Journal of the Astronautical Sciences (2022) 69:1292–1318                             1295
+
+                                                        √
+                           𝓁 = M,                    L = 𝜇a,
+                                                         √
+                           g = 𝜔,                    G = √𝜇a(1 − e2 ),                     (2)
+                           h = Ω,                    H = 𝜇a(1 − e2 ) cos i,
+
+where M, 𝜔, Ω, a, e, i are the mean anomaly, argument of the perigee, longitude
+of the ascending node, semi-major axis, eccentricity and inclination, respectively.
+Then, the transformed Hamiltonian is given by
+                                           H = H0 + 𝜀H1 ,                                  (3)
+where
+
+                                                         𝜇2
+                                             H0 = −          ,                             (4)
+                                                         2L2
+
+                                      𝜇 ( 𝛼 )2 2 2
+                               H1 =           (3s sin (f + g) − 1).                        (5)
+                                      2r r
+where 𝜀 = J2 is a small parameter, s = sin i and f is the true anomaly. To avoid any
+ambiguity in the notation between Delaunay variable and the equinoctial elements
+(a, h, k, p, q, 𝜆), we use Ω instead of h to refer to the argument of the node in Delau-
+nay variables.
+    Next, we normalize the Hamiltonian (3) by applying the Lie transform
+𝜑 ∶ (𝓁, g, h, L, G, H) → (𝓁 � , g� , h� , L� , G� , H � ), the so-called Delaunay Normalization
+[32], using the Extended Lie-Deprit method [27]. This perturbation method is based
+on transforming the analytic Hamiltonian function
+
+                                                     Hn ≡
+                                          ∑ 𝜀n              ∑ 𝜀n
+                                   H=                                  Hn0                 (6)
+                                          n≥0
+                                                n!          n≥0
+                                                                  n!
+
+into the new one
+
+                                                     Kn ≡
+                                          ∑ 𝜀n              ∑ 𝜀n
+                                    K=                                 H0n                 (7)
+                                          n≥0
+                                                n!          n≥0
+                                                                  n!
+
+which satisfies some specific prerequisites. The double index notation in the Ham-
+iltonian is introduced to simplify the automatization of this algorithm. As well as
+the Lie-Depritn method [18], the extended method looks for a generating function
+       ∑
+Wn = n≥0 𝜀n! Wn+1 of 𝜑 so that the terms Hn, Kn and Wn verify the partial differen-
+tial equation, called the Homological Equation,
+                                                        ̃0n
+                                       LH0 (Wn ) + Kn = H                                  (8)
+
+where LH0 is the Lie operator associated with H0, a linear operator given in terms of
+a Poisson bracket.
+
+
+
+
+                                                                                   13
+1296                                    The Journal of the Astronautical Sciences (2022) 69:1292–1318
+
+
+   The right-hand side of the homological equation, H     ̃ 0,n, is computed from Hn,
+(Wi )1≤i≤n−1 and (Hp,q )p+q≤n−1, where the latter are obtained by means of the recur-
+sive formula
+                                          i   ( )
+                                          ∑    i {                }
+                      Hi,j = Hi+1,j−1 +           Hi−k,j−1 , Wk+1                                (9)
+                                          k=0
+                                               k
+
+with i ≥ 0 and j ≥ 0 and { , } represents the Poisson bracket (for more details, see
+[18]). On the other hand, Cn is an arbitrary integration function which can depend on
+(_, g� , h� , L� , G� , H � ).
+    In this case, the Lie operator is defined from the zero order Hamiltonian H0 as
+LH0 = n 𝜕∕𝜕𝓁 � , where n = 𝜇2 ∕L�3 is the mean motion. On the other hand, the solu-
+tion of the homological equation is obtained as
+                                                2𝜋
+
+                                        2𝜋 ∫0
+                                         1
+                                 Kn =                 ̃ 0 n d𝓁 � ,
+                                                      H                                        (10)
+
+
+
+                                    ∫
+                             Wn =        ̃ 0 n − Kn )d𝓁 � + Cn ,
+                                        (H                                                     (11)
+
+where Cn, in accordance with Kozai’s work, is chosen to remove the long-period
+terms contained in the generating function and is given by
+                                                 2𝜋
+
+                                         2𝜋 ∫0
+                                          1
+                                 Cn =                 Wn d𝓁 � .                                (12)
+
+This semi-analytical theory inherits the intrinsic singularities of the Delaunay varia-
+bles for the eccentricity, e = 0, and for the inclination, i = 0, 𝜋 . However, the critical
+inclination is not a problem in the present theory as DSST because perigee’s motion
+remains in the equation of motion. In the remainder of this paper, we shall drop the
+primes on the transformed variables to alleviate the notation.
+   After this summary, we briefly outline the operations that accomplished the
+elimination of the short period terms using the extended Lie-Deprit method,
+which up to first-order reads
+                                          K0 =H0 ,                                             (13)
+
+                                                 𝜇2 𝜕W1
+                                  K1 =H1 −              .                                      (14)
+                                                 L3 𝜕𝓁
+Using Eq. (10), we obtain the first-order transformed Hamiltonian as the average
+over the fastest angle 𝓁:
+                                    (      )
+                                𝜇2 𝛼 2 𝜇2 ( 3 2 1 )
+                          K1 = 𝜂 2               s −   ,                    (15)
+                                L      G4      4     2
+
+
+
+13
+The Journal of the Astronautical Sciences (2022) 69:1292–1318                         1297
+
+
+whereas Eq. (11) provides the first-order term of the generating function:
+
+                            𝛼 2 𝜇2 [ ( 2    )       (        )
+                    W1 =            2 3s − 2 𝜙 + 2e 3s2 − 2 sin f
+                            8𝜂 3 L3
+                            −3s2 sin(2f + 2g) − 3es2 sin(f + 2g)                      (16)
+                                                                                ]
+                                                      (𝜂 − 1)(2𝜂 + 1)s2
+                            −es2 sin(3f + 2g) −                           sin 2g ,
+                                            𝜂+1
+            √
+where 𝜂 = 1 − e2 and 𝜙 = f − l is the equation of center. Finally, the arbitrary
+integration function is chosen to be
+
+                                        𝛼 2 𝜇2 (𝜂 − 1)(2𝜂 + 1)s2
+                             C1 = −                              sin 2g.              (17)
+                                              8𝜂 3 (𝜂 + 1)L3
+Following the same process, we have that the second-order homological equation is
+                            LH0 (W2 ) + K2 = {H1 + K1 , W1 } + H2 ,                   (18)
+where in this case H2 = 0. Using Eq. (10), the second-order transformed Hamilto-
+nian is given as
+                            (       )2
+                          𝜇2 𝛼 2 𝜇2     ∑
+                   K2 = 𝜂 2      4
+                                              Pi,2k (s2 , 𝜂) cos 2kg       (19)
+                          L    G       0≤2k≤2
+
+where the coefficients Pi,2k
+                                            (                )
+                      105 4 15 2 15           27 4 9 2 3
+             P2,0 = −      s + s −       −       s − s +       𝜂
+                       64       4     8       16    4      4
+                      (               )
+                        15 4 3 2 3 2
+                    −      s + s −      𝜂 ,
+                        64      8   8
+                   (              )
+                     45 4 21 2 2             3 (       ) (𝜂 − 1)(2𝜂 + 1)
+             P2,2 =     s − s (𝜂 − 1) + s2 5s2 − 4                       ,
+                     32      16              8                 𝜂+1
+are polynomials in s and 𝜂 . The expression of W2 is included in the Appendix A
+where the arbitrary integration function is
+
+                          𝛼 4 𝜇4      [ 2( 1         )                       ]
+               C2 =       7         7
+                                       2s C2 + C22 s2 sin 2g − 3C23 s4 sin 4g ,       (20)
+                      256𝜂 (𝜂 + 1)L
+where the coefficients C2i are polynomials in 𝜂 and are given by
+
+                        C21 =456𝜂 4 + 510𝜂 3 + 338𝜂 2 − 382𝜂 − 538,
+                        C22 = − 540𝜂 4 − 591𝜂 3 − 397𝜂 2 + 407𝜂 + 641,
+                        C23 =3(𝜂 − 1)2 (3𝜂 + 7).
+
+The direct and inverse transformations of the Lie transform 𝜑 are obtained from the
+generating functions W1 and W2 using the classical recurrent algorithms [18–20].
+
+
+                                                                                     13
+1298                                  The Journal of the Astronautical Sciences (2022) 69:1292–1318
+
+
+It is worth noting that both transformations expressed in Delaunay variables suffer
+from the inclusion of the eccentricity in the denominator. Their explicit expressions
+are not provided here due to a large number of terms.
+    Finally, Hamilton’s equations, the partial derivatives of the Hamiltonian (19) with
+respect to the new variables, provide the equations of motion as
+
+                           d𝓁 𝜕K 𝜇 2            𝜀2
+                               =   = 3 + 𝜀Δ𝓁1 + Δ𝓁2 ,
+                            dt 𝜕L    L          2
+                            dg 𝜕K          2
+                                       g  𝜀 g
+                               =   = 𝜀Δ1 + Δ2 ,
+                            dt 𝜕G         2
+                           dΩ 𝜕K       Ω  𝜀2 Ω
+                               =   = 𝜀Δ1 + Δ2 ,
+                           dt 𝜕H           2                                                 (21)
+                           dL     𝜕K
+                               =−    = 0,
+                            dt    𝜕𝓁
+                           dG     𝜕K 𝜀2 G
+                               =−    = Δ2 ,
+                            dt    𝜕g    2
+                           dH     𝜕K
+                               =−    = 0.
+                           dt     𝜕h
+The first-order coefficients Δ1  are expressed by
+                              𝓁,g,Ω
+
+                                      (       )
+                           𝓁      3 𝜇2 𝛼 2 𝜇2
+                          Δ1 = −                (3s2 − 2)𝜂,
+                                  4 L3 G4
+                                      (       )
+                           g      3 𝜇2 𝛼 2 𝜇2
+                          Δ1 = −                (5s2 − 4),                                   (22)
+                                  4 L3 G4
+                                      (       )
+                                  3 𝜇2 𝛼 2 𝜇2
+                          ΔΩ
+                           1 = −                c,
+                                  4 L3 G4
+
+where c represents the cosine of the inclination. On the other hand, the second-order
+coefficients Δ2       are
+              𝓁,g,Ω,G
+
+                            (       )2 [                             ]
+                   𝓁    3 𝜇2 𝛼 2 𝜇2        ̄ 𝓁        2     ̄ 𝓁
+                 Δ2 =                   𝜂 P2,0 −           P cos 2g ,
+                       64 L3 G4                   (𝜂 + 1)2 2,2
+                            (       )2 [                             ]
+                   g    3 𝜇2 𝛼 2 𝜇2       ̄g −       2     ̄ g cos 2g ,
+                 Δ2 =                     P 2,0
+                                                          P
+                       64 L3 G4                  (𝜂 + 1)2 2,2
+                            (       ) 2   [                            ]         (23)
+                   Ω    3 𝜇2 𝛼 2 𝜇2         ̄ Ω    2(𝜂 − 1) ̄ Ω
+                 Δ2 =                    c P2,0 −            P cos 2g ,
+                       16 L3 G4                     𝜂 + 1 2,2
+                            (       )2
+                   G    3 𝜇2 𝛼 2 𝜇2 𝜂(𝜂 − 1) 2 ̄ G
+                 Δ2 =                            s P2,2 sin 2g,
+                       16 L3 G4           𝜂+1
+
+where the polynomials P̄ 2,i     depend on s2, 𝜂 and are given by
+                         𝓁,g,Ω,G
+
+
+
+
+13
+The Journal of the Astronautical Sciences (2022) 69:1292–1318                               1299
+
+                                 (             )         (         )2     (            )
+                      P̄ 𝓁2,0 =5 5s4 + 8s2 − 8 𝜂 2 + 16 2 − 3s2 𝜂 + 15 7s4 − 16s2 + 8 ,
+                                   (         )        (              )          (   )
+                      P̄ 𝓁2,2 =5s2 15s2 − 7 𝜂 4 + 2s2 155s2 − 67 𝜂 3 + 10s2 17s2 − 7 𝜂 2
+                                       (       )          (         )
+                               + 30s2 3 − 7s2 𝜂 + 15s2 3 − 7s2 ,
+                               (                  )          (                )
+                      P̄ 2,0 = 45s4 + 36s2 − 56 𝜂 2 + 24 15s4 − 22s2 + 8 𝜂
+                          g
+
+                                    (                   )
+                               + 5 77s4 − 172s2 + 88 ,
+                               (                    )        (                    )
+                      P̄ 2,2 = 135s4 − 158s2 + 28 𝜂 4 + 670s4 − 732s2 + 120 𝜂 3             (24)
+                          g
+
+                                    ( 4               )          (                )
+                               + 2 55s − 66s2 + 16 𝜂 2 − 10 77s4 − 82s2 + 12 𝜂
+                                    (                 )
+                               − 5 77s4 − 82s2 + 12 ,
+                               ( 2      ) 2 ( 2            )      ( 2    )
+                      P̄ Ω2,0 = 5s + 4 𝜂 + 36s − 24 𝜂 + 5 7s − 8 ,
+                               (         )     (             )     (       )
+                      P̄ Ω2,2
+                              = 15s2 − 7 𝜂 2 + 70s2 − 30 𝜂 + 5 7s2 − 3 ,
+                               (           )     (             )     (       )
+                      P̄ G           2       2       2
+                          2,2 = 15s − 14 𝜂 + 70s − 60 𝜂 + 5 7s − 6 .
+                                                                       2
+
+
+
+In order to include this theory in DSST, the transformations and equations of motion
+are formed in terms of the non-singular equinoctial element set.
+
+
+3 Mean Equinoctial Variational Equations
+
+In this section, we derive the mean equinoctial variational equations from Ham-
+ilton’s equations (21). The equinoctial elements [33] are defined in terms of the
+orbital elements as follows:
+
+                      a = a,                                 p = tanI (i∕2) sin Ω,
+                      h = e sin(𝜔 + IΩ),                     q = tanI (i∕2) cos Ω,          (25)
+                      k = e cos(𝜔 + IΩ),                     𝜆 = M + 𝜔 + IΩ,
+where I is called the retrograde factor. The factor I takes the value 1 for the direct
+equinoctial elements and -1 for the retrograde equinoctial elements, although direct
+orbits can include the range of inclination [0, 𝜋).
+   To derive the equinoctial equation of motion, we start by differentiating Eq. (25)
+with respect to time, the derivatives of the equinoctial elements can be written in
+terms of the orbital elements and their derivatives:
+                               da da
+                                  = ,
+                               dt   dt
+                                             (             )
+                               dh h de         d𝜔     dΩ
+                                  =     +k         +I       ,
+                               dt e dt         dt       dt
+                                             (             )
+                               dk k de         d𝜔     dΩ
+                                  =     −h         +I       ,
+                               dt e dt         dt       dt
+                               dp 1                                di   dΩ                  (26)
+                                  = I sec2 (i∕2) tanI−1 (i∕2) sin Ω + q     ,
+                               dt 2                                dt   dt
+                               dq 1                                di   dΩ
+                                  = I sec2 (i∕2) tanI−1 (i∕2) cos Ω − p      ,
+                               dt 2                                dt    dt
+                               d𝜆 dM d𝜔            dΩ
+                                  =    +       +I     .
+                               dt   dt     dt      dt
+
+
+
+
+                                                                                           13
+1300                                 The Journal of the Astronautical Sciences (2022) 69:1292–1318
+
+
+The derivatives on the right-hand sides of Eq. (26) are obtained in a straightforward
+manner by differentiating Eq. (2) with respect to time as
+                       da 2L dL
+                           =       ,
+                        dt   𝜇 dt
+                               �                            �
+                       de 1                dL √          dG
+                           =     (1 − e2 )      − 1 − e2     ,
+                        dt eL              dt            dt
+                                    �                �                                      (27)
+                        di     1           dG dH
+                           =         cos i      −      ,
+                        dt G sin i          dt    dt
+                       d𝜔 dg dM          d𝓁
+                           = ,        =       .
+                       dt    dt dt        dt
+Then, considering mean elements in Eqs. (26 and 27) and using Hamilton’s equa-
+tions Eq. (21), after some complex algebraic manipulation, we obtain the mean equi-
+noctial variational equations as
+                                        2
+                                  d𝜎 ∑ 𝜀k ̄ 𝜎
+                                     =       Δ ,                                            (28)
+                                  dt   k=0
+                                           k! k
+
+where da∕dt = 0 and 𝜎 represents the mean equinoctial elements (h, k, p, q, 𝜆). It is
+worth noting that Eqs. (28) depend on the orbital elements a, e, i and 𝜔.
+   Finally, we will obtain Eqs (28) in equinoctial elements taking into account Eqs.
+(25) and the transformation from the equinoctial elements to the orbital elements
+given by
+                          a =a,
+                              √
+                          e = h2 + k 2 ,
+                                �      �             √
+                                  1−I
+                           i =𝜋           + 2I arctan p2 + q2 ,
+                                    2
+                                   p
+                      sin Ω = √          ,
+                                 p2 + q2                                                    (29)
+                                   q
+                      cos Ω = √          ,
+                                 p2 + q2
+                          𝜔 =𝜁 − IΩ,
+                          M =𝜆 − 𝜁,
+where 𝜁 is an auxiliary angle, which is defined by:
+                                            h
+                                 sin 𝜁 = √         ,
+                                          h + k2
+                                           2
+                                                                                            (30)
+                                            k
+                                 cos 𝜁 = √         .
+                                          h2 + k 2
+The zero-order terms
+                 √ in equinoctial elements are Δ0 = Δ0 = Δ0 = Δ0 = 0 and
+                                                 ̄h ̄k       ̄     ̄         p      q
+
+̄ = n where n = 𝜇∕a3 is the mean motion. The first-order terms only depend on
+Δ𝜆
+ 0
+
+
+
+13
+The Journal of the Astronautical Sciences (2022) 69:1292–1318                                      1301
+
+
+the momenta L, G and 𝜂 , s, c allowing us to obtain the Δ𝜎1 terms in a straightforward
+manner as
+                                  Δh1 = − C1 k𝜒,
+
+                                  Δk1 =C1 h𝜒,
+
+                                                                                                   (31)
+                                      p
+                                  Δ1 = − 2C1 cq,
+                                      q
+                                  Δ1 =2C1 cp,
+                                            [                           ]
+                                  Δ𝜆1 = − C1 (3𝜂 + 5)s2 + 2Ic − 2(𝜂 + 2) ,
+
+where C1 = 3𝛼 2 n∕(4a2 𝜂 4 ) and 𝜒 = 5s2 + 2Ic − 4. The expressions of 𝜂 , c and s in
+equinoctial elements are
+                                                             √
+                 √                      1 − p2
+                                               − q 2       2   p2 + q2
+              𝜂 = 1 − h2 − k2 , c =                  , s =             .
+                                        1 + p2 + q2        1 + p2 + q2
+
+As it can be seen, Eq. (31) are valid for both direct and retrograde equinoctial ele-
+ments and agree with known results [14, 34].
+   The expressions of the second-order terms to equinoctial elements are not
+directly calculated, The second-order Hamilton equations introduce the contribu-
+tion of the argument of the perigee g through terms in sin 2g and cos 2g. Using Eq.
+(25), these trigonometric functions are converted to equinoctial elements and yield
+                                            2(hq − Ikp)(Ihp + kq)
+                             sin 2g =                              ,
+                                              (h2 + k2 )(p2 + q2 )
+                                            ( 2      )(        )                                   (32)
+                                             h − k2 p2 − q2 + 4Ihkpq
+                             cos 2g =                                                        .
+                                                      (h2 + k2 )(p2 + q2 )
+
+After a laborious simplification process, we obtained that the Δ𝜎2 terms were not
+entirely non-singular. These terms depended on the factor (p2 + q2 )−2I . Therefore,
+it was not possible to derive a unique set of expressions valid for both direct and
+retrograde orbits.
+   For the case of direct orbits (I = 1) and the range of inclination [0, 𝜋), we obtain the
+following non-singular expressions
+                                      1 3 8 8
+                                      ∑ ∑ ∑ ∑                    (m ,m2 ,m3 ,m4 ) m m m m
+                            Δh2 =C2                             Ph 1         h   k 1 p
+                                                                                     2 3 q4   ,
+                                      m1 =0 m2 =0 m3 =0 m4 =0
+
+                                      3 1 8 8
+                                      ∑ ∑ ∑ ∑                    (m ,m2 ,m3 ,m4 ) m m m m
+                            Δk2 =C2                             Pk 1             h 1k 2p 3q 4,
+                                      m1 =0 m2 =0 m3 =0 m4 =0
+
+                                      2 2 8 9
+                                      ∑ ∑ ∑ ∑
+                                                                                                   (33)
+                              p                                  (m ,m2 ,m3 ,m4 ) m m m m
+                            Δ2 =C∗2                             Pp 1             h 1k 2p 3q 4,
+                                      m1 =0 m2 =0 m3 =0 m4 =0
+
+                                      2 2 9 8
+                              q
+                                      ∑ ∑ ∑ ∑                    (m ,m2 ,m3 ,m4 ) m m m m
+                            Δ2 =C∗2                             Pq 1         h   k 1 p
+                                                                                     2 3 q4   ,
+                                      m1 =0 m2 =0 m3 =0 m4 =0
+
+                                      2 2 8 8
+                                      ∑ ∑ ∑ ∑                    (m ,m2 ,m3 ,m4 ) m m m m
+                            Δ𝜆2 =C2                             P𝜆 1         h   k 1 p
+                                                                                     2 3 q4   ,
+                                      m1 =0 m2 =0 m3 =0 m4 =0
+
+
+
+
+                                                                                                  13
+1302                                       The Journal of the Astronautical Sciences (2022) 69:1292–1318
+
+
+Table 1  Value of the             qi (𝜂)         𝜂0            𝜂1          𝜂2            𝜂3          𝜂4
+polynomials qi (𝜂)
+                                  1              1             1           0             0           0
+                                  2              15            30          7             0           0
+                                  3              45            126         154           78          5
+                                  4              -105          -156        -4            20          5
+                                  5              -105          -246        -122          42          23
+
+
+
+
+where
+
+                                               3𝛼 4 n
+                            C2 =                 (            )4 ,
+                                 8a4 𝜂 8 (𝜂 + 1)3 p2 + q2 + 1
+                                             (            )                                       (34)
+                             ∗
+                                       3𝛼 4 n p2 + q2 − 1
+                            C2 =                 (            )3 ,
+                                 8a4 𝜂 8 (𝜂 + 1)2 p2 + q2 + 1
+                        (m ,m ,m ,m )
+and the coefficients P𝜎 1 2 3 4 are polynomial in 𝜂 . The values of these coefficients
+are given in Tables 2–7 of the Appendix B.
+   For the case of retrograde orbits (I = −1) and i = 𝜋, we have that p = q = 0 and
+take the limits when p → 0 and q → 0 and we obtain
+
+                            Δh2 =C2 k[q3 (𝜂) + 4q2 (𝜂)h2 ],
+                            Δk2 =C2 h[q5 (𝜂) + 4q2 (𝜂)k2 ],
+                             p
+                            Δ2 =0,                                                                (35)
+                              q
+                            Δ2 =0,
+                            Δ𝜆2 = − C2 [q1 (𝜂)q4 (𝜂) + 4q2 (𝜂)k2 ],
+
+where
+
+                                                    3𝛼 4 n
+                                        C2 =                    ,
+                                               8a4 𝜂 8 (𝜂 + 1)2
+and the coefficient qi (𝜂) is a polynomial in 𝜂 of ith order with the coefficients in
+Table 1.
+   Finally, the second-order terms have been tested reproducing the solution pro-
+vided by Zeis [14]. This approach has been derived from the beginning consider-
+ing the first-order approximation in the eccentricity of the transformed Hamilto-
+nian K2 (19) which yields
+                                      (                 )
+                               3𝛼 4 𝜇6 19s4 − 30s2 + 12      ( )
+                      Zeis
+                    K2 = −                                + O e2 .               (36)
+                                         16L10
+Following the same process used to build the Δ𝜎2 terms (33), the corresponding sec-
+ond-order terms in the Zeis case are
+
+
+13
+The Journal of the Astronautical Sciences (2022) 69:1292–1318                       1303
+
+                        (         )(          )
+              Δh2 =CZ2 k 19s2 − 15 s2 + Ic − 1 ,
+                            (         )(         )
+              Δk2 = − CZ2 h 19s2 − 15 s2 + Ic − 1 ,
+               p          (         )
+              Δ2 =CZ2 cq 19s2 − 15 ,
+               q             (         )                                           (37)
+              Δ2 = − CZ2 cp 19s2 − 15 ,
+                   CZ [ (        )(          )   (                ) ]
+              Δ𝜆2 = 2 2 19s2 − 15 s2 + Ic − 1 + 5 19s4 − 30s2 + 12 𝜂 ,
+                    2
+where CZ2 = 3𝛼 4 n∕(4a4 𝜂). In this simplified case, the expressions do not include any
+singularity and are valid for both direct and retrograde orbits and agree with known
+results [14, 34].
+
+
+4 Numerical Experiments
+
+Validation of any analytical or semi-analytical theories is not a trivial task since the
+accuracy of the theory mainly depends on its correct initialization [35, 36]. In the
+semi-analytical theory presented in this paper, the osculating-to-mean and mean-to-
+osculating transformations are expressed in the singular Delaunay variables, which
+introduce an additional problem to its validation. Both issues do not allow us to
+reproduce or reach the accuracy of the results presented in Fig. 6 in the work of Fol-
+cik and Cefola [16]. These authors use orbital determination techniques to adjust the
+initial conditions properly, whereas the mean-to-oscillating transform is formulated
+in the non-singular equinoctial variables.
+   Finally, we compared the first-order, the truncate second-order (Zeis’s solution),
+and the closed-form second-order semi-analytical theories (SA) with the non-trans-
+formed equations of motion for three families of orbits. The first family, low-altitude
+near circular orbits, has a 200 km perigee height by 210 km apogee, the second
+200 km perigee height by 500 km apogee, and the third 200 km perigee height by
+1000 km apogee. The inclination varies from zero to 180 degrees. Both transformed
+and non-transformed equations of motion were integrated using a highly accurate
+eighth-order Runge-Kutta method [37] (NUM) for two days. Then, their respective
+outputs, 𝐱SAi and 𝐱NUMi , were then compared in terms of their RMS of position dif-
+ferences, as given in Eq. (38).
+                                   �
+                                   � n
+                                   �1 �
+                         RMSpos = �        (‖𝐱      − 𝐱SAi ‖)2 .                    (38)
+                                      n i=1 NUMi
+
+The equations of motion are formulated in equinoctial elements, whereas the
+changes from mean-to-osculating and osculating-to-mean remain in the Delaunay
+variables.
+   Figure 1 describes the evaluation process of the semi-analytical theories. The
+initial osculating elements 𝐱t0 are transformed to initial mean elements 𝐱̄ t0 using
+the osculating-to-mean transformation. Then, the mean equations of motion are
+numerically integrated. Finally, the osculating elements 𝐱t are obtained through the
+
+                                                                             13
+1304                                          The Journal of the Astronautical Sciences (2022) 69:1292–1318
+
+
+
+
+Fig. 1  Evaluation process of a semi-analytical theory
+
+
+
+
+Fig. 2  Position error RMS for the first-order semi-analytical theory for three families of orbits as the
+inclination is varied from 0 to 180 degrees. The family in green includes a 200 km perigee height by 210
+km apogee height (near circular) orbit, in red 200 km perigee height by 500 km apogee height orbit, and
+in blue 200 km perigee height by 1000 km apogee height orbit
+
+
+mean-to-osculating transformation. It is worth noting that the non-transformed equa-
+tions of motion are integrated starting with the same initial conditions 𝐱t0.
+   Figure 2 shows the position error RMS between the first-order semi-analytical
+theory and the numerical integration of the non-transformed problem for the three
+families of orbits. As can be seen, the errors are symmetric for the 90 degrees of
+inclination. For the 200×210 km family, the maximum error is 10 km, obtained
+at an inclination of 90 degrees, whereas the minimum is 4.37 km, at an inclina-
+tion around 52 and 128 degrees. The maximum errors are reduced as the apogee
+height is increased to 500 km and 1000 km to 2.2 and 2 km for inclinations 0
+and 180 degrees, respectively. The minimum errors are approximately 0.47 km at
+inclinations around 74 and 106 degrees.
+   Figure 3 shows the position error RMS for the truncate (blue) and the closed-
+form (red) second-order semi-analytical theories for the family near-circular
+orbits ( e = 0.000759 ). The position errors remain the symmetry to the 90 degrees
+of inclination. As can be seen, the truncate and the closed-form solutions are very
+close to each other, which is consistent with the small eccentricity case. The dif-
+ference between both lines is very small. The maximum error of the two theories
+
+
+
+
+13
+The Journal of the Astronautical Sciences (2022) 69:1292–1318                                        1305
+
+
+
+
+Fig. 3  Position error RMS for the second-order semi-analytical theory for the family near circular orbits
+as inclination is varied from 0 to 180 degrees and 200 km perigee height by 210 km apogee height orbit.
+Red represents closed-form second-order theory and blue the truncate approach
+
+
+Fig. 4  Difference between the
+closed-form and truncate posi-
+tion errors plotted in Fig. 3
+
+
+
+
+is around 463 m for the inclinations of 0 and 180 degrees, whereas the minimum
+error is around 117 m. for the inclinations of 54 and 126 degrees.
+   Figure 4 depicts the difference between the closed-form and the truncate position
+errors plotted in Fig. 3. The accuracy provided by the truncate solution is only better
+between 65 and 180, whereas the closed-form solution is in the rest. We assume that
+this behaviour mainly lies in the small eccentricity of this family and in conserving the
+transformations from osculating-to-mean and mean-to-osculating in Delaunay variables.
+   Figure 5 shows the position error RMS for the truncate (dashed line) and the
+closed-form (continuous line) second-order semi-analytical theories for two fami-
+lies of orbits with 500 km (red) and 1000 km (blue) apogee height, respectively. As
+can be seen, the position errors are symmetrical to the 90 degrees of inclination.
+The loss of accuracy produced by conserving the singular Delaunay variables in
+the transformations is visible in the family with 500 km apogee height as incli-
+nation varies from 0 to 50 and 130 to 180 degrees. The maximum errors of both
+theories are reached for the inclination of 0 and 180 degrees, with around 180 m
+for the closed-form and 160 m for the truncate. The minimum errors or the closed
+and truncated theories are around 63 m and 45 m for an inclination of 55 and 45
+degrees, respectively. However, this behaviour changes for the family with 1000 km
+
+
+
+
+                                                                                             13
+1306                                        The Journal of the Astronautical Sciences (2022) 69:1292–1318
+
+
+
+
+Fig. 5  Position error RMS for the second-order semi-analytical theory for two families of orbits as the
+inclination is varied from 0 to 180 degrees. The family in red includes the 200 km perigee height by 500
+km apogee height orbits, and in blue, the family of 200 km perigee height by 1000 km apogee height
+orbits. The continuous line indicates the closed-form second-order theory and the dashed line the trun-
+cate approach
+
+
+
+
+Fig. 6  Position error RMS for the second-order semi-analytical theory for two families of orbits as the
+inclination is varied from 0 to 180 degrees. The family in red includes the 200 km perigee height by 500
+km apogee height orbits, and in blue, the family of 200 km perigee height by 1000 km apogee height
+orbits. The continuous line indicates the closed-form second-order theory and the dashed line the trun-
+cate approach. The transformation from mean to osculating and from osculating to mean is done using
+the first-order expressions
+
+
+apogee height. The accuracy of the closed-form theory improves the truncate one
+for all inclination. The maximum and minimum errors in the closed-form are 173 m
+and 95 m, respectively, whereas in the truncate are 335 m and 131 m.
+    Finally, Fig. 6 simulates the current status of the different implementations of the
+J22 effect in GTDS-DSST and DSST Standalone using the closed-form and truncate
+mean equations of motion and the families of 500 km (red) and 1000 km (blue)
+apogee height. The second-order osculating-to-mean transformation was applied to
+the initial conditions. On the other hand, the change from mean to osculating is
+done using the first-order expressions. For both families of orbits, the accuracy of
+the closed-form equations of motion slightly predominates over the accuracy given
+by the truncate equations. It is not clear for the family of 500 km because both
+lines are close to each other, as can be seen in Fig. 7. However, this behaviour can
+be appreciated in the family of 1000 km apogee height, especially for inclinations
+
+
+
+13
+The Journal of the Astronautical Sciences (2022) 69:1292–1318                                1307
+
+
+
+
+Fig. 7  Difference between the closed-form and truncate position errors plotted in Fig. 6
+
+
+
+from 40 to 130 degrees. It is worth noting that the asymmetry errors at 0 and 180
+degrees inclination detected in [16] do not appear in our analytical expressions.
+
+
+5 Conclusion and Future Work
+
+In this paper, a second-order closed-form semi-analytical solution of the J2 problem
+has been developed. An extension of the Lie-Deprit method and Delaunay variables
+is used to remove the short-period terms from the equations of motion using the
+Hamiltonian formalism. This semi-analytical theory has been implemented using
+MathATESAT a Mathematica-based tool.
+   The averaged equations of motion are given explicitly and transformed into the
+non-singular equinoctial elements. This semi-analytical theory is equivalent to oth-
+ers in which Lagrange Planetary equations, as well as General Averaging Method
+and equinoctial elements, are used, and hence, consistent with the Draper Semi-
+analytic Satellite Theory. These analytical expressions improve the computational
+speed of the numerical-based approach, which is only available in the GTDS-DSST
+version.
+   Additionally, the second-order terms have been tested reproducing the solution
+provided by Zeis, validated numerically, and included in DSST C.
+   Finally, we are currently working on expressing the second-order mean-to-oscu-
+lating transformation in equinoctial elements, calculating the partial derivatives nec-
+essary for an orbit determination system and integrating GTDS-DSST and DSST
+Standalone. It is worth noting that these expressions are essential to reach the com-
+plete accuracy of the second-order theory.
+
+
+
+
+                                                                                            13
+1308                                  The Journal of the Astronautical Sciences (2022) 69:1292–1318
+
+
+Appendix A W2
+
+The second-order generating function is
+
+           𝛼 4 𝜇4 [ 3 (                               )
+       W2 =  7  7
+                    − 𝜙 5P7 s4 + 8P8 s2 − 8P6
+           L 𝜂        64
+                  1       (              )              3
+           +           s2 P34 s2 + P33 sin 2g +             s4 P22 P3 sin 4g
+              128P1                                 256P1
+                 3         (                  )
+           +          P2 𝜙 5P13 s4 − 2P17 s2 cos 2g
+              32P1
+                 3      (                           )
+           +         P2 P29 s4 − 8P25 s2 + 8P19 sin f
+              128e
+                  3        (                          )
+           −           P2 P26 s4 + 8P14 s2 − 8P12 sin 2f
+              128P1
+                   1         (                           )
+           +            P2 P s4 + 16P11 s2 − 16P21 sin 3f
+              256P1 e 2 28
+                  9                       3 4 3
+           −           s4 P22 sin 4f +      s P2 sin 5f
+              128P1                    256e
+                  3        (               )
+           −           P2 P s4 − 2P9 s2 sin(f − 2g)
+              32P1 e 2 10
+                3 2 (                    )
+           −        s P2 P31 s2 + P30 sin(f + 2g)
+              64e                                                                    (A1)
+                 3 4 3                        3       4 2
+           +         s P2 sin(f − 4g) +             s P2 P21 sin(f + 4g)
+              256e                         256P1 e
+                 3                            3 (                  )
+           +          P2 S sin(2f − 2g) + s2 P23 s2 + P24 sin(2f + 2g)
+              64P1 2 2                       64
+                 15 4
+           +           s P2 P16 sin(2f + 4g)
+              256P1
+                 1                            1 2 (                     )
+           −         S P3 sin(3f − 2g) −          s P2 P27 s2 − 2P18 sin(3f + 2g)
+              128e 2 2                       32e
+                15 4
+           +         s P2 P15 sin(3f + 4g)
+              256e
+                3 2 ( 2                  )                  3 4
+           −        s P2 P5 s − 2P4 sin(4f + 2g) +              s P20 sin(4f + 4g)
+              128                                          256
+                3                              3 4
+           −        eS P sin(5f + 2g) +            s P32 sin(5f + 4g)
+              128 2 2                        256e
+                3 2 4
+           −        e s sin(6f + 4g)
+              256
+                                                                                   ]
+               9                         9                        3
+           + eS1 cos(f + 2g) + S1 cos(2f + 2g) + eS1 cos(3f + 2g) ,
+              16                        16                      16
+              (          )             (        )
+where S1 = s2 5s2 − 4 𝜙, S2 = s2 3s2 − 2 and Pi represent polynomials in 𝜂 given
+by
+                                      P1 = 𝜂 + 1,                                           (A2)
+
+
+13
+The Journal of the Astronautical Sciences (2022) 69:1292–1318                        1309
+
+
+                                    P2 = 𝜂 − 1,
+
+                                    P3 = 3𝜂 + 7,
+
+                                    P4 = 5𝜂 + 11,
+
+                                    P5 = 13𝜂 + 31,
+
+                                    P6 = 𝜂 2 − 5,
+
+                                    P7 = 𝜂 2 + 7,
+
+                                    P8 = 𝜂 2 − 10,
+
+                                    P9 = 𝜂(3𝜂 + 4),
+
+                                   P10 = 7𝜂 2 + 9𝜂 − 1,
+
+                                   P11 = 𝜂 2 + 3𝜂 + 2,
+
+                                   P12 = 𝜂 2 + 4𝜂 + 3,
+
+                                   P13 = 3𝜂 2 + 10𝜂 + 5,
+
+                                   P14 = 𝜂 2 + 6𝜂 + 6,
+
+                                   P15 = 𝜂 2 + 2𝜂 − 7,
+
+                                   P16 = 𝜂 2 − 2𝜂 − 7,
+
+                                   P17 = 7𝜂 2 + 22𝜂 + 11,
+
+                                   P18 = 𝜂 2 + 8𝜂 + 14,                              (A3)
+                                   P19 = 𝜂 2 + 12𝜂 + 15,
+
+                                   P20 = 𝜂 2 − 18𝜂 + 21,
+
+                                   P21 = 𝜂 2 + 18𝜂 + 21,
+
+                                   P22 = 2𝜂 2 + 9𝜂 + 23,
+
+                                   P23 = 2𝜂 2 + 9𝜂 − 23,
+
+                                   P24 = − 4𝜂 2 − 6𝜂 + 26,
+
+                                   P25 = 5𝜂 2 + 21𝜂 + 30,
+
+                                   P26 = 5𝜂 2 + 4𝜂 − 31,
+
+                                   P27 = 3𝜂 2 + 25𝜂 + 43,
+
+                                   P28 = 25𝜂 2 − 6𝜂 − 59,
+
+                                   P29 = 49𝜂 2 + 37𝜂 + 112,
+
+                                   P30 = − 20𝜂 2 + 102𝜂 + 126,
+
+                                   P31 = 26𝜂 2 − 109𝜂 − 145,
+
+                                   P32 = 3𝜂 3 − 7𝜂 2 − 3𝜂 + 7,
+
+                                   P33 = − 456𝜂 4 − 510𝜂 3 − 338𝜂 2 + 382𝜂 + 538,
+
+                                   P34 = 540𝜂 4 + 591𝜂 3 + 397𝜂 2 − 407𝜂 − 641.
+
+
+
+                    (m ,m2 ,m3 ,m4 )
+Appendix B P 1
+                       (m ,m2 ,m3 ,m4 )
+The coefficients P𝜎 1                     are given in Tables 2, 3, 4, 5 and 6.
+
+
+                                                                                    13
+1310                              The Journal of the Astronautical Sciences (2022) 69:1292–1318
+
+          (m ,m2 ,m3 ,m4 )
+Table 2  Ph 1                m1      m2          m3           m4            (m ,m2 ,m3 ,m4 )
+                                                                          Ph 1
+
+                             1       2           7            1           8p1 (𝜂)p6 (𝜂)
+                             1       2           5            3           24p1 (𝜂)p6 (𝜂)
+                             1       2           5            1           −16p22 (𝜂)
+                             1       2           3            5           24p1 (𝜂)p6 (𝜂)
+                             1       2           3            3           −32p22 (𝜂)
+                             1       2           3            1           24p23 (𝜂)
+                             1       2           1            7           8p1 (𝜂)p6 (𝜂)
+                             1       2           1            5           −16p22 (𝜂)
+                             1       2           1            3           24p23 (𝜂)
+                             1       2           1            1           −64p14 (𝜂)
+                             1       0           5            1           −8p1 (𝜂)p2 (𝜂)p6 (𝜂)
+                             1       0           3            3           −16p1 (𝜂)p2 (𝜂)p6 (𝜂)
+                             1       0           3            1           64p1 (𝜂)p2 (𝜂)p4 (𝜂)
+                             1       0           1            5           −8p1 (𝜂)p2 (𝜂)p6 (𝜂)
+                             1       0           1            3           64p1 (𝜂)p2 (𝜂)p4 (𝜂)
+                             1       0           1            1           −8p1 (𝜂)p2 (𝜂)p6 (𝜂)
+                             0       3           8            0           −4p1 (𝜂)p6 (𝜂)
+                             0       3           6            2           −8p1 (𝜂)p6 (𝜂)
+                             0       3           6            0           8p22 (𝜂)
+                             0       3           4            2           8p22 (𝜂)
+                             0       3           4            0           −12p23 (𝜂)
+                             0       3           2            6           8p1 (𝜂)p6 (𝜂)
+                             0       3           2            4           −8p22 (𝜂)
+                             0       3           2            0           32p14 (𝜂)
+                             0       3           0            8           4p1 (𝜂)p6 (𝜂)
+                             0       3           0            6           −8p22 (𝜂)
+                             0       3           0            4           12p23 (𝜂)
+                             0       3           0            2           −32p14 (𝜂)
+                             0       1           8            0           −p1 (𝜂)2 p21 (𝜂)
+                             0       1           6            2           −8p1 (𝜂)2 p18 (𝜂)
+                             0       1           6            0           4p1 (𝜂)p29 (𝜂)
+                             0       1           4            4           −18p1 (𝜂)3 p9 (𝜂)
+                             0       1           4            2           4p1 (𝜂)p32 (𝜂)
+                             0       1           4            0           −2p1 (𝜂)p34 (𝜂)
+                             0       1           2            6           −8p1 (𝜂)2 p16 (𝜂)
+                             0       1           2            4           −4p1 (𝜂)p26 (𝜂)
+                             0       1           2            2           24p1 (𝜂)3 p8 (𝜂)
+                             0       1           2            0           4p1 (𝜂)p27 (𝜂)
+                             0       1           0            8            p1 (𝜂)2 p19 (𝜂)
+                             0       1           0            6           −4p1 (𝜂)p25 (𝜂)
+                             0       1           0            4           2p1 (𝜂)p31 (𝜂)
+                             0       1           0            2           −4p1 (𝜂)p24 (𝜂)
+                             0       1           0            0           −p1 (𝜂)3 p10 (𝜂)
+
+
+13
+The Journal of the Astronautical Sciences (2022) 69:1292–1318                                 1311
+
+          (m ,m2 ,m3 ,m4 )
+Table 3  Pk 1                        m1          m2             m3   m4    (m ,m2 ,m3 ,m4 )
+                                                                          Pk 1
+
+                                     3           0              8    0    −4p1 (𝜂)p6 (𝜂)
+                                     3           0              6    2    −8p1 (𝜂)p6 (𝜂)
+                                     3           0              6    0    8p22 (𝜂)
+                                     3           0              4    2    8p22 (𝜂)
+                                     3           0              4    0    −12p23 (𝜂)
+                                     3           0              2    6    8p1 (𝜂)p6 (𝜂)
+                                     3           0              2    4    −8p22 (𝜂)
+                                     3           0              2    0    32p14 (𝜂)
+                                     3           0              0    8    4p1 (𝜂)p6 (𝜂)
+                                     3           0              0    6    −8p22 (𝜂)
+                                     3           0              0    4    12p23 (𝜂)
+                                     3           0              0    2    −32p14 (𝜂)
+                                     2           1              7    1    −8p1 (𝜂)p6 (𝜂)
+                                     2           1              5    3    −24p1 (𝜂)p6 (𝜂)
+                                     2           1              5    1    16p22 (𝜂)
+                                     2           1              3    5    −24p1 (𝜂)p6 (𝜂)
+                                     2           1              3    3    32p22 (𝜂)
+                                     2           1              3    1    −24p23 (𝜂)
+                                     2           1              1    7    −8p1 (𝜂)p6 (𝜂)
+                                     2           1              1    5    16p22 (𝜂)
+                                     2           1              1    3    −24p23 (𝜂)
+                                     2           1              1    1    64p14 (𝜂)
+                                     1           0              8    0    −p1 (𝜂)2 p19 (𝜂)
+                                     1           0              6    2    8p1 (𝜂)2 p16 (𝜂)
+                                     1           0              6    0    4p1 (𝜂)p25 (𝜂)
+                                     1           0              4    4    18p1 (𝜂)3 p9 (𝜂)
+                                     1           0              4    2    4p1 (𝜂)p26 (𝜂)
+                                     1           0              4    0    −2p1 (𝜂)p31 (𝜂)
+                                     1           0              2    6    8p1 (𝜂)2 p18 (𝜂)
+                                     1           0              2    4    −4p1 (𝜂)p32 (𝜂)
+                                     1           0              2    2    −24p1 (𝜂)3 p8 (𝜂)
+                                     1           0              2    0    4p1 (𝜂)p24 (𝜂)
+                                     1           0              0    8    p1 (𝜂)2 p21 (𝜂)
+                                     1           0              0    6    −4p1 (𝜂)p29 (𝜂)
+                                     1           0              0    4    2p1 (𝜂)p34 (𝜂)
+                                     1           0              0    2    −4p1 (𝜂)p27 (𝜂)
+                                     1           0              0    0    p1 (𝜂)3 p10 (𝜂)
+                                     0           1              5    1    8p1 (𝜂)p2 (𝜂)p6 (𝜂)
+
+
+
+
+                                                                                   13
+1312                              The Journal of the Astronautical Sciences (2022) 69:1292–1318
+
+
+Table 3  (continued)         m1     m2          m3           m4            (m ,m2 ,m3 ,m4 )
+                                                                         Pk 1
+
+                             0      1           3            3           16p1 (𝜂)p2 (𝜂)p6 (𝜂)
+                             0      1           3            1           −64p1 (𝜂)p2 (𝜂)p4 (𝜂)
+                             0      1           1            5           8p1 (𝜂)p2 (𝜂)p6 (𝜂)
+                             0      1           1            3           −64p1 (𝜂)p2 (𝜂)p4 (𝜂)
+                             0      1           1            1           8p1 (𝜂)p2 (𝜂)p6 (𝜂)
+
+
+
+
+          (m ,m2 ,m3 ,m4 )
+Table 4  Pp 1                m1         m2           m3           m4                (m ,m2 ,m3 ,m4 )
+                                                                                  Pp 1
+
+                             2          0            4            1               −p6 (𝜂)
+                             2          0            2            3               −2p6 (𝜂)
+                             2          0            2            1               −2p6 (𝜂)
+                             2          0            0            5               −p6 (𝜂)
+                             2          0            0            3               2p12 (𝜂)
+                             2          0            0            1               −p6 (𝜂)
+                             1          1            5            0               2p6 (𝜂)
+                             1          1            3            2               4p6 (𝜂)
+                             1          1            3            0               −16p4 (𝜂)
+                             1          1            1            4               2p6 (𝜂)
+                             1          1            1            2               −8p11 (𝜂)
+                             1          1            1            0               2p6 (𝜂)
+                             0          2            4            1               p6 (𝜂)
+                             0          2            2            3               2p6 (𝜂)
+                             0          2            2            1               2p6 (𝜂)
+                             0          2            0            5               p6 (𝜂)
+                             0          2            0            3               −2p12 (𝜂)
+                             0          2            0            1               p6 (𝜂)
+                             0          0            4            1               −2p1 (𝜂)2 p5 (𝜂)
+                             0          0            2            3               −4p1 (𝜂)2 p5 (𝜂)
+                             0          0            2            1               −2p1 (𝜂)2 p7 (𝜂)
+                             0          0            0            5               −2p1 (𝜂)2 p5 (𝜂)
+                             0          0            0            3               −2p1 (𝜂)2 p7 (𝜂)
+                             0          0            0            1               −2p1 (𝜂)2 p5 (𝜂)
+
+
+
+
+13
+The Journal of the Astronautical Sciences (2022) 69:1292–1318                                       1313
+
+          (m ,m2 ,m3 ,m4 )
+Table 5  Pq 1                        m1            m2               m3        m4       Pq 1
+                                                                                           (m ,m2 ,m3 ,m4 )
+
+
+
+                                     2             0                5         0        −p6 (𝜂)
+                                     2             0                3         2        −2p6 (𝜂)
+                                     2             0                3         0        2p12 (𝜂)
+                                     2             0                1         4        −p6 (𝜂)
+                                     2             0                1         2        −2p6 (𝜂)
+                                     2             0                1         0        −p6 (𝜂)
+                                     1             1                4         1        −2p6 (𝜂)
+                                     1             1                2         3        −4p6 (𝜂)
+                                     1             1                2         1        8p11 (𝜂)
+                                     1             1                0         5        −2p6 (𝜂)
+                                     1             1                0         3        16p4 (𝜂)
+                                     1             1                0         1        −2p6 (𝜂)
+                                     0             2                5         0           p6 (𝜂)
+                                     0             2                3         2        2p6 (𝜂)
+                                     0             2                3         0        −2p12 (𝜂)
+                                     0             2                1         4           p6 (𝜂)
+                                     0             2                1         2        2p6 (𝜂)
+                                     0             2                1         0           p6 (𝜂)
+                                     0             0                5         0        2p1 (𝜂)2 p5 (𝜂)
+                                     0             0                3         2        4p1 (𝜂)2 p5 (𝜂)
+                                     0             0                3         0        2p1 (𝜂)2 p7 (𝜂)
+                                     0             0                1         4        2p1 (𝜂)2 p5 (𝜂)
+                                     0             0                1         2        2p1 (𝜂)2 p7 (𝜂)
+                                     0             0                1         0        2p1 (𝜂)2 p5 (𝜂)
+
+
+
+
+          (m ,m2 ,m3 ,m4 )
+Table 6  P𝜆 1                        m1           m2            m3       m4         (m ,m2 ,m3 ,m4 )
+                                                                                   P𝜆 1
+
+                                     2            0             8        0         2p1 (𝜂)p6 (𝜂)
+                                     2            0             6        2         4p1 (𝜂)p6 (𝜂)
+                                     2            0             6        0         −2p30 (𝜂)
+                                     2            0             4        2         −2p30 (𝜂)
+                                     2            0             4        0         2p33 (𝜂)
+                                     2            0             2        6         −4p1 (𝜂)p6 (𝜂)
+                                     2            0             2        4         2p30 (𝜂)
+                                     2            0             2        0         −2p28 (𝜂)
+                                     2            0             0        8         −2p1 (𝜂)p6 (𝜂)
+                                     2            0             0        6         2p30 (𝜂)
+                                     2            0             0        4         −2p33 (𝜂)
+                                     2            0             0        2         2p28 (𝜂)
+                                     1            1             7        1         8p1 (𝜂)p6 (𝜂)
+                                     1            1             5        3         24p1 (𝜂)p6 (𝜂)
+
+
+
+                                                                                       13
+1314                        The Journal of the Astronautical Sciences (2022) 69:1292–1318
+
+
+Table 6  (continued)   m1      m2            m3           m4             (m ,m2 ,m3 ,m4 )
+                                                                        P𝜆 1
+
+                       1       1             5            1             −8p30 (𝜂)
+                       1       1             3            5             24p1 (𝜂)p6 (𝜂)
+                       1       1             3            3             −16p30 (𝜂)
+                       1       1             3            1             8p33 (𝜂)
+                       1       1             1            7             8p1 (𝜂)p6 (𝜂)
+                       1       1             1            5             −8p30 (𝜂)
+                       1       1             1            3             8p33 (𝜂)
+                       1       1             1            1             −8p28 (𝜂)
+                       0       2             8            0             −2p1 (𝜂)p6 (𝜂)
+                       0       2             6            2             −4p1 (𝜂)p6 (𝜂)
+                       0       2             6            0             2p30 (𝜂)
+                       0       2             4            2             2p30 (𝜂)
+                       0       2             4            0             −2p33 (𝜂)
+                       0       2             2            6             4p1 (𝜂)p6 (𝜂)
+                       0       2             2            4             −2p30 (𝜂)
+                       0       2             2            0             2p28 (𝜂)
+                       0       2             0            8             2p1 (𝜂)p6 (𝜂)
+                       0       2             0            6             −2p30 (𝜂)
+                       0       2             0            4             2p33 (𝜂)
+                       0       2             0            2             −2p28 (𝜂)
+                       0       0             8            0             −p1 (𝜂)3 p20 (𝜂)
+                       0       0             6            2             −4p1 (𝜂)3 p20 (𝜂)
+                       0       0             6            0             −4p1 (𝜂)3 p13 (𝜂)
+                       0       0             4            4             −6p1 (𝜂)3 p20 (𝜂)
+                       0       0             4            2             −12p1 (𝜂)3 p13 (𝜂)
+                       0       0             4            0            12p1 (𝜂)3 p15 (𝜂)
+                       0       0             2            6             −4p1 (𝜂)3 p20 (𝜂)
+                       0       0             2            4             −12p1 (𝜂)3 p13 (𝜂)
+                       0       0             2            2             24p1 (𝜂)3 p15 (𝜂)
+                       0       0             2            0             −60p1 (𝜂)3 p3 (𝜂)
+                       0       0             0            8             −p1 (𝜂)3 p20 (𝜂)
+                       0       0             0            6             −4p1 (𝜂)3 p13 (𝜂)
+                       0       0             0            4            12p1 (𝜂)3 p15 (𝜂)
+                       0       0             0            2             −60p1 (𝜂)3 p3 (𝜂)
+                       0       0             0            0             −p1 (𝜂)3 p17 (𝜂)
+
+
+
+
+13
+The Journal of the Astronautical Sciences (2022) 69:1292–1318                                   1315
+
+
+Table 7  {pi (𝜂)}34
+                 i=1
+                     I=1             pi (𝜂)      𝜂0             𝜂1      𝜂2           𝜂3          𝜂4
+
+                                     1           1              1       0            0           0
+                                     2           0              0       1            0           0
+                                     3           3              3       1            0           0
+                                     4           5              10      2            0           0
+                                     5           −10            −6      1            0           0
+                                     6           15             30      7            0           0
+                                     7           15             24      7            0           0
+                                     8           20             28      7            0           0
+                                     9           −25            −12     3            0           0
+                                     10          −35            −12     5            0           0
+                                     11          45             90      19           0           0
+                                     12          55             110     23           0           0
+                                     13          60             69      22           0           0
+                                     14          15             45      39           7           0
+                                     15          20             33      19           5           0
+                                     16          −30            −48     −25          1           0
+                                     17          −35            −27     −3           5           0
+                                     18          −45            −63     −2           8           0
+                                    19           45             81      73           5           0
+                                    20           −75            −51     1            5           0
+                                    21           −105           −141    19           23          0
+                                    22           115            345     289          51          0
+                                    23           135            405     341          55          0
+                                    24           −15            0       143          186         34
+                                    25           −55            −56     245          334         64
+                                    26           65             292     593          466         76
+                                    27           −105           −240    −65          130         36
+                                    28           120            405     477          211         35
+                                    29           −175           −404    −103         202         52
+                                    30           230            735     743          257         35
+                                    31           −285           −402    770          1270        239
+                                    32           −295           −752    −451         70          40
+                                    33           405            1335    1463         565         80
+                                    34           −525           −1218   −226         766         155
+
+
+
+Acknowledgements This paper is dedicated to the memory of Wayne McClain. This work has been
+funded by the Spanish State Research Agency and the European Regional Development Fund under
+Project PID2021-123219OB-I00 (AEI/ERDF, EU). The authors would like to thank the referees for
+their valuable comments and suggestions towards improvement of this paper. Paul Cefola would like to
+acknowledge discussions with Mr. Zachary Folcik, MIT Lincoln Laboratory, Lexington, Massachusetts,
+Dr. Srinivas Setty, GMV, Madrid, Spain, and Mr. Bryan Cazabonne, CS GROUP, Toulouse, France. Paul
+Cefola would also like to acknowledge ongoing discussions with Mr. Kye Howell, Mr. Brian Athearn, and
+Ms. Prudence Athearn Levy, all of Martha’s Vineyard, Massachusetts.
+
+
+
+
+                                                                                           13
+1316                                            The Journal of the Astronautical Sciences (2022) 69:1292–1318
+
+
+Funding Open Access funding provided thanks to the CRUE-CSIC agreement with Springer Nature.
+
+Declarations
+
+Conflict of interest The authors declare no conflict of interest in the creation of this work.
+
+Open Access This article is licensed under a Creative Commons Attribution 4.0 International License,
+which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as
+you give appropriate credit to the original author(s) and the source, provide a link to the Creative Com-
+mons licence, and indicate if changes were made. The images or other third party material in this article
+are included in the article’s Creative Commons licence, unless indicated otherwise in a credit line to the
+material. If material is not included in the article’s Creative Commons licence and your intended use is
+not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission
+directly from the copyright holder. To view a copy of this licence, visit http://​creat​iveco​mmons.​org/​licen​
+ses/​by/4.​0/.
+
+
+
+References
+ 1. Cappellari, J.O., Long, A.C., Velez, C.E., Fuchs, A.J.: Goddard Trajectory Determination System
+    (GTDS). Technical Report CSC/TR-89/6021, Goddard Space Flight Center (1989)
+ 2. Folcik, Z., Cefola, P.: Very long arc timing coefficient and solar lunar planetary ephemeris files
+    and application. In: Proceedings 29th AAS/AIAA Space Flight Mechanics Meeting, Ka’anapali, HI,
+    USA (2019). Paper AAS 19-401
+ 3. Early, L.W.: A portable orbit generator using semianalytical satellite theory. In: Proceedings 1986
+    AIAA/AAS Astrodynamics Conference, Williamsburg, VA, USA (1986). American Institute of
+    Aeronautics and Astronautics. Paper AIAA 86-2164-CP
+ 4. Neelon, J.G., Jr., Cefola, P.J., Proulx, R.J.: Current development of the draper semianalytical satel-
+    lite theory standalone orbit propagator package. Adv. Astronautic. Sci. 97, 2037–2052 (1998)
+ 5. Cefola, P.J., Bentley, B., Maisonobe, L., Parraud, P., Di-Constanzo, R., Folcik, Z.: Verification of
+    the Orekit Java implementation of the Draper semi-analytical satellite theory. Adv. Astronautical
+    Sci. 148, 3079–3110 (2013)
+ 6. Cefola, P.J., Folcik, Z., Di-Costanzo, R., Bernard, N., Setty, S., San-Juan, J.F.: Revisiting the DSST
+    standalone orbit propagator. Adv. Astronautic. Sci. 152, 2891–2914 (2014)
+ 7. Setty, S.J., Cefola, P.J., Montenbruck, O., Fiedler, H.: Application of semi-analytical satellite The-
+    ory orbit propagator to orbit determination for space object catalog maintenance. Adv. Space Res.
+    57(10), 2218–2233 (2016). https://​doi.​org/​10.​1016/j.​asr.​2016.​02.​028
+ 8. San-Juan, J.F., Lara, M., López, R., López, L.M., Weeden, B., Cefola, P.J.: Allocation of DSST in
+    the new implementation of AstrodyWeb    Tools
+                                                  . In: Proceedings Advanced Maui Optical and Space Surveil-
+    lance Technologies Conference, AMOS 2012, Maui, HI, USA, pp. 346–362 (2012). Maui Economic
+    Development Board
+ 9. San-Juan, J.F., López, R., Suanes, R., Pérez, I., Setty, S.J., Cefola, P.J.: Migration of the DSST Stan-
+    dalone to C/C++. Adv. Astronautical Sci. 160, 2419–2437 (2017)
+10. San-Juan, J.F., López, R., Suanes, R., Pérez, I., Setty, S.J., Cefola, P.J.: Validation of DSST C/C++
+    against original Fortran version: integration test. In: Proceedings of the AIAA Scitech 2020 Forum,
+    Orlando, FO, USA (2020). American Institute of Aeronautics and Astronautics. Paper AIAA
+    20-0955. https://​doi.​org/​10.​2514/6.​2020-​0955
+11. Krylov, N.M., Bogoliubov, N.N.: Introduction to Non-linear Mechanics. Princeton University Press,
+    Princeton, NJ, USA (1943)
+12. Bogoliubov, N.N., Mitropolsky, Y.A.: Asymptotic Methods in the Theory of Non-linear Oscilla-
+    tions. Translated from the second revised Russian edition. International Monographs on Advanced
+    Mathematics and Physics. Hindustan Publishing Corp., Delhi, India; Gordon and Breach Science
+    Publishers, New York, NY, USA (1961)
+
+
+
+
+13
+The Journal of the Astronautical Sciences (2022) 69:1292–1318                                            1317
+
+
+13. McClain, W.D.: A recursively formulated first-order semianalytic artificial satellite theory based on the
+    generalized method of averaging. Volume 1: The generalized method of averaging applied to the artifi-
+    cial satellite problem. Technical Report CSC/TR-77/6010, Computer Sciences Corporation (June 1977)
+14. Zeis, E.G.: A computerized algebraic utility for the construction of nonsingular satellite theories. Mas-
+    ter’s thesis, Department of Aeronautics and Astronautics, Massachusetts Institute of Technology, Cam-
+    bridge, MA, USA
+15. Fischer, J.D.: The evolution of highly eccentric orbits. Master’s thesis, Department of Aeronautics and
+    Astronautics, Massachusetts Institute of Technology, Cambridge, MA, USA (1998)
+16. Folcik, Z., Cefola, P.J.: A general solution to the second order J2 contribution in a mean element semi-
+    analytical satellite theory. In: Proceedings Advanced Maui Optical and Space Surveillance Technolo-
+    gies Conference, AMOS 2012, Maui, HI, USA (2012). Maui Economic Development Board
+17. Hori, G.-i.: Theory of general perturbations with unspecified canonical variables. Publications of the
+    Astronomical Society of Japan 18(4), 287–296 (1966)
+18. Deprit, A.: Canonical transformations depending on a small parameter. Celestial Mechan. 1(1), 12–30
+    (1969). https://​doi.​org/​10.​1007/​BF012​30629
+19. Henrard, J.: On a perturbation theory using Lie transforms. Celestial Mechanics 3(1), 107–120 (1970).
+    https://​doi.​org/​10.​1007/​BF012​30436
+20. Kamel, A.A.: Perturbation method in the theory of nonlinear oscillations. Celestial Mechanics 3(1),
+    90–106 (1970). https://​doi.​org/​10.​1007/​BF012​30435
+21. Theory of general perturbations for non-canonical systems: Hori, G.-i. Publ. Astron. Soc. Japan 23,
+    567–587 (1971)
+22. Morrison, J.A.: Generalized method of averaging and the von Zeipel method. In: Duncombe, R.L., Sze-
+    behely, V.G. (eds.) Methods in Astrodynamics and Celestial Mechanics. Progress in Astronautics and
+    Aeronautics, vol. 17, pp. 117–138. American Institute of Aeronautics and Astronautics (1966). https://​
+    doi.​org/​10.​2514/5.​97816​00864​919.​0117.​0138
+23. Shniad, H.: The equivalence of von Zeipel mappings and Lie transforms. Celestial Mechanics 2(1),
+    114–120 (1970). https://​doi.​org/​10.​1007/​BF012​30455
+24. Slutsky, M.: Zonal harmonic short-periodic model developed for the Precision Orbit Propagation (POP)
+    contract. Intralab Memorandum PL-016-81-MS, Charles Stark Draper Laboratory, Cambridge, MA,
+    USA (November 1981)
+25. Kozai, Y.: Second-order solution of artificial satellite theory without air drag. Astronomical J. 67(7),
+    446–461 (1962). https://​doi.​org/​10.​1086/​108753
+26. von Zeipel, H.: Recherches sur le mouvement des petites planètes. Arkiv för Matematik, Astronomi och
+    Fysik 11(1-2) (1916)
+27. San-Juan, J.F., López, R., Pérez, I., San-Martín, M.: A note about certain arbitrariness in the solution of
+    the homological equation in Deprit’s method. Math. Problems Eng. 2015, 10 (2015). https://​doi.​org/​10.​
+    1155/​2015/​982857
+28. San-Juan, J.F., López, L.M., López, R.: MathATESAT: A symbolic-numeric environment in Astrody-
+    namics and Celestial Mechanics. Lecture Notes Comput. Sci. 6783(2), 436–449 (2011). https://​doi.​org/​
+    10.​1007/​978-3-​642-​21887-3_​34
+29. Brouwer, D.: Solution of the problem of artificial satellite theory without drag. Astron. J. 64(1274),
+    378–397 (1959). https://​doi.​org/​10.​1086/​107958
+30. Delaunay, C.: Théorie du Mouvement de la Lune. Tome Premier. Extrait des Mémoires de l’Académie
+    des Sciences de l’Institut Impérial de France, vol. XXVIII. Mallet-Bachelier, Paris (1860)
+31. Chang, D.E., Marsden, J.E.: Geometric derivation of the Delaunay variables and geometric phases.
+    Celest. Mech. Dyn. Astron. 86(2), 185–208 (2003). https://​doi.​org/​10.​1023/A:​10241​74702​036
+32. Deprit, A.: Delaunay normalisations. Celestial Mechanics 26(1), 9–21 (1982). https://​doi.​org/​10.​1007/​
+    BF012​33178
+33. Broucke, R., Cefola, P.J.: On the equinoctial orbit elements. Celestial Mechanics 1(3), 303–310 (1972).
+    https://​doi.​org/​10.​1007/​BF012​28432
+34. Danielson, D.A., Neta, B., Early, L.W.: Semianalytic Satellite Theory (SST): mathematical algorithms.
+    Technical Report NPS-MA-94-001, Naval Postgraduate School, Monterey, CA, USA (January 1994)
+35. Breakwell, J.V., Vagners, J.: On error bounds and initialization in satellite orbit theories. Celestial
+    Mechanics 2, 253–264 (1970)
+36. Lara, M.: Note on the analytical integration of circumterrestrial orbits. Adv. Space Res. 69(12), 4169–
+    4178 (2022). https://​doi.​org/​10.​1016/j.​asr.​2022.​04.​007
+
+
+
+
+                                                                                                 13
+1318                                          The Journal of the Astronautical Sciences (2022) 69:1292–1318
+
+
+37. Dormand, J.R., Prince, P.J.: Practical Runge-Kutta processes. SIAM J. Sci. Statistical Comput. 10(5),
+    977–989 (1989). https://​doi.​org/​10.​1137/​09100​57
+
+Publisher’s Note Springer Nature remains neutral with regard to jurisdictional claims in published maps and
+institutional affiliations.
+
+
+
+
+13
+

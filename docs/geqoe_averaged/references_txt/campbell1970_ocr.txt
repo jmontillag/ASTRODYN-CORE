@@ -1,0 +1,353 @@
+1970CeMec...2..467C
+EQUIVALENCE OF THE PERTURBATION THEORIES OF
+HORI AND DEPRIT
+J.-A. CAMPBELL
+Dept. ofPhysics, Center for Particle Theory, and Dept. of Computer Science,
+University of Texas at Austin, Tex., U.S.A.
+and
+WILLIAM H.JEFFERYS
+Dept. of Astronomy, University of Texas at Austin, Tex., U.S.A.
+(Received 3 December, 1969).
+Abstract. A comparison is made between the perturbation theories of Hori and Deprit which are
+based on the use of Poisson brackets. General recurrence formulae are presented for Hori’s theory
+which are analogous to those in Deprit’s theory. Explicit relations between the determining functions
+for the two theories are indicated through the sixth order, these results having been obtained by a
+novel computer program. A general argument for the equivalence of the theories to all orders is given.
+1. Introduction
+Perturbation theories based on the use of Poisson brackets have several advantages
+over the usual von Zeipel’s method (Hori, 1966; Deprit, 1969). The determining
+function is not a mixed function of old and new coordinates; the theory is canonically
+invariant (because this is true of the Poisson brackets), and it is possible to give a
+direct expression of any function of old variables in terms of the new variables.
+Both Hori and Deprit have proposed formulations of such a perturbation theory,
+which are not obviously equivalent. Deprit’s equations, 1n particular, involve extra
+terms containing partial derivatives with respect to the small parameter «, and thus
+have greater complexity. On the other hand, Deprit (1969) has expressed reservations
+about the correctness of Hori’s formulation, while remarking that a comparative
+study of the two methods may be informative.
+|
+In this paper we present just such a comparative study. First we derive general
+formulae for Hori’s theory analogous to those in Deprit’s theory. Next we show by
+explicit calculation that the two theories are equivalent through the sixth order in ¢
+(the fifth-order and sixth-order calculations having been carried out by a computer
+program), and point out why they should be equivalent to all orders. Through the
+sixth order we shall obtain for every determining function
+W for Deprit’s theory, a
+-
+corresponding function S for Hori’s theory which produces the identical canonical
+transformation.
+2. Brief Description of Deprit’s Theory
+With minor modifications we use the notation of the paper by Deprit (1969). Since his
+treatment is extensive, we shall give only the principal equations. If W(y, Y, €) is an
+Celestial Mechanics 2 (1970) 467-473. All Rights Reserved
+Copyright © 1970 by D. Reidel Publishing Company, Dordrecht- Holland
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..467C
+468
+J. A. CAMPBELL AND WILLIAM H. JEFFERYS
+arbitrary function of canonically conjugate vector variables (y, Y), with ¢ as a small
+parameter, Deprit defines the operator Ly on functions f by
+Of OW
+of oW
+Lyf =f, Wy= ) (EE
+),
+(1)
+Oy; OY;
+OY; Oy;
+j
+Introducing the operator Ay by
+of
+Aywf =Lywf +=,
+(2)
+O&
+he shows that if we define the exponential mapping
+ey
+Ewf =
+~ Ait )e=o ?
+(3)
+n20
+where Ay is the n’th iteration of Ay, and (Ay f),~o is the result of setting e=0 in the
+expansion of Ay f, then the formulae
+xX; =Ewy;,
+X;= EY;
+(4)
+define a canonical transformation (y, Y)->(x, X). If
+fis any function of (y, Y), then
+its expression in the new coordinates is given by E,, f. Deprit then defines
+e"
+W= ) — Wassily ¥)
+(5a)
+n20O
+)
+and
+eg"
+nZ2O
+)
+Since the Poisson brackets {
+, } are bilinear, this leads to
+¢"
+n!
+n20
+where we have set L,,,;=Ly,,,. With
+k
+k
+ek
+f = def = ) fe
+(7)
+n2O
+Deprit shows that
+n
+fr =feart ) (") Lint tSn-m>
+(8)
+m=0
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..467C
+EQUIVALENCE OF THE PERTURBATION THEORIES OF HORI AND DEPRIT
+469
+which is his basic recursion relationship. With all the
+f* known, the transformation is
+constructed through
+et
+Ewf = ) ~ fg.
+(9)
+n!
+n20O
+By using the recursive formula (8) repeatedly and making substitutions into (7), one
+eventually arrives at the relationship between the quantities f§ and f,. Through the
+fourth order, these are:
+fo =fo
+(10a)
+fo =Lifot fi,
+(10b)
+fo =(Li + Le) fo
++ 2Li hi + fo,
+(10c)
+fo =(Li + 2L,L, + LL, + Ls) fo + (3Li + 3L2) fy + 3Life + fs,
+(10d)
+fo =(Lj + 3L,L3 + 3L35 + L3L, + 3L{L, + 2L,L,L,
++ LjLi + Ly) fo + (4L7 + 8L,L, + 4L,L, + 4L3) f;
++ (6L{ + 6L2) fy + 4Lif3 + fa.
+(10e)
+Note that L,L;4L,L; in general, because we are working with noncommuting
+operators. We have derived results for the next two orders by computer, and we shall
+discuss these results in Section 5.
+3. General Recurrence Formulae for Hori’s Theory
+The basic exponential map, corresponding to the determining function S, is given by
+Equation (2) of Hori (1966), which we write as
+eS
+Ff =
+i st ;
+(11)
+n20
+,
+where D,f ={f, S}, and (11) is the equation that corresponds to (9) above for
+Deprit’s theory. In (11) there is no setting of e=0 in any term, in contrast to what
+occurs in (3) above, which is a counterpart of (9). Again we expand fand S in power
+series in &, this time with the choice
+|
+S=
+5.40)
+(12)
+n20
+Equation (12) is not identical in form to (Sa). The extra factor of 1/(n+ 1) under the
+summation makes no change in the interpretation of the method, but it allows an
+easier comparison between formulae without the occurrence of superfluous fractional
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..467C
+470
+J.A. CAMPBELL AND WILLIAM H. JEFFERYS
+coefficients. The expansion for fis unchanged. Then, corresponding to (6), we obtain
+Ds =
+"_p
+(13
+n20
+where D,,+,=Ds,,,- When these definitions are put into (11), the right-hand side
+expanded, and terms in each power of ¢ collected, one arrives at an equation for F,f
+in the form
+ge"
+Fsf = ) at f*
+(14)
+n!
+n20
+where, with different functions f* from those in (7), we have
+n
+n
+—
+>m
+1
+r=) ("fe
+(15)
+m=0
+k+1
+N\
+Dinntt
+pk
+—
+i
+ae
+16
+h
+) (rem a
+(16)
+m=0
+and
+ge”
+n!
+n20
+analogous to Deprit’s formulae in Section 2. To the fourth order, the analogues of
+the Equations (10) are
+f° =fo,
+(18a)
+f° =Difothis
+(18b)
+f* =(Di + Do) fo + 2Difi + fa;
+(18c)
+f° =(Dj + $D,D, + 4D,D, + Ds) fo + (3D} + 3D2) fi
++ 3Difo + fs:
+(18d)
+f* =(Dj 4+ 2D,D; + 3D> + 2D3D, + 2D7D, + 2D,D,D,
++ 2D,D; + D4) fo + (4Di + 6D,D, + 6D2D, + 4Ds) fy
++ (6D{ + 6D) fo + 4D,f3 + fa
+(18e)
+Once again, we have produced the fifth-order and sixth-order terms with a computer
+program.
+4. Comparison of the Two Theories
+In order for the two methods to define identical canonical transformations, we must
+have Eyf =F;ffor every function f. This implies that we must be able to select W
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..467C
+EQUIVALENCE OF THE PERTURBATION THEORIES OF HORI AND DEPRIT
+471
+and S such that, in Equations (10) and (18), we have /¢6= /* for every choice off,.
+This will imply in turn a set of relations between the operators D,, and L,.
+The zeroth order equations are automatically satisfied. The first order requires D,
+and L, to be equal; equivalently, S, = W,. The second-order comparison requires that
+D,=L,, 1.e., S,;=W,. All of these results follow trivially from the observation that
+the coefficients of corresponding terms are identical.
+In the third order, it looks at first inspection as if the equations are in conflict.
+However, if we define
+Where
+[L,, L,]=L,L,—L,L,, then in view of the previous paragraph we get a
+correspondence. Because of the Jacobi identity we have
+[Ly,, Ly, ] =~ Ley, Wyo
+(20)
+which implies that
+S3 = W3 — 1M, W,} ;
+(21)
+Similarly, in the fourth order, the choice
+|
+D,=L,+[L,, Ls]
+(22)
+leads to a correspondence, and from that result we deduce the relation
+S4= Ws - {W,, W3} ;
+CX)
+5. Comparison by Computer Program in the Fifth and Sixth Orders
+_
+Beyond the fourth order the calculations become unwieldy (the number of terms in
+the n’th order for each method is 2”), and automated calculation is highly desirable.
+Several symbolic programs exist already for the type of formula manipulation which
+leads to sets of equations like (10) or (18), but in general these programs are not
+suitable for the final stage of the present calculation, which requires the derivation of
+equations such as (19) or (22). This is so because conventional symbolic programs
+usually first expand expressions to be simplified, and then contract the result in size
+simply by cancellation between terms. A more ingenious design is needed if, for
+example, a program is intended to generate the result (22) and not stop short at the
+form D,=L,+L,L;—L,L,. One of us (J.A.C.) is now developing a program to deal
+with simplification of expressions containing noncommuting quantities and to pro-
+duce results in terms of commutators or anti-commutators. Although the original
+test example for the program was a problem in elementary-particle physics (Gell-
+Mann et al., 1968) quite different from the problem examined in this paper, it required
+only eight days of not very concentrated effort to extend the program to the point
+where it was also capable of turning out the relations quoted in Equations (19), (22),
+and (24).
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..467C
+472
+J. A.CAMPBELL AND WILLIAM H. JEFFERYS
+The program has been written in the versatile list-processing language LISP 1.5
+(McCarthy et al., 1965). The complete calculation through sixth order occupied 74.1
+seconds of central-processor time on a Control Data 6600 computer. It is a good
+working estimate that, if there exists a general descriptive parameter N for a calcula-
+tion (e.g., the order N in perturbation theory), then the time needed for a symbolic
+computation grows at least as fast as an exponential in N. We have found the estimate
+to be confirmed here, and conclude that a seventh-order calculation, if needed, may
+take between 6 and 7 minutes of 6600 computing time. Almost certainly, a program
+written specifically to solve the problem under discussion in this paper will require
+less time for computation, but the present program is intended to be as general as
+possible, and to function in several fields other than celestial mechanics.
+New test examples to make the program more efficient are still needed, and we shall
+be pleased to hear of suggestions of such examples.
+It does not seem profitable to list all the details of the fifth-order and sixth-order
+expansions here, as these are best reproduced by use of the recursive schemes de-
+scribed above, rather than by the use of (10) or (18). However, we do give the central
+results, which are the relationships between the D and L operators:
+Ds =Ls + $[Ly, L4] + (Lo, L3] + SLi, [Li Ls]
++ F[[L1, L2], £2] - 3 (£1, (Ei, [Et Ladd].
+(24a)
++ 2[L4, (Lo, L3]] + $[LL1, Ls], Lo]
++ (Ly, ({L1, Lo], Lol) + 5 L21 (Ei Lal.
+(24b)
+These equations are now readily converted into the relations between the quantities
+S,, and W, by the use of Equation (20).
+6. The Validity of Hori’s Formulation
+At the beginning of Section 3 of his paper, Deprit makes some remarks concerning
+the validity of the straightforward expansions in Lie series when W depends on «. He
+is here referring to developments of functions f(y, Y) which are equivalent to those
+used by Hori. Superficially his statement suggests that Hori’s method is invalid, but
+on closer examination of the statement and of Deprit’s discussion, it appears that we
+are actually led to the opposite conclusion.
+Equations (1) through (17) of Deprit’s paper show the validity of the quoted
+developments for arbitrary functions which are independent of «. Now consider a
+family of functions dependent on «. For a fixed but arbitrary number ¢=ép, these
+become arbitrary functions independent of ¢. Hence equations (1) through (17) of his
+paper assert the validity of the developments for that fixed value of €). (Here we are
+using & merely as a /abel to identify particular functions of the phase variables). But
+&9 is arbitrary, which shows that the expansions are valid for any e.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..467C
+EQUIVALENCE OF THE PERTURBATION THEORIES OF HORI AND DEPRIT
+473
+The crucial formula is Deprit’s Equation (3e), which states that
+where
+e"
+exp(eLy) = ) — Ly -
+(26)
+n!
+n20
+Since the definition of Ly, and hence of exp (eLy), does not involve the possible
+dependence of W on e, (25) holds regardless of any such dependence. Hence by
+defining
+x =exp(eLy)y,
+X =exp(eLy) Y,
+(27)
+we find with the use of (25) that the commutation relations for (x, X), from the
+corresponding ones for (y, Y), are:
+{Xis x,;} = {X;, X;} =0,
+(Xj, Xj} = 1°6,;,
+(28)
+without regard to the dependence of W on ¢. This shows that (x, X) are also canonical
+variables.
+Because the part of the development summarized in Equations (25) through (28)
+is directly applicable to Hori’s theory, it follows that the theory is, in fact, canonical.
+There is thus no further obstacle to the calculation of relations between the determin-
+ing functions for the theories of Hori and Deprit in terms of Poisson brackets, as in
+Equations (20) and (23), to arbitrarily high orders.
+Acknowledgements
+We wish to thank J. Fred Nurke for computational assistance. The work described in
+this paper was supported in part by the National Science Foundation, and by the
+National Aeronautics and Space Administration under NASA Grant No. NGR
+44-012-046.
+References
+Deprit, A.: 1969, Celest. Mech. 1, 12.
+Gell-Mann, M., Horn, D., and Weyers, J.: 1968, Proc. Heidelberg Int. Conf. on Elementary Particles
+(ed. by H. Filthuth), North-Holland Publishing Company, Amsterdam, p. 479.
+Hori. G.: 1966, Publ. Astron. Soc. Japan 18, 287.
+McCarthy, J. et al.: 1965, LISP 1.5 Programmer’s Manual, 2nd ed., MIT Press, Cambridge, Mass.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System

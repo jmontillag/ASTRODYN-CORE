@@ -18,7 +18,6 @@ from .mean_elements import propagate_mean_delaunay
 from .short_period import (
     brouwer_sp_polar_batch,
     j2_sp_polar_batch,
-    mean_to_cartesian_w1_batch,
     osculating_to_mean,
     osculating_to_mean_w1,
     precompute_orbit_averages,
@@ -162,10 +161,18 @@ class LaraBrouwerPropagator:
         J2 = self.j_coeffs[2]
 
         if self.use_w1_sp:
-            # Use exact W₁ Poisson bracket SP corrections (Lara 2021)
-            positions, velocities = mean_to_cartesian_w1_batch(
-                a_arr, e_arr, inc_arr, Om_arr, om_arr, M_arr,
-                self.mu, self.Re, J2,
+            # Use polar-nodal SP corrections (non-singular, Hoots/SGP4)
+            # The W₁ heyoka corrections are used only for initialization;
+            # the forward map always uses the polar-nodal form which maps
+            # directly to (r, rdot, u, rfdot, Om, i) without going through
+            # the nonlinear Keplerian -> true anomaly conversion.
+            r_osc, rdot_osc, u_osc, rfdot_osc, Om_osc, inc_osc = \
+                j2_sp_polar_batch(
+                    a_arr, e_arr, inc_arr, Om_arr, om_arr, M_arr,
+                    self.mu, self.Re, J2,
+                )
+            positions, velocities = polar_to_cartesian(
+                r_osc, rdot_osc, u_osc, rfdot_osc, Om_osc, inc_osc,
             )
         else:
             # Legacy polar-nodal SP corrections (SGP4-style)

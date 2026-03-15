@@ -1,0 +1,1659 @@
+The Journal of the Astronautical Sciences (2025) 72:35
+https://doi.org/10.1007/s40295-025-00514-6
+
+    RESEARCH
+
+
+
+Purely Periodic, Second‑Order Terms of the J2‑Problem
+in Closed Form and Arbitrary Variables
+
+Martin Lara1
+
+Accepted: 27 June 2025 / Published online: 22 July 2025
+© The Author(s) 2025
+
+
+
+Abstract
+For the J2-problem, the mean-to-osculating transformation that guarantees the exact
+separation of long- and short-period terms up to the second order of J2 has been
+recently reported by the author. The transformation was computed in Delaunay
+canonical variables. However, because such kind of solution is derived from a vec-
+torial generating function, it can be obtained in arbitrary variables—either singular
+or not, canonical or non-canonical—without need of recomputing the perturbation
+solution. The procedure is illustrated for the insightful set of semi-equinoctial varia-
+bles. It could be equally applied, if desired, to compute a second-order, closed-form,
+analytical model truly consistent with the Draper semianalytical satellite theory.
+
+Keywords Perturbed Kepler motion · Semianalytical methods · Mean elements · Lie
+transforms · Noncanonical perturbation theory · Hamiltonian perturbations
+
+
+1 Introduction
+
+In the theory of artificial satellites, mean variations in strict agreement with the
+average behavior of osculating elements are routinely obtained with the generalized
+method of averaging [1–3]. To that aim the original, osculating, variation equations
+of the perturbation problem are formulated in a given set of variables, which are
+customarily chosen nonsingular. The equations of the mean-element rates, as well as
+the short-period corrections that provide the transformation from mean elements to
+osculating elements, are then constructed in the same set of variables according to
+the perturbation method. The mean elements are efficiently integrated with numeri-
+cal methods, whereas the osculating elements are recovered from them using ana-
+lytical corrections. This semianalytic integration scheme based on the decomposi-
+tion of the motion into long- and short-period effects gives rise to very efficient orbit
+
+
+* Martin Lara
+  mlara0@gmail.com
+1
+      Scientific Computation Research Institute, University of La Rioja, Madre de Dios, 53,
+      26006 Logroño, La Rioja, Spain
+
+
+                                                                                      Vol.:(0123456789)
+35 Page 2 of 32                              The Journal of the Astronautical Sciences (2025) 72:35
+
+
+propagation tools. Among them, the Draper semianalytical satellite theory (DSST in
+what follows) stands out due to its sustained development for the last fifty years [4,
+5].
+    Still, the generalized method of averaging is not the sole option for materializing
+the semianalytical framework. The same results can be obtained with the method of
+Lie transforms [6–8], which in addition enjoys greater versatility. Indeed, the fact
+that the short-period corrections are derived from a generating function, which is of
+vectorial character in the more general approach, makes to construct the semiana-
+lytical solution in different ways possible when using the method of Lie transforms.
+    Such versatility of the method of Lie transforms is certainly useful in the decom-
+position of the motion into the mean-to-osculating transformation and the long-
+period variations. The exact separation of the perturbed dynamics into short- and
+long-period terms is not really a constraint of the semianalytic approach, although it
+may be required in specific applications dealing only with the mean-element dynam-
+ics. On the contrary, since mean elements can be defined in a variety of ways, the
+decomposition of the perturbation solution into the mean-element dynamics and
+the mean-to-osculating transformation may adopt different formulations [9]. But an
+extra advantage of the method of Lie transforms stems from the fact that, once the
+generating function has been obtained in a desired set of variables, the mean-to-
+osculating transformation can be reformulated in a different set of variables without
+need of recomputing the whole perturbation theory from scratch [6, 8].
+    That the possibility of reformulating a perturbation solution in a different set of
+variables, instead of its complete rederivation, is a definitive advantage is clearly
+recognized when the mean-to-osculating transformation is approached in closed
+form—a common wish in artificial satellite theory due to the variety of satellite
+missions involving highly eccentric orbits. Indeed, because usual perturbations of
+the Keplerian motion do not depend explicitly on the mean anomaly, but through
+its implicit dependence on the true or eccentric anomalies, the analytical computa-
+tion of the mean-to-osculating transformation in closed form confronts the solution
+of nontrivial integrals beyond first-order effects. Rules for solving the majority of
+these integrals are based on the geometric relations of the ellipse as well as on the
+dynamics of the Kepler problem. Therefore, it looks wise, as well as more expedite,
+to rely on previous, well-tested results in the literature based on the latter [10–17].
+In spite of the fact that different sets of variables may be better suited for dealing
+with particular perturbations of the orbital motion than the traditional set of Keple-
+rian elements [18], approaching from the beginning the closed-form solution of the
+required definite and indefinite integrals in a different set of variables could compli-
+cate unnecessarily the closed-form computation of the perturbation theory.
+    Of particular interest in different astrodynamical applications is the solution of
+the J2-problem. Because it deals with the dominant gravitational perturbation of
+most circumterrestrial orbits, it was traditionally known as the main problem of arti-
+ficial satellite theory [19]. Different perturbation theories succeeded in the compu-
+tation of high-order effects of J2 in closed form [16, 20, 21]. However, these kinds
+of solutions usually proceeded by partial Hamiltonian normalization to achieve the
+total Hamiltonian reduction, in which case the strict splitting of terms of different
+nature is irrelevant. Moreover, even if the exact separation were desired, achieving
+The Journal of the Astronautical Sciences (2025) 72:35                    Page 3 of 32 35
+
+
+the correct partitioning could not be possible due to the Hamiltonian nature of the
+employed methods [22]. A final, noncanonical tuning is needed in that case in order
+to obtain the exact isolation of the short-period terms that are purely periodic in the
+mean anomaly [23].
+    Therefore, applications looking for the exact separation of the mean variations
+beyond the first order of J2 seem to be doomed to relying on noncanonical pertur-
+bation methods. When such kind of solution is approached with the generalized
+method of averaging, one remains tied to computing the mean-to-osculating trans-
+formation in the same variables in which the mean variations are evaluated.
+    The example provided by DSST of the inconvenience one finds in this process
+when the closed form is desired is quite illustrative. The difficulties seemed unsur-
+mountable at the beginning, leading DSST developers to the alternative search of
+approximate solutions based on expansions of the elliptic motion [24]. Publication
+of an analytic procedure for computing the mean variations in closed-form was
+delayed by about twenty years [25]. Yet, the implementation of the closed-form
+solution for the mean variations was not reported until fourteen additional years
+[26]. Refer to the latter reference for more detailed descriptions. Still, the proposed
+closed-form formulation of the mean variations was found not optimum due to the
+fact that it needed numerical quadrature for its evaluation, and the highly-desired
+analytical formulation remained open. Recent patches provided both the mean-to-
+osculating transformation and the mean variations in closed form without resorting
+to numerical quadrature [27]. However, the purely periodic nature of the mean-to-
+osculating transformation of such solution is not guaranteed for the use of Ham-
+iltonian methods in its derivation. This fact led subsequent attempts in modeling
+the second-order of J2 terms to give it up with the closed form. Instead, the efforts
+were concentrated in improving the evaluation of analytical short-period corrections
+based on series expansions [28].
+    The wanted closed-form theory providing the exact separation of short- and long-
+period terms up to the second order of J2 was finally announced in [29] (see, also,
+[30]). The approach followed there relied on the noncanonical version of the method
+of Lie transforms [7, 8] and the use of Delaunay canonical variables. The latter nota-
+bly facilitated the closed-form solution of the quadratures and indefinite integrals
+emerging in the Lie transforms procedure. On the other hand, because the third
+component of the angular momentum is one of the Delaunay variables, the perturba-
+tion solution to the J2-problem is additionally simplified in view of this variable is
+an integral of the osculating dynamics. However, as it happens with the Keplerian
+elements, the Delaunay variables present important drawbacks in the treatment of
+low-eccentricity orbits. In particular, the formal series representing the perturbation
+solution lack the expected convergence rate of a Taylor series expansion in powers
+of J2 in the limited time interval in which the perturbation series apply. Neverthe-
+less, as it was pointed out in [30], obtaining a solution in a different set of variables
+only requires a reformulation based on the vectorial generating function in Delaunay
+variables.
+    The challenge is accepted in this paper. More specifically, the closed-form
+perturbation theory is reformulated in the orbital set of semi-equinoctial vari-
+ables, while preserving the purely periodic character of the mean-to-osculating
+35 Page 4 of 32                             The Journal of the Astronautical Sciences (2025) 72:35
+
+
+transformation. The proposed reformulation is new, to our knowledge, and may
+serve as a guide for DSST developers to obtain the long-awaited second-order
+analytical J2-model in closed-form truly consistent with the Draper theory.
+   The semi-equinoctial variables replace the mean anomaly, the argument of the
+periapsis, and the eccentricity, by the mean distance to the node and the projec-
+tions of the eccentricity vector in the nodal frame. To make an orbital set, they
+are complemented with the right ascension of the ascending node, the third com-
+ponent of the angular momentum vector, and the Delaunay action [31]. The cus-
+tomary choice of replacing the two later by the inclination and the semimajor
+axis is here disregarded in order to keep the reduced dimension of the differential
+system.
+   The obtained results are totally satisfactory, providing the expected accuracy of
+a second-order perturbation theory of this kind. The singularity of the semi-equi-
+noctial variables for equatorial orbits, in which case the node is not defined, is not
+of worry. The nature of this singularity is not geometric and can be avoided by a
+rotation of the reference frame, or by a change to variables specifically adapted to
+this case [32, 33]. In the end, an orbit propagator suite commonly relies on dif-
+ferent perturbation theories. Undeniably, reformulating the theory in Poincaré’s
+nonsingular variables or in any of the variants of the set of equinoctial variables
+will solve the issue. However, this case is not tackled and the assignment is left
+open. Those interested, if any, should be able to replicate the steps described in
+this paper by themselves in order to achieve an analytical mean-to-osculating
+transformation that is purely periodic in the fast Poincaré or equinoctial variable.
+   The rest of the paper is organized as follows. The formulation of the J2-prob-
+lem differential system in the Delaunay variables is recalled in Sect. 2, where
+the variations of the semi-equinoctial elements are also displayed to check that
+they are free from geometric singularities. The steps needed in the reformula-
+tion of the closed-form solution of [29, 30] in the semi-equinoctial variables are
+detailed in Sect. 3. A way of refining the second-order solution without need of
+computing the third-order terms of the vectorial generator is described in Sect. 4.
+These higher-order refinements may be considered superfluous for a real per-
+turbation problem due to the variety of effects that must be taken into account
+and are missed by the J2-problem. However, their computation clearly illustrates
+the philosophy of the perturbation method as well as the fundamental need of a
+proper initialization of the mean elements, so many times ignored. Finally, illus-
+trative tests of the performance of the new solution are provided in Sect. 5. For
+real orbits, the examples chosen would undergo clearly observable effects due to
+the atmospheric drag, which is not included in the model. However, this is not the
+point, as far as they illustrate the performance of the perturbation theory, and per-
+mitted us to compare it with previously reported tests in the literature.
+   For completeness, the basic equations of the Lie transforms method for vecto-
+rial flows are summarized in Appendix A. Yet, some acquaintance of the reader
+with the method is assumed, who is referred to the pertinent literature for details.
+For the same reason, needed equations from the literature are provided in Appen-
+dix B.
+The Journal of the Astronautical Sciences (2025) 72:35                  Page 5 of 32 35
+
+
+2 The J2‑Problem
+
+The potential of the J2 problem—the main problem of artificial satellite theory
+[19]—is
+                                                    2
+                                             𝜇 𝜇 R⊕
+                                    V=−        + J2 2 P2 (sin 𝜑),                  (1)
+                                             r  r r
+where r is the radius from the Earth’s center of mass, P2 is the Legendre polynomial
+of degree 2, and 𝜑 is geocentric latitude. The gravity field is defined by the gravita-
+tional parameter 𝜇, the nondiemnsional oblateness coefficient J2, and the scaling fac-
+tor R⊕ for the Earth equatorial radius. Because J2 = O(10−3 ) for the Earth, Eq. (1)
+takes the form of a perturbation of the Kepler potential given by the first summand
+in the right side of Eq. (1).
+   The flow stemming from the main problem potential can be solved in different
+sets of coordinates or elements. The traditional Keplerian elements (a, e, i, Ω, 𝜔, M)
+—for the semimajor axis, eccentricity, inclination, right ascension of the ascending
+node, argument of the perigee, and mean anomaly, respectively—are a commonly
+preferred set for their orbital insight. However, the equivalent set of Delaunay vari-
+                                     √            √
+ables 𝓁 = M , g = 𝜔, h = Ω, L = 𝜇a , G = L 1 − e2 , and H = G cos I , has the
+additional advantage for the main problem that the integral stemming from the axial
+symmetry of Eq. (1) results in the conservation of the variable H, thus reducing by
+one the dimension of the differential system to solve. In these variables, the varia-
+tion equations take the form
+                                             d𝓁      𝜕V
+                                                = n+    ,                          (2)
+                                             dt      𝜕L
+
+                                                dg   𝜕V
+                                                   =    ,                          (3)
+                                                dt   𝜕G
+
+                                                dh   𝜕V
+                                                   =    ,                          (4)
+                                                dt   𝜕H
+
+                                               dL   𝜕V
+                                                  =− ,                             (5)
+                                               dt   𝜕𝓁
+
+                                               dG   𝜕V
+                                                  =− ,                             (6)
+                                               dt   𝜕g
+
+                                                 dH
+                                                    = 0,                           (7)
+                                                 dt
+where n = 𝜇2 ∕L3 is the mean motion. Taking into account that sin 𝜑 = sin i sin 𝜔,
+and r = p∕(1 + e cos f ), where f denotes the true anomaly and p = G2 ∕𝜇, the explicit
+computation of the right sides of the variation equations is a simple exercise of
+35 Page 6 of 32                                The Journal of the Astronautical Sciences (2025) 72:35
+
+
+partial differentiation using the previous definition of the Delaunay variables in
+terms of the orbital elements. Particular arrangements useful for the perturbation
+approach can be found in [29, 30], for instance.
+   However, an inconvenience of the Delaunay variables is that the argument of the
+perigee is not defined in the case of circular orbits, in which G = L. Moreover, the
+eccentricity e = (1 − G2 ∕L2 )1∕2 appears in denominators of the variations of the mean
+anomaly and the argument of the perigee, Eqs. (2) and (3), respectively, which become
+singular in that case. Offending divisors of this kind appear also in the series defining a
+perturbation solution based on Delaunay variables. This fact degrades the convergence
+of the perturbation solution of low-eccentricity orbits, thus notably constraining its
+applicability. But the trouble is not related to the dynamics, it is the choice of variables,
+and hence it is totally avoided when using nonsingular variables.
+   Among the different sets of orbital elements avoiding the singularity for circular
+orbits [18], those based on the semi-equinoctial elements 𝜒 = e cos 𝜔, 𝜁 = e sin 𝜔,
+and the mean distance to the ascending node 𝜆 = M + 𝜔, benefit from the insight on
+the long-term evolution provided by the components of the eccentricity vector in the
+orbital plane (𝜒, 𝜁). The variations of these elements are readily obtained from corre-
+sponding ones in Delaunay variables by standard application of the chain rule. Straight-
+forward operations yield,
+
+                          d𝜒   𝜒 𝜂 2 ( 1 dL 1 dG )   dg
+                             =             −       −𝜁 ,                                          (8)
+                          dt   e e L dt      G dt    dt
+
+                          dz   𝜁 𝜂 2 ( 1 dL 1 dG )   dg
+                             =             −       +𝜒 ,                                          (9)
+                          dt   e e L dt      G dt    dt
+
+                                     d𝜆   d𝓁 dg
+                                        =    + ,                                               (10)
+                                     dt   dt  dt
+whose rearrangement after replacing Eqs. (2)–(7) shows that divisions by the eccen-
+tricity no longer exist. Namely,
+
+       d𝜒   R2⊕ 3J2 {
+          =n 2        3e2 (5s2 − 4) sin(𝜔 − f ) + 8e(5s2 − 4) sin 𝜔
+       dt    r 32𝜂 3
+              [                           ]
+           + 2 (11s2 − 10)e2 + 2(5s2 − 4) sin(𝜔 + f ) − 24ec2 sin(𝜔 + 2f )
+              + e2 (7s2 − 8) sin(𝜔 + 3f ) − e2 (13s2 − 4) sin(3𝜔 + f )                         (11)
+                                                [                  ]
+              − 8e(5s2 − 1) sin(3𝜔 + 2f ) + 2 e2 (2 − 9s2 ) − 14s2 sin(3𝜔 + 3f )
+                                                            }
+              − 24es2 sin(3𝜔 + 4f ) − 5e2 s2 sin(3𝜔 + 5f ) ,
+The Journal of the Astronautical Sciences (2025) 72:35                           Page 7 of 32 35
+
+
+      d𝜁   R2⊕ 3J2 {
+         =n 2          e2 (12 − 13s2 ) cos(𝜔 − f ) − 8e(5s2 − 4) cos 𝜔
+      dt    r 32𝜂 3
+             [                            ]
+          − 2 3e2 (3s2 − 2) + 2(7s2 − 4) cos(𝜔 + f ) − 8e(3s2 − 1) cos(𝜔 + 2f )
+              − 5e2 s2 cos(𝜔 + 3f ) + e2 (13s2 − 4) cos(3𝜔 + f )
+                                               [                  ]
+              + 8e(5s2 − 1) cos(3𝜔 + 2f ) − 2 e2 (2 − 9s2 ) − 14s2 cos(3𝜔 + 3f )
+                                                           }
+              + 24es2 cos(3𝜔 + 4f ) + 5e2 s2 cos(3𝜔 + 5f ) ,
+                                                                                           (12)
+               R2⊕      3J2     {            [                      ]    [
+     d𝜆
+        =n+n 2         3
+                                  − 8(1 + 𝜂) 𝜂(3s2 − 2) + 5s2 − 4 − 2 5𝜂 2 (3s2
+     dt        r 32𝜂 (1 + 𝜂)
+                                          ]
+         − 2) + 8𝜂(4s2 − 3) + 29s2 − 22 e cos f − 8(3s2 − 2)e2 cos 2f − 2(3s2
+                                               [                                  ]
+         − 2)e3 cos 3f + e3 s2 cos(2𝜔 − f ) + e 17𝜂 2 s2 + 8𝜂(4s2 − 1) + 11s2 − 8
+                           [                                     ]
+         × cos(2𝜔 + f ) + 24𝜂 2 s2 + 16𝜂(4s2 − 1) + 8(5s2 − 2) cos(2𝜔 + 2f )
+            [                                   ]
+         + e 13𝜂 2 s2 + 8𝜂(4s2 − 1) + 47s2 − 8 cos(2𝜔 + 3f ) + 24e2 s2
+                                                }
+         × cos(2𝜔 + 4f ) + 5e3 s2 cos(2𝜔 + 5f ) ,
+                                                                                           (13)
+where 𝜂 = G∕L , c = H∕G = cos i, and s = sin i.
+   The semi-equinoctial elements need to be complemented with three additional
+variables to define the state of the satellite. The semimajor axis, inclination, and
+right ascension of the ascending node are customary choices, yet the alternative
+selection of the Delaunay variables L, h, and H, allows to keep the reduced dimen-
+sion of the differential system [31].
+
+
+3 The Second‑Order Perturbation Solution. A Reformulation
+   with Some Care
+
+For the aim of computing a closed-form perturbation solution to the J2-problem,
+whose mean-to-osculating transformation in semi-equinoctial elements is free from
+long-period effects, the analogous solution in Delaunay variables reported in [29] is
+taken as the basis. For completeness, the needed formulas of Henrard’s approach to
+the Lie transforms method [8] are summarized in Appendix A.
+   To first order the solution is a mere reformulation, in which the short-period cor-
+rections of the semi-equinoctial variables are obtained from the same vectorial gen-
+erator that yields a purely periodic mean-to-osculating transformation in Delaunay
+variables. The right sides of the osculating variations of the Delaunay variables in
+Eqs. (2)–(7) take the perturbative form
+                                dxj       ∑ 𝜖m
+                                      =              Φj,m,0 ,   j = 1, 2, … 6,
+                                dt        m≥0
+                                                m!
+35 Page 8 of 32                                  The Journal of the Astronautical Sciences (2025) 72:35
+
+
+where 𝜖 = J2, the indices 1, 2, … 6, denote the Delaunay variables 𝓁, g, h, L, G, H ,
+respectively, the only non-vanishing zeroth-order term is Φ1,0,0 = n, from which
+
+                                            ≡
+                                  𝜕Φ1,0,0       𝜕n     3
+                                                   = − 2.                                        (14)
+                                    𝜕x4         𝜕L    a
+
+Besides, Φj,m,0 = 0 for m ≥ 2. Recall that H is an integral of the J2-problem, and
+hence dx6 ∕dt = 0.
+   To avoid the introduction of secular terms in the solution of the vectorial generator,
+obtained from the integration of Eqs. (A15)–(A16), it is chosen
+                                        ̃ j,0,m ⟩𝓁 , j = 2, … 5,
+                              Φj,0,m = ⟨Φ                                                        (15)
+
+                                                      3
+                                      ̃ 1,0,m ⟩𝓁 −
+                            Φ1,0,m = ⟨Φ                 ⟨W ⟩ ,                                   (16)
+                                                      a2 4,m 𝓁
+where m = 1 and Φ  ̃ j,0,1 = Φj,1,0. It is readily obtained Φ2,0,1 = n(R⊕ ∕p)2 3(4 − 5s2 )∕4,
+Φ3,0,1 = −n(R⊕ ∕p)2 (3∕2)c, Φ4,0,1 = Φ5,0,1 = 0. Next, the components j = 2 to 5 of
+the vectorial generating function Wj,1 are computed in terms of the Delaunay vari-
+ables from Eqs. (A15). The indefinite integration leaves each of these components
+undetermined up to an arbitrary “constant,” or, more properly, function of the Delau-
+nay variables that do not depend on the mean anomaly. Therefore, Eq. (16) yields
+Φ1,0,1 = −n(R⊕ ∕p)2 (3∕4)(3s2 − 2)𝜂 − 3⟨W4,1 ⟩𝓁 ∕a2, which leaves Φ1,0,1 undeter-
+mined as it is W4,1. The final indefinite integration of Eq. (A16) introduces another
+integration constant.
+   The first order terms of the mean-to-osculating transformation are then computed
+for the semi-equinoctial variables in terms of the Delaunay variables. Because each of
+them is a scalar function of the Delaunay variables, the scalar recursion in Eq. (A7) is
+used jointly with the scalar version of Henrard’s differential operator in Eq. (A2), to
+obtain
+                                   𝜂
+                          𝜒0,1 = 𝜒 2 (𝜂W4,1 − W5,1 ) − 𝜁W2,1 ,                                   (17)
+                                  e L
+
+                                   𝜂
+                          𝜁0,1 = 𝜁 2 (𝜂W4,1 − W5,1 ) + 𝜒W2,1 ,                                   (18)
+                                  eL
+
+                                    𝜆0,1 = W1,1 + W2,1 ,                                         (19)
+
+                                        L0,1 = W4,1 ,                                            (20)
+
+                                          h0,1 = W3,1                                            (21)
+Then, to get a purely periodic mean-to-osculating transformation, it is imposed that
+the average over the mean anomaly of these first-order terms vanish. The trivial
+solution ⟨Wj,1 ⟩𝓁 = 0, j = 1, 2, … 5, provides the needed constraints to compute the
+The Journal of the Astronautical Sciences (2025) 72:35                      Page 9 of 32 35
+
+
+particular values of the arbitrary constants that fully determine the generator, which
+are borrowed from [29] and given as Eqs. (B17)–(B21) of Appendix B. Additional,
+more detailed descriptions can be found in [30]. This determination of the vecto-
+rial components of the generator Wj,1 completes also the materialization of the term
+Φ1,0,1 of the mean variation of the mean anomaly.
+   The reformulation of the right sides of Eqs. (17)–(21) in the semi-equinoctial ele-
+ments is straightforward, yielding
+
+            R2⊕ 3                R2⊕ 1 {         2𝜒 [
+                     2
+   𝜒0,1 =         (5s  − 4)𝜁𝜙  +           −            48(5s2 − 4) + 4(8s2 − 3)(3𝜁 2
+            p2 4                  p2 32       (1 + 𝜂)3
+                         [                                   ]
+            − 𝜒 2 ) − 4e2 (3s2 − 1)(3𝜁 2 − 𝜒 2 ) + 9(4s2 − 3) + 4e4 (2s2 − 1) + 3(𝜂 − 1)
+              [                                                   ]]
+            × 8(5s2 − 4) − 2e2 (7s2 − 5) + (5s2 − 2)(3𝜁 2 − 𝜒 2 ) + 6[e2 (10 − 11s2 )
+            + 2(4 − 7s2 )(𝜁 2 − 𝜒 2 ) − 2(5s2 − 4)] cos 𝜃 + 24(s2 + 1)𝜒 cos 2𝜃
+              [                                             ]
+            + 28s2 + 2e2 (9s2 − 2) + (7s2 − 8)(𝜁 2 − 𝜒 2 ) cos 3𝜃 + 18s2 𝜒 cos 4𝜃
+            − 3s2 (𝜁 2 − 𝜒 2 ) cos 5𝜃 + 12(s2 − 4)𝜒𝜁 sin 𝜃 − 48(2s2 − 1)𝜁 sin 2𝜃
+                                                                   }
+            − 2(7s2 − 8)𝜒𝜁 sin 3𝜃 + 18s2 𝜁 sin 4𝜃 + 6s2 𝜒𝜁 sin 5𝜃 ,
+                                                                                      (22)
+               R2⊕ 3                      R2⊕ 1 { 2𝜁 [ 4 2                    [
+   𝜁0,1 = −     2
+                       (5s2 − 4)𝜒𝜙 + 2                3
+                                                         4e (4s − 3) − 4e2 3(18s2
+                                                         −
+               p 4                  p 32       (1 + 𝜂)
+                                          ]
+            − 11) + (3s2 − 1)(𝜁 2 − 3𝜒 2 ) + 48(7s2 − 4) + 4(8s2 − 3)(𝜁 2 − 3𝜒 2 )
+                      [                                                     ]]
+            + 3(𝜂 − 1) 8(7s2 − 4) − 2e2 (11s2 − 7) + (5s2 − 2)(𝜁 2 − 3𝜒 2 )
+            + 12(13s2 − 8)𝜒𝜁 cos 𝜃 + 24(4s2 − 1)𝜁 cos 2𝜃 + 10s2 𝜒𝜁 cos 3𝜃
+                                                   [
+            − 18s2 𝜁 cos 4𝜃 − 6s2 𝜒𝜁 cos 5𝜃 − 6 3e2 (3s2 − 2) + 4(𝜁 2 − 𝜒 2 ) + 2(7s2
+                ]                          [                                    ]
+            − 4) sin 𝜃 + 24s2 𝜒 sin 2𝜃 + 2e2 (9s2 − 2) + 5s2 (𝜁 2 − 𝜒 2 ) + 28s2 sin 3𝜃
+                                                     }
+            + 18s2 𝜒 sin 4𝜃 − 3s2 (𝜁 2 − 𝜒 2 ) sin 5𝜃 ,
+                                                                                      (23)
+35 Page 10 of 32                                    The Journal of the Astronautical Sciences (2025) 72:35
+
+
+             R2⊕ 3                R2⊕            { 4𝜁𝜒 [
+                      2                    1
+  𝜆0,1 = −         (5s  − 4)𝜙  +                            4𝜂 3 s2 + 𝜂 2 (19s2 − 8)
+            p2 4                  p2 32(1 + 𝜂) (1 + 𝜂)2
+                             ]     [
+         − 12c2 𝜂 + s2 − 4 + 6 (s2 − 2)𝜒 2 − (s2 + 2)𝜁 2 − 2𝜂(5s2 − 6) − 4(6s2
+             ]               [                                         ]           [
+         − 5) 𝜒 sin 𝜃 + 12 (3s2 − 2)(𝜁 2 − 𝜒 2 ) + (𝜂 + 1)(5s2 − 2) sin 2𝜃 + 8(6s2
+                                                                ]
+         − 1) + 4𝜂(5s2 − 2) − (7s2 − 4)𝜒 2 − (12 − 17s2 )𝜁 2 𝜒 sin 3𝜃 − 18s2 (𝜁 2
+                                                        [
+         − 𝜒 2 ) sin 4𝜃 − 3s2 (3𝜁 2 − 𝜒 2 )𝜒 sin 5𝜃 + 6𝜁 4(10s2 − 7) + 10𝜂(3s2 − 2)
+                                         ]                                    [
+         − (7s2 − 2)𝜒 2 − (5s2 − 2)𝜁 2 cos 𝜃 + 24(3s2 − 2)𝜒𝜁 cos 2𝜃 − 𝜁 2 (5s2 − 4)
+                                                          ]
+         + 4𝜂(5s2 − 2) + (12 − 19s2 )𝜒 2 + 8(6s2 − 1) 𝜁 cos 3𝜃 − 36s2 𝜒𝜁 cos 4𝜃
+                                     }
+         + 3s2 (𝜁 2 − 3𝜒 2 )𝜁 cos 5𝜃 ,
+                                                                                     (24)
+                                  (       )
+        R2⊕ L {                 2𝜂 2                                          [
+                           2
+  L0,1 = 2       2
+                      − 4e            + 5 (3s2 − 2) − 18s2 (𝜁 2 − 𝜒 2 ) − 3𝜁 s2 (𝜁 2
+         p 32𝜂                 1 +  𝜂
+                                        ]                                 [
+        − 3𝜒 2 ) − (𝜂 2 − 5)(9s2 − 4) sin 𝜃 − 24(3s2 − 2)𝜒𝜁 sin 2𝜃 + 2(3s2 − 2)
+                                        ]
+        × (𝜁 2 − 3𝜒 2 ) − 9(𝜂 2 − 5)s2 𝜁 sin 3𝜃 + 36s2 𝜁𝜒 sin 4𝜃 − 3s2 (𝜁 2 − 3𝜒 2 )
+                        [                                   ]               [
+        × 𝜁 sin 5𝜃 + 3 (𝜂 2 − 5)(3s2 − 4) − s2 (3𝜁 2 − 𝜒 2 ) 𝜒 cos 𝜃 + 12 (3s2 − 2)
+                                      ]         [                                     ]
+        × (𝜁 2 − 𝜒 2 ) − (3𝜂 2 − 5)s2 cos 2𝜃 − 9(𝜂 2 − 5)s2 − 2(3s2 − 2)(3𝜁 2 − 𝜒 2 )
+                                                                          }
+        × 𝜒 cos 3𝜃 − 18s2 (𝜁 2 − 𝜒 2 ) cos 4𝜃 − 3s2 (3𝜁 2 − 𝜒 2 )𝜒 cos 5𝜃 ,
+                                                                                                    (25)
+                   R2⊕ 3  R2⊕ 1 [       1 + 2𝜂
+      h0,1 = −   2
+                           c𝜙 +
+                             2
+                                 c 2𝜒𝜁          + 9𝜁 cos 𝜃 − 𝜁 cos 3𝜃 − 3𝜒 sin 𝜃
+               p 2         p 4         (1 + 𝜂)2                                  (26)
+                                   ]
+             + 𝜒 sin 3𝜃 + 3 sin 2𝜃 ,
+
+where 𝜙 = 𝜃 − 𝜆 is the equation of the center, and 𝜃 = f + 𝜔 is the argument of the
+latitude. As expected, visual inspection of Eqs. (23)–(26) confirms that the transfor-
+mation is free from divisions by the eccentricity.
+   The argument of the latitude 𝜃 is an implicit function of the mean distance to the
+node 𝜆. Its computation requires the solution of a modified form of Kepler’s equa-
+tion. Denoting 𝜐 = u + 𝜔, where u is the eccentric anomaly, Kepler’s equation
+𝓁 = u − e sin u is rewritten as 𝜆 = 𝜐 − e sin(𝜐 − 𝜔), cf. [31]. Hence
+                                      𝜆 = 𝜐 + 𝜁 cos 𝜐 − 𝜒 sin 𝜐.                                    (27)
+Once 𝜐 is solved from 𝜆 in Eq. (27), 𝜃 is computed from standard relations of the
+ellipse. On account of r cos f = a(cos u − e), r sin f = a𝜂 sin u, straightforward oper-
+ations yield
+                                  r                     𝜆−𝜐
+                                    cos 𝜃 = cos 𝜐 − 𝜒 −     𝜁,                                      (28)
+                                  a                     1+𝜂
+The Journal of the Astronautical Sciences (2025) 72:35                       Page 11 of 32 35
+
+
+                                    r                     𝜆−𝜐
+                                      sin 𝜃 = sin 𝜐 − 𝜁 +     𝜒,                        (29)
+                                    a                     1+𝜂
+from which 𝜃 is determined without ambiguity.
+   It is worth noting that the determined integration constants yield the purely peri-
+odic character of the mean-to-osculating elements also in the Delaunay variables,
+so they agree with the values first computed in [29]. This is due to the lineariza-
+tion provided by the first-order approach. However, things are a little bit more subtle
+regarding the second-order terms of the mean-to-osculating transformation. While
+the second-order terms of the vectorial generating function Wj,2 are still those of
+the Delaunay variables approach, computed again from Eq. (A15)–(A16), it hap-
+pens that the integration constants that make the mean-to-osculating transformation
+purely periodic in Delaunay variables, do not produce the same periodicity when
+the transformation is carried out in semi-equinoctial variables. The reason is that the
+combination of two purely periodic functions in some argument may bring about
+terms that do not average to zero in that argument, cf. [9]—think, for instance, in the
+cosine and cosine-square functions.
+   The second order of the perturbation solution in Delaunay variables starts with
+the computation of the tilde terms Φ         ̃ j,0,2. The osculating variations only comprise
+terms of the zeroth- and first-order of J2, and hence Φj,2,0 = 0. Then the comput-
+able terms Φ ̃ j,0,2 = Lj,1 (Φj,0,1 ) + Lj,1 (Φj,1,0 ) are computed from the vectorial recur-
+sion in Eq. (A13) using the vectorial version of Henrard’s differential operator in
+Eq. (A1). Next, these terms are replaced into Eqs. (15)–(16), now with m = 2, to
+compute the corresponding terms of the mean variations of the Delaunay variables.
+Again, the integration of the second-order components of the vectorial generator
+from Eqs. (A15)–(A16) introduces 5 arbitrary integration functions, which must be
+determined from the purely periodic character of the mean-to-osculating transforma-
+tion in the semi-equinoctial elements.
+   Repeated iterations of the scalar version of Deprit’s triangle in Eq. (A7) yield
+                                             xj,1,1 = L0,2 (x),                         (30)
+
+                                      xj,0,2 = L0,1 (xj,0,1 ) + xj,1,1 ,                (31)
+where j = 1, 2, … 5, and each xj is replaced by the corresponding Delaunay vari-
+able. The consequent evaluation of Henrard’s scalar differential operator in Eq. (A2)
+results in
+                             6
+                             ∑ 𝜕𝜒0,1             𝜂 (            )
+                    𝜒0,2 =              Wl,1 + 𝜒 2 W4,2 𝜂 − W5,2 − 𝜁W2,2 ,              (32)
+                              l=1
+                                    𝜕xl         e L
+
+                             6
+                             ∑ 𝜕𝜁0,1             𝜂 (            )
+                    𝜁0,2 =              Wl,1 + 𝜁 2 W4,2 𝜂 − W5,2 + 𝜒W2,2 ,              (33)
+                              l=1
+                                    𝜕xl         eL
+35 Page 12 of 32                                          The Journal of the Astronautical Sciences (2025) 72:35
+
+
+                                       6
+                                       ∑ 𝜕𝜆0,1
+                              𝜆0,2 =                 Wl,1 + W1,2 + W2,2 ,                                 (34)
+                                       l=1
+                                              𝜕xl
+
+                                             6
+                                             ∑ 𝜕L0,1
+                                  L0,2 =                   Wl,1 + W4,2 ,                                  (35)
+                                             l=1
+                                                    𝜕xl
+
+                                             6
+                                             ∑ 𝜕h0,1
+                                   h0,2 =                  Wl,1 + W3,2 .                                  (36)
+                                             l=1
+                                                    𝜕xl
+
+The zero-average over the mean anomaly condition applied to these equations
+allows us to solve the terms ⟨Wj,2 ⟩𝓁 from a linear system, which in turn permit us to
+obtain the integration constants of the second-order terms of the vectorial generator,
+as well as to fully materialize the second-order term of the mean variation of the
+Delaunay variable 𝓁 in Eq. (16). Regarding the latter, because ⟨L0,2 ⟩𝓁 = 0, according
+to Eq. (35),
+                                                    6     �                  �
+                                                    �         𝜕L0,1
+                                 ⟨W4,2 ⟩𝓁 = −                         Wl,1
+                                                    l=1
+                                                               𝜕xl           𝓁
+
+which only involves the first-order components of the generator, and the first-order
+term L0,1 of the transformation of the Delaunay action L. They happen to be the
+same as in the case in which the purely periodic character of the Delaunay variables
+is imposed, and hence it is so ⟨W4,2 ⟩𝓁 . In consequence, the second-order terms of the
+mean variations in Delaunay variables resulting from the choice in Eqs. (15)–(16)
+remain unaltered with respect to the original theory in Delaunay variables, see
+Eqs. (21)–(25) of [29] or (38)–(42) of [30].
+    The value of the integration constant obtained for ⟨W3,2 ⟩𝓁 from the condition (36)
+also guarantees the periodicity of the mean-to-osculating transformation, but this
+is no longer true for the integration constant imposed by the values of ⟨W2,2 ⟩𝓁 and
+⟨W5,2 ⟩𝓁 obtained from Eqs. (32) and (33).1 Moreover, the square of the equation of
+the center resulting from the averaging of these two equations introduces nontrivial
+integrals in the solution of Eqs. (A15)–(A16), cf. [34]. As far as the perturbation
+approach is not extended beyond the second order of the mean-to-osculating trans-
+formation, discussing its properties or its efficient evaluation is declined by now, and
+rather Hori’s advice [35] of defining a new function of the eccentricity is taken. In
+particular,2
+
+
+
+
+1
+   One might be tempted to simplify things and use directly the generator of the mean-to-osculating
+transformation of the Delaunay variables, with the hope that the long-period effects introduced in the
+transformation of the semi-equinoctial elements would have little effect. However, this is not at all the
+case due to the appearance of the eccentricity in denominators associated with these long-period terms.
+2
+   The solution was announced by J.F. Palacián in personal communication to the author of May 5, 2025.
+The Journal of the Astronautical Sciences (2025) 72:35                     Page 13 of 32 35
+
+
+                             2𝜋                  �                  �
+
+                     2𝜋 ∫0
+                      1                                          2𝜂          1−𝜂
+         ⟨𝜙2 ⟩𝓁 =                 (f − 𝓁)2 d𝓁 = 𝜂 1 − 𝜂 − 4 log       + 2Li2     ,    (37)
+                                                                1+𝜂          1+𝜂
+
+where Li2 denotes the dilogarithmic function [36, 37].
+    In practice, the computation of Eq. (37) can be replaced in most cases by the evalua-
+tion of a truncated power series of the eccentricity. Thus,
+              �
+                     9        43 4        595 6   5341 8      2177 10       85041 12
+   ⟨𝜙2 ⟩𝓁 = 2 + e2 +               e +        e +       e +        e +               e
+                    32       288         6144     76800     40960         2007040
+                                                                  �
+                 2556411 14          8710273 16      165840389 18 2
+             +             e +                 e +              e e + O(e22 ).
+                73400320           297271296        6606028800
+                                                                                       (38)
+The usual Horner’s arrangement of this expression makes its evaluation highly
+efficient.
+    Once the new integration constants that guarantee the purely periodic character of
+𝜒0,2 and 𝜁0,2 have been determined, it is also needed to fix the value of the integration
+constant associated to ⟨W1,2 ⟩𝓁 in order to guarantee also that Eq. (34) remains purely
+periodic in the mean anomaly.
+    The second-order corrections of the new, mean-to-osculating transformation are
+long expressions and are not printed. In these expressions the eccentricity may appear
+in denominators of some terms. In spite of that, there are no singularities in their evalu-
+ation. The programming issue that may happen in the evaluation of exact circular orbits
+is avoided by replacing them by corresponding series expansions in the eccentricity. In
+particular, for circular orbits it is obtained
+
+               R4⊕ 1 [
+    𝜒0,2 |e=0 = 4     6(77s4 − 200s2 + 108) cos 𝜃 − (449s4 − 346s2 + 72) cos 3𝜃
+                a 64                  ]
+               + 3(17s2 − 14)s2 cos 5𝜃 ,
+                                                                               (39)
+                   R4⊕ 1 [
+     𝜁0,2 |e=0 =          6(155s4 − 224s2 + 84) sin 𝜃 − (395s4 − 310s2 + 72) sin 3𝜃
+                    a4 64                 ]
+                   + 3(17s2 − 14)s2 sin 5𝜃 .
+                                                                               (40)
+In order to complete the O(J22 ) theory in semi-equinoctial elements, it remains to
+reformulate the mean variations in these nonsingular variables too. But such refor-
+mulation only requires to plug the mean variations in Delaunay variables given in
+Eqs. (11)–(15) and (21)–(25) of [29]—resp. Eqs. (18)–(23) and (38)–(42) of [30]—
+into Eqs.
+       √ (8)–(10), whose right sides are then rewritten replacing the appearances
+of e = 1 − (G∕L)2 and 𝜔 = g in terms of the semi-equinoctial variables 𝜒 and 𝜁 .
+Namely,
+35 Page 14 of 32                                  The Journal of the Astronautical Sciences (2025) 72:35
+
+
+                R2⊕ 3 [                    ] 1      R4⊕              {
+  d𝜆                                                      1        1
+     = n − nJ2 2 5s2 − 4 + (3s2 − 2)𝜂 + J22 n 4                         − 96e6
+  dt             p 4                           2    p 𝜂(1 + 𝜂)3 512
+                                    [
+       × (148s4 − 29s2 − 44) + e4 96(887s4 − 994s2 + 196) − 48(1003s4 − 902s2
+                          ]    [
+       + 28)(𝜁 2 − 𝜒 2 ) + e2 96(2199s4 − 2210s2 + 192)(𝜁 2 − 𝜒 2 ) − 324s4 (𝜒 4
+                                                       ]
+       − 6𝜁 2 𝜒 2 + 𝜁 4 ) − 192(1313s4 − 2164s2 + 824) + 648s4 (𝜒 4 − 6𝜁 2 𝜒 2 + 𝜁 4 )
+         − 768(189s4 − 214s2 + 26)(𝜁 2 − 𝜒 2 ) + 192(673s4 − 1052s2 + 432)(1 + 𝜂)
+                     [                                       [
+         − 3(1 − 𝜂) − 2e6 (403s4 + 40s2 − 184) + 16e4 s2 3(189s2 − 146)
+                                        ]    [
+         − (147s2 − 130)(𝜁 2 − 𝜒 2 ) + e2 16(1861s4 − 1826s2 + 148)(𝜁 2 − 𝜒 2 )
+                                                                      ]
+         − 27s4 (𝜒 4 − 6𝜁 2 𝜒 2 + 𝜁 4 ) − 16(1953s4 − 3276s2 + 1216)
+                                                                             ]}
+         + 108s4 (𝜒 4 − 6𝜁 2 𝜒 2 + 𝜁 4 ) − 64(383s4 − 432s2 + 52)(𝜁 2 − 𝜒 2 )
+                                                                                                  (41)
+        d𝜒      R2⊕ 3                R4⊕  𝜁        {
+                               1                 3
+           = nJ2 2 (5s2 − 4)𝜁 − J22 n 4              e4 𝛽4,0
+        dt      p 4            2     p (1 + 𝜂)2 64
+               + e2 (𝛽2,1 𝜁 2 − 𝛽2,2 𝜒 2 − 𝛽2,0 ) + 𝛽0,0 − 𝛽0,1 𝜁 2 + 𝛽0,2 𝜒 2                    (42)
+                    1 [ 4                                                                ]}
+               +          e 𝛾4,0 + e2 (𝛾2,1 𝜁 2 − 𝛾2,2 𝜒 2 − 𝛾2,0 ) + 𝛾0,1 𝜁 2 + 𝛾0,2 𝜒 2 ,
+                 1+𝜂
+
+
+        d𝜁        R2⊕ 3                R4⊕  𝜒        {
+                                 1                 3
+           = − nJ2 2 (5s2 − 4)𝜒 + J22 n 4              e4 𝛽4,0
+        dt        p 4            2     p (1 + 𝜂)2 64
+               + e2 (𝛽2,2 𝜁 2 − 𝛽2,1 𝜒 2 − 𝛽2,0 ) + 𝛾0,0 − 𝛽0,2 𝜁 2 + 𝛽0,1 𝜒 2                    (43)
+                    1 [ 4                                                                ]}
+               +          e 𝛾4,0 + e2 (𝛾2,2 𝜁 2 − 𝛾2,1 𝜒 2 − 𝛾2,0 ) − 𝛾0,2 𝜁 2 − 𝛾0,1 𝜒 2 ,
+                 1+𝜂
+
+               R2⊕ 3         R4⊕              {                 [
+    dh                  1            1      3
+       = − nJ2 2 c + J22 n 4 c           2
+                                               e4 (5s2 + 4) + e2 2(15s2 − 7)
+    dt         p 2      2     p (1 + 𝜂) 16
+                                   ]
+         × (𝜁 − 𝜒 ) − 4(42s − 23) + 16(19s2 − 15) − 8(30s2 − 13)(𝜁 2 − 𝜒 2 )
+             2     2        2
+
+                  [                                                       ]}
+         − (1 − 𝜂) 8(19s2 − 15) − 2e2 (23s2 − 8) − 20(7s2 − 3)(𝜁 2 − 𝜒 2 ) ,
+                                                                                  (44)
+where the inclination polynomials 𝛽i,j and 𝛾i,j in Eqs. (42) and (43) are presented in
+Table 1. The mean variation of L vanishes up to the second order of J2.
+   Finally, the proper initialization of the mean variations from given initial con-
+ditions in osculating variables needs to know the osculating-to-mean transforma-
+tion. But once the vectorial generator is computed, this transformation is obtained
+as a standard application of the Lie transforms theory, which only involves
+straightforward operations, as outlined in Appendix A.
+The Journal of the Astronautical Sciences (2025) 72:35                             Page 15 of 32 35
+
+
+Table 1  Inclination polynomials      #i,j        𝛽                           𝛾
+𝛽i,j and 𝛾i,j in Eqs. (42) and (43)
+                                      0,0         8(335s4 − 624s2 + 288)      8(455s4 − 728s2 + 288)
+                                      0,1         4(525s4 − 590s2 + 104)      8s2 (25s2 − 22)
+                                      0,2         4(795s4 − 826s2 + 104)      8s2 (45s2 − 38)
+                                      2,0         2(845s4 − 1132s2 + 368)     4(5s2 − 4)(79s2 − 72)
+                                      2,1         2(135s4 − 158s2 + 28)       4(335s4 − 366s2 + 60)
+                                      2,2         2(195s4 − 214s2 + 28)       4(475s4 − 486s2 + 60)
+                                      4,0         45s4 + 36s2 − 56            2(225s4 − 228s2 + 40)
+
+
+
+
+4 Higher‑Order Refinements
+
+If progressing in closed form to higher orders in the exact separation of long-
+period variations and purely periodic short-period corrections, one will find the
+expected trouble derived from the need of using special functions in the integra-
+tion of the vectorial generator. Nevertheless, this is not the case of the computa-
+tion of the third-order terms of the mean variations Φj,0,3, j = 2, … , 5 in Eq. (15),
+which only involve partial differentiation operations and known quadratures. It is
+worth noting that, in spite of the terms Φj,0,3 refer to the variations of the Delau-
+nay variables, these variations are no longer the same obtained with the theory in
+Delaunay variables computed in [29, 30].
+
+
+4.1 Third‑Order Terms of the Mean Variations
+
+The computation of the third-order term Φ1,0,3 of the variation of the mean anom-
+aly from Eq. (16), requires also the knowledge of ⟨W4,3 ⟩𝓁 , which must be com-
+puted in such a way that it guarantees the purely periodic character of L0,3. The
+latter is obtained, as before, from the scalar recursion in Eq. (A7) and the conse-
+quent use of the scalar differential operator in Eq. (A2). That is,
+                                L2,1 = L0,3 (L) = W4,3 ,
+                                L1,2 = L0,2 (L0,1 ) + L0,1 (L1,1 ) + L2,1 ,
+                                L0,3 = L0,1 (L0,2 ) + L1,2 ,
+
+in which W4,3 is yet unknown, but the other terms are computable from previ-
+                                              ∑5
+ous orders. In particular, L1,1 = L0,2 (L) = l=1 (𝜕L∕𝜕xl )Wl,2 = W4,2 was already
+obtained from Eq. (30) in the computation of the second-order terms.
+   Then, the periodicity condition ⟨L0,3 ⟩𝓁 = 0 yields
+                             �                                        �
+               ⟨W4,3 ⟩𝓁 = − L0,1 (L0,2 ) + L0,2 (L0,1 ) + L0,1 (W4,2 ) 𝓁 ,   (45)
+
+in which evaluation only known quadratures are found. In particular,
+35 Page 16 of 32                                     The Journal of the Astronautical Sciences (2025) 72:35
+
+
+                              R6⊕ 27 2 2       2          𝜂4      2𝜂
+              ⟨W4,3 ⟩𝓁 =L       6
+                                    s (5s − 4)   (cos 2𝜔)  2
+                                                             log
+                              p 4                         e      1+𝜂
+                                                       3   11                                        (46)
+                                 R6⊕ 9       ��
+                            +L 6                    Q (s2 )𝜂 j−3 s2i cos 2i𝜔,
+                              p 2048(1 + 𝜂)4 i=0 j=0 i,j
+
+where the inclination polynomials Qi,j are presented in Table 2. This value is then
+combined with the long-period terms stemming from the computation of ⟨Φ    ̃ 1,0,3 ⟩𝓁 ,
+to finally obtain Φ1,0,3 from Eq. (16).
+   As before, once the third-order terms of the mean variations of the Delaunay
+variables have been computed, the corresponding mean variations of the semi-
+equinoctial elements are in turn computed from Eqs. (8)–(10). Finally, the right
+
+
+
+Table 2  Inclination polynomials Qi,j in Eqs. (46)
+j∖i                0                                                           3
+
+0                  715(3s2 − 2)(45s4 − 24s2 + 8)                               − 315
+                                                                                  8
+1                  2860(3s2 − 2)(45s4 − 24s2 + 8)                              − 315
+                                                                                  2
+2                  33(13959s6 − 17994s4 + 9192s2 − 2192)                       − 837
+                                                                                  8
+3                  −4(24813s6 + 10242s4 − 43416s2 + 14576)                     369
+4                  −2(279467s6 − 230170s4 + 5480s2 + 10928)                    2241
+                                                                                 4
+5                  −56(2741s6 − 2134s4 + 728s2 − 176)                          −153
+6                  14(24061s6 − 23118s4 − 200s2 + 1616)                        − 2637
+                                                                                  4
+7                  8(17779s6 − 12858s4 − 3752s2 + 2000)                        −180
+8                  −153927s6 + 201954s4 − 62664s2 + 7440                       2025
+                                                                                 8
+9                  −92124s6 + 118536s4 − 34080s2 + 4160                        261
+                                                                                2
+10                 11859s6 − 8914s4 − 1912s2 + 1840                            − 818
+11                 4(2391s6 − 2698s4 + 440s2 + 80)                             −9
+j∖i                1                                                           2
+0                  − 15015   (45s4 − 48s2 + 16)                                4095
+                                                                                    (3s2 − 2)
+                         8                                                       2
+1                     15015
+                   − 2 (45s4 − 48s2 + 16)                                      8190(3s2 − 2)
+2                     33
+                   − 40  (367785s4 − 381648s2 + 128272)                         9
+                                                                                  (62455s2 − 37189)
+                                                                               35
+3                  3
+                     (802575s4 − 917376s2 + 299984)                               396
+                                                                               − 35 (5185s2 − 3861)
+                   5
+4                   3
+                      (6353295s4 − 7022832s2 + 2308208)                        2173686
+                                                                                       − 614391  s2
+                   20                                                             35        7
+5                  9
+                     (35575s4 − 11304s2 + 2016)                                 6          2
+                                                                                  (174325s − 162056)
+                   5                                                           35
+6                  − 3309717   s4 + 5073164 s2 − 1721716                       773232 2
+                                                                                      s − 3021794
+                          4            5             5                            7           35
+7                  − 58 (294765s4 − 372877s2 + 132458)                          6
+                                                                                  (120045s 2 − 72656)
+                                                                               35
+8                   1
+                      (7315485s4 − 9121264s2 + 2957456)                         1
+                                                                                  (3155918 − 3679545s2 )
+                   40                                                          70
+9                  607149 4
+                            s − 2214272  s2 + 843448                           12
+                                                                                  (44963 − 55425s2 )
+                      2             5           5                              35
+10                 1249839 4
+                             s − 261006s2 + 109182                             7671s2 − 7195
+                       8
+11                 37107s4 − 66216s2 + 28896                                   6(439s2 − 414)
+The Journal of the Astronautical Sciences (2025) 72:35                       Page 17 of 32 35
+
+
+sides of the mean variations are reformulated in terms of the semi-equinoctial
+elements.
+    These higher-order frequencies may help in stabilizing the growth of the secular
+components of the errors in the numerical propagation of the mean elements, which,
+soon or later, will become dominant in the perturbation solution. Moreover, they show
+that the mean variation of the Delaunay action—and, in consequence, that of the semi-
+major axis—does not vanish at third order, a fact that makes an important difference of
+the noncanonical approach with respect to canonical perturbation methods. In particu-
+lar, dL∕dt = (1∕3!)J23 Φ4,0,3, where
+
+                      R6⊕   27𝜁𝜒                   {
+       Φ4,0,3 = − nL 6               2
+                                       s2 (5s2 − 4) 32(12s2 − 5) + 36s2 (𝜁 2 − 𝜒 2 )
+                       p 128𝜂(1 + 𝜂)
+                     [                                ]
+                + e 4(117s2 − 106) − 9s2 (𝜁 2 − 𝜒 2 ) − 16e4 (6s2 − 5)
+                   2                                                                 (47)
+                          [                                                ]}
+                + (𝜂 − 1) 32e2 (11s2 − 9) + 18s2 (𝜁 2 − 𝜒 2 ) + 8(19s2 − 6) .
+
+However, the perturbation theory still lacks the third-order terms of the transforma-
+tion from osculating to mean variables that is needed to initialize the mean elements
+to the same level of accuracy. But this would need to previously solve the third-order
+terms of the vectorial generator, which is declined to approach.
+
+4.2 Calibration from the Energy Integral
+
+On the other hand, because the J2-problem conserves the total energy, partial remedy
+to this inconsistency is obtained with a calibration of the initial mean semimajor axis
+[38]—or the equivalent Delaunay action in our particular case. To this effect the energy
+integral is written in the perturbative form
+                                                         ∑ 𝜖m
+                                       Eosculating =                Em,0 ,              (48)
+                                                         m≥0
+                                                               m!
+
+with 𝜖 = J2, E0,0 = − 12 (𝜇∕a), E1,0 = (𝜇∕r)(R⊕ ∕r)2 P2 (sin 𝜑), and Em,0 = 0 for m ≥ 2.
+Then, the computed vectorial generating function is used to transform the energy
+integral into mean elements by the standard application of the scalar version of
+Deprit’s triangle. That is,
+                                                     ∑ 𝜖m
+                                          Emean =               E0,m ,                  (49)
+                                                     m≥0
+                                                           m!
+
+where, in the mean elements,
+                                                     2
+                                               𝜇 R⊕ 1
+                                      E0,1 =           𝜂(3s2 − 2),                      (50)
+                                               2a p2 2
+35 Page 18 of 32                                    The Journal of the Astronautical Sciences (2025) 72:35
+
+
+              𝜇 R⊕ 3 { [ 4
+                     4
+   E0,2 = −                  2 𝜂 (121s4 − 8s2 − 40) + 16𝜂 3 (3s2 − 2)2 − 10𝜂 2 (53s4
+             2a p4 256𝜂
+                                             ]      [           2𝜂 3 + 4𝜂 2 + 6𝜂 + 3
+           − 8s2 − 8) + 35(27s4 − 24s2 + 8) + 16 8(5s2 − 4)
+                                                                      (1 + 𝜂)2
+                                           ]                            }
+           + 𝜂 2 (39s2 − 34) − 3(61s2 − 46) s2 e2 cos 2𝜔 + 9s4 e4 cos 4𝜔 .
+                                                                                                    (51)
+These terms are readily written in semi-equinoctial variables noting that
+
+                         e2 cos 2𝜔 = 𝜒 2 − 𝜁 2 ,
+                         e4 cos 4𝜔 = 𝜒 4 − 6𝜁 2 𝜒 2 + 𝜁 4 ,
+                                     (         )(                   )
+                         e6 cos 6𝜔 = 𝜒 2 − 𝜁 2 𝜒 4 − 14𝜁 2 𝜒 2 + 𝜁 4 .
+
+Needless to say, in spite of Eq. (48) has Hamiltonian character, Eq. (49) is no longer
+a Hamiltonian because the computed mean-to-osculating transformation is not
+canonical. So in no way the mean variations can be derived from the given integral
+in mean elements—save, of course, for the first-order approach, in which case the
+canonical and noncanonical theories match.
+   Undeniably, the third-order components of the generating function Wj,3 is not
+known, a fact that seems to prevent the computation of the third-order term of the
+energy integral in mean elements. However, it happens that the Keplerian term
+E0,0 = − 12 (𝜇∕L)2 , which only depends on L, is the only one appearing in computa-
+tions involving Wj,3. Namely, from repeated application of Eq. (A7),
+                   E0,3 = L0,1 (E0,2 ) + L0,2 (E0,1 ) + L0,1 (E1,1 ) + L0,3 (E0,0 ),                (52)
+where the first three summands on the right side of Eq. (52) are computable, but the
+last one is not. Still, what it is certainly known is that E0,3 must be free from short-
+period terms. Hence the unknown, short-period components of L0,3 (E0,0 ) = nW4,3
+must cancel the short-period terms resulting from the application of the other dif-
+ferential operators L0,j out of Eq. (52). That is, E0,3 must match the average of the
+resulting expressions on the right side of Eq. (52). Therefore, like in the previ-
+ous computation of the third-order terms of the mean variations, only the average
+⟨W4,3 ⟩𝓁 is needed, which was already computed in Eq. (46). Therefore,
+               6         �            � � 2               �                    �
+         𝜇 R⊕ 9                              s                                       2𝜂
+  E0,3 =               12(5s2 − 4)2 2 5 2 − 6s2 + 1 cos 2𝜔 − 3s2 + 2 log
+         2a p6 32                            e                                     1 +𝜂
+                                                       3 11                      �
+                         e2             1      1     �   �
+        + 9(5s2 − 4)3 3 ⟨𝜙2 ⟩𝓁 +                            P (s2 )𝜂 j−3 cos 2i𝜔 ,
+                        𝜂              32 (1 + 𝜂) i=0 j=0 i,j
+                                                   4
+
+                                                                                       (53)
+where P3,j = Q3,j s , Pi,j = Qi,j s , i, j = 0, 1, 2, and the remaining inclination poly-
+                   6               2i
+
+nomials Pi,j are listed in Table 3. It is remarked that the evaluation of Eq. (53) is
+nonsingular in spite of the explicit appearance of the eccentricity as divisor. In
+The Journal of the Astronautical Sciences (2025) 72:35                       Page 19 of 32 35
+
+
+Table 3  Inclination polynomials Pi,j in Eq. (53)
+j∖i                 0
+
+3                   4(13527s6 − 93627s4 + 106176s2 − 30920)
+4                   2(16953s6 − 408270s4 + 471000s2 − 134704)
+5                   16(34579s6 − 84898s4 + 64408s2 − 16512)
+6                   2(145103s6 − 63914s4 − 110200s2 + 45488)
+7                   −8(72644s6 − 187899s4 + 158608s2 − 43400)
+8                   −610543s6 + 1130994s4 − 717512s2 + 172560
+9                   −4(9897s6 + 17978s4 − 42376s2 + 15376)
+10                  142443s6 − 327938s4 + 267784s2 − 76240
+11                  12(3371s6 − 7169s4 + 5408s2 − 1496)
+j∖i                 1                                                  2
+3                   457353s6 − 2580768 s4 + 839472 s2                  − 409140 s6 + 1523286 s4
+                                  5            5                           7            35
+4                   3369465 6
+                             s − 4475844  s4 + 1448916  s2             − 599103 s6 + 2109006 s4
+                        4            5             5                       7            35
+5                              6   926584 4
+                    −81789s + 5 s − 5 s − 1792  330976 2               252198 6
+                                                                              s − 1163016   s4
+                                                                          7            35
+6                   − 3201381  s6 + 4916284 s4 − 1715956   s2 + 5120   788184 6    3095994 4
+                                                                              s − 35 s
+                          4            5             5                    7
+7                                6   1963976 4
+                    −294024s + 5 s − 5 s + 27392   981264 2            63414 6
+                                                                             s − 83556   s4
+                                                                         7          35
+8                   2334681 6
+                             s − 1697518  s4 + 322962  s2 + 23552        887445 6
+                                                                       − 14 s + 35 s  1920399 4
+                        8            5            5
+9                   742893 6
+                            s − 2904672  s4 + 1278328  s2 − 15616      − 106812 s6 + 429516  s4
+                       2            5             5                         7            35
+10                  1968207 6
+                             s − 460734s + 247550s2 − 28672
+                                            4                                  6
+                                                                       14175s − 13011s       4
+                        8
+11                  76851s6 − 148584s4 + 81888s2 − 9984                4050s6 − 3798s4
+
+
+
+
+the exact case of zero mean-eccentricity, or when terms O(e2 ) and higher may be
+ignored in the series expansion of E0,3, Eq. (53) can be replaced by
+                                           6
+                                   𝜇 R⊕ 27
+                   E0,3,circular =          (269s6 − 554s4 + 408s2 − 108),
+                                   2a a6 16
+thus avoiding the trouble.
+   Having computed the energy integral in mean elements up to the third order of J2,
+one is ready for the calibration process. Thus, for given initial conditions in osculat-
+ing elements the energy value Eosculating = E is computed from Eq. (48). Next, the
+inverse, osculating-to-mean transformation—which is only known to the second
+order of J2—is applied to compute the mean elements corresponding to these initial
+conditions, and replace Emean = E in Eq. (49), which is further rearranged as
+                                 (      k
+                                                    )
+                               𝜇       ∑   𝜖 m E0,m
+                       E=−         1+                 + O(J2k+1 ),                 (54)
+                              2a      m≥1
+                                           m!  E0,0
+
+
+where k denotes the truncation order at which the calibration is applied without
+                                                                            √      con-
+straint to the case k = 3 of current concern. If the mean value of L = 𝜇a were
+known to the third order, then Eq. (54) would be an identity in spite of the truncation
+35 Page 20 of 32                            The Journal of the Astronautical Sciences (2025) 72:35
+
+
+of the other elements to second-order effects. However, the low accuracy with which
+the mean value of L is known makes that the error in the computation of the energy
+in mean elements is in fact O(J2k ).
+   However, if the value of the semimajor axis in Eq. (54) is replaced by the cali-
+brated value [38]
+                                       (       k
+                                                          )
+                                     𝜇       ∑   𝜖 m E0,m
+                                                                               (55)
+                            ∗
+                           a =          1+                  ,
+                                2(−E)        m≥1
+                                                 m! E0,0
+
+then Eq. (54) certainly turns an identity. So the initial, mean value of L obtained
+from the √ second-order, osculating-to-mean transformation is replaced by the new
+one L = 𝜇a∗ , which would only differ from the correct value on higher-order
+effects.
+   It is remarked that the calibration process does not necessarily provides more
+accurate initial conditions in mean elements than those provided by the osculating-
+to-mean transformation. What it does provide is the initial conditions of an orbit
+closer to the energy manifold of the true orbit. Because of that, the improvements
+in the mean value of the mean motion operated by the calibration should reduce the
+dominant in-track errors in a long-term propagation, yet no claims are made regard-
+ing the behavior of other kinds of errors.
+
+
+
+5 Performance Tests
+
+To illustrate that the noncanonical perturbation solution provides the expected per-
+formance, two different examples are presented. The first one is a low-eccentricity
+orbit, which justifies the efforts in constructing a theory in nonsingular variables. As
+mentioned before, the theory based on Delaunay variables would not be adequate for
+propagating semi-analytically this kind of orbit due to the appearance of the eccen-
+tricity in denominators of the mean-to-osculating transformation, with the conse-
+quent lack of convergence. The other example is a Geosynchronous transfer orbit
+(GTO), whose eccentric is very high and is the type of orbit that justifies the efforts
+in obtaining the closed form of the perturbation theory. In all cases the gravitational
+potential is defined through the values 𝜇 = 398600.4415 km3 ∕s2, R⊕ = 6378.1363
+km, J2 = 1.082634 × 10−3.
+    The true, reference orbits used in the comparisons were computed from corre-
+sponding Runge-Kutta integrations of the original differential equations in Cartesian
+coordinates. To guarantee the quality of the true solutions, it has been checked that
+the different numerical propagations conserved the integrals of the J2-problem—
+namely, the energy and the third component of the angular momentum—with at
+least 14 digits. Maintaining these high-accuracy standards for tests involving long-
+time intervals, say longer than one week, required to carry out the Runge-Kutta inte-
+grations in extended precision. On the other hand, the accuracy provided by standard
+numerical integration routines of popular symbolic processors was found enough to
+investigate the performance of the semianalytical solution in shorter time intervals.
+The Journal of the Astronautical Sciences (2025) 72:35                  Page 21 of 32 35
+
+
+Interested readers may consult the accompanying Wolfram Notebook,3 where the
+perturbation theory is implemented, and run alternative particular examples of their
+choice.
+
+5.1 Low‑Eccentricity Orbit
+
+The nominal orbital elements of the PRISMA mission [39] are chosen for the first
+test, which are used as osculating initial conditions of the semianalytical propaga-
+tion. Namely, a = 6878.144 km, e = 0.001, i = 97.42, Ω = 168.2, 𝜔 = 20, and
+M = 30, where the angles are given in degrees. The reference orbit is computed by
+the numerical integration of corresponding initial conditions in Cartesian coordi-
+nates, along a time interval of two days. The orbital elements are also converted into
+semi-equinoctial elements (𝜒, 𝜁, 𝜆, L, H, h) and are propagated semianalytically for
+comparison.
+   To illustrate the mean features of the noncanonical, perturbation theory, four dif-
+ferent kinds of semianalytical propagations are presented. The first one uses the first
+order mean-to-osculating transformation in Eqs. (23)–(26)—which are used with
+opposite sign to initialize the mean-element propagation—and the second-order ver-
+sion of the mean variations given in Eqs. (41)–(44). This theory is labeled as of
+the 1:2:1 type—for first-order inverse, osculating-to-mean transformation, second-
+order mean variations, and first-order direct, mean-to-osculating transformation. The
+intrinsic (along-track, radial, cross-track) errors of this propagation are presented in
+the left column of Fig. 1. As shown in the upper plot of that column, the improper
+initialization of the mean frequencies provided by this theory clearly manifests in
+the fast growth rate of the along-track errors, of about 1.3 km/day. The pronounced
+slope of the time history of the along-track errors hides the contribution of the short-
+period errors, whose amplitude is of about 20 meter for this type of error. Plots in
+the second and third rows of the left column of Fig. 1 show that the errors in the
+radial and cross-track directions are dominated by the amplitude of the short-period
+errors, which is also in the meter level due to the truncation to first order of the
+analytical corrections. The lower plot of this column presents the time-history of
+the errors of the semimajor axis, which are clearly displaced from the zero-average
+that should be expected from our ad hoc noncanonical approach. But this is not a
+defect of the theory but just another consequence of the inadequate initialization of
+the mean semimajor axis—or, more precisely, the Delaunay action in our chosen
+variables.
+   The flawed initialization of the semianalytical solution when using the 1:2:1 the-
+ory is mostly amended with the inclusion of second-order corrections in the oscu-
+lating-to-mean transformation of the Delaunay action, which is rather approximated
+by a much simpler calibration of the semimajor axis based on the energy integral
+(the 1c:2:1-theory in our notation, the “c” standing for calibration). As shown in
+the upper plot of the right column of Fig. 1, now the slope of the time-history of
+
+
+
+3
+    https://​noteb​ookar​chive.​org/​2025-​05-​0yxr1​iu
+35 Page 22 of 32                                      The Journal of the Astronautical Sciences (2025) 72:35
+
+
+
+
+Fig. 1  Errors of a 2-day semianalityc propagation of the Prisma orbit with the 1:2:1 theory (left column)
+and the properly initialized version of it (right column)
+
+
+
+the along-track errors is radically reduced to less than 2 meter per day, which is the
+order of magnitude expected for this type of orbit when the mean variations include
+second-order terms, cf. [17]. The short-period oscillations of the radial and along-
+track errors remain of analogous amplitude, as expected from the first-order trunca-
+tion of the mean-to-osculating transformation, yet a general improvement is noticed
+due to the coupling of the intrinsic errors (plots in the second and third rows in the
+right column of Fig. 1). The lower plot of this column shows that now the errors of
+the semimajor axis properly average to zero, with a small shift of about 2 cm due to
+the unavoidable truncation of the perturbation solution.
+   The amplitude of the short-period components of the errors is radically reduced
+when the mean-to-osculating transformation takes the second order effects into
+account, which is called a 2:2:2 theory. Indeed, as shown in the upper plot of the left
+column of Fig. 2, the application of the improved mean-to-osculating transformation
+mostly releases the time-history of the along-track errors from short-period oscilla-
+tions. The latter remain now below the meter level, as checked in the time-histories
+of the radial and cross-track errors shown in the second and third rows of the left
+column. The magnitude of the small shift from the zero-average of the errors of the
+semimajor axis is now clearly apparent in the lower plot in the left column of Fig. 2.
+   The plots in the right column of Fig. 2 show the additional improvements
+obtained by taking third-order terms of the mean variations into account, as well
+as the corresponding calibration of the mean Delaunay action with the help of
+the energy integral (2c:3:2 theory). The improvements of the along-track errors
+The Journal of the Astronautical Sciences (2025) 72:35                              Page 23 of 32 35
+
+
+
+
+Fig. 2  2-Day semianalityc propagation of the Prisma orbit with the 2:2:2 theory (left column) and the
+calibrated 2c:3:2 theory (right column)
+
+
+
+
+are radical, falling also to the cm level due to the amplitude of the second-
+order short-period corrections, and with a small secular trend of just a few mm/
+day (upper-right plot of Fig. 2), in contrast with the about 1 meter/day of the
+2:2:2 propagation. The amplitude of the periodic components of the error is not
+affected, but now they show a more regular behavior with almost zero average of
+the radial and cross-track errors (plots in the second and third rows in the right
+column of Fig. 2). In agreement with the improvements of the intrinsic errors, the
+average of those of the semimajor axis falls to a negligible fraction of a millim-
+eter, as depicted in the lower-right plot of Fig. 2).
+   Once the features introduced by the successive refinements of the noncanoni-
+cal perturbation theory have been illustrated, it is worth remarking that secular
+errors always prevail in the long term. Therefore, depending on our particular
+needs, the operation of the semianalytical propagation may be notably improved
+by ignoring the heavy evaluation of the second-order terms of the mean-to-oscu-
+lating transformation. This is illustrated in Fig. 3 for a one-month propagation
+of the Prisma orbit, where RSS position error denotes the root sum square of the
+difference between the exact position and the one obtained with the semianalytic
+integration, and RMS is the root mean square deviation of these errors. The figure
+shows that the position errors of the 2:2:2 and 1c:2:1 versions of the perturbation
+theory take comparable values in the long term.
+35 Page 24 of 32                             The Journal of the Astronautical Sciences (2025) 72:35
+
+
+Fig. 3  Position errors of the
+1-month propagation of the
+Prisma test orbit with the differ-
+ent versions of the semianalyti-
+cal theory
+
+
+
+
+5.2 High‑Eccentricity Orbit
+
+The second example is for a highly-eccentric orbit with nominal elements a = 24460
+km, e = 0.73, i = 30, Ω = 170.1, 𝜔 = 280, and M = 0, with angles in degrees. As
+before, the reference orbit is numerically integrated for a 2-day interval from cor-
+responding initial conditions in Cartesian coordinates, whereas the semianalytical
+simulations are conducted in semi-equinoctial elements (𝜒, 𝜁, 𝜆, L, H, h) from an ini-
+tial state obtained from the orbital elements.
+   Analogous propagations to those carried out in the previous example result in the
+time-histories of the errors displayed in Figs. 4 and 5. The behavior of the different
+versions of the noncanonical semianalytical theory in the 2 days interval is essen-
+tially the same observed in the previous example, with a reduction of the along-track
+errors from a few km to several decameters with the straightforward calibration of
+the 1:2:1 theory. This accuracy is improved to the meter level when second-order
+effects of the mean-to-osculating transformation are taken into account, which turn
+into centimeters if the theory is refined with third-order terms of the mean variations
+and the proper initialization. The successive refinements are clearly observed too
+in the departure from the zero mean of the time histories of the errors of the orbital
+elements. In particular, for the semimajor axis, the shift of about 23 m from the zero
+mean resulting from the insufficient initialization of the 1:2:1 theory turns into 3.5
+cm with the proper initialization of the mean semimajor axis. This offset is further
+reduced to about 1 cm when using the 2:2:2 theory, and to a negligible value below
+the mm level when the 2c:3:2 perturbation solution is used.
+   In spite of the much larger amplitude of the short-period errors, due to the much
+higher eccentricity of the tested GTO orbit, the behavior of the solution presents
+similar characteristics to the case of the Prisma orbit. In particular, in the 2-day
+interval the relative position errors remain of the order of 10−4 in both test cases
+when using the 1:2:1 version of the perturbation theory; the relative errors improve
+to the order of 10−6 in each case with the adequate initialization provided by the
+1c:2:1 theory; the 2:2:2 theory reduces the relative errors to O(10−7 ); and the refine-
+ments provided by the third-order terms of the 2c:3:2 theory further push the relative
+errors to O(10−8 ) or below. Besides, the secular errors stemming from the truncation
+The Journal of the Astronautical Sciences (2025) 72:35                                Page 25 of 32 35
+
+
+
+
+Fig. 4  Errors of a 2-day semianalityc propagation of the GTO test orbit with the 1:2:1 theory (left col-
+umn) and the properly initialized version of it 1c:2:1 (right column)
+
+
+
+
+Fig. 5  2-Day semianalityc propagation of the GTO orbit with the 2:2:2 theory (left column) and the cali-
+brated 2c:3:2 theory (right column)
+35 Page 26 of 32                             The Journal of the Astronautical Sciences (2025) 72:35
+
+
+of the mean variations always prevail in the long term. As further illustrated with
+Fig. 6, this fact could make acceptable to replace the 2:2:2 solution by the much
+more expedite 1c:2:1 version when position errors of decameters are acceptable in a
+long-term semianalytical propagation.
+   It is worth mentioning that the accuracy provided by the semianalytical theory is
+comparable to the one provided by Brouwer’s (correctly initialized) analytical solu-
+tion for the J2-problem in analogous time intervals, cf. Fig. 1 of [17]. Still, because
+Brouwer’s solution is limited in application to orbits far enough from the critical
+inclination, the semianalytical approach may be preferred for it does not suffer an
+analogous constraint.
+
+
+
+6 Conclusion
+
+The derivation of the mean-to-osculating transformation from a generating function
+is a distinctive feature of the method of Lie transforms. It allowed us to obtain a
+second-order perturbation solution to the J2-problem in closed form and arbitrary
+variables that exactly separates short- and long-period terms. Particularization of
+the mean-to-osculating transformation for a preferred set of variables only requires
+fixing the arbitrary integration functions of the slow variables, or “constants,” on
+which this generator depends upon. Our approach takes advantage of the simplic-
+ity provided by the set of Delaunay variables in the construction of the perturbation
+solution. Relying on the traditional set of Keplerian orbital elements, which enjoy
+analogous characteristics, would have been an acceptable alternative option.
+   The procedure has been illustrated with the reformulation of the perturbation
+solution in the set of nonsingular semi-equinoctial elements. To do that it has been
+imposed that the integration constants of the vectorial generator yield a mean-to-
+osculating transformation of the semi-equinoctial elements that is purely periodic in
+the mean distance to the ascending node. An equivalent constraint could have been
+imposed to a different set of variables, as, for instance, the popular set of equinoctial
+variables.
+
+
+Fig. 6  Position errors of the
+1-month propagation of the
+GTO test orbit with the different
+versions of the semianalytical
+theory
+The Journal of the Astronautical Sciences (2025) 72:35                                        Page 27 of 32 35
+
+
+   The tests presented show that the accuracy of our closed-form theory is nei-
+ther good nor bad, but the one expected from the truncation order of the series
+defining the perturbation solution. Failing in achieving a similar accuracy level
+in comparable time intervals with alternative perturbation solutions simply would
+mean that the used theory is flawed either in its conception or in its software
+implementation. Certainly, the finer the programming the higher performance
+expected from the perturbation solution. But this important issue is not tackled in
+the paper, where checking that the optimizations provided by the software com-
+piler resulted in semianalytical propagations with the due accuracy seems a more
+than satisfactory result.
+
+
+
+Appendix A: Henrard’s Perturbation Theory by Lie Transforms
+
+For two vector functions v, w, with components vj = vj (x), wj = wj (x),
+j = 1, 2, … n , of the state variables x = (x1 , x2 , … xn ), Henrard [8] defines the dif-
+ferential operator
+                               n (                )
+                              ∑    𝜕vj     𝜕wj
+                   Lj (vk ) =          w −      v ,         j = 1, 2, … n,           (A1)
+                              l=1
+                                   𝜕xl l 𝜕xl l
+
+which also applies to scalar functions v0 = v0 (x) under the condition 𝜕w0 ∕𝜕xl = 0.
+That is,
+                                                          n
+                                                          ∑ 𝜕v0
+                                             L0 (v0 ) =               wl .                              (A2)
+                                                          l=1
+                                                                𝜕xl
+
+Based on that, Kamel’s [7] extension to vectorial flows of Deprit’s [6] Lie trans-
+forms theory is rebuilt by Henrard as follows.
+   Let 𝜖 denote a small parameter, and let
+                                      ∑ 𝜖m
+                             Wj =                 Wj,m (x),        j = 1, 2, … n,                       (A3)
+                                      m≥0
+                                             m!
+
+be the vectorial generator of the transformation x = x(y, 𝜖) to the new state variables
+y, such that the transformation is obtained as the solution of the differential system
+                                 dxj
+                                       = Wj (x, 𝜖),             j = 1, 2, … n,                          (A4)
+                                 d𝜖
+for the initial conditions x(y, 0) = y. A scalar function F = F(x, 𝜖) given by its Tay-
+lor series expansion
+                                       ∑ 𝜖m                                    𝜕 m F ||
+                        F(x, 𝜖) =
+                                             m!
+                                                  Fm,0 (x),           Fm,0 =
+                                                                               𝜕𝜖 m ||𝜖=0
+                                                                                          ,             (A5)
+                                       m≥0
+
+is converted by this transformation into
+35 Page 28 of 32                                       The Journal of the Astronautical Sciences (2025) 72:35
+
+
+                                      ∑ 𝜖m                                      dm F ||
+                   F(x(y, 𝜖), 𝜖) =
+                                            m!
+                                                 F0,m (y),          F0,m =
+                                                                                d𝜖 m ||𝜖=0
+                                                                                           ,          (A6)
+                                      m≥0
+
+through the recursive computation of the coefficients of Deprit’s triangle
+                                         m ( )
+                                       ∑     m
+                     Fm,q+1 = Fm+1,q +           L0,i+1 (Fm−i,q ),                                    (A7)
+                                        i=0
+                                              i
+
+where L0,i+1 is obtained replacing wl by Wl,i+1 in Eq. (A2). The transformation is
+obtained explicitly from the vectorial generator by first expanding formally
+                                ∑ 𝜖m
+                         xj =           x (x),                j = 1, 2, … n,                          (A8)
+                                m≥0
+                                      m! j,m,0
+
+where xj,0,0 = xj and xj,m,0 = 0 for m > 0. Then, the coefficients xj,0,m are computed
+recursively from Deprit’s triangle in Eq. (A7), to obtain
+                                              ∑ 𝜖m
+                                       xj =            x (y).                                         (A9)
+                                              m≥0
+                                                     m! j,0,m
+
+The vectorial generator in Eq. (A3) is analogously used for transforming the pertur-
+bation flow
+                             dxj                       ∑ 𝜖m
+                                   = Xj (x, 𝜖) =                  Φj,m,0 (x).                        (A10)
+                             dt                       m≥0
+                                                             m!
+
+into
+                                       n
+                             dyj       ∑ 𝜕yj
+                                   =                Xj (x, 𝜖) = Yj (x, 𝜖),                           (A11)
+                             dt        k≥1
+                                              𝜕xk
+
+where, in the new variables
+                                                      ∑ 𝜖m
+                             Yj (x(y, 𝜖), 𝜖) =                    Φj,0,m (y).                        (A12)
+                                                      m≥0
+                                                             m!
+
+The new coefficients Φj,0,m are obtained from the recursion
+                                m ( )
+                               ∑    m
+       Φj,m,q+1 = Φj,m+1,q +            Lj,i+1 (Φk,m−i,q ), j, k = 1, 2, … , n                       (A13)
+                               i=0
+                                     i
+
+where Lj,i+1 is now computed from Eq. (A1) in which wj and wl are replaced by Wj,i+1
+and Wl,i+1, respectively.
+   In a perturbation theory, at each step m of the perturbation approach, the
+desired form of the coefficients Φj,0,m is chosen, and those Wj,i+1 are solved from
+the homological equation
+The Journal of the Astronautical Sciences (2025) 72:35                                    Page 29 of 32 35
+
+
+                                                  ̃ j,0,m ,
+                        Lj,m (Φk,0,0 ) = Φj,0,m − Φ            k, j = 1, 2, … n.                   (A14)
+
+According to Eq. (A1), Eq. (A14) is a partial differential system in the coefficients
+Wj,m, in which Φ ̃ j,0,m denotes the computable terms obtained at the step m of the per-
+turbation approach from repeated application of Deprit’s triangle in the variant of
+Eq. (A13).
+    Perturbed Kepler motions are commonly expressed in terms of orbital elements,
+with five elements of the constant type and one element of the linear type. The vari-
+ation of the latter—either the mean anomaly or a related fast-evolving angle—is the
+only one affected of a zeroth-order term in the perturbation arrangement, who besides
+only depends on a single variable that is related to the semimajor axis. In consequence,
+it is assumed that Φ1,0,0 = Φ1,0,0 (x4 ) and Φk,0,0 = 0 otherwise. Therefore, according to
+Eqs. (A1) and (A14),
+                                          (                 )
+                              Φ1,0,0 ∫
+                                 1          ̃ j,0,m − Φj,0,m dx1 ,
+                   Wj,m =                  Φ                               j = 2, … 6,             (A15)
+
+                                          (                                      )
+                                                                   𝜕Φ1,0,0
+                             Φ1,0,0 ∫
+                                1
+                   W1,m =                     ̃ 1,0,m − Φ1,0,m +
+                                              Φ                              W4,m dx1 .            (A16)
+                                                                     𝜕x4
+
+The inverse transformation is needed to properly initialize the integration of
+Eq. (A11). A convenient feature of the method of Lie transforms is that the genera-
+tor of the inverse transformation Vj is just the opposite of the direct one in Eq. (A3).
+According to Eq. (A4), Wj is a vectorial flow, and hence Vj = −Wj (x(y, 𝜖), 𝜖) is
+directly formulated in the y variables by the straightforward application of the recur-
+sion in Eq. (A13) to −Wj (x, 𝜖). Once the generator is computed, the inverse transfor-
+mation is obtained from analogous equations to Eqs. (A8)–(A9), in which now the
+scalar differential operator L0,i+1 used in Deprit’s recursion (A7) is obtained replac-
+ing wl by Vl,i+1 in Eq. (A2).
+
+
+Appendix B: First Order Generating Function in Delaunay Variables
+
+For completeness, the first-order terms of the vectorial generating function are bor-
+rowed from [29, 30], where first indices 1, 2, … 6 correspond to the Delaunay variables
+𝓁, g, h, L, G, and H, respectively, and the second index 1 denotes first order of J2. Thus,
+
+             R2⊕ 𝜂 {             [                                        ]     [
+    W1,1 =     2
+                      (3s2 − 2) 2e2 sin 3f − 6(e2 − 4) sin f + 12e sin 2f + s2 3e2
+              p 32e
+                                4𝜂 3 − 𝜂 2 − 18𝜂 − 9
+             × sin(2𝜔 − f ) − 2                      e sin 2𝜔 + 3(5e2 + 4) sin(2𝜔 + f )
+                                      (1 + 𝜂)2
+                                                                               ]}
+             + (e2 − 28) sin(2𝜔 + 3f ) − 18e sin(2𝜔 + 4f ) − 3e2 sin(2𝜔 + 5f ) ,
+                                                                                                   (B17)
+35 Page 30 of 32                                        The Journal of the Astronautical Sciences (2025) 72:35
+
+
+                 R2⊕ 3                    R2⊕ 1 { [                             ]
+    W2,1 = −             (5s2 − 4)𝜙 +            − 6e2 (17s2 − 14) + 24(3s2 − 2) sin f
+                 p2 4                       2
+                                          p 32e
+              − 12e(3s2 − 2) sin 2f − 2e2 (3s2 − 2) sin 3f − 3e2 s2 sin(2𝜔 − f )
+                   2e [ 3                                                   ]
+              −          2
+                           𝜂 (16s2 − 8) + 𝜂 2 (11s2 − 4) + (1 + 2𝜂)(4 − s2 ) sin 2𝜔
+                (1 + 𝜂)
+                [ 2                     ]
+              + 3e (15s2 − 8) − 12s2 sin(2𝜔 + f ) + 12e(5s2 − 2) sin(2𝜔 + 2f )
+                [                     ]
+              + e2 (19s2 − 8) + 28s2 sin(2𝜔 + 3f ) + 18es2 sin(2𝜔 + 4f )
+                                    }
+              + 3e2 s2 sin(2𝜔 + 5f ) ,
+                                                                                                      (B18)
+             R2⊕ 3  R2⊕ 1 {            1 + 2𝜂 2
+     W3,1 = − 2 c𝜙 + 2 c − 6e sin f +          e sin 2𝜔 + 3e sin(2𝜔 + f )
+              p 2    p 4              (1 + 𝜂)2
+                                                 }
+              + 3 sin(2𝜔 + 2f ) + e sin(2𝜔 + 3f ) ,
+                                                                                                      (B19)
+            R2⊕ 1 {          [
+    W4,1 = L 2    2
+                    (3s2 − 2) 4(𝜂 − 1)(2𝜂 2 + 5𝜂 + 5) − 6(e2 + 4)e cos f − 12e2
+            p 32𝜂
+                                  ]    [
+             × cos 2f − 2e3 cos 3f + s2 3e3 cos(2𝜔 − f ) + 18e2 cos 2𝜔 + 9(e2 + 4)
+             × e cos(2𝜔 + f ) + 12(3e2 + 2) cos(2𝜔 + 2f ) + 9(e2 + 4)e cos(2𝜔 + 3f )
+                                                     ]}
+             + 18e2 cos(2𝜔 + 4f ) + 3e3 cos(2𝜔 + 5f ) .
+                                                                                                      (B20)
+                  R2⊕ 1 [
+           W5,1 =G 2 s2 e cos(2𝜔 + 3f ) + 3 cos(2𝜔 + 2f ) + 3e cos(2𝜔 + f )
+                  p 4
+                                          ]                                                           (B21)
+                       1 + 𝜂 − 2𝜂 2
+                     +              cos 2𝜔 ,
+                          1+𝜂
+in which 𝜙 = f − 𝓁 is the equation of the center.
+Acknowledgements The author acknowledges with pleasure J.F. Palacián, Universidad Pública de Nav-
+arra, for sharing his unpublished, elegant closed-form solution of the average of the square of the equa-
+tion of the center.
+
+Funding Open Access funding provided thanks to the CRUE-CSIC agreement with Springer Nature.
+This work was supported by the Spanish State Research Agency and the European Regional Development
+Fund (Project PID2021-123219OB-I00, AEI/ERDF, EU).
+
+Data Availability Data generated or analyzed in this study is contained within the article in the form of
+figures and tables. They can be reproduced using the code available from the Wolfram Notebook Archive
+https://​noteb​ookar​chive.​org/​2025-​05-​0yxr1​iu.
+
+Declarations
+Conflict of Interest The author declares no conflict of interest.
+The Journal of the Astronautical Sciences (2025) 72:35                                      Page 31 of 32 35
+
+
+Open Access This article is licensed under a Creative Commons Attribution 4.0 International License,
+which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as
+you give appropriate credit to the original author(s) and the source, provide a link to the Creative Com-
+mons licence, and indicate if changes were made. The images or other third party material in this article
+are included in the article’s Creative Commons licence, unless indicated otherwise in a credit line to the
+material. If material is not included in the article’s Creative Commons licence and your intended use is
+not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission
+directly from the copyright holder. To view a copy of this licence, visit http://​creat​iveco​mmons.​org/​licen​
+ses/​by/4.​0/.
+
+
+
+References
+ 1. Nayfeh, A.H.: Perturbation Methods. Wiley-VCH, Weinheim (2004)
+ 2. Murdock, J.A.: Perturbations: Theory and Methods. Classics in Applied Mathematics, vol. 27.
+    SIAM-Society for Industrial and Applied Mathematics, Philadelphia (1999)
+ 3. Liu, J.J.F.: Satellite motion about an oblate earth. AIAA J 12, 1511–1516 (1974)
+ 4. McClain, W.D.: A Recursively Formulated First-Order Semianalytic Artificial Satellite Theory
+    Based on the Generalized Method of Averaging, Volume 1: The Generalized Method of Averaging
+    Applied to the Artificial Satellite Problem. NASA CR-156782. NASA, Greenbelt, Maryland, 2nd
+    edition, 1977. Also: McClain, W.D.: A Semianalytic Artificial Satellite Theory, vol. 1. Application
+    of the Generalized Method of Averaging to the Artificial Satellite Problem (1992)
+ 5. Danielson, D.A., Sagovac, C.P., Neta, B., Early, L.W.: Semianalytic Satellite Theory. Technical
+    Report NPS-MA-95-002, Naval Postgraduate School, Naval Postgraduate School, Monterey, CA.
+    Dept. of Mathematics (1995)
+ 6. Deprit, A.: Canonical transformations depending on a small parameter. Celest. Mech. 1(1), 12–30
+    (1969)
+ 7. Kamel, A.A.: Perturbation method in the theory of nonlinear oscillations. Celest. Mech. 3, 90–106
+    (1970)
+ 8. Henrard, J.: On a perturbation theory using Lie transforms. Celest. Mech. 3, 107–120 (1970)
+ 9. Lara, M.: On mean elements in artificial-satellite theory. Celest. Mech. Dyn. Astron. 135(4), 43
+    (2023)
+10. Tisserand, F.: Traité de mécanique céleste. Tome I: Perturbations des planètes d’aprés la méthode de
+    la variation des constantes arbitraries. Gauthier-Villars et fils, Paris (1889)
+11. Kozai, Y.: Mean values of cosine functions in elliptic motion. Astron. J. 67, 311–312 (1962)
+12. Deprit, A., Ferrer, S.: Note on Cid’s radial intermediary and the method of averaging. Celest. Mech.
+    40(3–4), 335–343 (1987)
+13. Kelly, T.S.: A note on first-order normalizations of perturbed Keplerian systems. Celest. Mech. Dyn.
+    Astron. 46, 19–25 (1989)
+14. Metris, G.: Mean values of particular functions in the elliptic motion. Celest. Mech. Dyn. Astron.
+    52, 79–84 (1991)
+15. Ahmed, M.K.M.: On the normalization of perturbed Keplerian systems. Astron. J. 107, 1900–1903
+    (1994)
+16. Healy, L.M.: The main problem in satellite theory revisited. Celest. Mech. Dyn. Astron. 76(2),
+    79–120 (2000)
+17. Lara, M.: Brouwer’s satellite solution redux. Celest. Mech. Dyn. Astron. 133(47), 1–20 (2021)
+18. Hintz, G.: Survey of orbit element sets. J. Guid. Control. Dyn. 31(3), 785–790 (2008)
+19. Brouwer, D.: Solution of the problem of artificial satellite theory without drag. Astron. J. 64, 378–
+    397 (1959)
+20. Coffey, S.L., Deprit, A.: Third-order solution to the main problem in satellite theory. J. Guid. Con-
+    trol. Dyn. 5(4), 366–371 (1982)
+21. Lara, M.: Solution to the main problem of the artificial satellite by reverse normalization. Nonlinear
+    Dyn. 101(2), 1501–1524 (2020)
+22. Ferraz-Mello, S.: Do average Hamiltonians exist? Celest. Mech. Dyn. Astron. 73, 243–248 (1999)
+23. Métris, G., Exertier, P.: Semi-analytical theory of the mean orbital motion. Astron. Astrophys. 294,
+    278–286 (1995)
+35 Page 32 of 32                                      The Journal of the Astronautical Sciences (2025) 72:35
+
+
+24. Zeis, E.G.: A computerized algebraic utility for the construction of nonsingular satellite theories.
+    Master’s thesis, MIT (1978)
+25. Fischer, J.D.: The evolution of highly eccentric orbits. Master’s thesis, MIT (1998)
+26. Folcik, Z., Cefola, P.: A general solution to the second order J2 contribution in a mean equinoctial
+    element semianalytic satellite theory. In: Ryan, S. (ed.) Advanced Maui Optical and Space Surveil-
+    lance Technologies Conference, p. 45 (2012)
+27. San-Juan, J.F., López, R., Cefola, P.J.: A second-order closed-form model for the Draper semi-ana-
+    lytical satellite theory. J. Astronaut. Sci. 69(5), 1292–1318 (2022)
+28. Wang, Y., Sun, X., He, L., Liu, S., He, W.: An accurate and efficient second-order J2 model for the
+    Draper semianalytic satellite theory. Acta Astronaut. 225, 169–185 (2024)
+29. Lara, M.: Exact separation of long- and short-period effects in the computation of mean elements
+    of artificial satellite theory (IAC-23,C1,8,5). In: Proceedings of the 74th International Astronautical
+    Congress (IAC), Baku, Azerbaijan, 2–6 October 2023, pp. 1–10. International Astronautical Federa-
+    tion (IAF) (2023)
+30. Lara, M.: Exact separation of purely short-period effects and mean variations in the main problem
+    of artificial satellite theory. Aerospace 12(3), 184 (2025)
+31. Deprit, A., Rom, A.: The main problem of artificial satellite theory for small and moderate eccen-
+    tricities. Celest. Mech. 2(2), 166–206 (1970)
+32. Aksnes, K.: On the use of the Hill variables in artificial satellite theory. Astron. Astrophys. 17(1),
+    70–75 (1972)
+33. Lara, M.: Efficient formulation of the periodic corrections in Brouwer’s gravity solution. Math.
+    Probl. Eng. 2015, 980652 (2015)
+34. Osácar, C., Palacián, J.F.: Decomposition of functions for elliptical orbits. Celest. Mech. Dyn.
+    Astron. 60(2), 207–223 (1994)
+35. Jefferys, W.H.: Automated, closed form integration of formulas in elliptic motion. Celest. Mech. 3,
+    390–394 (1971)
+36. Ginsberg, E.S., Zaborowski, D.: Algorithm 490: the dilogarithm function of a real argument [s22].
+    Commun. ACM 18(4), 200–202 (1975)
+37. Osácar, C., Palacián, J.F., Palacios, M.: Numerical evaluation of the dilogarithm of complex argu-
+    ment. Celest. Mech. Dyn. Astron. 62, 93–98 (1995)
+38. Breakwell, J.V., Vagners, J.: On error bounds and initialization in satellite orbit theories. Celest.
+    Mech. 2, 253–264 (1970)
+39. Persson, S., Jacobsson, B., Gill, E.: PRISMA—Demonstration Mission for Advanced Rendezvous
+    and Formation Flying Technologies and Sensors (paper IAC-05-B56B07). In: Proceedings of the
+    56th International Astronautical Congress (IAC), October 17–21 2005, Fukuoka, Japan, pp. 1–10.
+    International Astronautical Federation (IAF) (2005)
+
+Publisher’s Note Springer Nature remains neutral with regard to jurisdictional claims in published maps
+and institutional affiliations.
+

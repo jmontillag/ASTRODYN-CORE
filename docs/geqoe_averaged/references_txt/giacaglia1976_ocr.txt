@@ -1,0 +1,687 @@
+1976CeMec..14..515G
+A NOTE ON HANSEN’S COEFFICIENTS
+IN SATELLITE THEORY
+|
+|
+G.E.O. GIACAGLIA
+University of Sao Paulo, SP, Brazil
+(Received 6 February, 1976)
+Abstract. Recurrence
+relations
+are derived for the Eccentricity Functions G and H and their
+derivatives, as they appear in the evaluation of geopotential and third body perturbations of an
+artificial satellite.
+1. Basic Formulas
+Hansen’s coefficients X;”" are defined by
+r\"
+;
+nm
+.
+(2) exp imf= xt (e) exp (ikM)
+(1)
+k
+where n, m are integers. In Satellite Theory they appear in the expression of the
+disturbing function due to the primary (Gj),,) and due to the presence of a third
+body (Hip) and are usually called Eccentricity Functions (Kaula, 1962, 1966).
+These are related to the X’s by
+Gipg = Xi-2p+q”
+(2)
+and
+L1-2p
+Flipg = XT-2p+4¢:
+(3)
+One sees that due to the indices relations in (2) and (3), in Satellite Theory one has
+necessarily
+n—m=2p—21—1=odd integer, for the X;" corresponding to any G
+and n — m = 2p = even integer, for those corresponding to any H. In fact, the same is
+true in planetary theory for perturbations due to internal and external planets
+respectively. These considerations are important since recurrence relations which
+are going to be used must conserve the relative parity of the n, m involved.
+Initially, general formulas for the X’s are derived. From Equation (1), one has
++4
+.
+nym
+1
+r\"
+:
+Xe” ==— |
+|—])
+exp i(mf—kM) dm.
+(4)
+27
+a
+If one defines
+e
+B=
+(5)
+1+V1-e?
+z= expiE
+(6)
+it follows that
+r
+_
+—=(1+ 8°) (1-2) = Bz)
+7)
+a
+z
+Ls
+Celestial Mechanics 14 (1976) 515-523. All Rights Reserved
+Copyright © 1976 by D. Reidel Publishing Company, Dordrecht-Holland
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1976CeMec..14..515G
+516
+G. E. O. GIACAGLIA
+2
+exp if=2 c+ 87y*2(1-F)
+(8)
+exp (-iM) = z* ex |< (2-1)
+(9)
+Pp
+Py5
+lr
+_,
+dM=-—z
+dz.
+(10)
+ia
+Making use of these relations, the integrand in (4) takes the form
+r\"
+.
+1
+2\—n-1
+n—-m+1
+B nme
+7)
+exP i(mf—kM)dM=—(1+ 8 )
+(1— Bz)
+1-~
+x
+4
+ke (
+1)
+m—k—-1
+__~
+_
+d
+x Zz
+exp |
+zo
+z.
+(11)
+The binomials (1— Bz)"""** and (1—B/z)"*”** can be expanded in convergent
+power series in B since |z|=1. These series terminate when
+n—m+1 orn+m+1
+are positive. In general one has
+nemit.
+wv
+(n-mtl
+sis
+(1-2)
+=
+(
+) ey
+s=0
+Ny
+nem+1
+54
+(nt+mt1
+ot
+|
+(1-2)
+py
+(12)
+z
+t=0
+t
+where
+=m
+if n—-m+120
+"t
+o
+if
+n—-m+1<0
+-\ime
+if nt+m+120
+°
+o
+= if n+m+1<0.
+Note that if k,j are positive integers
+—k
+({j+k—-1
+]]
+k
+—k
+(E)-(Gi)e
+—~J
+—~J
+a(g)=e
+—
+=.
+=a
+Substitution of (12) and (11) in (4) gives
+Lo
+am.
+41k
+4+
+(n—m+1\(n+m+1
+stt
+Xk =5 1+") yd (
+)(
+Jee) "x
+TI
+s=0 1=0
+Ss
+t
+|
+:
+|
+ke
+1
+.
+x
+—1—(k—m-—s+t)
+He ( -)
+—
+ee
+bz
+exp | (2-7
+dz, (13)
+_@© Kluwer Academic Publishers * Provided by the NASA Astrophysics Data System
+1976CeMec..14..515G
+A NOTE ON HANSEN’S COEFFICIENTS IN SATELLITE THEORY
+517
+where the integral is extended in the complex plane along the circle
+z=1. The
+definition of Bessel’s function J,(@), with a, A any numbers, is
+7
+1
+1
+1
+J
+=—-—_@Q
+771-4
+F ( -1)
+14
+nr (a) aE
+exp |5 az
+——
+dz
+|
+(14)
+so that, from (13),
+|
+am
+a a
+oh
+(n—mt+1\(ntmt+1
++t
+s=0 t=0
+S
+t
+(15)
+a form given by Jarnagin (1965). If one sets
+j = t—s, the last expression becomes
+s
+j
+,{x
+—-mt+1\/n+m+1
+> ae 1+ 2\—n—-1
+(" m
+)(
+K
+(
+p )
+X Xe
+\)
+s+]
+*
+X (BY e-mei(ke) }B™
+(16)
+In general, therefore, X,’” is a power series in B and, for k =O, it is a power
+series in B* factored by B™. In fact,
+om
+_—
+aw
+(n—-mtl1\(ntm4l\
+5.
+|
+xe"=(+B
+-B)" >, (
+)(
+er
+(17)
+50
+s
+s+m
+In Equation (16) it should be noted that j; can be infinite even though ft, is finite.
+Also, if m is outside the interval [—s, j,] forO<s<s,, then Xo” =0. Finally, it is
+to be observed that (17) can be written as
++m+
+xn =ate)" . '\Fom-n~1, —~n—1,m+1;B?),
+(18)
+where F(a, B, y; x) is the hypergeometric Series (Gauss). This form is validif m+1 =
+0. It terminates if either m—n—1 or —n-—1
+are negative integers. It is obvious
+that both s,, t, are finite for the H’s while in general are infinite for the G’s.
+Moreover (18) always terminates for
+n=O (H’s) while it will not, in general, for
+the G’s, since for these
+n<0. Nevertheless, a well known transformation can be
+applied to (18) in order to reverse the above situation. In fact
+F(a, B, y; x?) =(1—x7)”* PF(y—a, y—B, y; x")
+a transformation suggested by Tisserand (1960). Using this transformation, one
+finds
++mt+1
+xpm= crt yr—payscpy("
+M1)
+5
+x F(n+2,n+m+2,m+1; B*).
+(19)
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1976CeMec..14..515G
+518
+G. E. O. GIACAGLIA
+Since for the G’s it is verified that n<—2, then (19) always terminates. An
+important remark is that since the X’s are real, the complex conjugate of (1) gives
+xe = XR.
+(20)
+For the Eccentricity Functions G and H, referring to Equations (2) and (3) one
+obtains (p =0)
+SS
+(2p —21\
+(—2
+a
+Gipg = (1 + B)'), » ( 7 \( *”) (—B)"'Jg-s+eLU—2pt+q)je]
+(21)
+s=0 t=0
+and
+2p+1 21—2p41
+|
+|
+|
+2p+1\/2l-2p+1
+Hy =e
+EL (PPA
+AP*)
+s=0
+t=0
+S
+i
+x (—B)"'Jg-s+iL(l-2p+q)e].
+(22)
+The symmetry condition (20) also gives
+Gipq = Gi1—-p,-4
+Flipg = Aii-p,-a-
+(23)
+In Equations (21) and (22) use may be made of the fact that for p positive integer
+J_p(x) = (-1)?J, (x).
+-
+The k=0
+case corresponds to
+q=2p-l. Therefore from (18) it follows that
+_
+_j41{21-2p+1
+“Hyp2p-1
+= (—B) (1+ B*) i
+,
+)x
+—
+<p
+x F(—2p—-1, -I-1, |—2p+1; B”),
+(24)
+where !—2p can always be supposed non-negative because
+Ai p2p-1 = Ai 1—p,1—-2p-
+(25)
+Similarly, from (19) it follows that
+=)
+21
+2\-2141{
+—~2P
+|
+Gip2p-1= (—B) “P+
+B*) (1-
+B’)
+(2?) x
+x F(-2p+1,-I+1,1-—2p+1; B*)
+(26)
+and since
+Gip,2p-1= Gii-p,l-2p
+(27)
+one can always suppose |—2p to be non-negative. The case
+k =0 (or
+q=2p-—lI)
+corresponds to the coefficients of the secular and long periodic terms while k#0
+(or q#2p-—l) corresponds to short periodic terms.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1976CeMec..14..515G
+A NOTE ON HANSEN’S COEFFICIENTS IN SATELLITE THEORY
+519
+2. Recurrence Relations
+Let us consider the definition (1), and the relations
+) (2)
+ee,
+—
+|— |=== sin f
+|
+aM
+—e*
+a/
+V1-e
+(28)
+i)
+a\2
+—_———
+=—.4/
+—
+2
+—
+0M)
+lve (*)
+Differentiating (1) with respect to
+M and considering (28) one finds
+r\n-1
+e
+r\n
+a\2
+n() ra sin f exp (imf)+ im() oP (imf) V1— a(*)
+=) X?"ik exp ikM,
+k
+or
+Tr
+(2) "ex i(m +1)f—exp i(m ] +
+fe
+i
+_
+i(m—
+2V1—e?
+\a
+P
+P
+r\n-2
++mv1— #(“)
+exp imf= »kX” exp ikM.
+k
+In this last equation, the definition (1) is again applied to the terms on the
+left-hand side, giving the recurrence relation
+kX?" =
+me
+(xpbmt —Xp om) 4+ J1—e2xn-2™
+(29
+One
+mT
+exe
+which is obviously valid for any values of k, n, m. Transformation of (29) in terms
+of the G’s and H’s yields
+(1—2p)(1—
+e*) Gipg= (I
+2p + q)V1— €*Gy-2,p-1,4-
+e
+~ (1 + 1) 5) (Gi-1,p-1,4-1 ~~ Gi-1,p,q+1)
+(30)
+and
+(l—2p+q)V1—e? Hip = (I—2p)(1—e?) Hi-2.p—-1.4—
+le
+_) (Ai-1,p—1,4-1 ~ Ay -1,p,4+1)-
+(31)
+These relations were already obtained in a previous work (Giacaglia, 1975). In
+that work, Equation (29) was obtained following Jarnagin (1965). The recurrence
+relations (20) and (31) are applicable for any value of p. However, in practice, it is
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1976CeMec..14..515G
+$20
+G. E. O. GIACAGLIA
+|
+supposed that O<p<l, so that using
+p=0 or p=1
+it is seen that the indices fall
+outside that range. Because of the symmetry conditions (23) the cases
+p=0 and
+p =I are equivalent. This makes it necessary to evaluate the functions G and H
+for a wider range of index values than required by the theory.
+Another recurrence relation is found as follows. Consider Equation (1) written
+as
+(Z\" a
+f
+1 (Z)
+f+
+—
+— ex
+=—
+5
+|-
+7
+a
+ro
+pam
+1—e*
+\a
+“2P Jn
+e
+r
+n+1
+= xXK exp ikM.
+k
+Using the definition given by (1) in the left-hand side, one finds
+(1 _ e7)X RM =xen [xptbmtt xXp.
+(32)
+This recurrence relation is not directly applicable since the difference n— mi in all
+terms does not have the same parity. If one now operates as above, writing
+a
+yn (4
+(y-C)
+()
+itis found that
+_
+e-
+(1—e?)?XR™= (1+E) Xp
+e(XE ME KEIM
+|
+,
+This last equation is again not directly applicable, but combined with Equation
+(32) gives the second important recurrence relation, viz.
+2
+(1 _ e°ye Xr™= (1-2 xpos e(1 _ e*y\(Xp emt 4 gmt) —
+e°
+'
+-F (Xp mt2 xn),
+(34)
+It can be applied to the G and H functions for increasing (or decreasing) values of
+p. The result, in view of Equations (2) and (3), is
+2\2
+_
+e°
+2
+(1 —e ) Gipg — (1-2\Gr2prat e(1 —e \LGi-1,p—1,q-1 + Gi-1p.q+11
+|
+2
+a [Gi~2,p—2,q-2+ Gi-2,p,q+2]
+(35)
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1976CeMec..14..515G
+A NOTE ON HANSEN’S COEFFICIENTS IN SATELLITE THEORY
+521
+and
+e*
+(1~ e*)* Hing = (1 - 2 \ Hisense e(1 _ e°*\T Hi+1p.q-1 + Ai+1,p+1,4411_
+|
+,
+;
+4 [Hi+2,p,.q-2 + Hy+2,p+2,9q+21:
+(36)
+It is seen from (36), that given the values of Hi+2, 4-2 and Hi+2,+1,q one can
+obtain the value of H)+2,y+2,9+2, given of course, the functions H for lower values
+of I. Vice-versa, given the values Hj+2,)+2,q-2 and Hi+2,)41,4, Equation (36) allows
+the calculation of H+2,.4-2. This is useful in conjunction with Equation (31). In
+fact, the knowledge of Hy+22,4+2 and Hj+21,, allows the calculation of Hi+2,0,q-2
+which otherwise could not be obtained from Equation (31). Similarly, setting
+p=2 in Equation (35) one sees that the value of G)-20,,-2 can be found from
+Gi-2,2,4+25 Gi-2,1,¢ Gi-1,1,q-1, Gi-1,2,q+1, Gi2,q All of these can be obtained by
+reccurrence using Equation (3).
+3. Derivatives
+Starting again from Equation (1), differentiation with respect to e gives.
+-
+nir
+n—-1
+“5 (2)
+[exp i(m+1)f+ exp i(m—1)f]+
+|
+|
+n-1
+n
+m(r
+,
+m
+r
+.
+.
+)Cr
+x [exp i(m+1)f—exp i(m—1)f]= »de exp ikM.
+(37)
+k
+Here, use has been made of the equations
+7
+d(T
+|
+oe (5) = ~c08f
+(38)
+d
+a
+1
+.
+__
+= | —4+ ——__
+de )
+(‘ 1—e’ sin f
+|
+Using Equation (1) in the left-hand side of (37), it follows that
+dx;
+_
+m
+nm+1
+nm—l1
+m—n
+n—-1l,m+1
+de 3G —e% (*e
+Xe
+ta
+Xk
+7
++— xrolm-1
+(39)
+This formula has to be modified in view of the presence of change of parity in
+n—m
+Of the first two terms in the right-hand side. In order to do this, one makes
+use of Equation (32). From this
+xen _— al _ e*)xp mt -5 (Xena XP™)
+.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1976CeMec..14..515G
+522
+G. E. O. GIACAGLIA
+and
+|
+xen t _ (1 _ e)xp mt -5 (XP™+xem),
+From these last two equations, it follows that
+-
+€
+nm+
+n,m—
+xoe _xem _ (1 _ e*)\(Xp om" _ xnihm *)5 (XE
+2.xt
+2)
+(40)
+This could be used as an additional recurrence formula but it is not independent
+from the ones already found. Substituting Equation (40) into Equation (39) yields
+axe”
+2m—-N
+mar
+2MtN
+On-1m-1
+ee
+n
+»>mnm+ _
+xX?
+»m
+_.
+de
+2
+*k
+2°"
+me
+ee Xnmst2 _ ynm-2
+41
+ay
+XE).
+41)
+This last equation, with the use of Equations (2) and (3), gives
+dG,,
+31-4p+1
+I-—4p-1
+FT=—
+Gi+tp.q-1——— Gi+1,p+1,q+1 _
+(I—2p)e
+|
+“40 —e) (Gip-1.q-2— Gipti.g+2)
+(42)
+and
+dHip,
+1-4
+31-4
+val=> FYi-1,p—-1,q-1ae FAii-1,p.q+1 ~
+1—2p)e
+aes (A p—1,4-2 — Hip+t.4+1)-
+(43)
+Equations (42) and (43) are valid for all values of p. When p=0
+(or I) it will be
+necessary to operate as for the recurrence relations of Equations (35) and (36). It
+is to be noted that, from Equation (42), the derivative of Gj, is a function of G’s
+one step ahead, but these can be found using the recurrence relations obtained
+before.
+4. General Remarks
+The referees have called my attention to two papers, unknown to me, containing
+work relevant to the present paper. Challe and Laclaverie (1969) define the
+Hansen coefficients By,, corresponding to X,”“, defined as in Equation (1). They
+obtain recurrence relations and a formula for the derivative of B*., with respect to
+e. About their equations
+I wish only to remark that the parity conditions
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1976CeMec..14..515G
+A NOTE ON HANSEN’S COEFFICIENTS IN SATELLITE THEORY
+523
+mentioned before in my paper are not satisfied, so that the recurrence relations
+involve coefficients outside the range of usage. The same remarks apply to the
+formulas derived by Balmino (1973).
+Acknowledgments
+This work was supported by NASA Grant NGR 44-012-269 from Goddard
+Space Flight Center.
+References
+Balmino, G.: 1973, ‘“‘Sur Certains Probléms et Fonctions Spéciales Rencontrés en Géodesie Spatiale’’,
+Tech. Rep. GB/3237/CB/GRGS, Bretigny-sur-Orge, France.
+Challe, A. and Laclaverie, J. J.: 1969, Astron. Astrophys. 3, 15-28.
+Giacaglia, G. E. O.:
+1975,
+‘““The Equations of Motion of an Artificial
+Satellite in Nonsingular
+Variables”, AMRL 1072, Appl. Mech. Res. Lab., The Univ. of Texas, Austin.
+Jarnagin Jr., M. P.: 1965, Astron. Papers Am. Eph. Naut. Almanac, 18, XXXVI.
+Kaula, W. M.: 1961, Geophys, J. R. Astron. Soc. 5, 104.
+Kaula, W. M.: 1966, Theory of Satellite Geodesy, Blaisdell Publ. Co., Waltham, Mass.
+Tisserand,
+F.:
+1960,
+Traité de Mécanique
+Céleste, Tome
+I,
+Gauthier-Villars,
+Paris
+(Nouveau
+Tirage).
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System

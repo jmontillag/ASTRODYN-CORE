@@ -1,0 +1,242 @@
+1971CeMec...3..390J
+AUTOMATED, CLOSED FORM INTEGRATION OF
+FORMULAS IN ELLIPTIC MOTION
+WILLIAM H.JEFFERYS
+University of Texas at Austin
+(Received 29 October, 1970)
+Abstract. In some perturbation theories it is possible to avoid expansion of the perturbations in
+powers of the eccentricity, obtaining results in closed form by using the true or eccentric anomaly
+instead of the mean anomaly. This paper describes an algorithm (which has been programmed for
+the 6600 computer using the formula manipulation system TRIGMAN) for automatically performing
+the integrals which arise in these theories.
+Some perturbation theories (e.g. Brouwer, 1959; Hori, 1963; Harrington, 1969; Aks-
+nes, 1969) avoid expansion of the perturbations in powers of the eccentricity by ex-
+pressing them in terms of the true or eccentric anomaly instead of the mean anomaly.
+To carry these or other theories to high order, it is necessary to perform the calcula-
+tions on computers, using a formula manipulation language such as
+FORMAC
+(Tobey et. al., 1967), or one of the special purpose systems developed for use in
+celestial mechanics, such as that of Barton (1967), Deprit and Rom (1968), Hall and
+Cherniack (1969) or Jefferys (1970).
+In the computation of the short-period perturbations, one has to integrate functions
+of the form
+F(r, f,u, f)
+(1)
+with respect to the mean anomaly /; wherer is the distance to the primary, rf =dr/dl, u
+is the eccentric anomaly andfthe true anomaly. For convenience we will also assume
+that the semimajor axis has been normalized to unity.
+In hand computations the integrals are computed case-by-case as they arise, using
+any available method and some well-known tricks. For certain cases, general formu-
+lae are available (Kozai, 1962).
+On the other hand, when we attempt to automate the calculation, it is necessary to
+have an algorithm which will invariably work on some well-defined but rather general
+class of functions. Of course, it is not possible to guarantee that the integrated func-
+tion will remain in that class of functions, or even that it will itself be integrable in
+closed form (as will be seen below). Furthermore, it may be necessary to sacrifice
+elegance and speed in the algorithm in order to obtain reliability and the desired
+degree of generality.
+We will assume that the function to be integrated is a sum of the form
+., COS
+,,
+F=) P(r,f) . Gif + ku + 9),
+(2)
+Celestial Mechanics 3 (1971) 390-394. All Rights Reserved
+Copyright © 1971 by D. Reidel Publishing Company, Dordrecht- Holland
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1971CeMec...3..390J
+AUTOMATED, CLOSED FORM INTEGRATION OF FORMULAS IN ELLIPTIC MOTION
+391
+where P is a polynomial in r and f, j and & are integers, and
+is independent of the
+three anomalies. In general, negative powers of * cannot occur, owing to the resulting
+singularity that appears at
+/=0, 2; but they may occur in Equation (2), provided that
+they do not occur in Equation (6), below. (For example, the algorithm will success-
+fully handle the function (sinu)/*7=r/e).
+Also, the fact that we do not normally have both j40 and k £0 in a given term does
+not affect the algorithm.
+The algorithm proceeds as follows:
+Step 1. Using standard trigonometric formulas and the identities of elliptic motion
+sin f = frn/e,
+cosf = (n?/r — 1Je,
+.
+(3)
+sinu = rr/e,
+cosu = (1 —r)/e,
+wheree is the eccentricity and 4 =(1 —e*)!/*, we may express sinnf, cosnf, sinnu, and
+cosnu as power series in r and ¢ for those multiples of f and u appearing in the series
+to be integrated.
+Step 2. Using the results from Step 1 and the identities
+cos(nf
++ ¥)=cosnf cos ¥ — sinnf
+sin ¥,
+(4)
+sin(nf + ¥)=sinnf cos¥+cosnf sin¥,
+and similar ones in the eccentric anomaly, we express the function to be integrated as a
+polynomial in r and f, in which u andf do not appear explicitly.
+Step 3. The identity
+(7)?
+=—142/r—4"/r’
+(5)
+is used to eliminate all powers of 7 higher than the first. Thus (assuming F does not
+have any singularities, as mentioned above) we obtain
+F=A(r)+ B(r)F,
+(6)
+where A and B are polynomials.
+Step 4. The second term of Equation (6) is separated off and immediately inte-
+grated:
+| B@ra=| Boar.
+(7)
+In this integration it is possible for terms in log(r) to appear. Such a term arises, for
+example, in the third-order Brouwer theory of an artificial satellite, from the term
+OF; OS,
+(8)
+dg
+dG’
+owing to the fact that S, contains a term in the equation of the center
+f—/, and
+0
+1
+1
+r
+r
+aL
+Th eing ae a th
+(9)
+de
+r
+oy
+ne
+er
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1971CeMec...3..390J
+392
+WILLIAM H.JEFFERYS
+In addition, the third-order Brouwer theory requires the integration of f—/ itself,
+which cannot be obtained in closed form.
+Step 5. The first term of Equation (6) is rewritten
+1
+1
+A(r) =a Ay (r) +~ Az (r),
+(10)
+where A, contains no positive powers of r, and A, no negative powers of r.
+Step 6. The identities
+1/r =
+(1 + ecos
+2
+[r
+= (
+fIn
+(11)
+r=1-—ecosu
+are substituted into A, and A,, respectively, to obtain
+1
+1
+A(r) = 5 Bi (f) + ~ Ba (u),
+(12)
+where B, and B, are Fourier series in the indicated variables.
+Step 7. The terms in B, and B, of Equations (12) are integrated with the aid of the
+formulae
+r-
+dJ=—df,
+and
+dl=rdu,
+(13)
+|
+respectively. Thus, we get the final result as
+1
+[rar=| Bear” | yay + | Baw) au
+(14)
+|
+Because of the requirements of perturbation theory, it is usual to separate out the
+secular part of F, i.e. C,/y +C,, where C, and C, are the constant parts of B,(/) and
+B,(u), respectively. This secular part is added to the new Hamiltonian and must there-
+fore be subtracted from F in Equation (14) to form the determining function, which
+consequently will contain, among others, the terms
+(f —1) Cyln
+and
+(15)
+The terms from Equation (15.2) are easily converted into the form of the original
+function F by using Kepler’s equation /=u—e sinu; but (as is well known) there is no
+such simplification for the term in the equation of the center,
+f—/. Careful choice of
+the intermediary orbit (cf. Aksnes, 1969) may postpone to a higher order the intro-
+duction of such terms; but it is probable that they will eventually appear in any case.
+Our algorithm does not stop here, however. We have found that the resulting series
+is more complicated than it has to be, owing to the existence of the identity e? +7* =1,
+which has not been made use of because e and y are carried as independent variables.
+The problem of simplifying the final result is far from solved, but the following two
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1971CeMec...3..390J
+AUTOMATED, CLOSED FORM INTEGRATION OF FORMULAS IN ELLIPTIC MOTION
+393
+steps appear to give good results in some cases (an approximate 40% reduction in the
+length of the series).
+Step 8. Suppose that the largest negative power of e in the expression @ to be sim-
+plified is e~*. We multiply ® by e* and then make the substitution e?—>1—1n? so as to
+obtain an expression at most linear in e. We then multiply by e
+* again. (To see the
+reason for this, consider the effect on the series n~'?e~'—n~1?e—n *’e—n 1°).
+Step 9. Repeat Step 8, but reverse the roles of e and yn. This expresses all positive
+powers in terms of e instead of yn, which appears to be the more compact form.
+The algorithm as presented may result in a determining function which differs from
+the usual one by a function independent of /. This, of course, does not affect the
+validity of the results, although it does change the meaning of the constants in the
+theory. It is up to the judgement of the investigator as to what constant of integration
+in the determining function will produce the most convenient theory.
+It should also be noted that this algorithm works just as well when Hill’s variables
+r,f+g,h;r, G, H are used instead of the more usual Delaunay variables, since both r
+and Ff appear in the algorithm. In fact, Aksnes has shown (1969) that the resulting
+theory may be more compact; and in addition, if the determining function is expressed
+in terms of r and ¢ instead off or u, the evaluation of the perturbations may be more
+convenient, because instead of evaluating several trigonometric functions in multiples
+of an angle, we evaluate shorter polynomials in r and fF.
+Finally, Professor Hori has noted in a private conversation that this algorithm may
+be able to handle certain functions of the form
+k
+where Fis as before, if one integrates by parts and uses
+d
+n
+—(f—-—l)={(—-1],
+so long as F, has no secular part, or if its secular part cancels that of another term (as
+happens in the second order theory of the Artificial Satellite by the Hori-Lie method
+in Hill’s variables, using an elliptic reference orbit). When the integration cannot be
+obtained in closed form, it may be necessary to apply the identity
+f-l=(f -u)+(u-I)=2
+—sinnu,>+esinu,
+n
+n=1
+where B =f (e)= (1 —n)/e. An alternative is to define new functions such as
+1
+| (f —1)‘dl,
+as they are required.
+0
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1971CeMec...3..390J
+394
+WILLIAM H. JEFFERYS
+Acknowledgements
+The author wishes to thank Professor G.-I. Hori for reading the manuscript and mak-
+ing several suggestions. Much of the programming was done by Mr. Christopher
+Sneden.
+This research was supported by the National Aeronautics and Space Administra-
+tion, under grant number NGR 44-012-046.
+References
+Aksnes, K.: 1969, ‘A Second-Order Solution for the Motion of an Artificial Earth Satellite based on
+an Intermediate Orbit’, Dissertation, Yale University.
+Barton, D.: 1967, Astron. J. 72, 1281.
+Brouwer, D.: 1959, Astron. J. 64, 378.
+Deprit, A. and Rom, A.: 1968, Astron. J. 73, 210.
+Hall, N. M. and Cherniack, J. R.: 1969, Smithsonian Astrophysical Observatory Special Report 74291.
+Harrington, R.: 1969, Celes. Mech. 1, 200.
+Hori, G.-I.: 1963, Astron. J. 68, 125.
+Jefferys, W. H.: 1970, ‘A Fortran-Based List Processor for Poisson Series’, Celes. Mech. 2, 474.
+Kozai, Y.: 1962, Astron. J. 67, 311.
+Tobey, R. et al.: 1967, ‘PL/I-FORMAC Interpreter, User’s Reference Manual’, IBM Program
+Information Department, 360D 03.3.004, Hawthorne, New York.
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System

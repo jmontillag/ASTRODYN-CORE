@@ -1,0 +1,919 @@
+Celestial Mechanics and Dynamical Astronomy (2021) 133:9
+https://doi.org/10.1007/s10569-021-10004-0
+
+ORIGINAL ARTICLE
+
+
+
+On a set of J2 equinoctial orbital elements and their use for
+uncertainty propagation
+
+Jeﬀrey M. Aristoﬀ1 · Joshua T. Horwood1                     · Kyle T. Alfriend2
+
+Received: 13 January 2020 / Revised: 22 December 2020 / Accepted: 17 January 2021 /
+Published online: 9 March 2021
+© The Author(s), under exclusive licence to Springer Nature B.V. part of Springer Nature 2021
+
+
+
+Abstract
+This paper defines a set of six non-singular orbital elements designed specifically for the char-
+acterization of uncertainty in the state of a resident space object in circular or elliptic orbit and
+demonstrates their use for uncertainty propagation in the context of the perturbed two-body
+problem of orbital mechanics. As evidenced by the time evolution of the Cramér–von Mises
+test statistic, representation of the orbital state probability density function in J2 EqOE yields
+less nonlinear uncertainty propagation and provides covariance and uncertainty realism for
+much longer periods of time than what is possible using Cartesian coordinates or even
+equinoctial orbital elements, without an appreciable increase in computational cost.
+
+Keywords Satellites · Coordinate systems · Uncertainty propagation
+
+PACS 95.40.+s · 95.75.Pq · 95.10.Ce
+
+1 Introduction
+Space situational awareness (SSA) is the comprehensive knowledge of the near-Earth space
+environment accomplished through the tracking and identification of orbiting space objects
+needed to protect man-made satellites and maintain awareness of potential collision hazards
+and on-orbit threats. Uncertainty realism is the proper characterization of the probability
+density function (PDF) of the state of a system.1 Uncertainty (and covariance) realism in
+1 Covariance realism is the proper characterization of the covariance in the state of a system under Gaussian
+assumptions. It implies that the estimate of the mean is the true mean (i.e., the estimate is unbiased) and that the
+covariance possesses the right size, shape, and orientation (i.e., consistency). Uncertainty realism relaxes the
+Gaussian assumptions. Covariance realism is a necessary but not sufficient condition for achieving uncertainty
+realism. An extensive study on covariance and uncertainty realism in the SSA domain is provided in the report
+of Poore et al. (2016).
+
+B Joshua T. Horwood
+    joshua.horwood@numerica.us
+    Jeffrey M. Aristoff
+    jeff.aristoff@numerica.us
+    Kyle T. Alfriend
+    alfriend@exchange.tamu.edu
+1   Numerica Corporation, Fort Collins, CO, USA
+2   Texas A&M University, College Station, TX, USA
+
+
+                                                                                                      123
+9   Page 2 of 19                                                                          J. M. Aristoff et al.
+
+
+the orbital state of a space object is a common requirement for many SSA functions, espe-
+cially ones involving uncertainty propagation such as space surveillance tracking, conjunction
+assessment, sensor tasking, and maneuver detection (Aristoff et al. 2015b). Achieving uncer-
+tainty realism in the current or future state of a space object is challenging due to long time
+gaps between measurement updates, nonlinear and non-conservative dynamics, and long
+propagation times. One proven approach to improving covariance and uncertainty realism
+during uncertainty propagation is through the use of orbital-element-based coordinate sys-
+tems that absorb the dominant nonlinearity in the equations of motion: the 1/r 2 term in the
+geopotential. Of particular interest are non-singular orbital elements that prevent the singu-
+larities that exist for the standard orbital elements at zero eccentricity and zero inclination,
+such as the equinoctial orbital elements (Broucke and Cefola 1972). One might ask if one
+can do better; that is, can one absorb additional nonlinearities in the equations of motion to
+further improve uncertainty realism, while at the same time respecting constraints pertaining
+to implementation and runtime costs? The answer is a resounding yes.
+    This paper defines a set of orbital elements, coined the J 2 equinoctial orbital elements
+(J2 EqOE), designed specifically for the characterization of uncertainty in the state of a space
+object in circular or elliptic orbit, and demonstrates their use for uncertainty propagation
+in the context of the perturbed two-body problem of orbital mechanics. What distinguishes
+the J2 EqOE from existing sets of orbital elements is the combination of the following. First,
+the J2 EqOE are non-singular for eccentricities less than one and inclinations less than 180◦ .
+Hence, complications do not arise when propagating the uncertainty of nearly circular orbits
+or nearly equatorial orbits.2 Second, the J2 EqOE account for the dominant perturbation to
+Earth-orbiting satellites, the J2 zonal perturbation that arises from the oblateness of the Earth
+(Montenbruck and Gill 2005; Vallado 2013). Thus, when used for uncertainty propagation, the
+J2 EqOE enable one to maintain covariance and uncertainty realism for much longer periods
+of time (Horwood et al. 2014a, b). Third, the J2 EqOE are straightforward to implement.
+Fourth, the J2 EqOE are a set of only six non-singular orbital elements. Hence, unlike non-
+singular sets consisting of seven or more orbital elements, they do not require additional orbits
+to be propagated (e.g., when using sigma-point- or particle-based methods for uncertainty
+propagation) nor higher-dimensional state transition matrices to be numerically integrated
+(e.g., when using Kalman-based methods for uncertainty propagation). Thus, use of the
+J2 EqOE does not appreciably increase the computational cost of uncertainty propagation.
+    We note that the J2 EqOE can be described as a particular set of “mean” orbital elements.
+However, use of the J2 EqOE is not restricted to a particular force model nor orbital propagator.
+Thus, we prefer to view the J2 EqOE as simply a coordinate system in which the dynamics
+are less nonlinear, much like the osculating equinoctial elements (EqOE), but with the added
+benefit of having absorbed the J2 perturbation. We also note that Gim and Alfriend (2005)
+developed a similar first-order J2 analytic orbit theory using equinoctial elements and applied
+it to the problem of formation flying. We stress that use of the J2 EqOE in a Kalman filter
+does not require one to use an analytical propagation theory (e.g., general perturbations) in
+the prediction step. Indeed, the uncertainty propagation examples presented in this paper use
+numerical integration based on the authors’ Gauss–Legendre implicit Runge–Kutta orbital
+propagator (Aristoff et al. 2014a, 2015a) replete with high fidelity force models.
+
+
+
+
+2 More than 25% of cataloged space objects have eccentricities less than 10−3 and nearly 2% have eccentric-
+ities less than 10−4 (Space-Track.Org 2020).
+
+
+123
+On a set of J2 equinoctial orbital elements                                                                                     Page 3 of 19   9
+
+
+    The primary application of this work is the uncertainty propagation (filter prediction)
+problem. We acknowledge that the filter correction step is equally important in many SSA
+use cases. However, there are applications where preserving the Gaussian assumption in the
+prediction step of a Kalman filter is advantageous (i.e., by representing the Gaussian PDF in an
+orbital element coordinate system), most notably, in the problem of estimating the probability
+of collision (PC) between two objects. As argued in Aristoff et al. (2014b), it is more efficient
+to propagate the states and covariances representing the two objects in (osculating or J2 )
+equinoctial orbital elements to the time of closest approach. Then, if needed, the propagated
+Gaussian PDFs can be converted to Gaussian mixtures in Cartesian coordinates to facilitate
+the PC calculation (which is inherently defined in Cartesian coordinates). This procedure
+is computationally less costly than propagating an entire Gaussian mixture in Cartesian
+coordinates from epoch to the time of closest approach (since propagating a Gaussian PDF
+under the nonlinear dynamics is generally more expensive than converting a Gaussian PDF
+from element space to Cartesian space). This paradigm is followed in the KRATOS PC
+algorithm (Horwood et al. 2016). An analogous procedure is applicable to nonlinear filtering
+problems in SSA. In the implementation of the filter correction step, one can convert the
+propagated orbital element Gaussian PDF to a Gaussian mixture in Cartesian coordinates, if
+the nonlinearities in the state-to-measurement function are sufficiently high to warrant such a
+conversion, otherwise one can apply the conventional (extended or unscented) Kalman filter
+update.
+    The layout of this paper is the following. In Sect. 2, we define the coordinate transform
+between EqOE and J2 EqOE. An algorithm for inverting the transform is also presented.
+In Sect. 3, we illustrate the time evolution of the J2 EqOE, and demonstrate the use of the
+J2 EqOE for uncertainty propagation using a range of initial conditions. In Sect. 4, we discuss
+potential extensions and alternatives to the J2 EqOE for the purposes of improved uncertainty
+propagation. Section 5 concludes our study. In the appendix, we provide a numerical example
+of the J2 EqOE to EqOE conversion, inclusive of all intermediate steps, to serve as a test case
+and debugging tool for readers who may want to implement the transformations.
+
+
+2 Methods and theory
+
+This section defines the coordinate transform to and from the J2 EqOE and the (osculating)
+EqOE that is valid (i.e., non-singular) for eccentricities less than one and for inclinations less
+than 180◦ , including orbits with zero eccentricity or zero inclination, following the work of
+Brouwer (1959) and Lyddane (1963). At a high level, the transformation to and from J2 EqOE
+and EqOE takes the form below.
+                                            Sect. 2.1                            Sect. 2.2                        Sect. 2.1
+             J2 EqOE                                         J2 IOE                               IOE                              EqOE
+(n  , h  , k  , p  , q  ,  )               (I1 , . . . , I6 )               (I1 , . . . , I6 )               (a, h, k, p, q, )
+Here, the IOE are combinations of the Keplerian orbital elements defined by Lyddane (1963)
+that we coin the intermediate orbital elements. We use the IOE as an intermediate step in
+the transformation to avoid singularities at zero eccentricity and/or zero inclination that are
+present in Lyddane’s formulation,3 as well as in Brouwer’s formulation.4 Labels above the
+lines point to sections in which the individual transformations are defined.
+
+3 Lyddane’s algorithm contains an intrinsic singularity because the final output is the Keplerian elements.
+4 Brouwer’s algorithm contains explicit singularities for zero eccentricity and zero inclination.
+
+
+
+                                                                                                                                   123
+9   Page 4 of 19                                                                              J. M. Aristoff et al.
+
+
+2.1 EqOE to/from IOE
+
+The equinoctial orbital elements (Broucke and Cefola 1972) are a system of six non-singular
+elements which are suited for all types of (elliptic) orbits, including those with low eccen-
+tricities and inclinations. The equinoctial elements (a, h, k, p, q, ) are defined in terms of
+the Keplerian orbital elements (a, e, i, Ω, ω, M) by:
+                     a = a, h = e sin(ω + Ω), k = e cos(ω + Ω),
+                                                                                                              (1)
+                      p = tan 2i sin Ω, q = tan 2i cos Ω,  = M + ω + Ω,
+where a is the semi-major axis, e is the eccentricity, i is the inclination, Ω is the right
+ascension of the ascending node, ω is the argument of periapsis, and M is the mean anomaly.
+The intermediate orbital elements (I1 , I2 , I3 , I4 , I5 , I6 ) are defined in terms of the Keplerian
+orbital elements (KepOE) by:
+                     I1 = a,        I2 = e sin(M),       I3 = e cos(M),
+                                                                                                              (2)
+                     I4 = sin 2i sin Ω,      I5 = sin 2i cos Ω,       I6 = M + ω + Ω.
+Conversion from IOE to KepOE is given by:
+                                                 
+              a = I1 , e = I22 + I32 , i = 2 sin−1 I42 + I52 ,
+                                                                                                              (3)
+                   Ω = tan−1 (I4 , I5 ), ω = I6 − M − Ω,              M = tan−1 (I2 , I3 ).
+Note that the two-argument inverse tangent is used when computing Ω and M above, and
+that tan−1 (0, 0) ≡ 0. Conversion from EqOE to IOE is given by:
+                   I1 = a, I2 = k sin() − h cos(), I3 = h sin() + k cos(),
+                                                                                                              (4)
+                   I4 = √ p      , I5 = √ q         , I6 = .
+                              1+ p 2 +q 2           1+ p 2 +q 2
+
+Conversion from IOE to EqOE is given by:
+              a = I1 , h = I3 sin(I6 ) − I2 cos(I6 ), k = I2 sin(I6 ) + I3 cos(I6 ),
+              p=        I4
+                                   , q=       I5
+                                                         ,  = I6 .                                           (5)
+                      1−I42 −I52            1−I42 −I52
+
+    The alternative EqOE coordinate system (AEqOE) is one in which orbit propagation
+becomes linear for the case of unperturbed Keplerian dynamics. The difference between
+EqOE and AEqOE      is that the first element is not the semi-major axis a, but rather the mean
+motion n = μ/a 3 , where μ = G M is the gravitational parameter. For the J2 EqOE, we
+use this alternative definition of the EqOE, and apply this when converting J2 EqOE to/from
+J2 IOE (with all unprimed variables replaced by their double-primed counterparts).
+
+2.2 J2 IOE to/from IOE
+
+In this section, we define a J2 IOE to IOE transformation by considering only short-period
+terms from the Hamiltonian potential equation, expanded in a perturbation series up to order
+J2 , following Brouwer (1959) and Lyddane (1963). We seek a definition that is valid for
+all eccentricities less than one, and for all inclinations less than 180◦ . Therefore, we do
+not include the long-period terms as they possess a singularity at the critical inclinations
+of approximately 63.4◦ and 116.6◦ . Fortunately, long-period terms (which are functions of
+the “slowly” varying argument of perigee through trigonometric relations) can be safely
+
+123
+On a set of J2 equinoctial orbital elements                                                Page 5 of 19    9
+
+
+neglected because propagation times are typically less than 1 week in the aforementioned
+SSA functions.
+   In order to be consistent with the notation used by Brouwer (1959), Lyddane (1963),
+and Cain (1962), we denote the Keplerian elements as (a, e, I , h, g, l) rather than
+(a, e, i, Ω, ω, M) in this section. Therefore, h denotes the right ascension of the ascend-
+ing node, not the second equinoctial orbital element as in Sect. 2.1.
+
+2.2.1 J2 IOE to IOE
+
+The transformation from J2 IOE to IOE consists of nine steps. Note that double-primed
+quantities refer to J2 elements, and we drop the subscript from k2 , γ2 and γ2 in Step 2 since
+we do not consider higher-order harmonics in the geopotential.
+Step 1 Compute the Keplerian orbital elements (a  , e , I  , h  , g  , l  ) from the J2 IOE via
+(3). Note that although the Keplerian elements are used in the transformation, the osculating
+elements l, g, and h are never individually calculated, only their sum, later in Step 6. Since
+this sum is the mean longitude variable in the EqOE definition, it and its derivatives are non-
+singular, and the intrinsic singularity present in Lyddane’s formulation is not encountered.
+                                                            √
+Step 2 Compute the auxiliary quantities k = 21 J2 R 2 , η = 1 − e2 , γ = k/a 2 , γ  = γ /η4 ,
+and θ = cos I  , where R is the radius of the Earth, μ = G M is the gravitational parameter,
+and J2 is the un-normalized J2 parameter (i.e., the C2,0 geocoefficient).
+Step 3 Solve Kepler’s equation E  − e sin E  = l  to find the eccentric anomaly E  .
+It is recommended that this transcendental equation be solved using the Newton–Raphson
+method, followed by the bisection method to ensure convergence of the iterations, using a
+sufficiently high tolerance.
+Step 4 Compute the radius (distance from object to focus) r  and the true anomaly f  via
+                                                     
+                          r  = a  1 − e cos E  ,
+                                                                                        (6)
+                          f  = tan−1 η sin E  , cos E  − e ,
+and perform a branch-cut correction5 on f  and l  as l  will be subtracted from f  in Steps
+5 and 6.
+Step 5 Compute a and δh via
+                                 
+         
+                                  a 3       −3
+                                                                 3
+                                                                2 a
+   a = a 1 + γ −1 + 3θ          2
+                                           −  η    + 3    1 − θ           cos(2g  + 2 f  )      ,
+                                     r 3                          r 3
+           1                                                    
+  δh = − γ  θ 6 f  − l  + e sin f  − 3 sin 2g  + 2 f                                         (7)
+           2
+                                                      
+         − 3e sin 2g  + f  − e sin 2g  + 3 f  .
+
+Step 6 Compute l + g + h via
+               1                                                  
+   l + g + h = γ  6 −1 + 5θ 2 f  − l  + e sin f  + 3 − 5θ 2
+               4
+                                                                                 
+              × 3 sin 2g  + 2 f  + 3e sin 2g  + f  + e sin 2g  + 3 f                      (8)
+
+                    + δh + l  + g  + h  .
+5 Suppose θ and θ are two angles equivalent up to integer 2π shifts. Let b
+            1      2                                                         cut = θ1 − π , and redefine θ2
+according to θ2 = θ2 + 2π (bcut − θ2 )/(2π ). Then, θ1 and θ2 can be safely added or subtracted.
+
+
+                                                                                              123
+9   Page 6 of 19                                                                            J. M. Aristoff et al.
+
+
+Step 7 Compute δe and e δl via
+                  1                                                   
+            δe = η2 γ −1 + 3θ 2 v2 + 3 1 − θ 2 v3 cos 2g  + 2 f 
+                  2
+                                                                  
+                 − γ  1 − θ 2 3 cos 2g  + f  + cos 2g  + 3 f      ,
+                          
+                    1                                                                                   (9)
+         e δl = − η3 γ  2 −1 + 3θ 2 (v4 + 1) sin f  + 3 1 − θ 2
+                    4
+                                                 
+                                         
+                                                       1                      
+                 × (−v4 + 1) sin 2g + f + v4 +              sin 2g  + 3 f                    ,
+                                                        3
+where we have used the identities suggested by Lyddane (1963) and where
+                                                           
+                       2         2 3          −6           e
+    v1 = 3 cos f + 3e cos f + e cos f , v2 = η              e η +      + v1 ,
+                                                                    1+η
+                                    2                                                                  (10)
+                                  a η      a 
+    v3 = η−6 e + v1 , v4 =               +      .
+                                     r     r 
+                                 
+Step 8 Compute δ I and sin 21 I  δh via
+           1                                                                          
+    δI =     γ θ 1 − θ 2 3 cos 2g  + 2 f  + 3e cos 2g  + f  + e cos 2g  + 3 f  ,
+           2
+                                               sin(I  )δh
+                               sin 21 I  δh =                  .
+                                                2 cos( 21 I  )
+                                                                                               (11)
+Step 9 Compute the IOE via
+                   I1 = a,
+                   I2 = (e + δe) sin l  + e δl cos l  ,
+                   I3 = (e + δe) cos l  − e δl sin l  ,
+                                                                                                  (12)
+                   I4 = sin 21 I  + cos 21 I  21 δ I sin h  + sin 21 I  δh cos h  ,
+                                                                        
+                   I5 = sin 21 I  + cos 21 I  21 δ I cos h  − sin 21 I  δh sin h  ,
+                   I6 = l + g + h.
+  Finally, we note that by computing the Jacobian directly, one can verify that the J2 IOE to
+IOE transformation is non-singular. However, we omit details for the sake of brevity.
+
+2.2.2 IOE to J2 IOE
+
+The transformation from IOE to J2 IOE requires inverting the J2 IOE to IOE transform defined
+in Sect. 2.2.1. Specifically, it requires solving six coupled nonlinear equations which map
+the J2 IOE to the IOE, similar to how one inverts the transform introduced by Brouwer (Cain
+1962). Note that we seek a numerical solution that does not require computation of the
+Jacobian of the J2 IOE to IOE transform. A careful implementation of fixed-point iteration
+satisfies this criterion.
+    Four considerations are necessary for a robust solution of the nonlinear system of equations
+using fixed-point iteration. First, we iterate over the scaled J2 IOE to improve the conditioning
+of the fixed-point iterations. Second, we treat the angular variables via a branch-cut correction.
+
+123
+On a set of J2 equinoctial orbital elements                                                  Page 7 of 19   9
+
+
+Table 1 Initial Keplerian orbital elements for the examples in Sect. 3
+Scenario         Orbit type         a (km)        e              i (◦ )     Ω (◦ )        ω (◦ )       M (◦ )
+
+1                LEO                 7136.6       0.00949        72.9       116.0         57.7         105.5
+2                GEO                42164.1       0.0              0.0         0.0         0.0         250.0
+3                HEO                26628.1       0.742          63.4       120.0          0.0         144.0
+
+
+
+Third, we enforce constraints on the J2 IOE. Fourth, we use an initial guess that enables
+convergence in typically under five iterations. A description of the algorithm is given below.
+Once implemented, round-trip tests of the coordinate system are recommended.
+Step 1 Input the IOE and let the initial guess for the J2 IOE be these elements. If any of the
+IOE are less than 0.01, increase them to 0.01 to improve convergence.
+Step 2 While the two-norm of the residuals is greater than the iteration tolerance and the
+number of iterations is less than the maximum allowable number of iterations, do Steps
+2a–2d.
+Step 2a Compute the IOE from the J2 IOE guess using the transformation defined in Sect. 2.2.1
+and scale the result by (R, 1, 1, 1, 1, 1), where R is the radius of the Earth.
+Step 2b Perform a branch-cut correction on the sixth IOE with respect to the sixth J2 IOE,
+and compute the residuals between the (scaled) input J2 IOE and those found in Step 2a.
+Step 2c Compute the two-norm of the residuals found in Step 2b. If the norm is lower than
+all previously computed residual norms (or it is the first iteration), record the current (scaled)
+IOE (i.e., the best solution found thus far).
+Step 2d Compute the next guess for the (scaled) IOE by subtracting the residuals from the
+current guess. Enforce the constraint that I2 , I3 , I4 , and I5 must be between −1 and 1.
+Step 3 Return the J2 IOE corresponding to the lowest residual norm.
+
+
+3 Results and discussion
+
+This section provides a number of applications of the coordinate transform defined in Sect. 2.
+In particular, we consider the time evolution of the J2 EqOE in Sect. 3.1 and their use for
+uncertainty propagation in Sect. 3.2. The initial (Keplerian) orbital elements for the examples
+are given in Table 1. Numerical integration of the equations of motion, i.e., to compute the
+ephemerides in Sect. 3.1 and to propagate particles and sigma-points in Sect. 3.2, is performed
+using the authors’ variable-step Gauss–Legendre implicit Runge–Kutta orbital propagator
+(Aristoff et al. 2014a, 2015a).
+   The dynamical models used in this testing are comprised of the following forces. For the
+object in low Earth Orbit (LEO), a degree and order 32 Earth gravity model is used.6 For the
+object in geostationary Earth orbit (GEO), a degree and order 8 Earth gravity model is used,
+together with lunar–solar perturbations7 and a cannonball solar radiation pressure model with
+
+6 The geocoefficients are taken from the 2008 Earth gravity model (Pavlis et al. 2008).
+7 High-precision ephemerides (DE405) from the Jet Propulsion Laboratory’s HORIZONS system are used
+for determining the position of the Sun and Moon.
+
+
+                                                                                                   123
+9   Page 8 of 19                                                                  J. M. Aristoff et al.
+
+
+a nominal ballistic coefficient of 0.1 m2 /kg. For the object in highly elliptic orbit (HEO), a
+degree and order 32 Earth gravity model is used, together with lunar–solar perturbations and
+a nominal ballistic coefficient of 0.1 m2 /kg. In the captions of the subsequent figures, we
+refer to these models as “full dynamics.” An epoch of 2008-01-01T00:00:00Z is applied in
+each example.
+
+3.1 Time evolution of the J2 EqOE
+
+In this section, we validate the coordinate transformations by numerically propagating the
+orbits listed in Table 1 and plotting the AEqOE and J2 EqOE states at every 1/1000th of an
+orbit for three orbital periods. The purpose of this exercise is to verify that the time variation
+of the J2 EqOE is less nonlinear than that of the EqOE and that no biases are observed between
+the element sets for a given orbital element, where we have converted the semi-major axis to
+mean motion for the sake of comparison. Two different force models are used to represent
+truth: (i) a force model consisting of only J2 gravity, and (ii) the “full dynamics” model
+that includes the additional perturbations described above. Recall that the J2 EqOE attempt
+to “absorb” the J2 perturbation, and that higher-order gravitational perturbations as well
+as solar-lunar perturbations and other forces are omitted. The examples wherein we use a
+higher-fidelity “truth” to model the dynamics will allow us to quantify the effect of these
+omissions, and give us some indication of the potential benefit when using the J2 EqOE for
+uncertainty propagation.
+    Figure 1 illustrates the coordinate transform for an object in LEO. As expected the J2 EqOE
+exhibit less time variation than the AEqOE, and no bias is observed. Similar results are
+obtained for both force models, indicating that the J2 term is by far the most dominant
+contributor to the perturbations in this example (Scenario 1).
+    Figure 2 illustrates the coordinate transform for an object in GEO. Again, the J2 EqOE
+tend to dampen the oscillations observed in the orbital elements, albeit less so when the
+higher-fidelity force model is used. Here, solar radiation pressure, and to a lesser extent the
+higher-order gravitational perturbations, causes the noticeable difference between the left and
+right columns; however, the magnitude of the oscillations is much less than what is observed
+in Fig. 1 for the low Earth orbit. Note that the oscillation in the J2 EqOE observed in orbital
+elements p and q for J2 dynamics is negligible (below machine precision) and arises from
+the fact that the inclination is zero in this example (Scenario 2), which also serves to validate
+the coordinate transform for satellites with zero eccentricity and/or zero inclination.
+    Figure 3 illustrates the coordinate transform for an object in HEO. Near perigee, the
+AEqOE exhibit large-amplitude oscillations, especially in the mean motion, that are largely
+mitigated by use of the J2 EqOE. This is true for both force models under consideration.
+Similar results are obtained for both force models, indicating that the J2 term is also the most
+dominant contributor to the perturbations.
+    In all three examples provided, use of the J2 EqOE resulted in a time variation of the orbital
+elements that was less nonlinear (i.e., more dampened oscillations). This was especially
+apparent in the LEO and HEO test cases, and suggests that covariance and uncertainty realism
+may be easier to maintain when the orbital state PDF is represented in J2 EqOE as opposed to
+AEqOE or EqOE. Additional examples are provided in the next section to demonstrate this
+fact.
+
+
+
+
+123
+On a set of J2 equinoctial orbital elements                                                Page 9 of 19   9
+
+
+
+
+Fig. 1 Time evolution of the osculating AEqOE (solid green curves) and J2 EqOE (dashed blue curves) for an
+object in LEO (Scenario 1) that is numerically propagated using J2 dynamics (left column) and full dynamics
+(right column)
+
+
+3.2 Use of the J2 EqOE for uncertainty propagation
+
+The purpose of this section is to demonstrate the use of the J2 EqOE for uncertainty propaga-
+tion and to compare this to existing approaches in which the orbital state PDF is represented
+in EqOE or Cartesian coordinates. The actual testing is an off-line process conducted using
+multiple Monte Carlo trials. Specifically, we select a coordinate system in which to represent
+the orbital state and covariance at epoch, and we propagate the uncertainty to a future time
+using the prediction step of a nonlinear filter.8 We then randomly sample points from the
+initial distribution and propagate each point to the same time. Next, we compute the Maha-
+lanobis distance between the ith sample point, x (i) , and the filter-produced PDF.9 Finally,
+we quantify the goodness-of-fit of the distribution of Mahalanobis distances to the expected
+
+8 Note that the orbital propagations themselves are performed in Cartesian space; however, the PDF need not
+be represented in Cartesian coordinates.
+9 The Mahalanobis distance is given by
+
+                               M(i) (x (i) ; µ, P) = (x (i) − µ)T P−1 (x (i) − µ),                    (13)
+where μ is the n-dimensional state estimate, and P the n by n covariance matrix. The expected value of M is
+n, and it follows that M ∼ χ 2 (n), i.e., M is chi-squared distributed with n degrees of freedom.
+
+
+                                                                                              123
+9   Page 10 of 19                                                                                  J. M. Aristoff et al.
+
+
+
+
+Fig. 2 Time evolution of the osculating AEqOE (solid green curves) and J2 EqOE (dashed blue curves) for an
+object in GEO (Scenario 2) that is numerically propagated using J2 dynamics (left column) and full dynamics
+(right column)
+
+
+chi-squared distribution using the Cramér–von Mises (CvM) test statistic.10 By repeating this
+test for multiple time points over the propagation interval, we can identify when uncertainty
+(and covariance) realism breaks down during propagation given a particular set of initial
+conditions and filter configuration (and confidence level). Full details of this testing proce-
+dure are given in Horwood et al. (2014a). Here, we consider both the prediction step of the
+extended Kalman filter (Jazwinski 1970) and the unscented Kalman filter (Julier et al. 2000),
+two of the most commonly used methods for uncertainty propagation in space surveillance,
+also known as linearized propagation (LP) and the unscented transform (UT), respectively.
+    The initial Keplerian orbital elements for the examples considered in this testing are
+listed in Table 1. The covariances (in EqOE) are listed in the subsequent figure captions. To
+obtain the epoch Gaussian PDF where the mean and covariance are in a common coordinate
+system, the unscented transform was applied (Julier et al. 2000). The resulting Gaussian PDF
+
+10 The Cramér–von Mises test statistic is given by
+
+                                                 k 
+                                                                      2
+                                            1        2i − 1
+                                     Q=        +            − F(y (i) ) ,                                        (14)
+                                           12k         2k
+                                                   i=1
+
+where the y (i) , i = 1, . . . , k, are the observed samples in increasing order, and F is the cumulative distribution
+function of the target distribution. Further details are given in Horwood et al. (2014b).
+
+
+123
+On a set of J2 equinoctial orbital elements                                                 Page 11 of 19   9
+
+
+
+
+Fig. 3 Time evolution of the osculating AEqOE (solid green curves) and J2 EqOE (dashed blue curves) for an
+object in HEO (Scenario 3) that is numerically propagated using J2 dynamics (left column) and full dynamics
+(right column)
+
+
+was regarded as “truth” for the purpose of initiating the Monte Carlo samples. Nonetheless,
+the authors verified that covariance realism was preserved under these nonlinear coordinate
+transformations (details omitted).
+   The uncertainty propagation test results, using 10,000 Monte Carlo trials to assess uncer-
+tainty realism (at 500 equally spaced time points), are presented in Figs. 4, 5, 6, and 7. Each
+figure contains four subfigures. Subfigures in a particular row pertain to a fixed uncertainty
+propagation method (LP or UT). Subfigures in a particular column pertain to a fixed force
+model. In each subfigure, we consider the influence of the coordinate system used to repre-
+sent the PDF on the Cramér–von Mises test statistic. The shaded regions denote the interval
+above which uncertainty realism breaks down according to a 99.9% confidence level. The
+colors denote the different coordinate systems: red for Cartesian ECI coordinates,11 green
+for EqOE, and blue for J2 EqOE. A number of observations can be made.
+ 1. In all cases, using Cartesian coordinates to represent the PDF yields poor performance,
+    regardless of whether the LP or UT is used, and regardless of which force model is
+
+11 Conceivably, the tests described in this section could be performed in other systems of Cartesian coor-
+dinates, such as the perifocal PQW coordinates or the RSW or NTW satellite coordinate systems (Vallado
+2013). However, because any two Cartesian frames are related by an affine transformation (i.e., a rotation and
+translation), the same results would be obtained if one used a different Cartesian coordinate system.
+
+
+                                                                                                 123
+9   Page 12 of 19                                                                             J. M. Aristoff et al.
+
+
+
+
+(a) LP: CvM test statistic with J2 dynamics              (b) LP: CvM test statistic with full dynamics
+
+
+
+
+(c) UT: CvM test statistic with J2 dynamics              (d) UT: CvM test statistic with full dynamics
+Fig. 4 Statistical measure of uncertainty realism applied to the LP and the UT for an object in LEO (Scenario 1)
+with initial EqOE covariance matrix P = AAT , where A = diag(σa = 20 km, σh = 10−3 , σk = 10−3 , σ p =
+10−3 , σq = 10−3 , σ = 36 ). The orbital state PDF is represented in Cartesian coordinates (red), EqOE
+(green), and J2 EqOE (blue), and is propagated for 1 day. For the PDF to be realistic (with 99.9% confidence),
+it is necessary that the value of the metric be within the shaded region
+
+
+
+
+   used. Uncertainty realism can be substantially improved by instead using EqOE. Further
+   improvements can be made by using J2 EqOE to represent uncertainty. Specifically, as
+   first reported in Horwood et al. (2014a) and corroborated by the results in this section,
+   uncertainty realism can be maintained up to 28 times longer by using the J 2 EqOE in
+   place of Cartesian coordinates, and up to 14 times longer by using the J2 EqOE in place
+   of the (Broucke and Cefola 1972) osculating EqOE. Importantly, doing so has negligible
+   impact on the overall computational cost of uncertainty propagation.
+2. The omission of higher-order perturbations (beyond J2 ) has a negligible effect on the
+   breakdown of uncertainty realism when the PDF is represented in Cartesian coordinates
+   or in EqOE. Conversely, omission of higher-order perturbations extends the life of the UT
+   and the LP with respect to uncertainty realism when the PDF is represented in J2 EqOE.
+3. For a given coordinate system used to represent the orbital state PDF, uncertainty realism
+   is improved (relative to the LP) by using the UT.
+4. For the GEO test case, representation of uncertainty in EqOE and J2 EqOE give similar
+   results, and the use of higher-order perturbations has a negligible effect on the evolution
+   of the test statistic.
+
+123
+On a set of J2 equinoctial orbital elements                                                   Page 13 of 19   9
+
+
+
+
+ (a) LP: CvM test statistic with J2 dynamics             (b) LP: CvM test statistic with full dynamics
+
+
+
+
+(c) UT: CvM test statistic with J2 dynamics              (d) UT: CvM test statistic with full dynamics
+Fig. 5 Statistical measure of uncertainty realism applied to the LP and the UT for an object in LEO (Scenario 1)
+with initial EqOE covariance matrix P = AAT , where A = diag(σa = 50 m, σh = 10−5 , σk = 10−5 , σ p =
+10−5 , σq = 10−5 , σ = 20 ). The orbital state PDF is represented in Cartesian coordinates (red), EqOE
+(green), and J2 EqOE (blue), and is propagated for 7 days. For the PDF to be realistic (with 99.9% confidence),
+it is necessary that the value of the metric be within the shaded region
+
+
+
+ 5. For the HEO test case, spikes in the CvM test statistic coincide with the space object being
+    near perigee where the dynamics are most nonlinear. For the GEO test case, uncertainty
+    realism is maintained throughout the 30-day propagation when the PDF is represented
+    in EqOE or J2 EqOE.
+ 6. The prediction step of each filter configuration eventually breaks down, as it should
+    due to the nonlinearities in the dynamics. Measurement updates are necessary to avoid
+    breakdown of uncertainty realism.
+ 7. There are cases wherein the CvM test statistic is within the confidence region at a later
+    time, but outside of the confidence region at an earlier time. Hence, if one were to check
+    the performance of an uncertainty propagation method at only the later time, one could
+    mistakenly believe that uncertainty realism had been maintained throughout the entire
+    propagation. It is therefore crucial to quantify the time evolution of the CvM test statistic.
+ 8. For a given uncertainty propagation method and scenario configuration at epoch, the
+    values of the CvM test statistic are indistinguishable between the different coordinate
+    systems. This indicates that nonlinearities in the coordinate transformations do not lead
+    to loss of information at the initial time in these examples.
+
+                                                                                                   123
+9   Page 14 of 19                                                                             J. M. Aristoff et al.
+
+
+
+
+ (a) LP: CvM test statistic with J2 dynamics             (b) LP: CvM test statistic with full dynamics
+
+
+
+
+(c) UT: CvM test statistic with J2 dynamics              (d) UT: CvM test statistic with full dynamics
+Fig. 6 Statistical measure of uncertainty realism applied to the LP and the UT for an object in GEO (Scenario 2)
+with initial EqOE covariance matrix P = AAT , where A = diag(σa = 2 km, σh = 10−4 , σk = 10−4 , σ p =
+10−4 , σq = 10−4 , σ = 28 ). The orbital state PDF is represented in Cartesian coordinates (red), EqOE
+(green), and J2 EqOE (blue), and is propagated for 30 days. For the PDF to be realistic (with 99.9% confidence),
+it is necessary that the value of the metric be within the shaded region
+
+
+
+
+9. Although the underlying recommendation from Comment 1 is to use orbital element coor-
+   dinates (i.e., EqOE or J2 EqOE) for representing and propagating orbital state uncertainty
+   in space surveillance, in some applications, a Cartesian representation of the uncertainty
+   might be required at a future time. To meet this requirement without loss of information
+   in the process of converting an orbital state PDF in orbital elements to one in ECI, one
+   can proceed in two ways. First, one can split the initial distribution (in Cartesian coordi-
+   nates) at t = t0 = 0 into a mixture of distributions and then propagate said mixture to
+   a future epoch using an appropriate mixture filter (such as a Gaussian sum filter (Hor-
+   wood and Poore 2011; Horwood et al. 2011; DeMars et al. 2012; Terejanu et al. 2008), if
+   applicable). Alternatively, one can propagate the orbital state PDF in an orbital element
+   coordinate system, and then transform said PDF to Cartesian coordinates at the final
+   epoch time. Aristoff et al. (2014b) demonstrate how uncertainty in orbital elements can
+   be faithfully (and efficiently) transformed to Cartesian space using Gaussian mixtures.
+   This second approach is preferable since the computational cost of propagating a mixture
+   of distributions is significantly greater than that of propagating a single distribution and
+   then splitting it into a mixture (at the final epoch time).
+
+123
+On a set of J2 equinoctial orbital elements                                                   Page 15 of 19   9
+
+
+
+
+ (a) LP: CvM test statistic with J2 dynamics             (b) LP: CvM test statistic with full dynamics
+
+
+
+
+(c) UT: CvM test statistic with J2 dynamics              (d) UT: CvM test statistic with full dynamics
+Fig. 7 Statistical measure of uncertainty realism applied to the LP and the UT for an object in HEO (Scenario 3)
+with initial EqOE covariance matrix P = AAT , where A = diag(σa = 2 km, σh = 10−4 , σk = 10−4 , σ p =
+10−4 , σq = 10−4 , σ = 28 ). The orbital state PDF is represented in Cartesian coordinates (red), EqOE
+(green), and J2 EqOE (blue), and is propagated for 7 days. For the PDF to be realistic (with 99.9% confidence),
+it is necessary that the value of the metric be within the shaded region
+
+
+
+
+   We acknowledge that the initial covariances used in this study are contrived. Real-world
+covariances will generally be dense matrices; however, we cannot include results obtained
+on real data in this forum.
+
+
+4 Discussion
+
+Use of the J2 EqOE is not restricted to linearized propagation nor the unscented transform.
+As shown in Horwood et al. (2014a), the J2 EqOE can be combined with more sophisticated
+methods for uncertainty propagation, for example, the prediction step of the Gauss–von Mises
+filter (Horwood and Poore 2014), to further maintain uncertainty realism during uncertainty
+propagation. Indeed, for extreme uncertainties, the Gauss–von Mises filter is preferable due
+to its rigorous treatment of angular uncertainty and its computational efficiency (i.e., like
+the UT, only 2m + 1 sigma points need to be propagated, where m is the length of the state
+vector).
+
+                                                                                                   123
+9   Page 16 of 19                                                                         J. M. Aristoff et al.
+
+
+   As demonstrated in Fig. 4, the choice of coordinate system for representing the orbital
+state PDF has a profound impact when the covariance is considered “large.” In this LEO
+example, the initial standard deviation along the semi-major axis (which coincides roughly
+with the radial direction) is 20 km. Such a large uncertainty can arise when creating a PDF
+from a single track of data (i.e., a short sequence of sensor observations) through an initial
+orbit determination process. Some applications (e.g., conjunction assessment) may require
+one to propagate this PDF and achieve covariance realism in order to obtain an accurate
+metric (e.g., probability of collision). Representing the PDF in J2 EqOE can significantly
+prolong covariance realism during propagation compared to Cartesian coordinates or EqOE.
+   Given the large impact of the choice of coordinate system on maintaining covariance real-
+ism during uncertainty propagation, it would be of interest to compare—using the statistical
+goodness-of-fit test described in Sect. 3.2—other analytic and semi-analytic orbital element
+theories such as those developed by Gim and Alfriend (2005) and Neelon et al. (1997),
+respectively. However, this is beyond the scope of the present study, and we leave it as future
+work.
+
+
+5 Conclusions
+
+The achievement of covariance and uncertainty realism is paramount to the success of several
+SSA functions including space surveillance tracking, conjunction assessment, sensor tasking,
+and maneuver detection. Without uncertainty realism, space objects can become lost, colli-
+sions can go undetected, and false alarms can lead to costly maneuvers. The J2 equinoctial
+orbital elements, developed in this paper, are an example of a non-singular coordinate system
+in which the dynamics are less nonlinear and in which the orbital state PDF can be faithfully
+propagated for longer periods of time without a significant increase in computational cost. As
+demonstrated above using realistic force models and initial conditions, use of the J2 EqOE is
+especially beneficial when propagating objects in LEO and HEO, where the J2 perturbation is
+most pronounced. Specifically, uncertainty realism can be maintained up to 28 times longer
+by using the J2 EqOE in place of Cartesian coordinates, and up to 14 times longer by using
+the J2 EqOE in place of the (Broucke and Cefola 1972) osculating EqOE.
+
+Acknowledgements The authors thank Navraj Singh and Alex Ferris for assistance with the simulation studies.
+This work was funded, in part, by a Phase II STTR from the Air Force Office of Scientific Research (FA9550-
+12-C-0034) and by a Phase I and a Phase II SBIR from the Air Force Research Laboratory Space Vehicles
+Directorate (FA9453-15-M-0482, FA8650-19-C-9205). This work was cleared for public release (case number
+AFMC-2019-0691).
+
+
+
+Appendix: Numerical example
+
+To assist the reader in an implementation of the J2 EqOE to EqOE conversion (and its inverse),
+we provide details of how to recover the Keplerian orbital elements for the LEO example
+presented in Table 1 following all of the intermediate steps described in Sect. 2.
+   The following values are assumed for the gravitational parameter μ, Earth radius R, and
+J2 coefficient:
+
+
+                                   μ = 3.986004415e+05 km3 /s2
+                                   R = 6.378137e+03 km
+
+123
+On a set of J2 equinoctial orbital elements                                    Page 17 of 19   9
+
+
+                                      J2 = 1.0826261738522e-03
+
+The input J2 EqOE are the following:
+
+         n  = 1.0487861550167e−03 s−1                  p  = 6.6371635585001e−01
+           
+         h = 1.4260897234681e−03                         q  = −3.2380704393120e−01
+         k  = −9.2912382513865e−03                       = 4.8735182761240e+00
+
+In what follows, all angular quantities have implied units of radians.
+
+J2 EqOE to J2 IOE Conversion
+
+          I1 = 7.1294270251742e+03 km                  I4 = 5.3390774990364e−01
+          I2 = 8.9420945754925e−03                     I5 = −2.6047736914253e−01
+          I3 = −2.8982382142187e−03                    I6 = 4.8735182761240e+00
+
+J2 IOE to IOE Conversion: Step 1
+
+          a  = 7.1294270251742e+03 km                   h  = 2.0246926216394e+00
+            
+          e = 9.4000446883730e−03                         g  = 9.6460100038126e−01
+          I  = 1.2721904014791e+00                       l  = 1.8842246541034e+00
+
+J2 IOE to IOE Conversion: Step 2
+
+          k = 2.2020958264503e+04 km2                      γ = 4.3323841440301e−04
+          η = 9.9995581860393e−01                         γ  = 4.3331498717247e−04
+          θ = 2.9418810951484e−01
+
+J2 IOE to IOE Conversion: Step 3
+
+                                       E  = 1.8931405532060e+00
+
+J2 IOE to IOE Conversion: Step 4
+
+          r  = 7.1506573807183e+03 km                    f  = 1.9020433345198e+00
+
+J2 IOE to IOE Conversion: Step 5
+
+          a = 7.1366000000000e+03 km                     δh = −1.1070091328349e−04
+
+J2 IOE to IOE Conversion: Step 6
+
+                                  l + g + h = 4.8729592715682e+00
+
+
+                                                                                   123
+9   Page 18 of 19                                                                           J. M. Aristoff et al.
+
+
+J2 IOE to IOE Conversion: Step 7
+
+         ν1 = −9.7268781528180e−01                             δe = 8.1222972039185e−05
+                                                              
+         ν2 = −9.5884220957866e−01                           e δl = −4.0701787616281e−04
+         ν3 = −9.6354316647622e−01
+         ν4 = 1.9910139555114e+00
+
+J2 IOE to IOE Conversion: Step 8
+                                                            1  
+      δ I = 1.5460976151790e−04                      sin     2I     δh = −6.5762859846059e−05
+
+J2 IOE to IOE Conversion: Step 9
+
+         I1 = 7.1366000000000e+03 km                           I4 = 5.3399247411729e−01
+         I2 = 9.1448530009497e−03                              I5 = −2.6044553167591e−01
+         I3 = −2.5360921889622e−03                             I6 = 4.8729592715682e+00
+
+IOE to EqOE Conversion
+
+          a = 7.1366000000000e+03 km                               p = 6.6385958338730e−01
+          h = 1.0413786122339e−03                              q = −3.2378595304974e−01
+          k = −9.4326894672662e−03                                  = 4.8729592715682e+00
+
+IOE to Keplerian Orbital Elements Conversion (Optional)
+
+          a = 7.1366000000000e+03 km                               Ω = 2.0245819323134e+00
+          e = 9.4900000000000e−03                                   ω = 1.0070549784028e+00
+           i = 1.2723450247039e+00                                 M = 1.8413223608519e+00
+These Keplerian orbital elements are precisely those for the LEO object in Table 1. Note
+that the angular quantities (i, Ω, ω, M) in the above are given in radians whereas the table
+converts them to degrees.
+
+
+References
+Aristoff, J.M., Horwood, J.T., Poore, A.B.: Orbit and uncertainty propagation: a comparison of Gauss–
+     Legendre-, Dormand–Prince-, and Chebyshev–Picard-based approaches. Celest. Mech. Dyn. Astron.
+     118, 13–28 (2014a)
+Aristoff, J.M., Horwood, J.T., Singh, N., Poore, A.B.: Non-linear uncertainty propagation in orbital elements
+     and transformation to Cartesian space without loss of realism. In: Proceedings of the AAS/AIAA Astro-
+     dynamics Specialist Conference, San Diego, CA (2014b)
+Aristoff, J.M., Horwood, J.T., Poore, A.B.: Implicit Runge–Kutta-based methods for fast, precise, and scalable
+     uncertainty propagation. Celest. Mech. Dyn. Astron. 122, 169–182 (2015a)
+Aristoff J.M., Horwood, J.T., Poore, A.B.: Propagation of uncertainty in support of SSA missions. In: Proceed-
+     ings of the 25th AAS/AIAA Space Flight Mechanics Meeting, Williamsburg, VA, Paper AAS 15-332
+     (2015b)
+Broucke, R.A., Cefola, P.J.: On the equinoctial orbit elements. Celest. Mech. 5, 303–310 (1972)
+
+
+123
+On a set of J2 equinoctial orbital elements                                                    Page 19 of 19   9
+
+
+Brouwer, D.: Solution of the problem of artificial satellite theory without drag. Astron. J. 64(1274), 378–396
+      (1959)
+Cain, B.J.: Determination of mean elements for Brouwer’s satellite theory. Astron. J. 67(6), 391–392 (1962)
+DeMars, K.J., Jah, M.K., Cheng, Y., Bishop, R.H.: Methods for splitting Gaussian distributions and applications
+      within the AEGIS filter. In: Proceedings of the 22nd AAS/AIAA Space Flight Mechanics Meeting,
+      Charleston, SC, Paper AAS-12-261 (2012)
+Gim, D.W., Alfriend, K.T.: Satellite relative motion using differential equinoctial elements. Celest. Mech.
+      Dyn. Astron. 92(4), 295–336 (2005)
+Horwood, J.T., Poore, A.B.: Adaptive Gaussian sum filters for space surveillance. IEEE Trans. Autom. Control
+      56(8), 1777–1790 (2011)
+Horwood, J.T., Poore, A.B.: Gauss von Mises distribution for improved uncertainty realism in space situational
+      awareness. SIAM J. Uncertain. Quantif. 2, 276–304 (2014)
+Horwood, J.T., Aragon, N.D., Poore, A.B.: Gaussian sum filters for space surveillance: theory and simulations.
+      J. Guidance Control Dyn. 34(6), 1839–1851 (2011)
+Horwood J.T., Aristoff, J.M., Singh, N., Poore, A.B.: A comparative study of new non-linear uncertainty
+      propagation methods for space surveillance. In: Drummond, O.E. (ed.) SPIE Proceedings: Signal and
+      Data Processing of Small Targets, vol. 9092 (2014a)
+Horwood, J.T., Aristoff, J.M., Singh, N., Poore, A.B., Hejduk, M.D.: Beyond covariance realism: a new metric
+      for uncertainty realism. In Drummond, O.E. (ed.) SPIE Proceedings: Signal and Data Processing of Small
+      Targets, vol. 9092 (2014b)
+Horwood, J.T., Singh, N., Aristoff, J.M., Bhopale, A.: KRATOS: Kollision risk assessment tool in orbital
+      element spaces. In: Proceedings of the Advanced Maui Optical and Space Surveillance Technologies
+      Conference, Wailea, HI (2016)
+Jazwinski, A.H.: Stochastic Processes and Filtering Theory. Dover, New York (1970)
+Julier, S.J., Uhlmann, J.K., Durant-Whyte, H.F.: A new method for the nonlinear transformation of means and
+      covariances in filters and estimators. IEEE Trans. Autom. Control 55, 477–482 (2000)
+Lyddane, R.H.: Small eccentricities or inclinations in the Brouwer theory of the artificial satellite. Astron. J.
+      68(8), 555–558 (1963)
+Montenbruck, O., Gill, E.: Satellite Orbits: Models, Methods, and Applications, 2nd edn. Springer, Berlin
+      (2005)
+Neelon J.G., Cefola, P.J., Proulx, R.J.: Current development of the Draper semianalytical satellite theory
+      standalone orbit propagator package. In: Proceedings of the AAS/AIAA Astrodynamics Specialist Con-
+      ference, Sun Valley, ID. Paper AAS 97-731 (1997)
+Pavlis, N.K., Holmes, S.A., Kenyon, S.C., Factor, J.K.: An Earth gravitational model to degree 2160:
+      EGM2008. In: Proceedings of the European Geosciences Union General Assembly, Vienna, Austria
+      (2008)
+Poore, A.B., Aristoff, J.M., Horwood, J.T.: Covariance and uncertainty realism in space surveillance and track-
+      ing. Technical Report AD102089. https://apps.dtic.mil/dtic/tr/fulltext/u2/1020892.pdf. Astrodynamics
+      Innovations Committee (AIC) Working Group on Covariance Realism (2016)
+Space-Track.Org. https://www.space-track.org. Accessed 9 July 2020
+Terejanu, G., Singla, P., Singh, T., Scott, P.D.: Uncertainty propagation for nonlinear dynamic systems using
+      Gaussian mixture models. J. Guidance Control Dyn. 31(6), 1623–1633 (2008)
+Vallado, D.A.: Fundamentals of Astrodynamics and Applications. Microcosm, Hawthorne (2013)
+
+
+Publisher’s Note Springer Nature remains neutral with regard to jurisdictional claims in published maps and
+institutional affiliations.
+
+
+
+
+                                                                                                    123
+

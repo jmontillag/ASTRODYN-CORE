@@ -1,0 +1,1699 @@
+                                                   Near-Linear Orbit Uncertainty Propagation in the Perturbed
+
+                                                                                                  Two-Body Problem
+arXiv:2204.00395v1 [astro-ph.EP] 1 Apr 2022
+
+
+
+
+                                                     Javier Hernando-Ayuso∗, Claudio Bombardelli†, Giulio Baù‡, Alicia Martínez-Cacho§
+
+
+
+                                                                                             ∗
+                                                                                                 ispace-inc, Tokyo, 113-0007, Japan
+
+                                                                         †§
+                                                                              Technical University of Madrid (UPM), Madrid, 28040, Spain
+
+                                                                                         ‡
+                                                                                             University of Pisa, Pisa, 56126, Italy
+
+
+                                                                                                            Abstract
+
+
+                                              The paper addresses the problem of minimizing the impact of non-linearities when dealing with uncertainty
+                                              propagation in the perturbed two-body problem. The recently introduced generalized equinoctial orbital
+                                              element set (GEqOE) is employed as a means to reduce non-linear effects stemming from J2 and higher
+                                              order gravity field harmonics. The uncertainty propagation performance of the proposed set of elements in
+                                              different Earth orbit scenarios, including low-thrust orbit raising, is evaluated using a Cramér-von Mises test
+                                              on the Mahalanobis distance of the uncertainty distribution. A considerable improvement compared to all
+                                              sets of elements proposed so far is obtained.
+
+
+
+                                              1      Introduction
+
+                                              The ability to rapidly and accurately propagating the probability density function (pdf) of a space object
+
+                                              in time is key in space situational awareness (SSA). Tracking an Earth orbiting object through subsequent
+                                              observation arcs or correctly estimating the probability of collision between two objects sufficiently early in
+                                              time, for instance, are operations that require an accurate knowledge of the temporal evolution of a pdf.
+                                                  ∗ Mission Analysis and Flight Dynamics Engineer (in his personal capacity)
+                                                  † Associate Professor, Space Dynamics Group
+                                                  ‡ Assistant Professor, University of Pisa
+                                                  § PhD student, Space Dynamics Group
+
+
+
+
+                                                                                                                1
+The propagation of the pdf that characterizes the uncertainty of the orbital state vector is governed by
+the Fokker-Plank Equation [1, pp. 192-202]. This partial differential equation is computationally hard
+to solve, which has motivated the use of approximate methods that can compute the pdf evolution with
+reasonable accuracy and computational cost. A spectrum of possibilities are available in the literature
+ranging from very fast but less accurate linear methods to the highly accurate yet computationally expensive
+Monte-Carlo-based methods. These include Differential Algebra [2], state transition tensors [3, 4], Gaussian
+Mixture Models [5, 6], unscented transform [7], Polynomial Chaos Expansion [8], Line of Variations [9],
+
+Kriging [10]. Combinations of different approaches have also been explored [11]. The common goal of these
+techniques is to handle the effect of nonlinearities associated with the perturbed orbital motion and resulting
+in a pdf evolution that can rapidly become far from Gaussian.
+
+Irrespectively of the strategy adopted to tackle nonlinear effects, the choice of the mathematical formulation
+is a key element when constructing an efficient uncertainty propagation method ([12, 13, 14, 15, 16, 17, 18,
+19, 20, 21]). Arguably, before even considering sophisticated algorithms like [2]–[11] one should investigate
+how to minimize non-linearities that are intrinsic to the mathematical structure of the propagated set of
+ordinary differential equations. A significant step forward in this direction has been made by Arisfoff et
+al. [22], who proposed a set of “J2 equinoctial orbital elements” (J2EqOE) based on Brouwer-Lyddane’s
+solution of the main satellite problem. The method allows one to absorb the non-linearities stemming from
+the J2 term of the geopotential perturbation and provides a major improvement in uncertainty realism (UR)
+compared, for example, to classical equinoctial elements.
+
+The purpose of this article is to test the uncertainty propagation performance of yet another set of elements,
+the generalized equinoctial orbital elements (GEqOE), recently introduced by Baù et al. [23]. Similarly
+to Aristoff’s elements, GEqOE mitigate the negative effect of J2 in the propagation of the orbital state.
+
+However, there are important differences between the two sets of elements. The first is that GEqOE are
+related to Cartesian coordinates by transformations expressed in closed analytical form (Sects. 3, 4 in [23])
+and evolve according to a set of clearly defined differential equations of motion (Sect. 5 in [23]). The second
+is that they can be constructed accounting for any perturbation deriving from a potential, not just J2 . These
+characteristics make the new set of elements particularly appealing for uncertainty propagation in low-Earth
+orbit and motivate a detailed analysis of their performance compared to the one of the already proposed
+J2EqOE.
+
+The article is organized as follows. First a brief review of the generalized orbital motion quantities and
+the corresponding orbital elements introduced by Baù et al. [23] is provided for convenience. Next, the
+mathematical treatment of the linear uncertainty propagation in GEqOE is developed. A fully analytical
+
+
+
+                                                      2
+explanation of the reduction, by use of the proposed elements, of uncertainty propagation nonlinearities
+associated to secular effects is provided in the subsequent section. Finally, an extensive simulation campaign
+is conducted to evaluate the UR of the proposed elements compared to competing sets of elements proposed
+in the literature. The test cases, which include orbits of different eccentricities and inclinations and the
+impact of low-thrust propulsion, are simulated with a high-fidelity model including high-order geopotential
+harmonics and third-body effects.
+
+
+
+2    Generalized Orbital Motion Quantities
+
+Let us consider the perturbed two-body problem written in a geocentric inertial reference frame:
+
+                                                   µr
+                                             r̈ = − 3 + F(r, ṙ, t),                                        (1)
+                                                   r
+
+where r, ṙ, and r̈ are the geocentric position, velocity, and acceleration, respectively. Moreover, r is the
+position magnitude, t denotes time, and µ is the gravitational parameter of the Earth.
+
+Following [23], F is split into a term that is derivable from a potential energy U (r, t) and a term P(r, ṙ, t)
+that is not:
+                                                F = P − ∇U .                                                (2)
+
+Next, the total orbital energy E is introduced by adding to the Keplerian energy EK the potential energy U :
+
+                                                           v2  µ
+                                        E = EK + U =          − +U,
+                                                           2   r
+
+where v is the velocity magnitude.
+
+By formally replacing the Keplerian energy with the total energy in the momentum-energy relation as
+discussed in [23] one obtains the generalized angular momentum
+
+                                       r 
+                                              µ       p
+                                    c=r 2 E +    − u2 = h2 + 2U r2 ,                                        (3)
+                                              r
+
+where u and h are, respectively, the radial velocity and the osculating angular momentum. This new quantity
+
+
+
+
+                                                       3
+can be employed to define the generalized angular momentum vector and eccentricity vector as, respectively:
+
+
+                                               c = c eh ,
+
+                                                    1
+                                               g=     υ × c − er ,
+                                                    µ
+
+where
+                                                          c
+                                                υ = u er + ef ,
+                                                          r
+
+is the generalized velocity vector and {er , ef , eh } is the orbital reference frame orthonormal basis.
+
+Denoting by g the generalized eccentricity, that is g = |g|, it is found that g, c, E satisfy the relation
+
+                                                       s
+                                   1p 2                            2U
+                                g=   µ + 2E c2 =            e2 +       (h2 + 2E r2 ),                        (4)
+                                   µ                                µ2
+
+where e is the osculating eccentricity. The vectors c, g define at any time (as long as c 6= 0) a non-osculating
+ellipse Γ, which lies on the orbital plane and has one focus located at the center of mass of the primary body
+of attraction [23]. The semi-major axis of that conic is the generalized semi-major axis (a) and is related to
+the osculating semi-major axis (a) by the formula
+
+                                                   µ      µU
+                                            a=−      =a+       .                                             (5)
+                                                  2E     2E EK
+
+From equations (3), (4), (5) it is immediate to see that c, g, a coincide with their osculating counterparts h,
+e, a when U = 0.
+
+Assuming, from now on, that E < 0, one can introduce the generalized mean motion and mean anomaly as,
+respectively,
+
+                                                     1       3/2
+                                                ν=     (−2E ) ,                                              (6)
+                                                     µ
+
+                                              M = ν(t − tp ),
+
+
+where tp denotes the time of pericenter passage of Γ.
+
+The angular separation between the vectors g and r defines the generalized true anomaly θ which can be
+
+
+
+
+                                                        4
+obtained from the relations (analogous to the ones holding for the classical true anomaly)
+
+                                                        c2
+                                             
+                                             
+                                             g cos θ =    − 1,
+                                                        µr
+                                             
+                                             
+                                             
+                                                        cu
+                                              g sin θ =
+                                                           .
+                                                         µ
+
+Similarly, a generalized eccentric anomaly G can be defined from the relations
+
+                                                            r
+                                             
+                                             g cos G = 1 − a ,
+                                             
+                                             
+                                             
+
+                                                         ru
+                                              g sin G = √ .
+                                             
+                                             
+                                                           µa
+
+The generalized Kepler’s equation takes the form
+
+
+                                             M = G − g sin G.
+
+
+Let {eX , eY , eh } be the classical equinoctial basis introduced in [24]. The angular separation between the
+vectors eX and g, which both lie on the osculating orbital plane, is given by the generalized longitude of
+periapsis
+                                                 Ψ = L − θ,                                               (7)
+
+where
+                                               L=ω+Ω+f                                                    (8)
+
+
+is the classical true longitude with ω and Ω denoting the classical argument of pericenter and right ascension
+of the ascending node, respectively. By means of the angle Ψ, one can introduce the generalized eccentric
+longitude and generalized mean longitudes as, respectively,
+
+
+                                                K = G + Ψ,                                                (9)
+
+                                                L = M + Ψ.                                               (10)
+
+
+
+
+                                                      5
+3      Generalized Equinoctial Orbital Elements (GEqOE)
+
+The generalized equinoctial orbital elements (GEqOE) as defined in [23] are constructed on the previously
+described generalized quantities g (Eq. 4), ν (Eq. 6), Ψ (Eq. 7), and L (Eq. 10). The six elements read:
+
+
+                   ν,                                p1 = g sin Ψ,                        p2 = g cos Ψ,
+
+                                                                i                                    i
+                  L,                                 q1 = tan     sin Ω,                  q2 = tan     cos Ω.
+                                                                2                                    2
+
+The elements p1 , p2 represent the projections of the generalized eccentricity vector g along the equinoctial
+
+basis unit vectors eY and eX , while the elements q1 , q2 are two of the classical equinoctial orbital elements
+[25], where i is the orbital inclination. Note that when U = 0, the generalized equinoctial elements coincide
+with the alternate equinoctial orbital elements (AEqOE) proposed in [26] and further discussed in Section
+5.1.
+
+
+
+3.1     Equations of motion
+
+Following [23], the time derivatives of the GEqOE obey
+
+                                  1/3
+                              ν
+               ν̇ = −3                    E˙ ,                                                                  (11)
+                              µ2
+                                               
+                                                 
+                             h−c γ     1 X                       1 
+                                            + 2p2 (2U − rFr ) + 2 Y (r + ̺) + r2 p1 E˙ ,
+                                                                                     
+              ṗ1 = p2           − Fh+                                                                          (12)
+                              r2  h    c a                       c
+                                              
+                         γ     h−c     1 Y                       1 
+                                            + 2p1 (2U − rFr ) + 2 X (r + ̺) + r2 p2 E˙ ,
+                                                                                     
+              ṗ2 = p1     Fh − 2    −                                                                          (13)
+                         h      r      c a                      c
+                                                   
+                         h−c γ        1 1        r                 ruα
+               L̇ = ν + 2 − Fh +           +α 1−      (2U − rFr ) +      (r + ̺)E˙ ,                            (14)
+                           r    h     c α         a                   µc
+                       Y
+                          Fh 1 + q12 + q22 ,
+                                          
+               q̇1 =                                                                                            (15)
+                       2h
+                       X
+                          Fh 1 + q12 + q22 ,
+                                          
+               q̇2 =                                                                                            (16)
+                       2h
+
+where
+                                                              ∂U         h
+                                                         E˙ =     + uPr + Pf
+                                                               ∂t        r
+
+and
+                                                      X = r cos L,         Y = r sin L,                         (17)
+
+
+
+
+                                                                      6
+                                                  µ 1/3                 c2
+                                            a=               ,       ̺=      ,                               (18)
+                                                   ν2                     µ
+                                                          1
+                                                                                 q
+                            γ = Xq1 − Y q2 ,       α=        ,           β=       1 − p21 − p22 .            (19)
+                                                         1+β
+
+Moreover, the terms Fr , Fh , Pr , Pf in the preceding equations are the projections of F and P onto the orbital
+reference frame:
+                            Fr = F · er ,   Fh = F · eh ,        Pr = P · er ,     Pf = P · ef ,             (20)
+
+where the corresponding unit vectors can be conveniently obtained as
+
+                            1                               1
+                     er =     (XeX + Y eY ),       ef =       (XeY − Y eX ),            eh = er × ef .
+                            r                               r
+
+
+Given the initial position r0 and velocity ṙ0 at some time t0 expressed in a suitable inertial reference frame Σ,
+the motion can be propagated to the epoch t 6= t0 by obtaining the corresponding GEqOE initial conditions
+(see the conversion formulas in [23], Sect. 3), integrating Eqs. (11–16) and converting back the state expressed
+in GEqOE at time t to Cartesian variables (see the conversion formulas in [23], Sect. 4).
+
+
+
+4     Linear Covariance Propagation in GEqOE
+
+In the following, the linear propagation, by use of the propagated state transition matrix, of the covariance
+matrix of the GEqOE set is dealt with in details.
+
+Note that in general any of the methods described for pdf propagation in the Introduction can be combined
+with GEqOE, boosting their performance or reducing their computational cost. Since the objective here is
+to investigate the suitability of GEqOE for orbital uncertainty propagation, nonlinear methods are out of
+the scope of this work.
+
+
+
+4.1    State Transition Matrix Propagation
+
+Equations (11)–(16) can be written as
+                                                    ẏ = f (y, t),                                           (21)
+
+
+where y = (ν, p1 , p2 , L, q1 , q2 )T denotes the state vector in GEqOE.
+
+An orbit y(t) close to a reference orbit y∗ (t) can be propagated linearly in time from an initial epoch t0 as
+
+
+                                     y(t) ≈ y∗ (t) + Φ(t, t0 )(y(t0 ) − y∗ (t0 )),
+
+
+                                                            7
+where the reference orbit state transition matrix Φ is the solution of the linear Cauchy problem
+
+                                               ∂Φ      ∂f
+                                             
+                                              ∂t = ∂y (y∗ (t), t) Φ,
+                                             
+                                             
+                                                                                                           (22)
+                                             
+                                             
+                                              Φ(t0 , t0 ) = I,
+                                             
+
+
+with I the 6×6 identity matrix. The matrix ∂f /∂y can be computed analytically for the GEqOE as described
+in Appendix A.
+
+
+
+4.2    Linear Covariance Propagation and Nonlinear Mapping into Cartesian Co-
+       ordinates
+
+The state transition matrix Φ(t, t0 ) can be employed for the linear covariance matrix propagation in GEqOE
+space, Py , as
+                                        Py (t) = Φ(t, t0 ) Py (t0 ) ΦT (t, t0 ).
+
+
+In practice, the GEqOE covariance matrix at t0 can be obtained starting from the corresponding covariance
+matrix, Px , in another set of coordinates x (e.g. Cartesian elements) by the linear mapping
+
+                                                                                   ∂y
+                                  Py (t0 ) = J(t0 ) Px (t0 ) JT (t0 ),     J=         .                    (23)
+                                                                                   ∂x
+
+The Jacobian matrix J for the case of Cartesian coordinates is given in [23], Sect. 6.2.
+
+After linearly propagating Py (t) until epoch t, the uncertainty cloud can be mapped back to Cartesian
+coordinates by a full nonlinear transformation employing the element conversion equations in [23], Sect. 4.
+The whole scheme, which provides a very efficient method for propagating an initial uncertainty cloud is
+depicted in Figure 1. It will be shown, in the reminder of this article, that this procedure is particularly
+resilient against perturbation-driven nonlinear effects hence preserving the UR of the distribution for a longer
+timespan compared to other methods.
+
+
+
+
+                                                           8
+                           Initial covariance in                                 Initial covariance in
+                                                            mapping
+                          Cartesian coordinates                                         GEqOE
+
+
+
+                                                                                           linear
+                                                                                        propagation
+
+
+
+                        Propagated distribution in         inverse            Propagated covariance in
+                          Cartesian coordinates            mapping                   GEqOE
+
+
+                                    Figure 1: Uncertainty propagation scheme.
+
+
+
+5     Mitigation of Nonlinear Effects
+
+In this section a simple mathematical explanation is provided to demonstrate the ability of the newly proposed
+uncertainty propagation method to minimize UR losses.
+
+
+
+5.1    Keplerian motion
+
+As detailed in [26], when an element-based representation, such as classical equinoctial elements, is employed,
+five of the six coordinates evolve linearly (they are actually constant) under Keplerian orbital motion while
+the evolution of the time-element coordinate (the mean longitude, in the case of classical equinoctial elements)
+is not exactly linear with respect to the other state elements.
+
+After indicating with a∗ the initial (reference) semi-major axis, ℓ the mean longitude, and assuming an initial
+uncertainty in the semi-major axis εa0 , the time evolution of the uncertainty-affected mean longitude for a
+Keplerian orbit obeys
+                                                                  µ
+                                                          r
+                                           ℓ(t) = ℓ0 +                     (t − t0 ),                      (24)
+                                                              (a∗ + εa0 )3
+
+which yields a secular growth of the mean longitude uncertainty:
+
+                                                                                      
+                                                         3 a    15
+                   εℓ (t) = ℓ(t) − ℓ(t)|εa =0 =             ε0 + 2 (εa0 )2 + O (εa0 )3 n∗ (t − t0 ),       (25)
+                                                                                      
+                                                      −
+                                           0            2a∗     8a∗
+
+where n∗ (t − t0 ) is the accumulated mean longitude difference for the nominal (uncertainty free) orbit since
+the initial epoch and n∗ is the mean motion of that nominal orbit.
+
+Equation (25) shows that a linear propagation of a pdf expressed in classical equinoctial elements will be
+imprecise as a result of the truncation error, growing linearly in time, in the propagation of the mean
+longitude.
+
+
+                                                               9
+As originally proposed by [26], the classical equinoctial elements can be improved by employing the mean
+motion as an element in place of the semi-major axis. The resulting elements, coined “alternative equinoctial
+orbital elements” (AEqOE), are effective against the above-mentioned nonlinear truncation error.
+
+If the pdf is expressed with respect to AEqOE, an initial uncertainty in the mean motion variable εn0
+corresponds to
+                                          ℓ(t) = ℓ0 + (n∗ + εn0 )(t − t0 ),                                   (26)
+
+                                                εℓ (t) = εn0 (t − t0 ),                                       (27)
+
+
+providing a time evolution of the mean longitude uncertainty that is perfectly linear with respect to the
+initial mean motion uncertainty.
+
+
+
+5.2    J2 -induced Secular Perturbations
+
+Let us now consider the case of a perturbed orbital motion whose perturbing force is fully derivable from a
+potential. In particular, let us consider the effect of the J2 term of the gravity field harmonics. Analogously
+to the previous section, we assume an initial semi-major axis uncertainty εa0 .
+
+If the orbital motion is represented in AEqOE, the assumed semi-major axis uncertainty corresponds to a
+mean motion uncertainty
+                                                       r
+                                                  3        µ a
+                                          εn0 = −            ε + O (εa0 )2 .
+                                                                          
+                                                   2       a5 0
+
+On the other hand, if the orbital motion is represented in GEqOE, it is possible to show that the assumed
+
+semi-major axis uncertainty corresponds to a generalized mean motion uncertainty
+
+                                                       r
+                                                   3       µ a
+                                         εν0 = −               ε0 + O2 εa0 , J2 .
+                                                                               
+                                                   2       a 5
+
+
+
+The previous uncertainties εn0 , εν0 are equal to first order in εa0 . However, their nonlinear contribution to the
+
+evolution of the, respectively, mean motion and generalized mean motion errors, will be here shown to be
+different.
+
+Following [27], the expression of the disturbing function after averaging over one orbital period reads
+
+                                                 J2 R 2 n 2
+                                         R=                  (2 − 3 sin2 i),
+                                               4(1 − e2 )3/2
+
+where, without complicating the notation, e, i, and n stand here for the mean values of eccentricity, inclina-
+tion, and mean motion, respectively. The mean rate of the mean longitude can be derived from Lagrange’s
+
+
+                                                              10
+planetary equations for −nτ (with τ the time of pericenter passage) wherein the disturbing function is
+replaced by R (see [27]):
+                                                      J2 R2 n7/3
+                                           ℓ̇ = n +              λ(e, i),                                    (28)
+                                                         µ2/3
+
+with
+                                 3      h    p        3                      i
+                        λ=          2 2
+                                          1 + 1 − e2 1 − sin2 i + cos2 i − cos i .
+                             2(1 − e )                  2
+
+Note that n and i are constant (there are no secular nor long-period variations of these elements under J2
+
+[28]) while e is constant after neglecting J2 -induced long-period effects.
+
+Let us consider, for simplicity, the case of a circular equatorial orbit (i = 0, e = 0) and introduce the notation
+
+                                                          3R2
+                                                  A=           .                                             (29)
+                                                         2µ2/3
+
+Integration of equation (28) yields
+
+
+                                       ℓ = ℓ0 + n(t − t0 ) 1 + 2n4/3 J2 A .                                  (30)
+                                                                         
+
+
+
+After writing the mean motion as the sum of its nominal value and the associated error:
+
+
+                                                  n = n∗ + εn0 ,
+
+
+and by developing n4/3 (in Eq. 30) in Taylor series with respect to εn0 , the mean longitude error can be
+obtained as
+                                                                                     
+                                     14    4/3          28      1/3
+                   εℓ = (t − t0 ) 1 + J2 An∗    εn0 +                 (εn0 )2 + O (εn0 )3 ,
+                                                                                         
+                                                           J2 An∗                                            (31)
+                                     3                  9
+
+which is characterized by a secular growth with a nonlinear dependency on the mean motion error due to
+the J2 term.
+
+A similar analysis can be developed for a formulation based on GEqOE. When the GEqOE are employed,
+the generalized mean motion state variable ν is a constant in the J2 -only perturbed two-body problem.
+Moreover, for an equatorial orbit the potential energy associated with the J2 term yields
+
+                                                          J2 µR2
+                                                 U =−            ,                                           (32)
+                                                           2r3
+
+
+
+
+                                                         11
+and the time derivative of the generalized mean longitude becomes (Eq. 14)
+
+                                              h − c J2 µR2 1
+                                                                        
+                                                                     r
+                                  L̇ = ν0 +        +         + α  1 −      ,                             (33)
+                                               r2    2cr3 α           a0
+
+where α has been defined in (19) and ν0 , a0 are the constant values taken by the generalized mean motion
+and semi-major axis along the solutions.
+
+Noting from Eqs. (3), (32) that
+                                              h−c   J2 µR2
+                                                  =        + O(J22 ),                                    (34)
+                                               r2    2cr3
+
+the secular variation (to first order in J2 ) in generalized mean longitude for a circular equatorial orbit is
+given by (see Appendix B)
+                                                                     4/3 
+                                      L = L0 + ν0 (t − t0 ) 1 + J2 Aν0   .                               (35)
+
+Writing the generalized mean motion as the sum of its (constant) nominal value and the associated error:
+
+
+                                                   ν0 = ν∗ + εν0 ,
+
+
+                 4/3
+and expanding ν0       (in Eq. 35) in Taylor series with respect to εν0 yields the generalized mean longitude
+error
+                                                                               
+                       L            7     4/3   ν     14      1/3    ν 2       ν 3
+                                                                                                         (36)
+                                                                                   
+                   ε = (t − t0 ) 1 + J2 Aν∗    ε0 +      J2 Aν∗    (ε0 ) + O (ε0 ) .
+                                    3                  9
+
+After comparing Eq. (31) with Eq. (36) there appears to be a reduction by a factor of two for the nonlinear
+dependency on the mean motion error. This means that the use of GEqOE has absorbed half of the J2
+nonlinear secular effect on the mean longitude. Indeed, simple tests for circular equatorial orbits have
+
+confirmed an improvement of UR by a factor very close to two. Extending the present analytical treatment
+to the much more complex case of non-circular and non-equatorial orbits is out of the scope of the present
+article.
+
+
+
+6       Results
+
+To assess the efficiency of the orbital uncertainty propagation using the GEqOE set, a Cramér-von Mises
+(CvM) test of the Mahalanobis distance distribution is used following the recent work of Aristoff et al. [22].
+This test evaluates whether a covariance matrix, based on a chosen set of coordinates, is likely to represent
+the true covariance. For convenience, the process is briefly described in Algorithm 1. More details can be
+found in [22].
+
+                                                         12
+The first step is to propagate the covariance matrix in the coordinates set of interest. A linear propagation
+of that matrix can be adopted for simplicity.
+
+Subsequently, a sufficiently large set (N = 10000 for these results) of orbital states sampled from the
+initial covariance are propagated with a high-fidelity orbital dynamics model in Cartesian coordinates and
+converted into the set of variables being evaluated. For each epoch, the Mahalanobis distance m of each
+sample is calculated using the linearly propagated covariance and the propagated state of the sample. If the
+true pdf is Gaussian, then the Mahalanobis distance will follow a chi-squared distribution with 6 degrees of
+freedom, whose cumulative distribution function (cdf) is
+
+                                                        1     z              
+                                          F (z) = 1 −     exp − (z 2 + 4z + 8) .                                  (37)
+                                                        8      2
+
+The CvM test statistics is calculated by comparing this cdf with the empirical cumulative distribution
+
+function of the true distribution. If the CvM test is satisfied, the two cdf are found to agree and one can say
+that the covariance is realistic.
+
+Algorithm 1 Cramér-von Mises test
+ 1: Py (t) = Φ(t, t0 ) Py (t0 ) ΦT (t, t0 )                                 ⊲ covariance matrix linear propagation
+ 2: for i = 1, . . . , N do
+
+ 3:     xi (t0 )                                                                         ⊲ initial covariance sampling
+ 4:     xi (t)                                                              ⊲ true orbit of the sample propagation
+ 5:     yi (t) = y(xi (t), t)                                           ⊲ conversion to state variables being tested
+ 6: end for
+                   PN
+             1
+ 7: µy (t) = N      i    yi (t)                                                                     ⊲ true mean orbit
+ 8: for i = 1, . . . , N do
+
+ 9:     Mi (yi ; µy , Py ) = (yi − µy )T Py−1 (yi − µy )                                      ⊲ Mahalanobis distance
+10: end for
+         1
+11: Q = 12N                                                                        ⊲ CvM test statistics initialization
+12: for j = 1, . . . , N do                                       ⊲ in increasing order of the Mahalanobis distance
+                        2j−1          2
+                                                                                   ⊲ F is the cdf of a 6D chi-squared
+                                     
+13:     Q=Q+             2N − F (Mj )
+14: end for
+
+15: if Q < Q∗ ≃ 1.16 then
+
+16:     covariance is realistic
+17: end if
+
+
+
+The Cramér-Von Mises test is applied to the proposed GEqOE formulation. For comparison, results for
+
+the J2EqOE elements recently proposed by Aristoff et al. [22] and for the alternative equinoctial elements
+(AEqOE) [26] are also computed.
+
+
+
+                                                             13
+                    Table 1: Initial orbital elements for Cases 1, 2, 3. Angles are in degrees.
+
+                                 a (km)              e            i     Ω       ω        M
+                           1)     7136.6     0.00949             72.9   116   57.7     105.5
+                           2)    26628.1     0.742               63.4   120     0      144
+                           3)    38200.0     0.8167539267        25     120     0        0
+
+
+The following three different test cases are analyzed:
+
+
+      Case 1)     LEO from [22],
+
+      Case 2)     High-Earth orbit (HEO) from [22],
+
+      Case 3)     super Geostationary transfer orbit (super-GTO).
+
+
+For each of these three test cases two scenarios are investigated: (a) a ballistic scenario and (b) a constant
+low-thrust tangential acceleration scenario. The low-thrust-perturbed scenarios are defined based on mega-
+constellation LEO satellites (Case 1) and all-electric satellites maneuvered to GEO (Cases 2 and 3). The
+employed control law sets the thrust vector tangent to the nominal trajectory and with constant magnitude.
+Note that in practical applications new measurements are performed leading to a continuous update of the
+covariance statistics readily available to the owner/operator of a specific satellite and possibly distributed
+
+to other parties as well. Nevertheless, it is still relevant to study how such covariance would evolve without
+considering new measurements in case these updates were not available.
+
+For the LEO case, the thrust magnitude and the spacecraft mass are set to 15 mN and 260 kg, respectively,
+based on realistic estimates for Starlink satellites1 . For the HEO and super-GTO, 165 mN and 2200 kg were
+used in line with published figures for the Eutelsat 115 West B satellite2 .
+
+The initial orbital conditions are shown in Table 1, where all the elements are expressed in the Earth-centered
+J2000 frame. The initial epoch is 2021 October 20 00:00:00 TDB and the initial covariance in equinoctial
+orbital elements (EqOE)3 is given in Table 2.
+
+The sampled states are propagated using Matlab’s ode113 (Adams–Bashforth–Moulton predictor corrector
+method with variable order between 1 and 13), while the predictions of the nominal state and the associated
+  1 A nominal 260 kg wet mass has been assumed based on NASA Space Science Data Coordinate Archive (https://nssdc.
+
+gsfc.nasa.gov/nmc/spacecraft/display.action?id=2019-074D). In addition, a roughly estimated 15 mN thrust after fitting
+TLE data of Starlink satellites during their spiral up phase has been considered.
+   2 Based on TLE data, EutelSat 115 West B was boosted from a ≈ 70000 km apogee super-GTO to a GEO from March to
+
+October 2015. The satellite employed a XIPS-25 propulsion system of ≈ 165 mN maximum thrust capability with an estimated
+wet mass of 2200 kg [29].
+   3 Note that P , P , ℓ are the osculating orbital elements corresponding to p , p , L of GEqOE, and coincide with them if
+                1   2                                                           1  2
+U = 0.
+
+
+
+                                                            14
+                           Table 2: Initial covariance in EqOE for Cases 1, 2, 3.
+
+                                σa (km)     σP1      σP2       σq1       σq2       σℓ (deg)
+                           1)     20       10   −3
+                                                     10   −3
+                                                               10   −3
+                                                                         10   −3
+                                                                                    10−2
+                                                                                      7
+                           2)      2       10−4      10−4      10−4      10−4        900
+                                                                                      7
+                           3)      2       10−4      10−4      10−4      10−4        900
+
+
+
+covariance matrix are carried out with a Runge-Kutta method of 4th order and a time step close to 60
+seconds. To this end, the state transition matrix in GEqOE is computed using the variational equations
+provided in Appendix A. Instead, for AEqOE and J2EqOE the state transition matrix is computed from
+
+that in GEqOE using the Jacobian of the corresponding transformation.
+
+All scenarios consider luni-solar gravitational perturbations as forces not included in the potential energy
+defining the GEqOE, as recommended in [23]. The position of these celestial bodies are obtained from the
+JPL DE430 ephemeris. The Earth gravitational field is modeled following Grace gravity model 05 GGM05C
+[30] truncated to the 8th degree and order, and all its terms except for the point mass potential are included
+in the potential energy U . The Earth-centered Earth-fixed coordinate system (ECEF) is set as ITRF93. The
+calculation of the Earth gravitational potential, its gradient and Hessian in ECEF are performed following
+the method of Cunningham and Metris [31, 32]. The details about the procedure used to include the Earth
+gravitational potential in the GEqOE formulation are described in Appendix C.
+
+Figure 2 shows the CvM test statistics as a function of time for the no-thrust scenario of Case 1. This case
+was analyzed by Aristoff et al. [22] and features a relatively-low initial orbit accuracy (see Table 2). As
+Aristoff et al. showed, the J2EqOE formulation can represent the real orbit uncertainty longer than simpler
+methods that do not account for the J2 perturbation like AEqOE. In particular, the CvM test fails before 6
+orbital periods in J2EqOE, and before 2 orbital periods for AEqOE. The new proposed GEqOE formulation
+can further extend the covariance realism to almost 8 orbits.
+
+
+
+
+                                                          15
+                                           2
+                                                                                                               AEqOE
+                                                                                                               J2EqOE
+                                                                                                               GEqOE
+
+               CvM test statistics (-)   1.5
+
+
+
+                                           1
+
+
+
+                                         0.5
+
+
+
+                                           0
+                                               0   1     2    3    4    5    6    7    8    9   10   11   12    13   14
+                                                                        # Orbital periods
+
+                                                       Figure 2: CvM test statistics for Case 1 (ballistic).
+
+
+The UR improvement of the GEqOE formulation can be partly reduced if a significant acceleration that
+cannot be included in the potential energy U perturbs the trajectory. Nevertheless, in spite of the fact
+that such reduction is more significant for GEqOE compared to the AEqOE and J2EqOE formulations (see
+Fig. 3), the former is still able to stay Gaussian longer than the other two.
+
+
+                                           2
+                                                                                                               AEqOE
+                                                                                                               J2EqOE
+                                                                                                               GEqOE
+                                         1.5
+               CvM test statistics (-)
+
+
+
+
+                                           1
+
+
+
+                                         0.5
+
+
+
+                                           0
+                                               0   1     2    3    4    5    6    7    8    9   10   11   12    13   14
+                                                                        # Orbital periods
+
+                                                   Figure 3: CvM test statistics for Case 1 (low-thrust).
+
+
+
+
+                                                                                 16
+Ballistic Case 2 was also analyzed by Aristoff et al. [22], and it was pointed out that the realism was lost
+near the periapses. This was confirmed by our simulations as seen in Fig. 4. AEqOE loses realism after a
+few orbits, while it takes more than 10 revolutions for J2EqOE. Remarkably, using a GEqOE formulation,
+the UR can be prolonged for more than 30 orbits in this case.
+
+
+                                           2
+                                                                                                           AEqOE
+                                                                                                           J2EqOE
+                                                                                                           GEqOE
+                                         1.5
+               CvM test statistics (-)
+
+
+
+
+                                           1
+
+
+
+                                         0.5
+
+
+
+                                           0
+                                               0    5       10      15       20       25      30       35       40
+                                                                    # Orbital periods
+
+                                                   Figure 4: CvM test statistics for Case 2 (ballistic).
+
+
+Figure 5 shows the effect of adding a tangential thrust to Case 2. The three formulations can only accurately
+describe the real uncertainty for shorter periods of time, but, still, the GEqOE formulation increases the
+realism by about 4 orbits compared to the J2EqOE one.
+
+
+
+
+                                                                            17
+                                           2
+                                                                                                                AEqOE
+                                                                                                                J2EqOE
+                                                                                                                GEqOE
+
+               CvM test statistics (-)   1.5
+
+
+
+                                           1
+
+
+
+                                         0.5
+
+
+
+                                           0
+                                               0   1        2   3    4     5   6        7   8    9    10   11    12   13
+                                                                         # Orbital periods
+
+                                                   Figure 5: CvM test statistics for Case 2 (low-thrust).
+
+
+The results for Case 3 are shown in Figs. 6 and 7 for the ballistic and low-thrust scenarios, respectively. The
+results are similar to the previous case and GEqOE shows better performance than the other methods. In
+particular, the covariance realism is conserved for about 29 orbits compared to the 11 orbits of J2EqOE in
+the absence of thrust. If the propulsion system is active through the propagation period, GEqOE (10 orbits)
+
+can still better predict the distribution than J2EqOE (8 orbits).
+
+
+                                           2
+                                                                                                                AEqOE
+                                                                                                                J2EqOE
+                                                                                                                GEqOE
+                                         1.5
+               CvM test statistics (-)
+
+
+
+
+                                           1
+
+
+
+                                         0.5
+
+
+
+                                           0
+                                               0        5       10       15        20       25       30     35        40
+                                                                         # Orbital periods
+
+                                                       Figure 6: CvM test statistics for Case 3 (ballistic).
+
+
+                                                                                18
+                                               Table 3: Number of revolutions for the CvM test before failure.
+
+                     Case/Scenario                                      AEqOE      J2EqOE          GEqOE         GEqOE(J2 )
+                     1/a (LEO, ballistic)                                   1.77        5.60         7.62              5.67
+                     1/b (LEO, low-thrust)                                  1.77        4.74         5.11              4.66
+                     2/a (HEO, ballistic)                                   4.62       13.60        34.61           13.60
+                     2/b (HEO, low-thrust)                                  2.60        7.66        10.73              7.66
+                     3/a (super-GTO, ballistic)                             4.98       10.93        28.79           10.93
+                     3/b (super-GTO, low-thrust)                            3.00        8.07        10.13              7.05
+
+
+
+                                           2
+                                                                                                                 AEqOE
+                                                                                                                 J2EqOE
+                                                                                                                 GEqOE
+                                         1.5
+               CvM test statistics (-)
+
+
+
+
+                                           1
+
+
+
+                                         0.5
+
+
+
+                                           0
+                                               0   1    2    3    4     5    6     7     8     9    10      11    12     13
+                                                                      # Orbital periods
+
+                                                    Figure 7: CvM test statistics for Case 3 (low-thrust).
+
+
+The six scenarios are summarized in Table 3. The last column displays the UR obtained by including in the
+potential energy only the J2 term of GEqOE. This result, not shown in the plots for clarity, highlights the
+benefit of embedding higher order terms of the geopotential into the definition of GEqOE especially for high
+eccentricity orbits where the improvement in realism can be dramatic.
+
+
+
+7    Conclusions
+
+A new linear uncertainty propagation scheme based on a set of generalized equinoctial orbital elements
+(GEqOE) has been proposed and shown to be superior, in terms of uncertainty realism (UR), to all other
+linear propagation methods proposed so far. A UR improvement, computed with a Mahalanobis distance
+
+
+                                                                              19
+Cramér-von Mises test, of more than at least 36% is obtained, compared to the use of J2 equinoctial orbital
+elements (J2EqOE), for different classes of ballistic Earth orbits. A key result of the article concerns the
+influence of higher order geopotential harmonics in degrading UR and the possibility of drastically reducing
+this effect by the use of GEqOE. It is seen that when harmonics terms of higher order than J2 are embedded in
+the definition of the GEqOE, a considerable improvement in UR is observed for all Earth-orbiting scenarios
+analyzed. The improvement becomes dramatic when highly eccentric orbits are considered. Finally, the
+analysis of the impact of a continuous tangential low-thrust acceleration on the UR of different classes
+
+of Earth orbits considering full-thrust capability of state-of-the-art electric propulsion systems suggests a
+small, although not negligible reduction in UR for all cases. Nevertheless, GEqOE retain their advantage
+over competing sets of elements even for low-thrust-perturbed orbits.
+
+While the GEqOE uncertainty propagation scheme investigated in this article employs a linear model for
+maximum computation efficiency, nonlinear techniques can be applied to the same set of elements to further
+
+improve the UR at the expense of a reduced computation efficiency.
+
+
+
+Acknowledgments
+
+This work was supported by MINECO/AEI and FEDER/EU under Project PID2020-112576GB-C21. The
+
+authors thank the MINECO/AEI of Spain for their financial support.
+
+Alicia Martínez-Cacho, of Universidad Politécnica de Madrid (UPM), was supported by a PhD grant under
+UPM “Programa Propio”.
+
+The views expressed are those of the authors and do not necessarily represent the views of the ispace-inc.
+
+
+
+References
+
+ [1] P. S. Maybeck, Stochastic models, estimation, and control Volume 2, Vol. 141-2 of Mathematics in
+    Science and Engineering. New York: Academic press, 1982.
+
+ [2] R. Armellin, P. Di Lizia, F. Bernelli-Zazzera, and M. Berz, “Asteroid close encounters characterization
+    using differential algebra: the case of Apophis,” Celestial Mechanics and Dynamical Astronomy, Vol. 107,
+    No. 4, 2010, pp. 451–470, 10.1007/s10569-010-9283-5.
+
+ [3] R. S. Park and D. J. Scheeres, “Nonlinear mapping of Gaussian statistics: theory and applications
+    to spacecraft trajectory design,” Journal of Guidance, Control, and Dynamics, Vol. 29, No. 6, 2006,
+    pp. 1367–1375, 10.2514/1.2017.
+
+                                                     20
+ [4] J. Roa and R. S. Park, “Reduced Nonlinear Model for Orbit Uncertainty Propagation and Estimation,”
+    Journal of Guidance, Control, and Dynamics, 2021, pp. 1–15, 10.2514/1.G005519.
+
+ [5] D. Giza, P. Singla, and M. Jah, “An Approach for Nonlinear Uncertainty Propagation: Application
+    to Orbital Mechanics,” AIAA Guidance, Navigation, and Control Conference, No. 2009-6082, Chicago,
+    Illinois, 10-13 August 2009, 10.2514/6.2009-6082.
+
+ [6] G. Terejanu, P. Singla, T. Singh, and P. D. Scott, “Uncertainty Propagation for Nonlinear Dynamic
+    Systems Using Gaussian Mixture Models,” Journal of Guidance, Control, and Dynamics, Vol. 31, No. 6,
+    2008, pp. 1623–1633, 10.2514/1.36247.
+
+ [7] S. J. Julier and J. K. Uhlmann, “New extension of the Kalman filter to nonlinear systems,” Signal
+    processing, sensor fusion, and target recognition VI, Vol. 3068, International Society for Optics and
+    Photonics, 1997, pp. 182–193, 10.1117/12.280797.
+
+ [8] B. A. Jones, A. Doostan, and G. H. Born, “Nonlinear Propagation of Orbit Uncertainty Using Non-
+    Intrusive Polynomial Chaos,” Journal of Guidance, Control, and Dynamics, Vol. 36, No. 2, 2013,
+    pp. 430–444, 10.2514/1.57599.
+
+ [9] A. Milani, M. E. Sansaturio, G. Tommei, O. Arratia, and S. R. Chesley, “Multiple solutions for asteroid
+    orbits: computational procedure and applications,” Astronomy & Astrophysics, Vol. 431, No. 2, 2005,
+    pp. 729–746, 10.1051/0004-6361:20041737.
+
+[10] C. Tardioli, M. Kubicek, M. Vasile, E. Minisci, and A. Riccardi, “Comparison of non-intrusive ap-
+    proaches to uncertainty propagation in orbital mechanics,” AAS/AIAA Astrodynamics Specialist Con-
+    ference 2015, No. AAS 15-545, Vail, California, American Astronautical Society, 2015, pp. 3979–3992.
+
+[11] V. Vittaldev, R. P. Russell, and R. Linares, “Spacecraft Uncertainty Propagation Using Gaussian Mix-
+    ture Models and Polynomial Chaos Expansions,” Journal of Guidance, Control, and Dynamics, Vol. 39,
+    No. 12, 2016, pp. 2615–2626, 10.2514/1.G001571.
+
+[12] J. L. Junkins, M. R. Akella, and K. T. Alfriend, “Non-Gaussian error propagation in orbital mechanics,”
+    The Journal Of the Astronautical Sciences, Vol. 44(4), 1996, pp. 541–563.
+
+[13] C. Sabol, T. Sukut, K. Hill, K. T. Alfriend, B. Wright, Y. Li, and P. Schumacher, “Linearized orbit
+    covariance generation and propagation analysis via simple Monte Carlo simulations,” AAS 10-134,
+    AAS/AIAA Space Flight Mechanics Conference, San Diego, CA, February, 2010, pp. 14–17.
+
+
+
+
+                                                    21
+[14] Z. Folcik, A. Lue, and J. Vatsky, “Reconciling covariances with reliable orbital uncertainty,” 12th Ad-
+    vanced Maui Optical and Space Surveillance Technologies Conference, 2011.
+
+[15] J. Hernando-Ayuso and C. Bombardelli, “Orbit covariance propagation via quadratic-order state tran-
+    sition matrix in curvilinear coordinates,” Celestial Mechanics and Dynamical Astronomy, Vol. 129, Sep
+    2017, pp. 215–234, 10.1007/s10569-017-9773-9.
+
+[16] V. T. Coppola and S. Tanygin, “Using Bent Ellipsoids to Represent Large Position Covariance in Or-
+    bit Propagation,” Journal of Guidance, Control, and Dynamics, Vol. 38, No. 9, 2015, pp. 1775–1784,
+    10.2514/1.G001011.
+
+[17] R. G. Melton, “Time-Explicit Representation of Relative Motion Between Elliptical Orbits,” Journal of
+
+    Guidance, Control, and Dynamics, Vol. 23, No. 4, 2000, pp. 604–610, 10.2514/2.4605.
+
+[18] C. M. Lane and P. Axelrad, “Formation Design in Eccentric Orbits Using Linearized Equations of
+    Relative Motion,” Journal of Guidance, Control, and Dynamics, Vol. 29, No. 1, 2006, pp. 146–160,
+    0.2514/1.13173.
+
+[19] K. Hill, K. Alfriend, and C. Sabol, “Covariance-based uncorrelated track association,” AIAA/AAS
+    Astrodynamics Specialist Conference, No. AIAA 2008-7211, Honolulu, Hawaii, 18-21 August 2008.
+
+[20] L. M. Weis, “Uncertainty in KS Space with Arbitrary Forces,” AIAA SciTech Forum, American Institute
+    of Aeronautics and Astronautics, Jan. 2018, 10.2514/6.2018-0728.
+
+[21] J. Roa Vicens and J. Peláez Álvarez, “Efficient trajectory propagation for orbit determination problems,”
+    AAS/AIAA Astrodynamics Specialist Conference, No. AAS-15-730, Vail, Colorado, USA, Univelt, Au-
+    gust 2015.
+
+[22] J. M. Aristoff, J. T. Horwood, and K. T. Alfriend, “On a set of J2 equinoctial orbital elements and their
+    use for uncertainty propagation,” Celestial Mechanics and Dynamical Astronomy, Vol. 133, No. 9, 2021,
+    pp. 1–19, 10.1007/s10569-021-10004-0.
+
+[23] G. Baù, J. Hernando-Ayuso, and C. Bombardelli, “A generalization of the equinoctial orbital elements,”
+    Celestial Mechanics and Dynamical Astronomy, Vol. 133, No. 50, 2021, 10.1007/s10569-021-10049-1.
+
+[24] J. L. Arsenault, K. C. Ford, and P. E. Koskela, “Orbit Determination Using Analytic Partial Derivatives
+    of Perturbed Motion,” AIAA Journal, Vol. 8, No. 1, 1970, pp. 4–9, 10.2514/3.5597.
+
+[25] R. A. Broucke and P. J. Cefola, “On the equinoctial orbit elements,” Celestial Mechanics, Vol. 5, 1972,
+    pp. 303–310, 10.1007/BF01228432.
+
+                                                     22
+[26] J. T. Horwood, N. D. Aragon, and A. B. Poore, “Gaussian Sum Filters for Space Surveillance: Theory
+    and Simulations,” Journal of Guidance, Control, and Dynamics, Vol. 34, November 2011, pp. 1839–1851,
+    10.2514/1.53793.
+
+[27] R. Battin, An Introduction to the Mathematics and Methods of Astrodynamics. Reston, Virginia: AIAA,
+    1999.
+
+[28] D. Brouwer, “Solution of the problem of artificial satellite theory without drag,” The Astronomical
+    Journal, Vol. 64, 1959, p. 378, 10.1086/107958.
+
+[29] P. Abbasrezaee, M. Mirshams, and S. Seyed-Zamani, “Conceptual GEO Telecommunication All-Electric
+    Satellite Design Based on Statistical Model,” 2019 9th International Conference on Recent Advances in
+    Space Technologies (RAST), IEEE, 2019, pp. 503–507, 10.1109/RAST.2019.8767854.
+
+[30] J. Ries, S. Bettadpur, R. Eanes, Z. Kang, U. Ko, C. McCullough, P. Nagel, N. Pie, S. Poole, T. Richter,
+
+    et al., “Development and Evaluation of the Global Gravity Model GGM05-CSR-16-02,” Center for Space
+    Research, Univ. of Texas at Austin TR CSR-16-02, Austin, TX, 2016.
+
+[31] L. E. Cunningham, “On the computation of the spherical harmonic terms needed during the numerical
+    integration of the orbital motion of an artificial satellite,” Celestial Mechanics, Vol. 2, No. 2, 1970,
+    pp. 207–216, 10.1007/BF01229495.
+
+[32] G. Métris, J. Xu, and I. Wytrzyszczak, “Derivatives of the gravity potential with respect to rectan-
+    gular coordinates,” Celestial Mechanics and Dynamical Astronomy, Vol. 71, No. 2, 1998, pp. 137–151,
+    10.1023/A:1008361202235.
+
+[33] E. Fantino and S. Casotto, “Methods of harmonic synthesis for global geopotential models and their
+
+    first-, second-and third-order gradients,” Journal of Geodesy, Vol. 83, No. 7, 2009, pp. 595–619,
+    10.1007/s00190-008-0275-0.
+
+
+
+A     Computation of ∂f /∂y
+
+In the following, the elements of the 6 × 6 matrix ∂f /∂y are computed, where f (y, t) and y have been
+introduced in Section 4. For this purpose, it is useful to define the function f(y, a, b, t):
+
+
+                                       f(y, a(y, t), b(y, t), t) = f (y, t),
+
+
+
+
+                                                        23
+where
+
+
+                                             a = (r, u, h, c, L)T ,
+
+                                             b = (Ut , Pr , Pf , Fh , S)T ,
+
+
+with
+                                                ∂U
+                                        Ut =        ,       S = 2U − rFr .
+                                                 ∂t
+
+Recall that L is the true longitude (Eq. 8) and Fr , Fh , Pr , Pf are defined in Eq. (20).
+
+The components of f are given by equations (11)–(16). One has
+
+                                         ∂f   ∂f   ∂f ∂a   ∂f ∂b
+                                            =    +       +       .                                   (38)
+                                         ∂y   ∂y ∂a ∂y ∂b ∂y
+
+The following subsections deal with the computation of the matrices that appear on the right-hand side of
+(38).
+
+It is useful to define the quantities
+
+
+                          σ1 = p2 + cos L,                                σ2 = p1 + sin L,
+
+                          σ3 = sin L + ςσ1 ,                              σ4 = cos L + ςσ2 ,
+
+                                r                                                     r
+                           ς=     ,                                           ς˜ = 1 + ,
+                                ̺                                                     ̺
+
+where ̺ is defined in (18).
+
+
+
+
+                                                          24
+A.1     ∂f/∂y
+
+The six rows of this matrix are given by4 :
+
+                                           2/3
+                         ∂f1            1
+                             =−                    E˙ (1, 0 , 0 , 0 , 0 , 0),
+                         ∂y            µν
+
+                         ∂f2    2X    r2     h−c γ        2         Xp2      Y p2 
+                             =      S, 2 E˙ ,     −   Fh +   S, 0, −     Fh ,     Fh ,
+                         ∂y     3µβ    c       r2   h      c          h        h
+                         ∂f3   2Y       γ       h−c 2         r2     Xp1        Y p1 
+                             = −     S, Fh − 2 − S, 2 E˙ , 0,             Fh , −     Fh ,
+                         ∂y      3µβ     h        r        c   c        h         h
+                         ∂f4      2αr     ∂f4 ∂f4           X    Y   
+                             = 1−       S,     ,      , 0, − Fh ,   Fh ,
+                         ∂y        3µβ     ∂p1 ∂p2           h    h
+                         ∂f5              Y q1      Y q2 
+                             = 0, 0, 0, 0,      Fh ,      Fh ,
+                         ∂y                 h          h
+
+                         ∂f6              Xq1      Xq2 
+                             = 0, 0, 0, 0,     Fh ,    Fh ,
+                         ∂y                 h        h
+
+where
+                                                          1  S α2 pi
+                                                              
+                                   ∂f4     ruc ˙      r
+                                       =      ς˜E + 1 − − 2           ,         i = 1, 2.
+                                   ∂pi     µ2          a α c     β
+
+The definitions of X, Y are given in (17) and those of γ, α, β in (19).
+
+
+
+A.2     ∂f/∂a
+
+The six rows of this matrix are given by:
+
+
+ 1st row
+                                            ∂f1      ν 1/3  h            1        
+                                                = −3 2        − 2 Pf , Pr , Pf , 0, 0 ;
+                                            ∂a       µ         r            r
+  4 Here Y
+             i denotes the i-th component of the vector Y.
+
+
+
+
+                                                                     25
+2nd row
+
+                                 
+          ∂f2      2(h − c) γ       p2   cos L    1
+              =−        2
+                           +   Fh      +       S + [σ3 (Ut + uPr ) + ςσ2 E˙ ],
+          ∂a1         r      h      r     ca      µ
+          ∂f2   rσ3
+              =     Pr ,
+          ∂a2    µ
+                              
+          ∂f2         1    γ        σ3
+              =          + 2 Fh p2 + Pf ,
+          ∂a3         r2  h         µ
+
+                                             2r2 σ2 ˙
+                                                   
+          ∂f2   p2   1           X
+              =− 2 − 2             + 2p2 S +       E ,
+          ∂a4   r   c            a             c
+          ∂f2                         rp2     Y    X ς˜ ˙
+              = (q1 sin L + q2 cos L)     Fh − S +     E;
+          ∂a5                          h      ca   µ
+
+
+3rd row
+
+                               
+           ∂f3     2(h − c) γ     p1   sin L    1
+               =           + Fh      −       S + [σ4 (Ut + uPr ) + ςσ1 E˙ ],
+           ∂a1        r2    h     r      ca     µ
+           ∂f3   rσ4
+               =     Pr ,
+           ∂a2    µ
+                           
+           ∂f3       1    γ     σ4
+               = − 2 + 2 Fh p1 + Pf ,
+           ∂a3       r    h     µ
+
+                                            2r2 σ1 ˙
+                                                  
+           ∂f3  p1   1          Y
+               = 2 + 2            + 2p1 S −       E ,
+           ∂a4  r   c           a             c
+           ∂f3                          rp1     X    Y ς˜ ˙
+               = −(q1 sin L + q2 cos L)     Fh − S −     E;
+           ∂a5                           h      ca    µ
+
+
+4th row
+
+             ∂f4    2(h − c)    γ      ucα h                     i α
+                 =−          −    Fh +      ς˜(Ut + uPr ) + ς Ė  − S,
+             ∂a1       r3      rh      µ2                          ca
+
+             ∂f4  rcα
+                 = 2 ς˜(E˙ + uPr ),
+             ∂a2   µ
+
+             ∂f4   1   γ     ucα
+                 = 2 + 2 Fh + 2 ς˜Pf ,
+             ∂a3  r   h       µ
+                                                 
+             ∂f4     1  ruα        ˙    1      r S
+                 = − 2 + 2 (1 − ς)E −     +α 1−      ,
+             ∂a4    r    µ              α       a c2
+
+             ∂f4  r
+                 = (q1 sin L + q2 cos L)Fh ;
+             ∂a5  h
+
+
+
+                                         26
+ 5th row
+                                  ∂f5   Fh                            Y      
+                                      =    (1 + q12 + q22 ) sin L, 0, − , 0, X ;
+                                  ∂a    2h                             h
+
+ 6th row
+                                 ∂f6   Fh                            X       
+                                     =    (1 + q12 + q22 ) cos L, 0, − , 0, −Y .
+                                 ∂a    2h                             h
+
+
+A.3    ∂a/∂y
+
+The five rows of this matrix are given by:
+
+
+ 1st row
+                         ∂a1  2r  u                u                u      
+                            = − , − cos K − a sin K, sin K − a cos K, , 0, 0 ;
+                         ∂y    3ν  ν                ν                ν
+
+ 2nd row
+
+                                 
+                         ∂a2         u   1  2 µ         ua         1 µ     
+                             =         ,    u −   cos K +    sin K,       − u2 sin K
+                         ∂y          3ν rν      r          r        rν r
+                                                 √        u2
+                                                  µa a
+                                                                   
+                                     ua
+                                 +      cos K,         − 1 − , 0, 0 ;
+                                      r           r  r      rν
+
+
+ 3rd row
+                                                                      
+                                       ∂a3   1 ∂a4         ∂a1      ∂U
+                                           =    c    − 2rU     − r2     ;
+                                       ∂y    h    ∂y       ∂y       ∂y
+
+ 4th row
+                                       2         µ2 1/3 p        µ2 1/3 p            
+                             ∂a4         a β                 1                 2
+                                 =     −     , −               , −               , 0, 0, 0 ;
+                             ∂y           3        ν       β         ν       β
+
+
+
+
+                                                        27
+ 5th row
+
+                                  ∂a5   ∂a5   ∂a5
+                                      =     =     = 0,
+                                  ∂ν    ∂q1   ∂q2
+
+                                  ∂a5  ah a         ruαp1  1    Y uα
+                                      = α    cos K −            −1 − √
+                                  ∂p1  r   r           c      ς        µa
+
+                                                        a                 i
+                                            − cos L −     cos K cos(L − K) ,
+                                                        r
+
+                                  ∂a5  ah a         ruαp2  1    Xuα
+                                      = −α   sin K +            −1 − √
+                                  ∂p2  r   r           c      ς       µa
+
+                                                        a                 i
+                                            + sin L +     sin K cos(L − K) ,
+                                                        r
+
+                                  ∂a5  a2 h  r     1                i
+                                      = 2 α     −1      − 1 + cos(L − K) .
+                                  ∂L   r      a       ς
+
+
+The quantity K can be computed as described in [23], Sect. 4. For the computation of ∂U /∂y see Sect. A.5.
+
+
+
+A.4    ∂f/∂b
+
+The six rows of this matrix are given by:
+
+
+ 1st row
+                                         ∂f1      ν 1/3      h      
+                                             = −3 2        1, u, , 0, 0 ;
+                                         ∂b       µ              r
+
+ 2nd row
+
+                                                                               
+                               ∂f2          r      ru     h       γp2 1 X
+                                   =          σ3 ,    σ3 , σ3 , −    ,     + 2p2   ;
+                               ∂b           µ      µ      µ        h   c a
+
+
+ 3rd row
+
+                                                                                
+                               ∂f3          r      ru     h     γp1     1 Y
+                                   =          σ4 ,    σ4 , σ4 ,     , −     + 2p1    ;
+                               ∂b           µ      µ      µ      h      c a
+
+
+ 4th row
+
+                                      rucα ru2 cα uhcα
+                                                                              
+                          ∂f4                                 γ 1 1         r
+                              =           ς
+                                          ˜ ,    ς
+                                                 ˜ ,    ˜
+                                                        ς , −  ,    + α  1 −       ;
+                          ∂b           µ2     µ2     µ2       h c α          a
+
+
+
+
+                                                           28
+ 5th row
+                                                                           
+                                      ∂f5               Y        2    2
+                                          =    0, 0, 0,    (1 + q1 + q2 ), 0 ;
+                                      ∂b                2h
+
+ 6th row
+                                                                             
+                                      ∂f6               X
+                                          =    0, 0, 0,    (1 + q12 + q22 ), 0 .
+                                      ∂b                2h
+
+
+A.5    ∂b/∂y
+
+Let
+                                           x = (x, y, z, ẋ, ẏ, ż)T
+
+be the set of Cartesian coordinates of the position r and velocity ṙ of the propagated body with respect to
+an inertial reference frame Σ. In order to compute ∂b/∂y the chain rule is applied:
+
+                                                 ∂b   ∂b ∂x
+                                                    =       .
+                                                 ∂y   ∂x ∂y
+
+Note that the matrix ∂x/∂y is provided in [23], Sect. 6.1. The first row of the matrix ∂b/∂x is
+
+                                                                   
+                                           ∂b1         ∂Ut
+                                               =           , 0, 0, 0 .
+                                           ∂x           ∂r
+
+Regarding the other rows one has:
+
+ 2nd row
+                                              ∂b2       ∂P      ∂er
+                                                  = eTr    + PT     ,
+                                              ∂x        ∂x      ∂x
+
+ 3rd row
+                                              ∂b3       ∂P      ∂ef
+                                                  = eTf    + PT     ,
+                                              ∂x        ∂x      ∂x
+
+ 4th row
+                                              ∂b4       ∂F      ∂eh
+                                                  = eTh    + FT     ,
+                                              ∂x        ∂x      ∂x
+
+ 5th row
+                                    ∂b5    ∂U   ∂r        ∂F         ∂er 
+                                        =2    −    Fr − r eTr    + FT       ,
+                                    ∂x     ∂x   ∂x            ∂x      ∂x
+
+where the two vectors F and P (introduced in Eqs. 1, 2) are expressed in Σ and
+
+                                              ∂r
+                                                 = (eTr , 0, 0, 0),
+                                              ∂x
+
+                                                        29
+              ∂er     1                                                 ∂er
+                  = − 3 R2 ,                                                 = O3 ,
+               ∂r     r                                                 ∂ ṙ
+                                                                                                     
+              ∂ef    1 u 2    1     T                                   ∂ef      1           2  1     T
+                  =       R + 2 HCH     ,                                    =−             R + 2 HBH     ,
+              ∂r    rh r     h                                          ∂ ṙ    rh             h
+
+              ∂eh   1                                                   ∂eh     r
+                  = 2 (H ṙ) eTh ,                                           = − ef eTh ,
+              ∂r   h                                                    ∂ ṙ    h
+
+with O3 , I3 denoting the null and identity 3 × 3 matrices, respectively, and
+                                                                                                
+                          
+                                    0   −z      y 
+                                                   
+                                                                
+                                                                               0    −h3     h2 
+                                                                                                
+                                                                                             
+                                                                                             
+                        R=                          ,        H=                                 ,
+                                                                                             
+                                    z    0     −x 
+                                                                              h3     0    −h1 
+                                                                                                
+                                                                                             
+                                                                                             
+                                                                                             
+                                 −y       x      0                       −h2          h1     0
+
+
+                                                C = ṙrT ,        B = rrT ,
+
+                            h1 = y ż − z ẏ,        h2 = z ẋ − xż,           h3 = xẏ − y ẋ.
+
+Moreover, for a generic vector Y one has
+
+                                                                       
+                                                 ∂Y          ∂Y ∂Y
+                                                    =          |            .
+                                                 ∂x          ∂r ∂ ṙ
+
+Finally, assuming that U is a function of r and possibly of time, one has
+
+                                                    ∂U   ∂U ∂r
+                                                       =       ,
+                                                    ∂y   ∂r ∂y
+
+where ∂r/∂y is given in [23], Sect. 6.1.
+
+
+
+B     Secular evolution of L under the effect of J2
+
+From Eqs. (33), (34) one can write, for an equatorial orbit
+
+                                               J2 µR2
+                                                                  
+                                                          1      r
+                                     L̇ = ν0 +          1+ +α 1−       ,                                      (39)
+                                                2cr3      α      a0
+
+where terms of order higher than one in J2 have been neglected in Eq. (34). Let the mean value of the
+
+eccentricity e be equal to zero. Then, from Eq. (4) one can assume that the mean generalized eccentricity is
+
+
+                                                             30
+                                        √
+also zero, which implies α = 1/2, c =    µa0 , r = a0 . After applying these substitutions, Eq. (39) reduces to
+
+                                                             3J2 µR2
+                                               L̇ = ν0 +        √    ,
+                                                            2a30 µa0
+
+where the symbol L̇ denotes now the secular rate of the generalized mean longitude. Using the first relation
+in (18) and the definition of A in (29) one finds
+
+                                                      7/3
+                                              3J2 R2 ν0                        4/3 
+                                  L̇ = ν0 +                 = ν0 1 + J2 Aν0         ,
+                                                2µ2/3
+
+which can be integrated to give Eq. (35).
+
+
+
+C     Partial derivatives of the spherical harmonics potential
+
+Multiple algorithms exist to compute the potential of the spherical harmonics perturbation and its derivatives.
+A non-exhaustive list includes the methods of Legendre, Clenshaw, Pines and the one used in this work,
+Cunningham-Metris. A comparison of these methods is presented in [33]. All of them are naturally defined
+
+in ECEF coordinates, and can provide the potential and its first and second derivatives with respect to the
+ECEF Cartesian position. In order to propagate the orbital state and the state transition matrix in the
+GEqOE space one has to compute
+
+                                                      ∂2U
+                                                                                   
+                                   ∂U         ∂U                    ∂         ∂U
+                                        ,         ,          ,                       ,                     (40)
+                                  ∂rECI        ∂t     ∂r2ECI      ∂rECI        ∂t
+
+where rECI denotes the position of the propagated body expressed in the Earth-centered inertial frame
+(ECI). The first two terms in (40) appear in the equations of motion, while the other two are needed for the
+propagation of the state transition matrix.
+
+The Cartesian state vector x can be rotated from ECI to ECEF as
+                                                                   
+                                                 R(t) O3 
+                                                            
+                                        xECEF = 
+                                                
+                                                              xECI ,
+                                                             
+                                                            
+                                                  Ṙ(t) R(t)
+
+
+where R is the rotation matrix from ECI to ECEF and O3 is the 3 × 3 null matrix.
+
+
+
+
+                                                          31
+The first term in (40) is used to calculate F :
+
+                                                    ∂U      ∂U
+                                                         =        R.
+                                                   ∂rECI   ∂rECEF
+
+
+The second term can be obtained as the time derivative of U (t) = U (r ECI (t)) after expressing the ECI
+position in ECEF coordinates:
+                                              ∂U     ∂U
+                                                  =        Ṙ RT r ECEF .
+                                               ∂t   ∂rECEF
+
+The third term contributes to ∂F/∂x in Section A.5, and reads
+
+                                                  ∂2U        ∂2U
+                                                    2   = RT 2     R.
+                                                  ∂rECI     ∂rECEF
+
+
+The last term in (40), which is the first component of ∂b1 /∂x (see Sect. A.5), is given by
+
+                                                          ∂2U
+                                             
+                              ∂         ∂U                                       ∂U
+                                                  = RT           Ṙ RT r ECEF +        Ṙ.
+                            ∂rECI        ∂t              ∂r2ECEF                ∂rECEF
+
+
+
+
+                                                              32
+

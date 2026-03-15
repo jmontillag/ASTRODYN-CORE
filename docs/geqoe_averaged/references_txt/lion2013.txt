@@ -1,0 +1,829 @@
+                                             Available online at www.sciencedirect.com
+
+
+
+
+                                                 Advances in Space Research 51 (2013) 1–9
+                                                                                                                          www.elsevier.com/locate/asr
+
+
+
+
+      Two algorithms to compute Hansen-like coeﬃcients with respect
+                         to the eccentric anomaly
+                                                          G. Lion ⇑, G. Métris
+       Université de Nice Sophia-Antipolis, Centre National de la Recherche Scientiﬁque (UMR 7329), Observatoire de la Côte d’Azur, Géoazur,
+                                                     Avenue Nicolas Copernic, 06130 Grasse, France
+
+                                Received 25 May 2012; received in revised form 25 July 2012; accepted 26 July 2012
+                                                         Available online 8 August 2012
+
+
+
+
+Abstract
+
+   Considering a point of polar coordinates (r; m) on an elliptic orbit of semi-major axis a, we set up and compare two algorithms based
+                                                                                                                                n
+on recurrence relations to compute the Hansen-like coeﬃcients Z n;m   s , which are the coeﬃcients of the expansion of ðr=aÞ exp imm in
+Fourier series of the eccentric anomaly. Both Hansen-like coeﬃcients and their derivatives with respect to the eccentricity are considered,
+with a special focus on the case 0 6 jmj 6 n arising in the expression of the gravity potential due to a body external to the elliptic orbit.
+We provide two eﬃcient algorithms to compute a table of coeﬃcients with a simple recursive process. One algorithm uses some recur-
+rence relations linking directly to the Z n;m
+                                          s   whereas the other algorithm involves the generalized Laplace coeﬃcients bkp;r (Laskar, 2005).
+Numerical behavior of the algorithms is investigated for low and high eccentricities. Both algorithms provide a relative accuracy better
+than 1014 for n 6 30. Also, they are at least 10 time faster than an algorithm based on the FFT method (Klioner et al., 1997).
+Ó 2012 COSPAR. Published by Elsevier Ltd. All rights reserved.
+
+Keywords: Hansen-like coeﬃcients; Recurrence relations; Eccentric anomaly; Highly elliptical orbit; Third-body; Closed-form
+
+
+1. Introduction                                                                  The main advantage of this development is that it is
+                                                                             expressed as a function of the mean anomaly. The mean
+    The development of some functions of the Cartesian                       anomaly is time linear in case of unperturbed two-body
+coordinates in trigonometric series of angular orbital ele-                  problem and belongs to the set of Delaunay canonical vari-
+ments is a corner stone of celestial mechanics (e.g. Tisserand,              ables. Unfortunately, the convergence of this Fourier series
+1889). This is particularly useful in order to express the                   can be very slow as soon as the eccentricity of the orbit is
+disturbing function in terms of orbital elements so as to con-               no longer small. It even becomes useless when the eccen-
+struct analytical theories by means of averaging transforma-                 tricity is close to 1. In such a situation, a valuable solution
+tions. The paradigm of this problem is the use of the Hansen                 is to use ﬁnite Fourier series of the true anomaly if n 6 0
+coeﬃcients X n;m
+               s  such that                                                  (as done by Brouwer (1959) for the perturbation by the
+ r n            X1                                                         gravity potential of the central body), or ﬁnite Fourier
+       exp imm ¼      X n;m
+                        s ðeÞ exp is M;                    ð1:1Þ             series of the eccentric anomaly E if n > 0 (e.g. for the devel-
+  a              s¼1                                                        opment of the perturbation by an external body). In the
+                            pﬃﬃﬃﬃﬃﬃ
+where n and m 2 Z; i ¼ 1; r is the radius vector, a the                     latter case, the so-called Hansen-like coeﬃcients Z n;m      s
+semi-major axis, e the eccentricity, M the mean anomaly                      (Brumberg, 1995) are involved:
+and m the true anomaly.                                                       r n               X
+                                                                                                  1
+                                                                                      exp imm ¼          Z n;m
+                                                                                                           s exp is E:                            ð1:2Þ
+                                                                               a                  s¼1
+ ⇑ Corresponding author. Tel.: +33 (0)493405366; fax: +33 (0)49340
+5333.
+   E-mail addresses: Guillaume.Lion@oca.eu (G. Lion), Gilles.Metris@            We have used these coeﬃcients to develop the expression
+oca.eu (G. Métris).                                                         of the disturbing gravity potential due to an external body
+
+0273-1177/$36.00 Ó 2012 COSPAR. Published by Elsevier Ltd. All rights reserved.
+http://dx.doi.org/10.1016/j.asr.2012.07.027
+2                                     G. Lion, G. Métris / Advances in Space Research 51 (2013) 1–9
+
+as a function of the eccentric anomaly (Lion and Métris,              the classical parameters (see Tisserand, 1889) linked by the
+2011) and we are constructing an analytical theory of the              relations
+motion using this expression. This formulation has the
+                                                                              1g               2b              1  b2
+advantage to provide an exact expression without trunca-               b2 ¼       ;      e¼          ;     g¼          :           ð2:3Þ
+tion, excepted with respect to the ratio a=a0 between the sa-                 1þg             1 þ b2            1 þ b2
+tellite and the third body semi-major axes. Of course, as in           The Fourier coeﬃcients in (1.2) depend on e or b and admit
+the Brouwer’s case, the theory in closed form is more diﬃ-             an integral representation,
+cult to elaborate than a theory using truncated expressions                       Z 2p
+in mean anomaly. We will present our solution in a forth-                       1
+                                                                       Z n;m
+                                                                         s   ¼         Un;m expðisEÞdE:                     ð2:4Þ
+coming paper.                                                                  2p 0
+    When a theory using the Z n;ms  coeﬃcients has been devel-
+oped, the question of their evaluation arises. Two main                Due to the fact that m is an odd function of E, if we change
+options are possible: evaluating directly the coeﬃcients               m by m and s by s in (1.2), we get directly the symmetry:
+from their analytical expression or using recurrence rela-               n;m
+                                                                       Z s   ¼ Z n;m
+                                                                                  s ;                                              ð2:5Þ
+tions. Generally, direct expressions are faster for comput-
+ing a small number of coeﬃcients whereas recurrence                    as in the case of the classical Hansen coeﬃcients X n;m
+                                                                                                                           s .
+relations are more eﬃcient to evaluate a full table of coef-              Let us introduce the Gaussian hypergeometric series
+ﬁcients. An alternative method consists in computing the               F ða; b; c; zÞ (Abramowitz and Stegun, 1972):
+Fourier coeﬃcients by means of Fast Fourier Transform                                                      X
+                                                                                                           1
+                                                                                                             ðaÞ ðbÞ
+                                                                                                                  k    k k
+(FFT) (Klioner et al., 1997). To express the Hansen-like               F ða; b; c; zÞ ¼ F ðb; a; c; zÞ ¼                   z;      ð2:6Þ
+                                                                                                               ðcÞk ð1Þk
+coeﬃcients Z n;m
+              s , we have at our disposal their formulation
+                                                                                                           k¼0
+
+by means of hypergeometric functions (Brumberg, 1995) or               where the Pochhammer symbol ðaÞk is deﬁned for non-neg-
+by means of generalized Laplace coeﬃcients (Laskar,                    ative integers k by
+2005). To our knowledge, there are few works about recur-
+rence relations for the Z n;m
+                            s    coeﬃcients. An attempt was            ðaÞ0 ¼ 1;      ð1Þk ¼ k!;                                  ð2:7aÞ
+published by Vinh (1970) who established basic recurrence              ðaÞk ¼ aða þ 1Þ . . . ða þ k  1Þ ¼ ða þ k  1ÞðaÞk1 :    ð2:7bÞ
+formulae and presented a simple algorithm to compute the
+series expansions (1.2). However, his numerical scheme is              An important characteristic of the hypergeometric func-
+not stable for large value of m due to the divisor e.                  tions is that if a or b is a negative or null integer and
+    The aim of this article is to establish precise and explicit       c 2 N , the series (2.6) reduces to a ﬁnite polynomial.
+algorithms to compute the coeﬃcients Z n;m     and to test their       Apart from this latter case, the radius of convergence of
+                                            s
+eﬃciency. More precisely, we propose and compare two                   the hypergeometric series is 1, as this is easily seen using
+algorithms: the ﬁrst (named Z-algorithm in the following)              the d’Alembert’s criterion.
+uses some recurrence relations linking directly these coeﬃ-               A general and convenient expression for the Z-functions
+cients whereas the second algorithm (named b-algorithm)                using the hypergeometric function is given by Brumberg
+involves the generalized Laplace coeﬃcients bkp;r (Laskar,             (1995), (see Eqs. (2.3.40) and (2.3.42)). The original expres-
+2005). The paper is organized as follows. In Section 2, we             sion in terms of b can be written in the following form
+recall the expressions of the Fourier coeﬃcients Z n;m        in       Z n;m      n;m    n;m
+                                                          s              s ðbÞ ¼ As ðbÞV s ðbÞ;                                    ð2:8Þ
+terms of hypergeometric functions. We present in Section
+3 the recurrence relations used for the Z-algorithm in                 where
+Section 4 and we discuss the methods for computing deriv-                       ðn  mÞM þ ðn þ mÞM  jmsj          n
+atives. In Section 4, we focus on the computation of a table           An;m
+                                                                        s   ¼                          b      ð1 þ b2 Þ ;         ð2:9aÞ
+of coeﬃcients Z n;m     and their derivatives in the case                              ð1Þjmsj
+                    s
+0 6 jmj 6 n. Finally, the eﬃciency and the stability of the            V n;m
+                                                                         s   ¼ F ðn  m þ M þ ; n þ m þ M  ; 1 þ M þ ; b2 Þ; ð2:9bÞ
+algorithms are investigated in Section 5 for low and high
+eccentricities (e ¼ 0:01 and e ¼ 0:8) and for large indices            with M þ ¼ maxð0; m  sÞ and M  ¼ maxð0; s  mÞ.
+(0 6 n 6 30 and 0 6 m 6 n).                                               In the rest of this paper, we assume that m  s ¼
+                                                                       M þ P 0 without loss of generality. For m  s 6 0, it will
+2. Expression of Hansen-like coeﬃcients                                be necessary to change the sign of m by m and s by s
+                                                                       in the established relations (Z-indexes are not concerned
+    Let                                                                by virtue of the symmetry (2.5)).
+           r n                                                          It follows that we have always M  ¼ 0, ðn þ mÞM  ¼ 1,
+Un;m ¼             exp imm                                  ð2:1Þ      and (2.9b) takes the form
+           a
+be the elliptic motion functions and                                            ðn  mÞms ms       n
+                                                                       An;m
+                                                                        s   ¼              b ð1 þ b2 Þ ;                         ð2:10aÞ
+    pﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃ     e                                                           ð1Þms
+g ¼ 1  e2 ; b ¼          ;                                 ð2:2Þ
+                     1þg                                               V n;m
+                                                                         s   ¼ F ðn  m þ M þ ; n þ m; 1 þ M þ ; b2 Þ:         ð2:10bÞ
+                                               G. Lion, G. Métris / Advances in Space Research 51 (2013) 1–9                                           3
+
+A similar formulation of the coeﬃcients Z n;m
+                                            s is presented in                   mainly used both ﬁrst and second diﬀerential equations of
+Laskar (2005)1. The author expressed them in terms of                           the orbital Eq. (A.1). Combining them, we can establish
+generalized Laplace coeﬃcients bks;r ðbÞ so that                                from the relation (A.20) a recurrence relation with ﬁxed
+         1                                                                      indexes ðm; sÞ by replacing the coeﬃcient Z sn1;mþ1 by an
+                  n
+Z n;m
+  s   ¼ ð1 þ b2 Þ bM  nm;nþm ðbÞ;
+                       þ
+                                                                    ð2:11Þ      equivalent expression established in (A.12):
+         2
+          ðpÞ                                                                   ðn  1Þðn  sÞðn þ sÞZ sn;m ¼ ð2n  1Þ½nðn  1Þ  msgZ n1;m
+bkp;r ¼ 2 k bk F ðr; p þ k; k þ 1; b2 Þ;                            ð2:12Þ                                                              s
+           k!
+                                                                                                            nðn þ m  1Þðn  m  1Þg2 Z sn2;m :   ð3:1Þ
+with the symmetry bkp;r ¼ bk
+                           r;p .
+   An important property of these coeﬃcients is that they                       This relation may be used to determine the Z-functions
+can always be reduced to a closed form (ﬁnite polynomial).                      for which n P 2 but not for M þ > ðn  1Þ þ m P 0 (see
+According to the value of M þ and n þ m, we give below                          Section 2.2). To bypass the singularity s ¼ n, we can use
+their expression.                                                               the relations given in (3.7) and (3.8). Also, it is easy to see that
+                                                                                when m ¼ n  1 formula (3.1) reduces to
+2.1. Case n þ m P M þ
+                                                                                ðn  sÞðn þ sÞZ sn;n1 ¼ ð2n  1Þðn  sgÞZ sn1;n1                 ð3:2Þ
+   Since the ﬁrst argument ðn  m þ M þ Þ of F in (2.10b)
+                                                                                and when s ¼ n  1
+is negative or null, the formula (2.8) reduces to a ﬁnite
+polynomial.                                                                     Z n;m             n1;m
+                                                                                  n1 ¼ ðn  mgÞZ n1 :                                             ð3:3Þ
+
+2.2. Case M þ > n þ m P 0                                                       3.2. Special cases for n  m P M 
+     Since ðn  mÞM þ is zero in An;m
+                                   s , we have simply:                             The previous recurrence relations do not allow to com-
+Z n;m
+  s   ¼ 0:                                                          ð2:13Þ      pute the Fourier coeﬃcients Z n;m
+                                                                                                              s   for m ¼ n and/or s ¼ n
+                                                                                in an eﬀective manner when n  m P M  . Indeed, depend-
+                                                                                ing on the value of the eccentricity, expressions such as
+2.3. Case n þ m < 0                                                             (A.4), (A.13) and (3.8) may involve small divisors as e; g
+                                                                                or 1  g. That is why we have constructed other recurrence
+  In this case, none of the two ﬁrst arguments of (2.10b) is                    relations by choosing the indices which cancel the ﬁrst or
+negative. In order to obtain a ﬁnite polynomial in b2 , we can                  the second argument of the hypergeometric function (2.8):
+apply an Euler’s hypergeometric transformation deﬁned by
+                           cab                                                  Case m ¼ n and M  > 0
+F ða; b; c; zÞ ¼ ð1  zÞ           F ðc  a; c  b; c; zÞ:          ð2:14Þ
+Then                                                                                            nð2n  1Þ
+                                                                                Z sn;n ¼                  eZ n1;ðn1Þ :                         ð3:4Þ
+           n;m                                                                                ðn  sÞðn þ sÞ s
+Z n;m             n;m
+  s ðbÞ ¼ As ðbÞW s ðbÞ;                                            ð2:15Þ
+                                                                                  Case M  ¼ n  m ¼ 0 (i.e. m ¼ s ¼ n)
+with
+                                                                                        1 þ g n1;n1
+W n;m ¼ ð1  b2 Þ2nþ1 F ðn þ m þ 1; n  m þ 1                                   Z n;n
+                                                                                  n ¼        Z n1 ;                                                ð3:5Þ
+  s                                                                                       2
+         þ M þ ; 1 þ M þ ; b2 Þ:                                    ð2:16Þ
+                                                                                according to the symmetry property (2.5).
+Now, the ﬁrst argument ðn þ m þ 1Þ of F is negative or null.
+                                                                                  Case M  ¼ n  m > 0 (i.e. s ¼ n)
+3. Recurrence relations                                                                  e n1;m
+                                                                                Z n;m
+                                                                                  n ¼  Z ðn1Þ ;                                                 ð3:6Þ
+                                                                                         2
+   Below, we present the relations used for the Z-algo-                           n;m1      e
+                                                                                Z n ¼           Z n;m ;                                           ð3:7Þ
+rithm. Some additional recurrence relations and proofs                                     1  g n
+are given in the Appendices A, B.                                                          e
+                                                                                Z n;m
+                                                                                  n ¼        Z n;m1 :                                            ð3:8Þ
+                                                                                         1  g n
+3.1. Recurrence relations with ﬁxed ðm; sÞ
+                                                                                   Note that the two last equations can be obtained from
+  In order to obtain useful recurrence relations we have                        (A.12) by substituting s with n. Additionally, in order
+proceeded as in Brumberg and Brumberg (1999). We have                           to avoid the small divisors 1  g when the eccentricity is
+                                                                                close to 0, it is advised to use (3.7) for s ¼ n and (3.8) for
+ 1
+   We have noticed a misprint in Eq. (18), where a factor 1/2 is missing in     s ¼ n; this is achievable by using the appropriate initiali-
+the deﬁnition of bðkÞ
+                  s;r , compared to the same deﬁnition in Laskar and            zation of the recurrence.
+Robutel (1995), Eq. (43).
+4                                      G. Lion, G. Métris / Advances in Space Research 51 (2013) 1–9
+
+3.3. Derivatives                                                          Step (i): with the previous row we generate the coeﬃ-
+                                                                            cient of the column m ¼ 0 by means of (3.6):
+   A ﬁrst method to obtain the derivatives of Z n;m                               e n1;0
+                                                        s ðeÞ           Z n;0
+                                                                          n ¼  Z ðn1Þ ;                                ð4:1aÞ
+with respect to the eccentricity e consists in deriving the                       2                 n1;0
+expression (1.2) as done in Brumberg and Brumberg (1999)                dZ n;0
+                                                                             n     1 n1;0    e dZ ðn1Þ
+                                                                                ¼  Z ðn1Þ              :               ð4:1bÞ
+for the elliptic Hansen-like coeﬃcients Bn;m
+                                           s . The main draw-
+                                                                          de        2          2    de
+back of this method is the occurrence of an inﬁnite series in             Step (ii): we loop over m from 1 to n to compute all the
+the derivation of the eccentric anomaly E:                                  elements Z n;m
+                                                                                       n using relation (3.8):
+
+oE       iX 1
+                                                                        Z n;m
+                                                                                     e
+                                                                                         Z n;m1 ;
+    ¼         hr ðbÞ½exp irE  expðirEÞ;              ð3:9Þ            n ¼                                             ð4:2aÞ
+oe       2 r¼1                                                                    1 þ g n
+                                                                        dZ n;m
+                                                                            n          1                       n;m1
+                                                                                                           e dZ n
+yielding                                                                       ¼              Z n;m1               :     ð4:2bÞ
+                                                                          de        gð1 þ gÞ n          1 þ g de
+       dZ n;m
+4g2      s
+              ¼ 2neZ n;m
+                     s   þ 2ðn  2mÞZ sn;mþ1 þ 2ðn þ 2mÞZ sn;m1
+        de
+                                                                        !Case s ¼ n
+                þ ðn  mÞeZ sn;mþ2 þ ðn þ mÞeZ sn;m2
+                                                                         Step (i): in contrast to the case s ¼ n, we begin to
+                      X1
+                                                                        compute diagonal element m ¼ n, using the recurrence
+                þ 2g2 hr ðs  rÞZ n;m               n;m
+                                     sr  ðs þ rÞZ sþr ; ð3:10Þ
+                        r¼1
+                                                                          relation (3.5):
+                    2
+where hr ¼ ð1 þ b Þbr1 ; h0 ¼ 0.                                               1 þ g n1;n1
+                                                                        Z n;n
+                                                                          n ¼         Z n1 ;                                                     ð4:3aÞ
+   We note that in the third-body problem (i.e. n P                               2
+                                                                                                        n1;n1
+jmj P 0), the summation is ﬁnite. Indeed, according to                   dZ n;n
+                                                                            n        e n1;n1 1 þ g dZ n1
+                                                                                ¼  Z n1     þ                 :                                 ð4:3bÞ
+Section 2.2, if js  rj > n or js þ rj > n then the Z-functions           de        2g           2       de
+are null. However, the relation (3.10) can still involve a
+                                                                          Step (ii): using (3.7), we compute the remaining coeﬃ-
+large number of terms with ill-conditioned arithmetic.
+                                                                            cients Z n;m
+                                                                                     n   for decreasing m:
+   An alternative method is to use the same numerical
+scheme that generates the elements Z n;m       and diﬀerentiate                       e
+                                           s                            Z n;m
+                                                                          n ¼            Z n;mþ1 ;                         ð4:4aÞ
+directly each recurrence relation used in the algorithm.                           1þg n
+The corresponding relations are given in the following                  dZ n;m            1                 e dZ nn;mþ1
+                                                                            n
+                                                                                ¼              Z n;mþ1                :   ð4:4bÞ
+section for the third-body problem.                                       de         gð1 þ gÞ n           1 þ g de
+                                                                        !Case jsj < n
+4. Application to the third-body problem
+                                                                          Step (i): starting from Z sn1;n1 with s ¼ ðn  1Þ com-
+   In this section, we are interested in the computation of a
+                                                                           puted in the previous cases, we iterate with (3.4) over
+table of numerical Hansen-like coeﬃcients for the case
+                                                                           the elements of the diagonal m ¼ n:
+0 6 jmj 6 n with 0 6 n 6 N and N 2 N. These coeﬃcients
+may be used in the theory of artiﬁcial satellite to expand              ðn  sÞðn þ sÞZ sn;n1 ¼ ð2n  1Þðn  sgÞZ sn1;n1 ;                      ð4:6aÞ
+                                                                                                                                            
+the perturbing potential due to a third body.                                         dZ n;n1                e                   dZ n1;n1
+                                                                        ðn  sÞðn þ sÞ s        ¼ ð2n  1Þ s Z sn1;n1 þ ðn  sgÞ s          :    ð4:6bÞ
+   Two eﬃcient algorithms free of singularities or small                                   de                 g                       de
+divisors are described below. We also furnish relations to                Step (ii): we determine the subdiagonal coeﬃcient Z n;n1
+                                                                                                                               s
+compute the derivatives dZ n;m  s =de. These relations are                 through relation (3.2):
+obtained by direct derivation of the recurrence relations.
+                                                                        ðn  sÞðn þ sÞZ sn;n1 ¼ ð2n  1Þðn  sgÞZ sn1;n1 ;                      ð4:6aÞ
+                                                                                                                                         
+4.1. The Z-algorithm                                                                  dZ n;n1                e                dZ n1;n1
+                                                                        ðn  sÞðn þ sÞ s        ¼ ð2n  1Þ s Z sn1;n1 þðnsgÞ s           :      ð4:6bÞ
+                                                                                           de                 g                    de
+
+   The algorithm presented below is based on the recur-                   Step (iii): since we know the coeﬃcients Z sn1;m and
+rence relations between the Hansen-like coeﬃcients Z n;m    s              Z sn2;m , we determine all the elements Z n;m
+                                                                                                                      s   for m running
+established in Section 3. At ﬁrst, we compute all elements                 over values from n  2 to 0 by means of (3.1):
+for which s ¼ n. These latter are then used to initialize
+                                                                        ðn  1Þðn  sÞðn þ sÞZ sn;m ¼ ð2n  1Þ½nðn  1Þ  msg
+the recurrence relations to compute the remaining coeﬃ-
+cients for which jsj < n. We recall that only the coeﬃcients             Z sn1;m  nðn þ m  1Þðn  m  1Þg2 Z sn2;m ;                         ð4:7aÞ
+for which jsj 6 n are non-null in our situation. The numer-                                   dZ n;m
+                                                                        ðn  1Þðn  sÞðn þ sÞ s
+ical scheme is illustrated in Fig. 1. The procedure is initial-                                de
+ized with Z 0;0             0;0                                                          e n1;m                       dZ n1;m
+            0 ¼ 1 and dZ 0 =de ¼ 0. The main loop n runs                ¼ ð2n  1Þ ms Z s        þ ðnðn  1Þ  msgÞ s
+from 1 to N and the sequence of relations to be used                                     g                                de
+                                                                                                                         n2;m
+                                                                                                                                
+depends on the values of s.                                                                                          2 dZ s
+                                                                        þ nðn þ m  1Þðn  m  1Þ 2eZ n2;m
+                                                                                                         s        g              :               ð4:7bÞ
+   !Case s ¼ n                                                                                                           de
+                                            G. Lion, G. Métris / Advances in Space Research 51 (2013) 1–9                                           5
+
+
+
+
+Fig. 1. Numerical scheme to generate an array of coeﬃcients Z n;m
+                                                              s   with a recursive process depending on the value of s. Dashed, dashed-dotted and solid
+lines correspond to steps (i), (ii) and (iii), respectively.
+
+
+
+
+We note that for jsj > n  2 the coeﬃcient Z sn2;m is null.                  bkp;p ¼ bkpþ1;p  bbk1
+                                                                                                  pþ1;p ;                                     ð4:11aÞ
+                                                                              dbkp;p       dbkpþ1;p        dbk1
+                                                                                                             pþ1;p
+  Here, the number of non-zero coeﬃcients of a Z-table is                              ¼              b              bk1
+                                                                                                                        pþ1;p :               ð4:11bÞ
+ðN þ 1ÞðN þ 2Þð4N þ 3Þ=6.                                                      db            db              db
+                                                                               Step (ii): we loop over r and k to compute all the ele-
+4.2. The b-algorithm                                                            ments with ﬁxed p thanks to the relation (4.8):
+
+     Our second algorithm uses two recurrence relations                       bkp;r ¼ bkp;rþ1  bbkþ1
+                                                                                                  p;rþ1 ;                                     ð4:12aÞ
+already known between generalized Laplace coeﬃcients                          dbkp;r dbkp;rþ1    dbkþ1
+                                                                                                   p;rþ1
+bkp;r and published in Laskar (2005). Since the Z n;m   are con-                    ¼         b          bkþ1
+                                                                                                            p;rþ1 :                           ð4:12bÞ
+                                                     s                         db     db          db
+nected to the bkp;r via (2.11), the simplest idea is to compute
+a table of generalized Laplace coeﬃcients and translate                        Step (iii): once the b-table is generated, we translate bkp;r
+them into Hansen-like coeﬃcients. To this end, it is enough                     into Z n;m
+                                                                                       s :
+to use the relations (21) and (22) of the author, respectively,                       1
+                                                                              Z n;m
+                                                                                s   ¼ ð1 þ b2 Þn bsm
+                                                                                                   nþm;nm ðbÞ;                           ð4:13aÞ
+bkp;r ¼ bkp;rþ1  bbkþ1                                           ð4:8Þ               2
+                    p;rþ1 ;                                                                                                   sm       
+                                                                              dZ n;m   1     1              b                dbnþm;nm
+bkp;r ¼ bkpþ1;r  bbk1                                           ð4:9Þ
+                                                                                  s
+                                                                                     ¼               2n         bsm      þ               ;ð4:13bÞ
+                    pþ1;r :
+                                                                                               2 n             2 nþm;nm
+                                                                                db     2 ð1 þ b Þ        1þb                     db
+There is a linear correspondence between the sets of indices                  dZ n;m
+                                                                                 s     1 ð1 þ b2 Þ2 dZ n;m
+                                                                                                       s        1    dZ n;m
+                                                                                                                        s
+                                                                                     ¼                     ¼                :                  ð4:13cÞ
+ðn; m; sÞ for the Z-functions and the sets of indices ðp; r; kÞ                de      2 1  b2      db      gð1 þ gÞ db
+for the b-functions. Indeed, we have
+8                     8
+< p ¼ n  m          < n ¼ ðp þ rÞ=2;                                          Note that to generate a Z-table, this algorithm requires
+   r ¼ n þ m () m ¼ ðp  rÞ=2;                       ð4:10Þ                 to compute ðN þ 1Þ ½ðN þ 2Þð4N þ 3Þ=6þN ð2N þ 1Þ=3
+:                     :
+   k ¼ms               s ¼ ðp  rÞ=2  k:                                   non-zero b-elements. This is much more that the Z-algo-
+                                                                              rithm, however, the number of operations within the loops
+Since we are interested only in the coeﬃcients Z n;m     s  for               is considerably reduced in this second algorithm.
+which n P jmj P 0, we deduce that p 6 0 and r 6 0. In this
+case, according to the relation (17) from Laskar (2005), the                  5. Numerical tests
+bkp;r are the coeﬃcients of Laurent polynomial in zk such
+that r 6 k 6 p. Consequently, the Laplace coeﬃcients                            In order to investigate the eﬃciency of both numerical
+are null for k < r 6 0 or k > p P 0.                                         schemes, we have implemented them in Matlab 7.12
+     In order to generate coeﬃcients from low to high values                  (R2011a) using double-precision ﬂoating-point arithmetic
+of jpj from the relations (4.8) and (4.9), we have chosen a                   and we have compared the results to a reference considered
+sequence of nested loops such that p goes from 0 to N ; r                    as exact. This reference has been computed under the com-
+from p to 2N  p and k from r to p. This conﬁguration                       puter algebra system (CAS) Maple 15: for each set (n; m; s),
+permits to construct a simple and very stable numerical                       we have simpliﬁed and reduced the exact analytic expres-
+scheme. This one is initialized with b00;0 ¼ 2; db00;0 =db ¼ 0.               sion of the Z-functions before their numerical calculation
+  Step (i): if p ¼ 0 we go to step (ii), else we initialize all              with 32-digit. Therefore, the round-oﬀ errors are consid-
+     bkp;p for which p 6 1 using (4.9):                                      ered insigniﬁcant compared to the expected errors of
+6                                                 G. Lion, G. Métris / Advances in Space Research 51 (2013) 1–9
+
+                                             m                                                                  m
+                       0    5       10       15       20       25       30                   0   5      10      15      20      25       30
+                  0                                                          −14.6       0                                                    −14.4
+
+
+
+                                                                                                                                              −14.6
+                  5                                                          −14.8       5
+
+
+                                                                                                                                              −14.8
+                  10                                                         −15         10
+
+                                                                                                                                              −15
+                  15                                                         −15.2       15
+              n
+
+
+
+
+                                                                                     n
+                                                                                                                                              −15.2
+
+                  20                                                         −15.4       20
+                                                                                                                                              −15.4
+
+
+                  25                                                         −15.6       25
+                                                                                                                                              −15.6
+
+
+                  30                                                         −15.8       30                                                   −15.8
+
+                                         (a) e = 0.01                                                        (b) e = 0.8
+Fig. 2. Decimal logarithm of the RMS values over the index s of the relative error of coeﬃcients Z n;m
+                                                                                                   s   for the whole set ðn; mÞ and e ¼ 0:01;         e ¼ 0:8. The
+coeﬃcients are evaluated using the Z-algorithm.
+
+
+
+recursive computation using standard double-precision                                   Fig. 3(b) evidences two points with larger errors corre-
+(64-bit arithmetic). For each test, we have computed the                             sponding to the derivatives dZ 21;17             21;13
+                                                                                                                      13 =de and dZ 17 =de. There
+quadratic mean (RMS) over the indice s of the relative                               is no deep reason for this. We suppose this is due to partic-
+error:                                                                               ular circumstances leading to the quasi-compensation of
+              vﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃ
+                                                                    !2
+              u                                                                      the two additive terms in the formula (4.7b). Anyway,
+              u 1 X             n
+                                                Z  n;m
+RMSðn; mÞ ¼ t                           1  n;m
+                                                   s;recurrence
+                                                                          ; ð5:1Þ    the relative error remains smaller than 1012 ; moreover,
+                 2n þ 1 s¼n                     Z s;reference                       these “hot spots” do not appear when we plot RMS of
+                                                                                     the absolute errors.
+where Z n;m
+         s;recurrence denotes the value evaluated by means of                           Also, we have noticed that the use of the expression (3.10)2
+the tested algorithm and Z n;m  s;reference denotes the value com-                   lead to RMS errors of up to 0.01 for e ¼ 0:8 and n ¼ 30
+puted with Maple as explained above.
+                                                                                     (growing for larger values of the eccentricity and n). The main
+   Numerical tests have been performed for one small and
+                                                                                     error term comes from the summation over s, which may
+one large eccentricity: e ¼ 0:01 and e ¼ 0:8 respectively.
+                                                                                     require up to 2n subtractions and additions of small and large
+   We have plotted on Fig. 2 RMSðn; mÞ corresponding to
+                                                                                     terms, causing signiﬁcant numerical round-oﬀ errors.
+the Z-algorithm for all set ðn; mÞ. As expected, this numer-
+                                                                                        We have also compared our algorithms with the Fast
+ical scheme preserves accuracy and is stable. Other tests
+                                                                                     Fourier Transform (FFT) method as proposed by Klioner
+have shown excellent results for any eccentricity 0 6 e < 1
+                                                                                     et al. (1997). The results are plotted on Fig. 4 for n ¼
+with RMS that did not exceed 1014 .
+                                                                                     m ¼ 10 versus s, respectively for an eccentricity e ¼ 0:01
+   Concerning the b-algorithm, similar results have been
+                                                                                     and e ¼ 0:8.
+obtained in terms of accuracy, but, even if it is not a limit-
+                                                                                        Both methods give very accurate results. However, we
+ing factor today, it requires more storage space. In terms of
+                                                                                     have noted diﬀerent behaviors of the errors resulting from
+CPU time, the performance of both algorithms are very
+                                                                                     the two processes. With our numerical schemes, the relative
+close to each other.
+                                                                                     error is almost the same for all coeﬃcients (slightly less
+   Note that similar results may be obtained using the
+                                                                                     than 1015 ), whatever their absolute value. On the contrary,
+hypergeometric expressions of Brumberg and Brumberg
+                                                                                     with the FFT, the absolute error is the same for all coeﬃ-
+(1999) recalled in Section 2. However, if the aim is to tab-
+                                                                                     cients, amounting to about 1016  E, where E is the total
+ulate values of Z n;m s ðeÞ, these methods are very time-con-                        energy of the original signal; this is fully consistent with the
+suming. The CPU performance gain with the Z-algorithm
+                                                                                     fact that Fourier coeﬃcients are linear combinations of the
+compared to the evaluation of explicit formulae (both
+                                                                                     initial function taken at diﬀerent moments.
+evaluation being performed under Matlab this time) is 9
+                                                                                        In terms of CPU time, Z-algorithm and b-algorithm are
+for N ¼ 5; 12 for N ¼ 10; 15 for N ¼ 20 and 20 for N ¼ 30.
+                                                                                     very close to each other. If we look the numerical schemes
+   In the same manner, we have represented on Fig. 3 the
+RMS of the residuals for the ﬁrst derivatives using the rela-
+tions presented in Section 4. Globally, we can see that the                              2
+                                                                                         For m ¼ n and m ¼ n  1, because the coeﬃcients Z n;nþ2 and Z n;nþ1 in
+                                                                                                                                            s          s
+numerical scheme is accurate and stable for low and large                            the right-hand side are not computed in our algorithms, we evaluate them
+eccentricities.                                                                      by means of an explicit formula.
+                                                               G. Lion, G. Métris / Advances in Space Research 51 (2013) 1–9                                                                            7
+
+                                                          m                                                                                        m
+                             0           5     10         15          20         25        30                          0         5     10          15        20         25           30
+                       0                                                                           −14.6         0                                                                         −12.5
+
+
+
+                       5                                                                           −14.8         5                                                                         −13
+
+
+
+                                                                                                                                                                                           −13.5
+                   10                                                                              −15         10
+
+
+                                                                                                                                                                                           −14
+                   15                                                                              −15.2       15
+            n
+
+
+
+
+                                                                                                           n
+                                                                                                                                                                                           −14.5
+                   20                                                                              −15.4       20
+
+                                                                                                                                                                                           −15
+
+                   25                                                                              −15.6       25
+
+                                                                                                                                                                                           −15.5
+
+                   30                                                                              −15.8       30
+
+                                                     (a) e = 0.01                                                                                (b) e = 0.8
+Fig. 3.Decimal logarithm of the RMS values over the index s of the relative error of coeﬃcients dZ n;m
+                                                                                                   s =de for the whole set ðn; mÞ and e ¼ 0:01;                                                    e ¼ 0:8.
+The derivatives are evaluated using the Z-algorithm.
+
+
+                                     0                                                                                       5
+
+
+                                   −10
+                  ⏐
+
+
+
+
+                                                                                                           Δ⏐ Zn,m ⏐
+
+
+
+                                                                                                                             0
+              n,m
+              s
+
+
+
+
+                                                                                                                 s
+
+
+
+
+                                                                                                                                                             FFT
+                ⏐ and log10 Δ⏐ Z
+
+
+
+
+                                   −20                                                                                                                       Z−algorithm
+                                                                                                                            −5                               b−algorithm
+                                                                                                                 10
+                                                                                                           ⏐ and log
+
+
+
+
+                                                                                                                                                             Abs. err. FFT
+                                   −30
+                                                                                                                                                             Abs. err. Z−algorithm
+                                                                                                                           −10                               Abs. err. b−algorithm
+                                   −40
+                                                                           FFT
+              n,m
+
+
+
+
+                                                                                                           n,m
+
+
+
+
+                                                                           Z−algorithm                                     −15
+                log10 ⏐ Zs
+
+
+
+
+                                                                                                           ⏐ Zs
+
+
+
+
+                                   −50                                     b−algorithm
+                                                                                                                 10
+
+
+
+
+                                                                           Abs. err. FFT
+                                                                                                               log
+
+
+
+
+                                                                           Abs. err. Z−algorithm                           −20
+                                   −60
+                                                                           Abs. err. b−algorithm
+
+                                   −70                                                                                     −25
+                                         −10        −5            0               5             10                               −10        −5           0               5                10
+                                                                  s                                                                                      s
+
+                                                         (a) e = 0.01                                                                             (b) e = 0.8
+Fig. 4.Illustration of the behavior of Z n;m
+                                         s and their absolute error computed with FFT in Matlab and our numerical schemes for n ¼ m ¼ 10. Results for the
+Z-algorithm and b-algorithm are similar. Missing markers (plus sign, diamond and x-mark) correspond to a value of the absolute error equals to zero.
+
+
+of the two algorithms, it is clear that the b-algorithm                                                    algorithm uses directly relations between the coeﬃcients
+requires less elementary operations than the Z-algorithm.                                                  Z n;m
+                                                                                                             s , and the other makes use of the relation between Z s
+                                                                                                                                                                       n;m
+                                                                                                                                                    k
+Conversely, the b-algorithm requires more memory access                                                    and generalized Laplace coeﬃcients bp;r which are them-
+due to the fact that we need to allocate two tables: one                                                   selves computed by means of recurrence relations. Numeri-
+for the computation of the b-functions and the other for                                                   cal tests have shown that both algorithms are very stable
+the Z-functions. Compared to the FFT, we have noted that                                                   and accurate for any value of the eccentricity. They have sim-
+the recursive methods are 10–100 times faster than the FFT                                                 ilar performance in terms of CPU time but they are much fas-
+method, whatever the size of the table. These results are                                                  ter than a computation based on FFT.
+roughly the same whatever the eccentricity.                                                                    The Z n;m
+                                                                                                                     s   are precisely the coeﬃcients involved in the
+                                                                                                           expansion of the disturbing potential due to a third body,
+6. Conclusion                                                                                              in Fourier series of the eccentric anomaly (Lion and
+                                                                                                           Métris, 2011). We are developing an analytical theory for
+   We have obtained and tested two algorithms using recur-                                                 the third body perturbation valid for high eccentricities
+rence relations to compute the Hansen-like coeﬃcients Z n;m
+                                                        s                                                  which uses this expansion.
+which are the coeﬃcients of the Fourier expansion of                                                           Source codes in Fortran 90, Matlab and Maple are
+ðr=aÞn exp imm in multiple of the mean anomaly. The ﬁrst                                                   available on request to the ﬁrst author.
+8                                          G. Lion, G. Métris / Advances in Space Research 51 (2013) 1–9
+
+Appendix A. Proof of the recurrence relations                               By identiﬁcation with the direct derivation of (1.2), one
+                                                                            ﬁnds
+   In this section, we establish some of the recurrence
+relations used in the Z-algorithm. The method (see e.g.                     ðn þ gsÞZ n;m
+                                                                                      s   ¼ neZ sn;mþ1 þ ðn þ mÞg2 Z sn1;m                       ðA:11Þ
+Brumberg and Brumberg, 1999) consists in converting into
+a recursive form the expression of the ﬁrst and second deriv-               or equivalently
+ative of the orbital equation:                                              neZ n;m ¼ ðn þ m  1Þg2 Z sn1;m1  ðn þ sgÞZ sn;m1 :                ðA:12Þ
+                                                                                s
+             2
+r     g
+  ¼                                                             ðA:1Þ
+a 1 þ e cos m                                                               Finally, substituting g2 Z sn1;m1 with the help of (A.3) leads
+and then, combining them together.                                          to the recursive form with ﬁxed ðn; sÞ:
+                                                                                       e                                         e
+                                                                            ðn  m þ 1Þ Z n;m ¼ ðm  1  sgÞZ n;m1 þ ðn þ m  1Þ Z n;m2 :         ðA:13Þ
+                                                                                       2 s                    s
+                                                                                                                                 2 s
+A.1. Preliminary relations
+
+   Eq. (A.1) can be rewritten in exponential form as                        A.3. Recurrence relations with ﬁxed ðm; sÞ
+     r e r
+g2 ¼ þ       ½exp im þ expðimÞ:                    ðA:2Þ                    Second derivative of (2.1) with respect to eccentric
+     a 2a
+                                                                            anomaly E gives
+Multiplying both sides by ðr=aÞn exp imm and using the
+                                                                             d2 h r n        i   d2  r n          r n1 dm d  r 
+deﬁnition (1.2) we obtain                                                      2
+                                                                                  a
+                                                                                        exp imm ¼    2
+                                                                                                              þ 2inm
+                                                                                                                               dE dE a
+                                                                            dE                    dE a                 a
+                                                                                                                                      #
+                     e                                                                                r n  dm 2       r  n d2 m
+g2 Z n;m
+     s   ¼ Z snþ1;m þ Z snþ1;mþ1 þ Z snþ1;m1 :  ðA:3Þ                                           m2                þ im                exp imm:    ðA:14Þ
+                     2                                                                                 a     dE            a dE2
+Changing indices n by n  1 and m by m  1, one gets
+                                                                            The ﬁrst term in the right-hand side can be computed as
+eZ n;m
+   s   ¼ 2 g2 Z sn1;m1  Z sn;m1  eZ sn;m2 :               ðA:4Þ
+                                                                            follows:
+This relation can be used to go from low to high indices                     d2  r n    d     r n1 d  r         r n1 d2  r 
+m P 2 in the case n P 1 but it involves division by the                                ¼     n                  ¼   n
+                                                                            dE2 a        dE     a       dE a           a      dE2 a
+eccentricity which may lead to a loss of accuracy in case
+                                                                                                      r n2 d  r  2
+of small eccentricity. As we will see in the following section,
+                                                                                         þ nðn  1Þ                      :             ðA:15Þ
+this relation can be combined with other relations in order                                           a       dE a
+to avoid division by small divisors.
+   We note that from the relation                                           Hence, expressing each terms of (A.14) in function of r=a; e
+r                                                                           and exp im as
+  ¼ 1  e cos E                                          ðA:5Þ
+a                                                                            d2  r n                 r n2             r n1    r n
+                                                                               2
+                                                                                       ¼ n ðn  1Þg2          þ ð2n  1Þ          n       ;      ðA:16Þ
+we get                                                                      dE a                       a                   a          a
+                     e n1;m     n1;m                                          dm d  r            a
+Z n;m ¼ Z sn1;m      Z     þ Z sþ1   :                        ðA:6Þ       i              ¼ 1  g2      þ e exp im;                               ðA:17Þ
+  s
+                     2 s1                                                      dE dE a               r
+
+                                                                                d2 m       d a      a2             a2 a
+A.2. Recurrence relations with ﬁxed ðn; sÞ                                  i      2
+                                                                                     ¼ ig        ¼ ig     e sinE ¼ g2         ð1 þ e expimÞ; ðA:18Þ
+                                                                                dE        dE  r        r                r    r
+                                                                            we get
+   Diﬀerentiating (2.1) with respect to the eccentric anom-
+aly E yields                                                                d2 Un;m 
+                                                                                   ¼ ðnþm1ÞðnþmÞg2 Un2;m þð2n1ÞðnþmÞUn1;m
+dUn;m       r n1 d  r       r n dm                                    dE2                                 
+      ¼ n                   þ im          exp imm:     ðA:7Þ                        þmð2n  1ÞeUn1;mþ1  n2 Un;m :      ðA:19Þ
+ dE          a     dE a          a dE
+Expanding the terms inside the bracket in function of r=a; e                In accordance with (1.2), we obtain a new recurrence
+and exp im as                                                               relation,
+   d r  1 r                                                                                                                            
+i         ¼    ð1 þ e exp imÞ  g;                    ðA:8Þ                 ðn þ sÞðn  sÞZ n;m ¼ ð2n  1Þ ðn þ mÞZ sn1;m þ meZ sn1;mþ1
+  dE a      ga                                                                              s
+ dm      a                                                                                                ðn þ m  1Þðn þ mÞg2 Z sn2;m :         ðA:20Þ
+     ¼g ;                                             ðA:9Þ
+ dE      r
+we obtain                                                                   Finally, we obtain the relation recurrence (3.1) with ﬁxed
+    dUn;m                                                                 indexes ðm; sÞ by replacing the coeﬃcient Z sn1;mþ1 by the
+g         ¼ i nðUn;m þ eUn;mþ1 Þ þ ðn þ mÞg2 Un1;m :          ðA:10Þ      equivalent expression established in (A.12).
+     dE
+                                                 G. Lion, G. Métris / Advances in Space Research 51 (2013) 1–9                                               9
+
+Appendix B. Other recurrence relations                                              Additionally, combining relations (4.8)-(4.9) after
+                                                                                  changing r by r  1 yields
+B.1. Special cases for m < n, when M  P 0                                                 n;mþ1
+                                                                                  Z n;m
+                                                                                    s   ¼ Z sþ1   þ b Z n;m     n;mþ1
+                                                                                                        sþ1  Z s     ;                                  ðB:6Þ
+   We give here other recurrence relations to compute the                         or changing p by p  1:
+Z-functions using the formula (2.15) for m < n, when                                       n;m1
+                                                                                  Z n;m ¼ Z s1   þ b Z n;m     n;m1
+                                                                                                        s1  Z s     :                                  ðB:7Þ
+M  P 0.                                                                            s
+
+
+
+ m ¼ ðn þ 1Þ and M  > 0                                                        References
+                         2
+                 1þb
+Z sn1;n ¼ b                2
+                                 Z sn;ðnþ1Þ :                         ðB:1Þ      Abramowitz, M., Stegun, I.A. Handbook of Mathematical Functions with
+                ð1  b2 Þ                                                            Formulas, Graphs, and Mathematical Tables. Wiley–Interscience,
+                                                                                     New York, 1972.
+ M  ¼ m  n  1 ¼ 0 (i.e. m ¼ s ¼ ðn þ 1))                                    Brouwer, D. Solution of the problem of artiﬁcial satellite theory without
+                     2                                                               drag. Astron. J. 64, 378, 1959.
+  n;nþ1     ð1  b2 Þ n1;n                                                       Brumberg, V.A. Analytical Techniques of Celestial Mechanics. Springer,
+Z nþ1   ¼            Zn :                                              ðB:2Þ
+             1 þ b2                                                                  1995.
+                                                                                  Brumberg, V.A., Brumberg, E.V. Celestial Dynamics at High Eccentric-
+ s ¼ ðn þ 1Þ and M  > 0                                                           ities. Advances in Astronomy and Astrophysics, vol. 3. Gordon and
+                                                                                     Breach, 1999.
+  n1;m     2nð2n þ 1Þ bð1 þ b2 Þ n;m                                             Klioner, S.A., Vakhidov, A.A., Vasiliev, N.N. Numerical computation of
+Z n    ¼                          Z       ;                           ðB:3Þ
+          ðn  mÞðn þ mÞ ð1  b2 Þ2 ðnþ1Þ                                           Hansen-like expansions. Celest. Mech. Dynam. Astron. 68, 257–272,
+             nþm                                                                     1997.
+Z n;m
+  ðnþ1Þ ¼          b1 Z ðnþ1Þ
+                          n;m1
+                                 :                                     ðB:4Þ      Laskar, J., Robutel, P. Stability of the planetary three-body problem. I.
+           nmþ1                                                                     Expansion of the planetary Hamiltonian. Celest. Mech. Dynam.
+                                                                                     Astron. 62, 193–217, 1995.
+                                                                                  Laskar, J. Note on the generalized Hansen and Laplace coeﬃcients.
+B.2. Some recurrence relations from Laskar (2005) In
+                                                                                     Celest. Mech. Dynam. Astron. 91, 351–356, 2005.
+order to complete the recurrence relations with two ﬁxed                          Lion, G., Métris, G. Development of techniques to study the dynamic of
+indexes, we present a relation for ﬁxed ðn; mÞ obtained after                        highly elliptical orbits, in: G. Alecian, K. Belkacem, R. Samadi, D.
+translating into Z-functions the Eq. (27) in Laskar (2005):                          Valls-Gabaud (Eds.), SF2A-2011: Proceedings of the Annual Meeting
+                                                                                     of the French Society of, Astronomy and Astrophysics, pp. 673–677,
+                                                                                     2011.
+                                 2                                                Tisserand, F. Traité de mécanique céleste, Tome 1. Gauthier-Villars et ﬁls,
+ðn þ sÞZ n;m
+         s   ¼ ðn  s þ 2ÞZ n;m                   n;m
+                            s2 þ ½ðs  1Þ  gmZ s1 :                ðB:5Þ         Paris, 1889.
+                                 e
+                                                                                  Vinh, N.X. Recurrence formulae for the Hansen’s developments. Celest.
+This relation is convenient for s P 2 (and s 6 0 after                               Mech. 2, 64–76, 1970.
+replacing s by s þ 2) but is degenerated for e ¼ 0. Note that
+it is not used in the algorithms given in Section 4 and is
+only given for completeness.
+

@@ -1,0 +1,1915 @@
+arXiv:1912.00795v3 [physics.class-ph] 22 Jan 2020
+
+
+
+
+                                                         Uniform formulation for orbit computation:
+                                                                 the intermediate elements
+                                                                              Giulio Baù∗               Javier Roa†
+
+
+                                                                                             Abstract
+                                                               We present a new method for computing orbits in the perturbed two-
+                                                           body problem: the position and velocity vectors of the propagated object
+                                                           in Cartesian coordinates are replaced by eight orbital elements, i.e. con-
+                                                           stants of the unperturbed motion. The proposed elements are uniformly
+                                                           valid for any value of the total energy. Their definition stems from the
+                                                           idea of applying Sundman’s time transformation in the framework of the
+                                                           projective decomposition of motion, which is the starting point of the
+                                                           Burdet–Ferrándiz linearisation, combined with Stumpff’s functions. In
+                                                           analogy with Deprit’s ideal elements, the formulation relies on a special
+                                                           reference frame that evolves slowly under the action of external perturba-
+                                                           tions. We call it the intermediate frame, hence the name of the elements.
+                                                           Two of them are related to the radial motion, and the next four, given by
+                                                           Euler parameters, fix the orientation of the intermediate frame. The total
+                                                           energy and a time element complete the state vector. All the necessary
+                                                           formulae for extending the method to orbit determination and uncertainty
+                                                           propagation are provided. For example, the partial derivatives of the po-
+                                                           sition and velocity with respect to the intermediate elements are obtained
+                                                           explicitly together with the inverse partial derivatives. Numerical tests
+                                                           are included to assess the performance of the proposed special perturba-
+                                                           tion method when propagating the orbit of comets C/2003 T4 (LINEAR)
+                                                           and C/1985 K1 (Machholz).
+
+
+                                                    1      Introduction
+                                                    Stumpﬀ (1947, 1962) devised a method to represent the solution of the two-
+                                                    body problem at any time t from the position (r0 ) and velocity (ṙ0 ) at some
+                                                    reference epoch t0 (see also Stumpﬀ, 1959, vol. 1, chap. V). His formulation is
+                                                    very attractive because it is the same for all types of orbits including those that
+                                                    are rectilinear. For this reason, the coordinates of r0 , ṙ0 are commonly referred
+                                                    to as universal variables (or elements). Stumpﬀ introduced a new independent
+                                                        ∗ Department of Mathematics, University of Pisa, Largo Pontecorvo 5, 56127, Pisa, Italy
+                                                      † Jet Propulsion Laboratory, California Institute of Technology, 4800 Oak Grove Drive,
+
+                                                    Pasadena, CA 91109, USA
+
+
+
+
+                                                                                                  1
+variable, here denoted by χ, through the time transformation (he assumed µ =
+1)
+                         dt     r
+                             = √ , µ = k 2 (m + M ),                      (1)
+                         dχ      µ
+where k 2 is the gravitational constant and M , m are the masses of the two
+bodies. Equation (1) together with the Keplerian energy integral produce a
+third-order linear diﬀerential equation with constant coeﬃcients for the orbital
+distance r and the Lagrangian functions. Then, a unique solution for any type
+of conic section can be written in terms of the constants of the motion r0 , ṙ0
+and Stumpff ’s functions cn (see Eq. 12). Inserting the solution r(χ) in the
+right-hand side of Eq. (1) and integrating with the initial condition χ(t0 ) = 0,
+he obtained the generalised form of Kepler’s equation, from which the value of
+χ corresponding to t can be determined by an iterative algorithm.
+    Samuel Herrick was among the ﬁrst to get interested in Stumpﬀ’s work.
+Since the mid 1940s, he devoted his eﬀorts to improving orbit computation for
+near parabolic and near rectilinear motion (Herrick, 1945, 1953). His universal
+formulae of the two-body problem (Herrick 1960, sect. 6P; Herrick 1965) are
+simpler and more convenient than those proposed by Stumpﬀ. The same for-
+mulation was presented by Wong (1962) and a similar version by Battin (1964,
+sect. 2.8). Herrick’s method relying on universal variables, which is nowadays
+regarded as the classic solution, uses a universal anomaly deﬁned by the dif-
+ferential relation (1). Herrick (1965) showed alternative forms of the universal
+variables, by introducing two arbitrary parameters. One of them √        allows for a
+more general deﬁnition of the universal anomaly, given by ψ = χ/ β. Among
+the six diﬀerent choices for β that are considered, two deserves special attention:
+if we set β = (t − t0 )2 /r02 then Stumpﬀ’s form is obtained; the choice β = µ,
+                                                             √
+proposed by Goodyear (1965, 1966), makes the term µ disappear from the
+formulation, so repulsive forces can be taken into account.
+    The derivations of Pitkin (1965)1 , Sconzo (1967), and Everhart and Pitkin
+(1983) put in result the regularising role of the universal anomaly. By applying
+the time transformation (1) and taking advantage of the conservation of the
+energy, a third-order linear diﬀerential equation with constant coeﬃcients can
+be obtained for the position vector r (see Battin, 1999, sect. 4.5). In particular,
+following more closely Stumpﬀ’s original approach, Sconzo (1967) showed that
+Stumpﬀ’s functions can be introduced in a straightforward way if the solution
+is represented via Taylor series.
+    The universal elements r0 , ṙ0 can also describe rectilinear orbits, but the
+formulae that relate them to r, ṙ lose their meaning when the radial distance
+becomes zero, that is, when the body collides with the centre of attraction. In
+order to mitigate the loss of accuracy that occurs close to the singularity, Pitkin
+                                           √             √
+(1965) suggested replacing r0 , ṙ0 by r0 / r0 , r0 ṙ0 / µ, respectively.
+    The variation of parameters equations for the universal variables r0 , ṙ0 were
+ﬁrst given by Wong (1962) and later by Herrick (1965, 1971, sect. 16J) and
+  1 Pitkin (1965) calls universal variables the functions U = χn c , which will be defined in
+                                                           n      n
+Eq. (11) and named universal functions.
+
+
+                                             2
+Pitkin (1966) in a more suitable form for computer programming. The latter
+presented some numerical tests with low-thrust trajectories.
+    This special perturbation method has two drawbacks from the perspective
+of numerical integration. First, the variable χ must be obtained at each step
+by solving the universal Kepler equation with an iterative method. Moreover,
+the time derivatives of r0 , ṙ0 contain secular terms in the variable χ. To solve
+this second problem, Born et al (1974) allowed t0 to vary in a prescribed way
+instead of keeping it constant throughout the propagation as in Herrick’s vari-
+ation of parameters method. However, one additional diﬀerential equation is
+required to compute χ, and the time derivatives of both t0 and χ are aﬀected by
+secular terms. In fact, their elimination is not possible without compromising
+the universality of the formulation (see Battin, 1999, sect. 10.7).2
+    There are other notable sets of elements that are universal, i.e. well deﬁned
+for any motion with the only possible exception of the case r = 0. They are
+related to the regularisations due to Sperling (1961), Kustaanheimo and Stiefel
+(1965, hereafter KS), and to the linearisation method shown by Burdet (1969).
+    The natural elements were derived by Burdet (1968) from Sperling’s regular-
+isation. Sperling (1961) found that it is possible to write a second-order linear
+diﬀerential equation not only for the orbital radius r but also for the position
+vector r if the eccentricity vector and the energy integral are both embedded in
+the equation of motion resulting from the change of independent variable (1).
+The solutions r(χ), r(χ), t(χ) are then expressed in terms of the natural ele-
+ments and the special functions cn (Eq. 12) originally introduced by Stumpﬀ.
+The new formulation is universal, and it is valid even for r = 0. Burdet de-
+rived also the formulae for computing the variation of the natural elements with
+respect to the anomaly χ.
+    The general solution of the KS regularised equations in terms of Stumpﬀ’s
+functions was presented by Deprit (1968). The elements that appear in the so-
+lution are uniformly valid for all values of the Keplerian energy and are regular
+at collision. The same elements had already been introduced by Broucke (1966),
+who also obtained explicit expressions of their derivatives by the method of vari-
+ation of parameters. Scheifele (1970), Stiefel and Scheifele (1971, pp. 250–254)
+applied the theory of Hamilton–Jacobi to the KS Hamiltonian system to obtain
+two sets of ten canonical elements that are regular and uniform with respect to
+the total energy. An element linked to the physical time was naturally intro-
+duced following this approach. Bond (1974) developed a special perturbation
+method that is based on a set of elements very similar to the one called Type
+II in Scheifele (1970). An alternative formulation in which mixed-secular terms
+are eliminated from the derivative of the time element was also presented.
+    The idea behind the transformation applied by Burdet (1969) dates back
+to the eighteenth century (see Deprit et al, 1994). The inverse of the orbital
+   2 The secular terms are completely removed if, in addition to properly prescribing the
+
+variation of t0 , we include in the state vector the difference between the true anomalies of
+the current position at time t and of the departure point at time t0 . The drawback of this
+approach is that the formulation becomes singular when the angular momentum vanishes, and
+therefore, it is not universal.
+
+
+
+                                             3
+distance (ρ) and the radial unit vector (er = ρ r) are chosen as new coordinates
+to represent the position. Then, the system of diﬀerential equations for ρ, er is
+linear if the independent variable is changed according to the relation
+
+                                  κdt = r2 dφ,      κ > 0,                                (2)
+
+where κ is a constant (at least of the Kepler problem). Burdet chose κ = 1,
+so that the frequency of oscillation of both ρ and er along Keplerian motion is
+given by the angular momentum of the particle divided by its mass (h).3 The
+solution of the new system is written in a uniﬁed way for h > 0 and h = 0 by
+means of functions that are analogous to those used by Stumpﬀ and of the focal
+elements. Their diﬀerential equations are derived together with that of a time
+element.
+    Chelnokov (1992) formally established the connection between KS variables
+and the Euler parameters, already pointed out by Broucke and Lass (1975).
+These quantities represent a reference frame that has one axis aligned with
+the position vector and rotates with angular velocity always parallel to the
+angular momentum vector. By changing time according to Eq. (2), the four
+Euler parameters satisfy the equations of an harmonic oscillator with frequency
+1/2 for κ = h. This fact opened the way for generating new orbital elements, as
+shown by Chelnokov (1993) and more recently by Roa and Kasdin (2017). We
+observe that the elements proposed by these authors are universal if κ = 1, but
+they are not regular.
+    Although against the spirit of universal variables, we consider formulations
+based on orbital elements that allow a uniform transition through elliptic, pa-
+rabolic, and hyperbolic motion as long as the angular momentum is not zero.
+Milanković’s vectorial elements describe the geometry of any orbit, and their
+deﬁnition is not related to a particular reference frame (Milanković, 1939; Allan
+and Ward, 1963). Orbit propagation with these quantities is possible thanks to
+appending to the state vector an angle that locates the position of the particle
+with respect to a preferably non-singular direction on the osculating plane. The
+true longitude is suitable for this purpose (Roy and Moran, 1973; Rosengren
+and Scheeres, 2014), but it loses its meaning when h = 0. Parameters related
+to an orbital reference frame4 at epoch are doomed to fail in describing recti-
+linear orbits. This is evident from the expression of the transverse unit vector,
+et,0 = [r0 ṙ0 − (r0 · ṙ0 )er,0 ]/h, where er,0 = r0 /r0 . As noted by Herrick (1965), a
+proper scaling of et,0 can avoid the problem, and for example, er,0 , het,0 recover
+their universal nature. The modiﬁed equinoctial elements (Walker et al, 1985)
+also fail at h = 0 because they are related to an orbital reference frame (Broucke
+and Cefola, 1972).
+    By setting κ equal to h in Burdet’s linearisation,5 the angle φ becomes the
+   3 This result for ρ with κ = h is called Binet’s formula, after Jacques Binet (1786–1856),
+
+and it was already known to Isaac Newton (1642–1726).
+   4 With the adjective orbital, we mean that the reference frame is defined by the osculating
+
+plane of motion, and more specifically that one axis has the same direction of the angular
+momentum vector.
+   5 This method is known in the literature as Burdet–Ferrándiz regularisation. Ferrándiz
+
+
+
+
+                                              4
+true anomaly in the unperturbed case, and the oscillation frequencies of ρ, er
+are equal to 1. This fact brings a considerable advantage: the new elements do
+not exhibit secular terms in their derivatives unlike the original focal elements.
+Even more interesting is that three of them ﬁx the shape of the osculating el-
+lipse and the remaining six deﬁne the orientation of an orbital reference frame,
+which is called ideal after Hansen (1857, see p. 66 for the deﬁnition of the
+ideal coordinates). In the light of this geometric interpretation, a reduction of
+the dimension of the system from nine to seven is achieved by taking the Euler
+parameters that describe the rotation of the ideal frame. The choice κ = h intro-
+duces a singularity when the value of h is zero which was not present in Burdet’s
+variables. Deprit (1975) and Vitins (1978) developed seven elements of this kind
+by following two diﬀerent approaches. A review of several references about this
+subject can be found in the introduction of Baù et al (2015), where the concept
+of Hansen ideal frames and the connection between the ideal elements and Bur-
+det’s linearisation are discussed in detail. The method named Dromo (Peláez
+et al, 2007) revived the interest in ideal elements for orbit propagation, espe-
+cially because the authors showed that it can be much more accurate and faster
+than Cowell’s method (Battin, 1999, p. 447). Dromo is based on seven quan-
+tities almost equivalent to Deprit’s and Vitins’ and on a ﬁctitious time which
+is represented by the anomaly φ (Eq. 2, wherein κ = h). For an extensive pre-
+sentation of Dromo, we refer to Urrutxua et al (2016) and Roa (2017, chap. 4),
+who also mention the important updates that have been recently proposed to
+improve its numerical performance.
+    A propagator similar to Dromo but working only for negative values of the
+total energy was devised by Baù et al (2014, 2015). The basic idea behind this
+method is to search for a linearisation of the equations of motion starting from
+the projective coordinates (r, er ), as in the Burdet–Ferrándiz regularisation, and
+choosing a time transformation of Sundman’s type instead of Eq. (2). In the
+unperturbed motion, the independent variable is the eccentric anomaly and the
+diﬀerential equation of the radial distance r is linear with constant coeﬃcients
+(a well-known result, see Bohlin, 1911). The solution can be written so that the
+two constants of integration are the projections of the eccentricity vector along
+a pair of ﬁxed orthogonal axes which lie on the orbital plane. Based on these
+two directions, the authors deﬁned a reference frame, named intermediate, and
+introduced four Euler parameters to represent its orientation in space. The six
+integrals of the Kepler problem obtained in this way constitute the state vector
+together with the semi-major axis, and a time element. The special perturbation
+method generated from the new elements can exhibit a substantial advantage
+with respect to Dromo. Numerical investigations conducted by Amato et al
+(2017, 2019) show its excellent behaviour in the propagation of both asteroids
+and artiﬁcial satellites of the Earth. An analogous formulation was derived
+independently by Roa and Peláez (2015) and Baù et al (2016) for positive values
+of the Keplerian and total energy, respectively.
+(1988) achieved the same linearisation in the framework of the Hamiltonian formalism (see
+Deprit et al, 1994).
+
+
+
+                                           5
+     The methods proposed by Baù et al (2015, 2016), Roa and Peláez (2015)
+cannot be used, in general, to propagate a body that presents transitions from
+elliptic to hyperbolic motion or vice versa. We also expect that they loose ac-
+curacy when the energy is close to zero. Therefore, we tried to ﬁnd a unique
+formulation that includes those in Baù et al (2015, 2016) and Roa and Peláez
+(2015) and is able to deal with cases in which the Keplerian or the total energy
+changes sign during the motion. In the present paper we achieve such goal by
+switching to a regularising time variable and taking advantage of Stumpﬀ’s func-
+tions as shown in Section 2. Eight uniform elements arise from our procedure:
+they are non-singular for any value of the total energy and are not deﬁned when
+the angular momentum is zero. The new quantities are called intermediate ele-
+ments because there exists an intermediate frame that plays a key role in their
+deﬁnition. This frame establishes the orientation of the osculating plane and of
+a departure direction on it, from which the position of the particle is reckoned.
+In Section 2, we also obtain the ﬁrst-order diﬀerential equations that govern the
+variations of the new elements with respect to the ﬁctitious time. Numerical
+tests assessing the performance of the new method for orbit propagation are
+shown in Section 4.
+     In our derivation, particular attention is paid to the appearance of secular
+terms with respect to the independent variable when the total energy is negative.
+In order to better understand their origin, we introduce an arbitrary quantity β
+in the time transformation (Eq. 6). Secular terms can only be eliminated from
+the time derivatives of the new elements by selecting β in a proper way, at the
+cost of losing the uniform character of the proposed special perturbation method.
+An alternative formulation which is completely free of secular terms and that is
+still uniform is derived in Appendix A after Conclusions (in Section 5).
+     In some applications, orbit propagation is part of a more complicated pro-
+cedure known as orbit determination: given a set of observations at diﬀerent
+epochs relative to the same celestial body, we want to determine its position and
+velocity and the associated uncertainties at some prescribed epoch. An essen-
+tial ingredient in orbit determination is the state-transition matrix (STM). Its
+elements are the partial derivatives of position and velocity with respect to their
+initial values and obey the variational equation. Sitarski (1967) presented a solu-
+tion of the two-body variational equation which is independent of the type of the
+orbit. Crawford (1969) started from Sitarski’s result to write a simpler expres-
+sion of the two-body STM. Herrick (1965) and Goodyear (1965, 1966) derived a
+closed-form solution for the partial derivatives in terms of Stumpﬀ’s functions
+(a simpler presentation than Herrick’s is available in Battin, 1999, sect. 9.7).
+Improvements to Goodyear’s STM were proposed by Shepperd (1985) and Der
+(1997): the former suggested a new scheme for solving Kepler’s equation, which
+is a preliminary step necessary to compute the STM; the latter found a way to
+remove the secular terms contained in the universal functions U4 and U5 (see
+Eq. 11).
+     Section 3 deals with the use of our formulation for orbit determination and
+uncertainty propagation. The delicate aspect of computing the STM for the
+rectangular coordinates at a certain time from the STM of the intermediate
+
+                                        6
+elements at the corresponding ﬁctitious time is addressed. Appendix C reports
+the expressions of the derivatives that appear in the variational equations of the
+intermediate elements.
+
+
+2     The intermediate elements
+Consider the perturbed Kepler problem. The evolution of the position r of a
+particle of mass m with respect to a body of mass M (here referred to as the
+central body) is described by Newton’s second law
+                                         µ
+                                   r̈ = − 3 r + F,                            (3)
+                                         r
+where µ = G(m + M ), with G the gravitational constant, r = |r| and F is the
+vector sum of the perturbing forces acting on m. We assume that
+
+                         F(r, ṙ, t) = P(r, ṙ, t) − ∇U (r, t),               (4)
+
+where ∇U is the gradient of the disturbing potential U and P is the sum of
+the perturbing forces that are not related to the gradient of a potential energy.
+We will refer to unperturbed motion when both F = 0 and U = 0.
+    For future use, let us introduce the local vertical, local horizontal (LVLH)
+reference frame {O, er , eν , ez }, where O denotes the location of the centre of
+mass of the central body, and
+                         r                                    r × ṙ
+                  er =     ,     eν = ez × er ,       ez =            .       (5)
+                         r                                   |r × ṙ|
+In this section, we develop a set of eight orbital elements that can be used to
+represent the position and velocity of the particle at a given epoch. We ﬁrst
+derive the elements that describe the motion on the orbital plane and next those
+that describe the evolution of the orbital plane.
+
+2.1    Motion on the orbital plane
+Let us introduce the polar coordinates (r, ν) on the osculating plane of motion,
+where ν is the angle measured from a reference axis Ox to the position vector
+r. The deﬁnition of ν and therefore of Ox is given in the end of this section.
+Then, we can introduce the intermediate reference frame {O, ex , ey , ez }, where
+ex obeys the relations ex · er = cos ν, ex × er = sin ν ez (see Figure 1), and
+ey = ez × ex .
+   The independent variable is changed from the physical time t to a ﬁctitious
+time χ by the transformation
+
+                                     βdt = r dχ,                              (6)
+
+where β ∈ R+ is an arbitrary constant along any solution of the Kepler problem.
+The introduction of the parameter β has been suggested in the past, for example,
+
+                                           7
+                                                       r
+
+                             ey
+
+
+
+                                                   g
+
+                                     θ
+
+                                     ν
+                                                               ex
+                             O
+
+
+Figure 1: Orientation of the position vector r and the generalised eccentricity
+vector g with respect to the unit vectors ex , ey of the intermediate frame. All
+vectors lie on the osculating orbital plane at some epoch t.
+
+
+by Herrick (1965). We will make a speciﬁc choice for β in Section 2.6. The
+orbital radius obeys the second-order diﬀerential equation
+
+                     β 2 r′′ = 2E r + µ + r(rFr − 2U ) − βr′ β ′ ,           (7)
+
+where prime denotes diﬀerentiation with respect to χ, Fr is the radial component
+of the perturbing force F, and E is the speciﬁc total energy. Equation (7) is
+obtained from (3) and (6). The quantity E is deﬁned as
+
+                                  1  2 h2  µ
+                            E =      ṙ + 2 − + U ,                          (8)
+                                  2      r   r
+where h = |r × ṙ| is the speciﬁc angular momentum. From (7), one ﬁnds that
+the following relation holds for the Kepler problem
+
+                                     σ ′′ = −ασ,                             (9)
+
+where σ = r′ , and
+                                                   2E
+                                     α=−              .                    (10)
+                                                   β2
+   Let us introduce the universal functions (Battin, 1999, sect. 4.5):
+
+                         Un (χ; α) = χn cn (χ; α),            n ∈ N,       (11)
+
+where
+                                         ∞
+                                         X                 (αχ2 )k
+                          cn (χ; α) =          (−1)k                .      (12)
+                                                          (n + 2k)!
+                                         k=0
+
+
+
+
+                                               8
+The series cn (χ; α), known as Stumpﬀ’s functions, converge absolutely for all
+values of χ, α, and uniformly in any bounded domain of χ, α. The solution of
+Eq. (9) can be written as
+
+                          σ = a1 U0 (χ; α) + a2 U1 (χ; α).                    (13)
+
+Then, the orbital radius adopts the form
+
+                       r = a0 + a1 U1 (χ; α) + a2 U2 (χ; α).                  (14)
+
+The constants of integration a0 , a1 , a2 are determined from the initial values of
+r, σ. If we assume that χ = 0 at the initial time, we obtain
+
+                      a0 = r(0) = r0 ,        a1 = σ(0) = σ0 .                (15)
+
+By evaluating the equation β 2 r′′ = 2E r + µ at χ = 0, we also ﬁnd
+                                         µ + 2E r0
+                                 a2 =              .                          (16)
+                                            β2
+
+Using (15), (16) in (13), (14), and noting that U0 + αU2 = 1, we can write
+                                                       µ
+                   r = r0 U0 (χ; α) + σ0 U1 (χ; α) +      U2 (χ; α),          (17)
+                                                       β2
+                                       µ
+                  σ = σ0 U0 (χ; α) +      (1 − λr0 )U1 (χ; α),                (18)
+                                       β2
+where
+                                          −2E
+                                    λ=        .                               (19)
+                                           µ
+The quantities r0 , σ0 will not be constant if perturbations are present (F 6= 0).
+Moreover, the time evolution of r0 , σ0 will depend on the speciﬁc choice of β,
+that is on the choice of independent variable (see Eq. 6).
+   Before dealing with the polar angle ν, we deﬁne
+                    p                                        √
+               g = 1 − λp,         µp = h2 + 2r2 U ,     c = µp.              (20)
+
+Let us call g, p, c the generalised eccentricity, semilatus rectum, and angular
+momentum, respectively. They reduce to their osculating counterparts when
+U = 0. The quantities g, p are functions of r0 , σ0 , β, λ. Their expressions,
+which can be found from (20) and (8), (17), (18), are
+
+                                                  β2 2
+                            g 2 = (1 − λr0 )2 +     λσ0 ,                     (21)
+                                                  µ
+                                                   β2 2
+                             p = r0 (2 − λr0 ) −     σ .                      (22)
+                                                   µ 0
+Note that g, p take ﬁnite values for α = 0.
+
+                                          9
+    We aim at relating the polar angle ν to the independent variable χ. The
+angle ν is comprised between the position of the particle and a reference axis
+that lies on the osculating orbital plane and passes through the central body.
+Additionally, this axis must remain ﬁxed in space at least when the motion
+is unperturbed and to be well deﬁned for any value of h diﬀerent from zero.
+Possible deﬁnitions of the polar angle ν must obey the following condition:
+when the motion is Keplerian, ν is the true anomaly up to an additive constant
+angle, that is
+                                           c
+                                     ν̇ = 2 .                               (23)
+                                          r
+In our formulation, ν is deﬁned as follows. Assume ν(0) = 0, then from Eqs. (23)
+and (6) we have
+                                     c χ 1
+                                       Z
+                               ν=              ds,                          (24)
+                                     β 0 r(s)
+with r(s) taken from Eq. (17). After solving the integral, we ﬁnd
+
+                                       c U1 12 χ; α
+                                                   
+                         ν
+                   β tan =                                 .              (25)
+                              r0 U0 12 χ; α + σ0 U1 12 χ; α
+                                           
+                         2
+
+The above formula, called by Sperling (1961) the Gaussian equation, deﬁnes ν
+as a function of χ.
+
+2.2     Particularisations for positive, negative, and zero val-
+        ues of α
+Equations (17), (25) are here particularised to the cases α > 0, α < 0, α = 0,
+which correspond to negative, positive, and zero total energy, respectively. For
+this purpose, we need to provide the deﬁnition of the generalised true anomaly
+θ. Given the generalised eccentricity vector
+
+                            g = w × (r × w) − er ,                         (26)
+
+where
+                                          c
+                               w = ṙ er +  eν ,                           (27)
+                                          r
+we have that θ is the angle measured from g to r counterclockwise as seen from
+ez (see Figure 1). Therefore, from (26) and noting that |g| = g, with g given
+in (20), we have (c 6= 0)
+
+                                   c2
+                       g cos θ =      − 1,    g sin θ = c ṙ.              (28)
+                                   r
+
+2.2.1   The case α > 0
+After substituting into Eq. (17) the expressions taken by U0 , U1 , U2 for α > 0
+we have
+                         1            √             √
+                    r = [1 − ℘1 cos( αχ) − ℘2 sin( αχ)],                    (29)
+                        λ
+
+                                         10
+where                                                         s
+                                                                  λ
+                          ℘1 = 1 − λr0 ,          ℘2 = −βσ0         .                    (30)
+                                                                  µ
+Then, following Baù et al (2015) we can deﬁne the generalised eccentric anomaly
+G from                                                   √
+                µg cos G = µ + 2E r,      µg sin G = r ṙ −2E .            (31)
+By using the ﬁrst relation in (31) and Eq. (29), we obtain
+                                        √
+                             ℘1 = g cos( αχ − G),
+                                        √                                                (32)
+                             ℘2 = g sin( αχ − G).
+Since ℘1 = g cos G0 , ℘2 = −g sin G0 , where G0 is the value taken by G at χ = 0,
+we have                         √
+                                  αχ = G − G0 .                              (33)
+Equation (25) can be written for α > 0 as
+                              p                     √ 
+                   ν            1 − ℘21 − ℘22 sin 12 αχ
+               tan =                   √               √ ,                             (34)
+                   2   (1 − ℘1 ) cos 12 αχ − ℘2 sin 12 αχ
+or alternatively as
+                                         r             √
+                              ν−θ            1+gαχ − G
+                          tan     =              tan   .                (35)
+                               2             1−g  2
+                                                    √
+Thus, the angular diﬀerence ν − θ is obtained from αχ − G by applying the
+classical relation between the true anomaly and the eccentric anomaly in the
+two-body problem.
+     √ The method presented in Baù et al (2015), called EDromo, employs
+Remark.
+β = −2ε, so that α = 1 and Eq. (29) becomes
+                                  1
+                            r=      (1 − ℘1 cos χ − ℘2 sin χ),
+                                  λ
+where6
+                      ℘1 = g cos(χ − G),           ℘2 = g sin(χ − G).                    (36)
+Interestingly, in EDromo the polar angle is deﬁned as
+                                      ν = θ + χ − G.                                     (37)
+This choice seems quite natural looking at the expressions of ℘1 , ℘2 given in (36),
+which suggest to directly take χ−G as the angle between g and ex (see Figure 1).
+Finally, it is worth noting that from (37) by using a formula proposed by Broucke
+and Cefola (1973), Eqs. (31) and the ﬁrst relation in (20), we get the relation
+                                                      σ
+                              ν = χ + 2 arctan        p    .
+                                                   r + p/λ
+   6 In Baù et al (2015) the elements ℘ , ℘ , λ−1 are denoted by λ , λ , λ , respectively, and
+                                       1   2                      1   2   3
+the independent variable χ by ϕ.
+
+
+                                             11
+2.2.2    The case α < 0
+For α < 0, Eq. (17) becomes
+                      1         √               √
+                 r = − [℘1 cosh( −αχ) + ℘2 sinh( −αχ) − 1],                               (38)
+                      λ
+where                                                         s
+                                                                  −λ
+                         ℘1 = 1 − λr0 ,            ℘2 = βσ0          .                    (39)
+                                                                  µ
+We can deﬁne the generalised hyperbolic anomaly F by (see Baù et al, 2016)
+                                                         √
+               µg cosh F = µ + 2E r,     µg sinh F = r ṙ 2E ,          (40)
+
+where g is the generalised eccentricity as in (31). Then, the following relations
+hold:
+                                             √
+                           ℘1 = g cosh(F − −αχ),
+                                             √                               (41)
+                           ℘2 = g sinh(F − −αχ).
+
+Since ℘1 = g cosh F0 , ℘2 = g sinh F0 , where F0 is the value of F for χ = 0, we
+have                            √
+                                 −αχ = F − F0 .                             (42)
+Equation (25) for α < 0 can be written as
+                            p                       √
+                               ℘21 − ℘22 − 1 sinh 21 −αχ
+                                                         
+                ν
+            tan =                     √                   √ ,                            (43)
+                     (℘1 − 1) cosh 12 −αχ + ℘2 sinh 12 −αχ
+                                              
+                2
+
+or alternatively as
+                                       r                √
+                           ν −θ            1+g              −αχ − F
+                       tan      =              tanh                 ,                     (44)
+                             2             g−1                2
+which is the relation between the true anomaly and the hyperbolic anomaly in
+the two-body problem.
+Remark. The
+          √ method presented in Baù et al (2016), here called HDromo, em-
+ploys β = 2ε, so that α = −1 and Eq. (38) takes the form
+                              1
+                         r = − (℘1 cosh χ + ℘2 sinh χ − 1),
+                              λ
+where7
+                   ℘1 = g cosh(F − χ),              ℘2 = g sinh(F − χ).
+  7 In Baù et al (2016) the elements ℘              −1 are denoted by λ , λ , λ , respectively,
+                                         1 , ℘2 , −λ                   1   2   3
+and the independent variable χ by ϕ.
+
+
+
+
+                                              12
+HDromo implements a diﬀerent deﬁnition for ν with respect to that given in
+Eqs. (43), (44). Let us consider
+
+                                                   ζ
+                   ζ = gd 2(F − χ),          tan     = tanh(F − χ),
+                                                   2
+where gd x is the Gudermannian function (see Battin, 1999, p.165). Then, we
+obtain for ℘1 , ℘2 :
+                                   ζ                 ζ
+                         ℘1 = ℘ cos ,      ℘2 = ℘ sin ,
+                                   2                 2
+            p
+                  2    2
+where ℘ = ℘1 + ℘2 . These expressions invite to set the angle between g
+and the reference axis equal to ζ/2, so that
+
+                                         ζ
+                                    ν =θ+ .
+                                         2
+
+2.2.3   The case α = 0
+For α = 0, the equations for the orbital radius and the polar angle reduce to
+                                  µ 2                    ν       cχ
+               r = r0 + σ0 χ +        χ ,        β tan     =            .     (45)
+                                 2β 2                    2   2r0 + σ0 χ
+
+One can ﬁnd that χ, ν are related to the angle θ, introduced in (28). Indeed,
+                                                 
+                              cβ       θ       θ0
+                        χ=         tan − tan        ,                      (46)
+                              µ        2        2
+                           ν = θ − θ0 .                                       (47)
+
+In fact, the latter relation holds for any α.
+
+2.3     Variation of the elements r0 , σ0 , λ
+The quantities r0 , σ0 , λ are attractive candidates for the set of intermediate
+elements. From their evolution, one obtains r, σ, p, ν as functions of χ once β
+is deﬁned. Then, from the orientation of the intermediate basis {ex , ey , ez }, we
+can determine the position and velocity of the particle at any χ. In this section,
+we deal with the computation of the derivatives of r0 , σ0 , λ with respect to χ,
+which vanish when the motion is unperturbed. For simplicity, we will adopt the
+notation
+               Un = Un (χ; α),       Ũn = Un (2χ; α),     n ∈ N.              (48)
+   Consider the equations
+                    dr
+                       = σ,                                                   (49)
+                    dχ
+                    dσ   1                             σβ ′
+                       = 2 [2E r + µ + r(rFr − 2U )] −      ,                 (50)
+                    dχ  β                               β
+
+
+                                            13
+which stem from diﬀerentiating the deﬁnition of r, σ given in (17), (18), and
+regarding r0 , σ0 , λ, β as functions of χ. After some algebraic manipulations,
+we ﬁnd
+                                         µ                      µ    
+           β 2 r0′ = −r(rFr − 2U )U1 −       r0 Ũ2 + σ0 Ũ3 + 2 2 U22 λ′
+                                         4                      β
+                              ′
+                     + χσ0 ββ ,                                            (51)
+                                       µ h
+           β 2 σ0′ = r(rFr − 2U )U0 +     r0 (2χ + Ũ1 ) + σ0 Ũ2
+                                        4 h
+                        µ            i        µ                    i
+                     + 2 (Ũ3 − 4U3 ) λ′ + 2 (1 − λr0 )χ − σ0 ββ ′ .       (52)
+                        β                    β
+Moreover, we have
+                                   2     h     r ∂U 
+                          λ′ = −     σPr + Pν +        ,                             (53)
+                                   µ      β     β ∂t
+where Pr = P · er , Pν = P · eν .
+    It is worth noting that for E < 0, the expressions of r0′ , σ0′ contain some
+terms in which χ appears explicitly. The presence of these terms can deteriorate
+the accuracy of r0 , σ0 computed by numerical integration of Eqs. (51), (52),
+especially for long propagations. On the other hand, the variational equations
+of g, p (see 21, 22) are not aﬀected by this disadvantage.√ Secular terms can be
+avoided in both r0′ and σ0′ if and only if we select β = k −2E (E < 0), where k
+is a nonzero constant, so that the quantity α is conserved along the perturbed
+motion.8
+    In Appendix A, we show that it is still possible to eliminate the secular
+terms from the derivatives r0′ , σ0′ without having to restrict the domain of E to
+negative values, by adequately changing Eq. (7) and imposing that β is constant,
+i.e. β ′ = 0.
+
+2.4     The time element t0 and its evolution
+By integrating the time transformation (6), we obtain Kepler’s equation in its
+universal form
+                                                             µ
+                β(t − t0 ) = r0 U1 (χ; α) + σ0 U2 (χ; α) +      U3 (χ; α),           (54)
+                                                             β2
+where the quantity t0 is called time element.
+    In the classic formulations by Wong (1962), Herrick (1965), and Pitkin
+(1966), time is the independent variable and the value of χ corresponding to
+a given t is obtained by solving the universal Kepler equation. Moreover, the
+time element t0 is a constant, also when the motion is perturbed. Born et al
+(1974) suggested that it may be more convenient to let t0 vary with time instead
+of keeping it ﬁxed. In fact, by properly choosing the time derivative of t0 , the
+   8 In the method EDromo (Baù et al, 2015), it is α = 1 and secular terms are not present
+
+in the derivatives of ℘1 , ℘2 (see 36).
+
+
+
+
+                                           14
+secular terms that appear in the variational equations of r0 , ṙ0 can be elimi-
+nated.9 The drawback of this approach is that t0 is added to the state vector
+thus increasing the dimension of the system.
+   In our formulation, χ is the independent variable as deﬁned in (6), and
+Eq. (54) is used to directly compute the physical time t, so t0 must be known.
+The variational equation of t0 , which is obtained by diﬀerentiation of Eq. (54),
+becomes
+                             µh
+  β 3 t′0 = r(rFr − 2U )U2 −    r0 (4U3 − Ũ3 ) − 2σ0 U22
+                             4
+                                                 µ            i
+                                              − 2 (Ũ5 − 8U5 ) λ′ + χr0 ββ ′ . (55)
+                                                 β
+
+In the case E < 0, the expression
+                         √          above for t′0 contains terms that are linear in
+   10
+χ. By selecting β = k −2E , where k is a nonzero constant (see Section 2.3),
+we can eliminate only some of them, because, as expected, those in Ũ5 − 8U5
+survive. However, with this choice of β it is still possible to get rid of the secular
+terms as follows. Let us use the identity U1 +αU3 = χ to write Kepler’s equation
+as
+                       p                      1
+                      k λµ(t − t1 ) = r0 −         U1 + σ0 U2 ,                   (56)
+                                               λ
+where
+                                              χ
+                                t1 = t0 + p         .                             (57)
+                                          k λ3 µ
+Then, the variational equation of t1 is free of secular terms. This quantity,
+which is a linear function of χ when the motion is unperturbed, is also referred
+to as linear time element. In Baù et al (2015), both t0 and t1 are presented for
+EDromo.
+    A time element analogous to t0 was developed also by Burdet (1968) and
+Bond (1974). In their formulation, the time transformation (6) is applied with
+           √
+β equal to µ and 1, respectively. Moreover, the variables r0 , σ0 are included in
+the set of elements, even if they are not necessary to describe the motion. The
+advantage of adding these redundant variables is not clear in Burdet (1968).
+On the other hand, Bond ﬁnds out that substituting in (6) the expression of r
+given in (17), t′0 is not aﬀected by mixed secular terms.11 They arise instead
+if the orbital distance is written as a function of the elements related to the
+Kustaanheimo-Stiefel parameters.
+
+2.5     Motion of the orbital plane
+The proposed method relies on the existence of the orbital plane, and so it
+becomes singular when the angular momentum vanishes. We track the evolution
+   9 Unfortunately, the secular terms are not completely removed since they are contained in
+
+the expression of ṫ0 (see Battin, 1999, pp. 510, 511).
+  10 Note that the terms with χ3 , which stem from Ũ , U , cancel out.
+                                                        5 5
+  11 These terms contain the product of a trigonometric function of χ and some power of χ.
+
+
+
+
+                                            15
+of this plane and of a reference direction on it by describing the orientation of
+the intermediate frame {O, ex , ey , ez } that we have introduced in Section 2.1.
+     Let {O, e1 , e2 , e3 } be a reference frame with the origin at O (i.e. the centre
+of mass of the central body) and the directions of ei , i = 1, 2, 3, ﬁxed in space.
+In particular, the unit vectors e1 , e2 generate the fundamental plane (e.g. the
+plane of the Earth’s orbit, or the plane of the Earth’s equator). We denote
+by Ω, I, ω the three classical orbital elements given by the longitude of the
+ascending node, inclination, and argument of pericentre. Let us consider the
+quantity Ψ = ω + f − ν, where f is the true anomaly and ν is the angle deﬁned
+in Section 2.1. Then, the Euler angles Ω, I, Ψ deﬁne the orientation of the basis
+{ex , ey , ez } with respect to {e1 , e2 , e3 }.
+     Following Goldstein (1980, p. 155), we introduce the Euler parameters q1 ,
+q2 , q3 , q4 related to the Euler angles Ω, I, Ψ by:
+                           Ω+Ψ     I                                 Ω−Ψ    I
+                  q1 = cos     cos ,                        q2 = cos     sin ,
+                            2      2                                  2     2
+                                                                                     (58)
+                           Ω−Ψ    I                                  Ω+Ψ    I
+                  q3 = sin     sin ,                        q4 = sin     cos .
+                            2     2                                   2     2
+Note that these parameters satisfy the following relation:
+
+                                     q12 + q22 + q32 + q42 = 1.                      (59)
+
+Taking the time derivatives of Eqs. (58), we ﬁnd
+                                                  
+                 q̇1         −q4 −q1 tan(I/2) −q4  
+                q̇2  1 −q3                           Ω̇
+                 =                q2 cot(I/2)  q3 
+                                                       I˙  .
+                q̇3  2  q2                                                        (60)
+                                     q3 cot(I/2) −q2 
+                 q̇4           q1 −q4 tan(I/2)    q1    Ψ̇
+
+               ˙ ω̇ + f˙ with the expressions available in, for example, Battin
+Replacing Ω̇, I,
+(1999, pp. 500, 501), and using Eq. (6), we arrive at
+       ′                                                         
+        q1                    −q4                 q2 cos ν + q3 sin ν
+      q2′  1  h         ′  q3 
+                                     r2    −q1 cos ν + q4 sin ν 
+       ′ =
+      q3  2 rβ      −  ν   −q2  2βh Fz −q4 cos ν − q1 sin ν  ,
+                                     −                                   (61)
+        q4′                     q1                q3 cos ν − q2 sin ν
+
+where Fz = F · ez and prime denotes the derivative with respect to χ. By dif-
+ferentiating Eq. (25) and simplifying the result, we ﬁnd the following expression
+for ν ′12
+
+ 12 We also used the relation
+
+                                                   1
+                                                                           2
+                                                            + σ0 U1 21 χ; α
+                                                       
+                               2 ν
+                                          r0 U 0   2
+                                                     χ; α
+                         cos         =                                           ,
+                                2                           rr0
+which can be obtained from Eqs. (17), (22), and (25).
+
+
+
+                                                     16
+           c    r                                  χc ′
+  βν ′ =     +     (rFr − 2U )(αr0 U2 − σ0 U1 ) −      β
+           r   cr0                                 βr0
+                                           µ hr                      c   i
+                                       −          (r0 U1 + σ0 U2 ) − 2 U3 λ′ . (62)
+                                          2r0 c                     β
+The identities involving the universal functions that we used in the computa-
+tion of r0′ , σ0′ , t′0 , ν ′ are reported in Appendix D. For negative values of E , the
+presence
+      √ of secular terms in the derivative of ν can be avoided only by setting
+β = k −2E , where k is a nonzero constant. We observe that the four Euler pa-
+rameters q1 , q2 , q3 , q4 are constant when the motion is unperturbed. Therefore,
+in this case the intermediate frame remains ﬁxed in space.
+
+2.6    The proposed formulation
+All that remains to be ready to present our formulation is the deﬁnition of the
+quantity β, which was ﬁrst introduced in Eq. (6). Several choices are possible in
+principle; however it seems natural to set β equal to a constant. We take β = 1
+as in the original Sundman (1913, p. 127) transformation,
+
+                                           dt
+                                              = r.                                 (63)
+                                           dχ
+Then, we have α = µλ = −2E .
+  The ﬁrst four intermediate elements are deﬁned as
+
+                       ι1 := r0 ,   ι2 := σ0 ,        ι3 := α,     ι4 := t0 .      (64)
+
+The remaining four elements are the Euler parameters that represent the orien-
+tation of the intermediate frame:
+
+                       ι5 := q1 ,   ι6 := q2 ,        ι7 := q3 ,   ι8 := q4 .      (65)
+
+The Newtonian equation of motion (3) is replaced by the system of ﬁrst-order
+diﬀerential equations:
+                               ι′
+      ι′1 = −r(rFr − 2U )U1 − 3 (ι1 Ũ2 + ι2 Ũ3 + 2µU22 ),                        (66)
+                               4
+                             ′
+                            ι
+      ι′2 = r(rFr − 2U )U0 + 3 [ι1 (2χ + Ũ1 ) + ι2 Ũ2 + µ(Ũ3 − 4U3 )],          (67)
+                             4
+                             ∂U 
+      ι′3 = −2 σPr + hPν + r         ,                                             (68)
+                               ∂t
+                            ι′
+      ι′4 = r(rFr − 2U )U2 − 3 [ι1 (4U3 − Ũ3 ) − 2ι2 U22 − µ(Ũ5 − 8U5 )],        (69)
+                             4
+                N      r2
+      ι′5 = −     ι8 −    Fz (ι6 cos ν + ι7 sin ν),                                (70)
+                2      2h
+              N      r2
+      ι′6 =     ι7 +    Fz (ι5 cos ν − ι8 sin ν),                                  (71)
+              2      2h
+
+                                                 17
+                N      r2
+      ι′7 = −     ι6 +    Fz (ι8 cos ν + ι5 sin ν),                                       (72)
+                2      2h
+              N      r2
+      ι′8 =     ι5 −    Fz (ι7 cos ν − ι6 sin ν),                                         (73)
+              2      2h
+where
+        h−c    r                                   ι′ h r                        i
+ N=         −     (rFr − 2U )(ι1 ι3 U2 − ι2 U1 ) + 3      (ι1 U1 + ι2 U2 ) − c U3 . (74)
+         r    cι1                                 2ι1 c
+We want to propagate the position r and velocity ṙ from some starting epoch
+t∗ to a diﬀerent time t by solving the system of Eqs. (66)–(73). The deﬁnition
+of ιi , i = 1, ..., 8, at χ(t∗ ) = 0 is as follows. For the ﬁrst four elements, we have
+                                                2µ
+           ι1 = |r|,    ι2 = r · ṙ,     ι3 =       − |ṙ|2 − 2U (r, t∗ ),    ι4 = t∗ .   (75)
+                                                |r|
+Since ν = 0 at time t = t∗ , the intermediate and the LVLH frames coincide and
+we can compute
+                            r                                         r × ṙ
+                    ex =       ,       ey = ez × ex ,         ez =            .           (76)
+                           |r|                                       |r × ṙ|
+The corresponding Euler parameters are obtained by the formulae (58) where
+Ψ is the argument of latitude, i.e. Ψ = ω + f . While the sum of Ω and ω + f
+is deﬁned for any conic, their diﬀerence is not. If I = 0, we can take Ω = 0. In
+Eqs. (75), (76) the quantities r, ṙ are referred to the starting epoch.
+    We solve the initial value problem given by the diﬀerential Eqs. (66)–(73)
+with the initial conditions computed above by means of a numerical algorithm.
+At each integration step, the position r, velocity ṙ, and time t can be recovered
+from the intermediate elements and the independent variable. We compute
+
+                       r = ι1 U0 (χ; ι3 ) + ι2 U1 (χ; ι3 ) + µU2 (χ; ι3 ),                (77)
+                       σ = ι2 U0 (χ; ι3 ) + (µ − ι1 ι3 )U1 (χ; ι3 ).                      (78)
+
+The components of ex , ey in the basis {e1 , e2 , e3 }, introduced in Section 2.5,
+are obtained by
+                2                                                  
+                 ι5 + ι26 − ι27 − ι28                 2ι6 ι7 − 2ι5 ι8
+           ex =  2ι6 ι7 + 2ι5 ι8  ,    ey = ι25 − ι26 + ι27 − ι28  .     (79)
+                   2ι6 ι8 − 2ι5 ι7                    2ι5 ι6 + 2ι7 ι8
+Then, we determine the radial and transverse unit vectors as
+
+                                   er = cos ν ex + sin ν ey ,                             (80)
+                                   eν = − sin ν ex + cos ν ey ,                           (81)
+
+where
+                                                  c U1 12 χ; ι3
+                                                                
+                       ν = 2 arctan             1
+                                                                 1
+                                                                        .                (82)
+                                        ι1 U0   2 χ; ι3 + ι2 U1 2 χ; ι3
+
+
+                                                 18
+The generalised and osculating angular momentum are given from the relations
+
+               c2 = ι1 (2µ − ι1 ι3 ) − ι22 ,         h2 = c2 − 2r2 U (r, t).   (83)
+
+Finally, the position and velocity read
+                                                    1
+                          r = rer ,       ṙ =        (σer + heν ),            (84)
+                                                    r
+and the physical time is obtained by
+
+                 t = ι4 + ι1 U1 (χ; ι3 ) + ι2 U2 (χ; ι3 ) + µU3 (χ; ι3 ).      (85)
+
+    As expected, our method is aﬀected by the following singularities: r = 0,
+ι1 = 0, h = 0, c = 0.
+Remark. Note that we ﬁrst compute the potential U and then the osculating
+angular momentum h, which means that in the proposed method U should
+ideally not depend on the velocity ṙ. Such limitation can be overcome if h is
+regarded as a new state variable. The consequent increase in the dimension of
+the system (from 8 to 9) is avoided if one uses the modiﬁcation of the Euler
+parameters suggested by Lara (2017).
+
+
+3    Orbit determination and uncertainty propa-
+     gation
+The topic of orbit determination by means of coordinates diﬀerent from the
+Cartesian ones and an independent variable which is not the physical time is
+still quite unexplored. Only very recently, Roa and Peláez (2017b) have shown
+in the context of relative motion that better numerical performance can be
+achieved with regularised formulations. Using the results in Shefer (2007) and
+Roa and Peláez (2017a), we describe in this section how to map the state-
+transition matrix (STM) of the intermediate elements at some ﬁctitious time χ
+to the classic STM in Cartesian coordinates at the corresponding time t.
+     Let us denote by ι ∈ R8 the column vector of the intermediate elements, i.e.
+ι = (ι1 , . . . , ι8 )T , so that we can write Eqs. (66)–(73) in the compact form
+                                      dι
+                                         = f (χ, ι).                           (86)
+                                      dχ
+For the solution ι(χ, ι0 ) of (86) with the initial condition ι0 = ι(0) we introduce
+the state-transition matrix
+                                                ∂ι
+                                A(χ, ι0 ) =         (χ, ι0 ).                  (87)
+                                                ∂ι0
+The matrix A satisﬁes the Cauchy problem
+                       ∂A   ∂f
+                          =    (ι(χ, ι0 ))A,           A(0, ι0 ) = Id ,        (88)
+                       ∂χ   ∂ι
+
+                                               19
+where Id is the 9 × 9 identity matrix. The solution of the diﬀerential equation
+in (88), which is called variational equation, is computed numerically together
+with the solution of Eq. (86).
+    Let x ∈ R6 be the (column) vector with components given by the coordinates
+of the position r and velocity ṙ of a space object in a suitable reference frame.
+Suppose we apply the method known as differential corrections (for more details,
+see Milani and Gronchi, 2010, chap. 5) to determine x0 = x(t∗ ), from a set of
+observations collected at times t1 < t2 < . . . < tm .13 In each iteration of this
+method, we need the state-transition matrix
+                                               ∂x
+                                 S(t, x0 ) =       (t, x0 )                       (89)
+                                               ∂x0
+at ti , i = 1, . . . , m. We can calculate S(t, x0 ) from A(χ, ι0 ) through the formula
+(we set χ = 0 at t = t∗ )
+                                        S = J Ã J0 ,                              (90)
+where
+                      ∂x                ∂ι0               1 ∂t
+                  J=      ,     J0 =        ,     Ã = A − f    .             (91)
+                       ∂ι              ∂x0                r ∂ι0
+    Starting from a ﬁrst guess of x0 , the iterative method converges to a nominal
+solution. Moreover, the associated covariance matrix Γx0 is known. One may
+want to propagate Γx0 to Γx at time t 6= t∗ . Linear propagation is in many
+cases acceptable, and it can be made more eﬃcient if we use orbital elements
+(Junkins et al, 1996). First, the matrix Γx0 is transformed to Γι0 = J0 Γx0 J0T .
+Then, the covariance matrix at time t is obtained by
+                                    Γι = Ã Γι0 ÃT .                             (92)
+                                                     T
+Finally, we apply the conversion Γx = J Γι J . The explicit expressions of the
+Jacobian matrices J, J0 are given in the following sections, and of the matrix
+∂f /∂ι in Appendix C.
+
+3.1     Partial derivatives of position and velocity with re-
+        spect to intermediate elements
+Let us ﬁrst give the expression of the Jacobian matrix ∂r/∂ι. From the ﬁrst
+relation in (84) and using Eqs. (80), (81), we have
+                                  ∂r      ∂r    ∂er
+                                     = er    +r     ,                             (93)
+                                  ∂ι      ∂ι    ∂ι
+where
+                     ∂er       ∂ν    ∂ex           ∂ey
+                         = eν      +      cos ν +       sin ν.                    (94)
+                      ∂ι       ∂ι     ∂ι            ∂ι
+Diﬀerentiation of the expressions for r, ν, c in (77), (82), (83) yields
+                 ∂r             1                                
+                     = U0 , U1 , [ι2 U3 + 2µU4 − χ(t − ι4 )], 05 ,
+                 ∂ι              2
+ 13 The time t is usually chosen as the average of the observation times.
+              ∗
+
+
+
+                                            20
+                     ∂ν                    ∂c             ι1 U3     
+               rι1      = (ι1 U1 + ι2 U2 ) − c U1 , U2 , −       , 05 ,
+                     ∂ι                    ∂ι                2
+                                                  2
+                     ∂c   1                     ι      
+                        =     µ − ι1 ι3 , −ι2 , − 1 , 05 ,
+                     ∂ι   c                       2
+where 05 ∈ R5 is a row vector having null entries. The unit vectors ex , ey are
+functions only of the four Euler parameters, and
+                                                              
+                                                ι5 ι6 −ι7 −ι8
+                          ∂ex
+                                         = 2  ι8 ι7    ι6  ι5  ,
+                   ∂(ι5 , ι6 , ι7 , ι8 )
+                                               −ι7 ι8 −ι5   ι6
+                                                              
+                                               −ι8   ι7 ι6 −ι5
+                          ∂ey
+                                         = 2  ι5 −ι6 ι7 −ι8  .
+                   ∂(ι5 , ι6 , ι7 , ι8 )
+                                                ι6   ι5 ι8  ι7
+
+Then, we deal with the Jacobian matrix ∂ ṙ/∂ι. From the second relation in (84)
+and Eq. (81), we get
+
+                ∂ ṙ   1  ∂σ        ∂h    ∂er    ∂eν      ∂r 
+                     =    er    + eν    +σ     +h     − ṙ      ,                (95)
+                ∂ι     r     ∂ι      ∂ι    ∂ι      ∂ι      ∂ι
+where
+                    ∂eν         ∂ν    ∂ex          ∂ey
+                         = −er     −       sin ν +     cos ν.                    (96)
+                     ∂ι         ∂ι     ∂ι          ∂ι
+Using the expressions of σ, h in (78), (83), we can compute
+
+  ∂σ                1                       
+     = −ι3 U1 , U0 , (µU3 − ι1 U1 − χr), 05 ,
+  ∂ι                 2
+  ∂h   1                                      ι2       ∂r       r2 ∂U
+     =    µ − ι1 ι3 − 2rU0 U , −ι2 − 2rU1 U , − 1 − 2rU     , 05 −      .
+  ∂ι   h                                        2       ∂ι3        h ∂ι
+The vector ∂U /∂ι is obtained as shown in Eq. (108).
+Remark. We observe that when E < 0, secular terms appear only in 6 out
+of the 48 components of the matrix of the partial derivatives of position and
+velocity with respect to intermediate elements, denoted by J. As observed, for
+example, by Broucke and Cefola (1972), this is a remarkable advantage over the
+universal variables, in which the fundamental matrix contains secular terms in
+all 36 elements.
+
+3.2     Partial derivatives of intermediate elements with re-
+        spect to position and velocity at the initial time
+All the quantities of this section are referred to the initial time t∗ of propagation.
+For the ﬁrst four intermediate elements, a straightforward computation from
+
+
+
+
+                                           21
+relations (75) yields
+
+                   ∂ι1                                    ∂ι1
+                       = eTx ,                                 = 03 ,
+                   ∂r                                     ∂ ṙ
+                   ∂ι2                                    ∂ι2
+                       = ṙT ,                                 = rT ,
+                   ∂r                                     ∂ ṙ
+                                                                            (97)
+                   ∂ι3        µ    ∂U                   ∂ι3
+                       = −2 2 eTx +      ,                     = −2ṙT ,
+                   ∂r          r    ∂r                    ∂ ṙ
+                   ∂ι4                                    ∂ι4
+                       = 03 ,                                  = 03 ,
+                   ∂r                                     ∂ ṙ
+where 03 = (0, 0, 0).
+   At the initial time the intermediate and the LVLH frames coincide (see
+Eqs. 76). The partial derivatives of the Euler parameters take the following
+simple expressions which are obtained as shown in Appendix B:
+                          ∂ι5   1
+                              = [(ι7 + ι6 υ)eTz − ι8 eTy ],
+                          ∂r    2r
+                          ∂ι6   1
+                              = [(ι8 − ι5 υ)eTz + ι7 eTy ],
+                          ∂r    2r
+                                                                            (98)
+                          ∂ι7      1
+                              = − [(ι8 υ + ι5 )eTz + ι6 eTy ],
+                          ∂r      2r
+                          ∂ι8   1
+                              = [(ι7 υ − ι6 )eTz + ι5 eTy ],
+                          ∂r    2r
+where υ = σ/h, and
+
+                        ∂ι5        r               ∂ι6     r
+                             = − ι6 eTz ,               =     ι5 eTz ,
+                        ∂ ṙ      2h               ∂ ṙ   2h
+                                                                            (99)
+                        ∂ι7     r                  ∂ι8        r
+                             =     ι8 eTz ,             = − ι7 eTz .
+                        ∂ ṙ   2h                  ∂ ṙ      2h
+
+4    Numerical tests
+We present two numerical tests to have a taste of the performance of the interme-
+diate elements compared to other methods existing in the literature. In particu-
+lar, we choose Cowell’s method (Battin, 1999, p. 447), the modiﬁed equinoctial
+elements (Walker et al, 1985), Dromo (Peláez et al, 2007), the natural elements
+derived by Burdet (1968), and the regular KS-based elements published by Bond
+(1974). Hereafter, we will refer to them as Cowell, ModEq, Dromo, Nat–Burdet,
+and KS–Bond, respectively. Some relevant features of these formulations and
+the intermediate elements are given in Table 1. We use the label “New” to refer
+to the formulation described in Section 2.6.
+    Performance is assessed by analysing accuracy and speed of each special per-
+turbation method. The accuracy is measured by propagating the orbit forward
+
+
+                                              22
+Table 1: Formulations compared in the numerical tests (labels are explained
+in the text above). The quantities t, r, h are time, the orbital radius, and the
+osculating angular momentum. Prime denotes the derivative with respect to the
+independent variable. For each formulation, we specify the adopted independent
+variable, the dimension of the state vector, the number of orbital elements (i.e.
+constants of the unperturbed motion) among the state variables, and if a time
+element is included.
+
+         Formulations     Indep. variable      Dim.   Elements    Time el.
+         Cowell                    t            6        0           no
+         ModEq                     t            6        5           no
+         Dromo               t′ = r2 /h         8        7           no
+         Nat–Burdet             t′ = r          11       11          yes
+         KS–Bond                t′ = r          10       10          yes
+         New                    t′ = r          8        8           yes
+
+
+until the ﬁnal time, reversing the integration back to the initial time, and com-
+puting the error as the diﬀerence between the ﬁnal state (position and velocity)
+and the initial one. The speed of a particular integration is determined by the
+number of times the integrator calls the force function. This metric is preferred
+over the actual runtime because it is machine and implementation indepen-
+dent. In real scenarios, evaluating the perturbation forces is computationally
+more expensive than the rest of operations required to calculate the right-hand
+side of the diﬀerential equations. Thus, the additional cost per function call
+that one has to pay for using a formulation that is more sophisticated than
+Cowell is usually negligible. The selected integrator is the standard variable
+step Runge–Kutta 4(5) implemented in Matlab’s ode45 function. Performance
+curves are generated by changing the relative tolerance from 10−6 to 10−13 . We
+note that Nat–Burdet, KS–Bond, and the new elements make use of Stumpﬀ’s
+functions. The series are evaluated via recursive formulae implementing an
+argument-reduction technique to ensure convergence, as indicated by Danby
+(1992, sect. 6.9) and Roa and Peláez (2017b, Appendix 1).
+
+4.1    The hyperbolic comet C/2003 T4 (LINEAR)
+We consider the orbit of the hyperbolic comet C/2003 T4 (LINEAR), deﬁned
+by its osculating elements in Table 2. Non-gravitational forces are modelled fol-
+lowing Marsden et al (1973): we use the coeﬃcients A1 = 1.0592 × 10−7 au d−2 ,
+A2 = 8.1043 × 10−10 au d−2 , and A3 = 3.2073 × 10−9 au d−2 for the radial,
+transverse, and normal components, respectively (d stands for day). Although
+the resulting acceleration is small, obviating this eﬀect results in a non-negligible
+separation of approximately 0.05 au at the ﬁnal epoch. Gravitational perturba-
+tions are given by the attraction of the outer planets (Jupiter through Neptune).
+Their positions are retrieved from the DE431 ephemeris.
+
+
+                                          23
+Table 2: Osculating elements of C/2003 T4 (LINEAR) at epoch JD 2453296.5
+(2004 October 18) TDB (Barycentric Dynamical Time). Orbit solution JPL 132.
+They are the eccentricity (e), perihelion distance (q, in astronomical units),
+time of perihelion passage (tp ), inclination (I), longitude of the node (Ω), and
+argument of perihelion (ω). Angles are in degrees.
+
+            e     q (au)    tp (TDB)            I         Ω          ω
+         1.0005   0.8498    2453464.16        86.7612   93.9029   181.6795
+
+
+    The orbit reported in Table 2 is propagated for 10 years starting on 2000
+April 3, that is 5 years before perihelion passage. Figure 2 displays the perfor-
+mance curves for each of the selected formulations. Since external perturbations
+are weak in this example, using the modiﬁed equinoctial elements instead of
+Cartesian coordinates reduces the number of function calls by approximately
+a factor of two for the same accuracy. Time is the independent variable also
+for ModEq, which means that the performance gains with respect to Cowell
+are only due to the use of slowly varying variables. In Dromo, the ﬁctitious
+time behaves like the true anomaly when the motion is Keplerian, and it re-
+sults in this method being four and two times faster than Cowell and ModEq,
+respectively. The improvement comes from a more eﬃcient step size control,
+speciﬁcally during pericentre passage. The methods Nat–Burdet, KS–Bond,
+and the intermediate elements presented in this paper all rely on a (ﬁrst-order)
+Sundman time transformation. Thus, the independent variable evolves like the
+hyperbolic anomaly, which naturally optimises the discretisation of hyperbolic
+orbits. These three formulations exhibit the best performance: they are almost
+one order of magnitude faster than the integration in Cartesian coordinates in
+this particular example. Only when the comet is close to perihelion, the step size
+is slightly reduced, although the reduction is only by a factor of two compared
+to the two order of magnitude reduction observed when time is the indepen-
+dent variable. The more eﬃcient discretisation of the orbit around perihelion
+produces the aforementioned improvements in performance.
+    The positive eﬀect of the analytic step size adaption, observed thanks to
+introducing a modiﬁed time variable, becomes apparent in Fig. 3. This ﬁgure
+compares the evolution of the time step when Cowell’s method and the new ele-
+ments are used to propagate the orbit. Cowell sequentially reduces the step size
+as the comet approaches the perihelion. This is required to meet the integration
+tolerance as the velocity increases and the problem becomes more sensitive to
+small deviations. Conversely, the length of the integration step shows a small
+variation when the orbit is propagated by the intermediate elements. After the
+comet passes the closest approach with the Sun and moves away from it along
+the outgoing asymptote, the step size increases again for Cowell, while the ve-
+locity decreases. Finally, we observe that far enough from the perihelion, it
+becomes comparable to that of the new formulation.
+
+
+
+                                         24
+                       10 4
+                                                                Cowell
+                                                                ModEq
+                                                                Dromo
+                                                                KS-Bond
+                                                                Nat-Burdet
+      Function calls
+
+
+                                                                New
+
+                       10 3
+
+
+
+
+                       10 2
+
+                        10 -13   10 -11     10 -9       10 -7         10 -5
+                                          Error (-)
+Figure 2: Performance of diﬀerent propagation methods when integrating the
+orbit of comet C/2003 T4. The state error is normalised using the heliocentric
+distance of the comet at the initial time as the unit of length and the unit of
+time is chosen so that the gravitational parameter is normalised to unity.
+
+
+4.2             The comet C/1985 K1 (Machholz)
+Gravitational perturbations from the outer planets cause the orbit of comet
+C/1985 K1 to transition between hyperbolic and elliptic repeatedly, as shown
+in Fig. 4. This behaviour is ideal for testing how a uniform formulation handles
+diﬀerent orbital regimes. The orbit is initially hyperbolic (see the osculating
+orbital elements listed in Table 3), the eccentricity decreases as the comet ap-
+proaches perihelion temporarily becoming less than unity, then increasing to
+produce a hyperbolic orbit at perihelion. The orbit is propagated for 20 years,
+starting 10 years before perihelion.
+    To propagate the orbit of comet C/1985 K1, we resort to the numerical setup
+described in Section 4.1 except that non-gravitational forces are not included.
+Figure 5 compares the performance of the selected formulations. Although
+Cowell’s method does not depend explicitly on the type of orbit, its overall per-
+formance is aﬀected by the fact that using the physical time as independent
+variable results in an ineﬃcient discretisation of the orbit. The orbital elements
+evolve slowly over time, and consequently, employing the modiﬁed equinoctial
+elements instead of Cartesian coordinates produces a substantial improvement
+in performance. Next, Dromo replaces the physical time with the true anomaly
+and the performance gain observed in Fig. 5 relative to ModEq is due to the an-
+
+
+                                          25
+                          10 -2
+                                                                                                    Cowell
+     Relative step size                                                                             New
+
+
+                               -3
+                          10
+
+
+
+
+                          10 -4
+
+
+
+
+                          10 -5
+                                    0   1        2      3    4         5        6      7       8      9       10
+
+                                                            Time (years)
+Figure 3: Evolution of the integration step size during the propagation of the
+orbit of comet C/2003 T4. The close encounter with the Sun causes a strong
+reduction of the step for Cowell, while it has almost no eﬀect on the new method.
+
+
+
+alytic step size adaption implicit in the change of the independent variable. The
+best behaviour is shown by the formulations relying on the Sundman transfor-
+mation (63): KS–Bond, Nat–Burdet, and the new elements. The performance of
+these three formulations is similar, with the intermediate elements being slightly
+more accurate for small integration tolerances. The new formulation is capable
+of transitioning between orbital regimes without singularities or accuracy losses.
+
+
+Table 3: Osculating elements of C/1985 K1 (Machholz) at epoch JD 2442592.7
+(1975 June 29) TDB (Barycentric Dynamical Time). Orbit solution from
+2008 SAO Comet Catalog. Angles are in degrees.
+
+                           e            q (au)       tp (TDB)              I           Ω              ω
+                   1.000026             0.1085       2446245.24       16.0812       198.2520       271.7063
+
+
+
+
+                                                                 26
+                          1.00004
+
+                          1.00003
+
+                          1.00002
+   Eccentricity
+
+
+
+                          1.00001
+
+                                    1
+
+                          0.99999
+
+                          0.99998
+
+                          0.99997
+
+                          0.99996
+                                        0            5            10           15            20
+
+                                                            Time (years)
+
+                          Figure 4: Evolution of the eccentricity of comet C/1985 K1.
+
+
+
+                                                                                Cowell
+                           10   4                                               ModEq
+                                                                                Dromo
+                                                                                KS-Bond
+                                                                                Nat-Burdet
+         Function calls
+
+
+
+
+                                                                                New
+
+
+                           10 3
+
+
+
+
+                           10 2
+                            10 -14          10 -12       10 -10        10 -8   10 -6     10 -4
+                                                           Error (-)
+Figure 5: Performance of diﬀerent propagation methods when integrating the
+orbit of comet C/1985 K1.
+
+
+                                                            27
+5    Conclusions
+Uniform and regular orbital elements for propagating the motion of a celestial
+body in the perturbed two-body problem have been developed so far only from
+the KS and Sperling’s regularisations. In both methods, the variables from
+which the elements are generated contain information on the radial distance
+and the orientation of the radial unit vector. By contrast, if the separate evo-
+lution of these two quantities is considered, as in the Burdet–Ferrándiz (BF)
+regularisation, an intrinsic singularity arises for r = 0.
+    In this work, a formulation that consists of eight orbital elements is pre-
+sented. We derive them following the spirit of BF decomposition, but we in-
+troduce a new time variable χ through a transformation of the Sundman type,
+instead of using Eq. (2) as in the BF regularisation. First, for the radial dis-
+placement r, we ﬁnd a second-order linear diﬀerential equation with constant
+coeﬃcients (as expected). The two intermediate elements (r0 , σ0 ) that stem
+from its solution correspond to the values of r and its derivative with respect
+to χ at the epoch t0 . We note that secular terms aﬀect their derivatives for
+negative values of the total energy, and we identiﬁed the reason. This drawback
+is common to all the universal formulations based on orbital elements (see In-
+troduction) and can be avoided only at the price of losing universality. Then,
+following a more geometric approach, we deﬁne an intermediate reference frame
+whose evolution keeps track of the orientation of the orbital plane and of a
+reference direction on it. From such direction, the position of the particle is
+obtained by a counterclockwise rotation of ν (Eq. 82) about the angular mo-
+mentum vector. The angle ν is determined by χ, the total energy, r0 , σ0 , and
+when U = 0, it corresponds to the diﬀerence between the true anomalies at
+times t and t0 (measured from the pericentre of the osculating conic at time t).
+The total energy (multiplied by −2), the time element t0 , and four Euler param-
+eters associated with the intermediate frame are the remaining six intermediate
+elements. The resulting set is uniform, but not universal because it does not
+work when the angular momentum is zero. An alternative formulation which is
+completely free of secular terms is also presented.
+    In addition to a pure theoretical interest in alternative variables for new
+special perturbation methods, we are concerned with their practical utility. Nu-
+merical tests performed by the authors and others corroborate our belief that
+they can be much more accurate and faster than the classic computation of
+orbits with Cartesian coordinates. We are aware that the implementation be-
+comes more diﬃcult, because the independent variable is not the physical time
+and the conversion between position and velocity and the new quantities in-
+volves complicated expressions. Therefore, in order to encourage the reader
+to code the proposed method, we have reported all the necessary formulae for
+propagating initial conditions and computing orbits from observations by means
+of the diﬀerential corrections method.
+    Finally, we tested the performance of the intermediate elements by evaluating
+their accuracy and computational speed with respect to several other methods.
+For this purpose, we propagated the orbits of the hyperbolic comet (with eccen-
+
+
+                                       28
+tricity almost equal to 1) C/2003 T4 (LINEAR) and of the comet C/1985 K1
+(Machholz) whose eccentricity ﬂuctuates around 1. The new elements and other
+two universal formulations, which rely on Sundman’s time transformation and
+include a time element, substantially outperform Cowell’s method. In the case
+of C/1985 K1, the intermediate elements reach the highest accuracy with a rel-
+atively small computational cost. Finally, we also checked that secular terms do
+not aﬀect the performance shown by the proposed formulation for propagation
+times in the order of centuries/thousands of years.
+
+
+6    Acknowledgements
+The author G. Baù acknowledges the project MIUR-PRIN 20178CJA2B titled
+“New frontiers of Celestial Mechanics: theory and applications”. Part of this
+work was carried out at the Jet Propulsion Laboratory, California Institute of
+Technology, under a contract with the National Aeronautics and Space Admin-
+istration. We also thank Z. Knežević for providing us with the correct reference
+to the paper of M. Milanković, and the reviewers for their useful comments.
+
+
+A     Avoiding secular terms, alternative formula-
+      tion
+When the total energy is negative (E < 0), secular terms that appear in the
+derivatives of the intermediate elements (Eqs. 66–73) may deteriorate the accu-
+racy of the predicted state in long-term propagations. The proposed formulation
+can be modiﬁed in order to overcome this drawback. The idea is inspired by
+the regularised methods presented in Stiefel et al (1967, chap. 1).
+   By setting β = 1, we can rewrite Eq. (7) as
+
+                      r′′ = 2E¯r + µ + r(rFr + 2EK − 2E¯),
+
+where EK = E − U is the Keplerian energy and E¯ is the value taken by E at
+the initial time of the propagation. The quantity E¯ is a constant which is ﬁxed
+by the initial position and velocity of the particle. Let us introduce
+
+                   ᾱ = −2E¯,       α = −2E ,            δα = ᾱ − α.
+
+The solution of r′′ = 2E¯r + µ is given by
+
+                   r = r0 u0 (χ; ᾱ) + σ0 u1 (χ; ᾱ) + µu2 (χ; ᾱ),       (100)
+
+where we have introduced the universal functions (see Eq. 11):
+                                    ∞
+                                    X              (ᾱχ2 )k
+                  un (χ; ᾱ) = χn         (−1)k             ,   n ∈ N.
+                                                  (n + 2k)!
+                                    k=0
+
+
+
+
+                                            29
+The derivatives of un with respect to χ do not contain secular terms. Following
+the same steps as in Sections 2.3 and 2.4, we obtain
+
+                               r0′ = −ru1 (rFr − 2U + δα),
+                              σ0′ = ru0 (rFr − 2U + δα),
+                               t′0 = ru2 (rFr − 2U + δα).
+
+Then, by substituting in Eq. (24) the expression of r in (100) we arrive at the
+Gaussian equation
+
+                                      c u1 12 χ; ᾱ
+                                                   
+                        ν
+                    tan =                                   .
+                             r0 u0 12 χ; ᾱ + σ0 u1 21 χ; ᾱ
+                                           
+                        2
+
+Diﬀerentiation with respect to χ yields
+           2hc            r                                α′ r                 i
+    ν′ =       (d − r0 ) + (rFr − 2U )(ᾱr0 u2 − σ0 u1 ) −      (r0 u1 + σ0 u2 ) ,
+           d r            c                                2c
+where
+                                     d = 2r0 + rδα u2 .
+    The expressions of r0′ , σ0′ , t′0 , ν ′ reported above do not contain secular terms
+for E¯ < 0. Thus, we can select r0 , σ0 , α, t0 and four Euler parameters exactly
+as we did in Section 2.6, for the elements of a formulation of the perturbed
+two-body problem, which will be free of secular terms. The case d = 0 does not
+introduce additional singularities to those aﬀecting the intermediate elements
+(see Section 2.6).14 Finally, we note that the same relation as in (83) for c2 does
+not hold anymore, and we have to use instead
+
+                             c2 = r0 (2µ − r0 ᾱ) − σ02 + δα r2 .
+
+
+B       Partial derivatives of ι5 , ι6 , ι7 , ι8 with respect
+        to position and velocity at the initial time
+We show a possible way of deriving formulae (98) and (99). We recall that er ,
+eν , ez are the unit vectors of the LVLH reference frame (see Eqs. 5). From the
+following relation for the angular momentum vector
+
+                                        r × ṙ = hez ,
+
+we obtain
+                   ∂ez         ∂h         ∂ez          ∂h
+                     h = V − ez ,       h      = R − ez ,                               (101)
+                    ∂r         ∂r         ∂ ṙ         ∂ ṙ
+where V , R are the skew-symmetric matrices deﬁned by
+
+           V (1, 2) = v3 ,            V (1, 3) = −v2 ,                V (2, 3) = v1 ,
+                                                1
+ 14 In fact, it can be shown that rd = 2c2 u2     χ; ᾱ / sin2 ν2 .
+                                                       
+                                            1   2
+
+
+
+                                                30
+          R(1, 2) = −r3 ,             R(1, 3) = r2 ,                 R(2, 3) = −r1 ,
+
+with ri = r · ei , vi = ṙ · ei , i = 1, 2, 3, and
+                               ∂h                    ∂h
+                                  = eTz V,                = eTz R.
+                               ∂r                    ∂ ṙ
+By inserting in Eqs. (101) the expression of ez as a function of I, Ω, that is
+
+                     ez = e1 sin Ω sin I − e2 cos Ω sin I + e3 cos I,
+
+we ﬁnd
+         ∂Ω       1                                          ∂Ω     r sin L T
+            =−         (cos L + e cos ω)eTz ,                     =        e ,            (102)
+         ∂r    p sin I                                       ∂ ṙ   h sin I z
+         ∂I  1                                               ∂I     r
+            = (sin L + e sin ω)eTz ,                              = cos L eTz ,           (103)
+         ∂r  p                                               ∂ ṙ   h
+where L = ω + f is the argument of latitude.
+  Then, from the relation
+
+                        cos L = (er · e1 ) cos Ω + (er · e2 ) sin Ω,
+
+we can write
+                   ∂L    ∂Ω        1                     ∂L      ∂Ω
+                      =−    cos I + eTν ,                     =−      cos I,              (104)
+                   ∂r    ∂r        r                     ∂ ṙ    ∂ ṙ
+where we have used
+                               ∂er
+                                       = (Id − er eTr ),
+                                ∂r
+and Id is the 3 × 3 identity matrix.
+   The Euler parameters ι5 , ι6 , ι7 , ι8 at the initial time t∗ are written in terms of
+L, Ω, I by means of Eqs. (58), in which we set Ψ = L. Then, these expressions
+are diﬀerentiated with respect to r, ṙ, and taking into account (102), (103),
+and (104), we obtain formulae (98) and (99).
+
+
+C       Partial derivatives of ι′1 , . . . , ι′8 with respect to
+        intermediate elements
+Let us recall that ι = (ι1 , . . . , ι8 )T . We deﬁne
+
+                        ∂(run )          ∂r 1              ∂bn
+  Kn = (rFr − 2U )              + run Fr    − (σPr + hPν )
+                          ∂ι             ∂ι 2               ∂ι
+                                   bn ∂ι′3       ∂F
+                                                     r    ∂U 
+                                 +         + run r     −2      ,               n = 1, 2, 4, 5,
+                                    4 ∂ι           ∂ι      ∂ι
+where
+                                                                  ι2 U1 − ι1 ι3 U2
+             u1 = −U1 ,      u 2 = U0 ,    u 4 = U2 ,      u5 =                    ,
+                                                                        cι1
+
+                                              31
+and
+                       b1 = −ι1 Ũ2 − ι2 Ũ3 − 2µU22 ,
+                       b2 = ι1 (2χ + Ũ1 ) + ι2 Ũ2 + µ(Ũ3 − 4U3 ),
+                       b4 = ι1 (Ũ3 − 4U3 ) + 2ι2 U22 + µ(Ũ5 − 8U5 ),
+                             1 hr                         i
+                       b5 =         (ι1 U1 + ι2 U2 ) − cU3 .
+                            2ι1 c
+The desired derivatives take the form
+   ∂ι′n
+         = Kn , n = 1, 2, 4,                                                 (105)
+     ∂ι
+    ∂ι′3       ∂σ          ∂h       ∂Pr      ∂Pν 
+         = −2 Pr      + Pν      +σ         +h      ,                         (106)
+     ∂ι            ∂ι       ∂ι        ∂ι       ∂ι
+ ∂ι′       αk  ∂h ∂c c − h ∂r                 r       ∂r      r ∂h
+2 k+4 =             −     +            + rK5 +       2Fz    − Fz
+   ∂ι       r ∂ι      ∂ι       r ∂ι               h      ∂ι      h ∂ι
+               ∂Fz                     r2 h                ∂ν    ∂βk      ∂γk i
+           +r        (βk cν + γk sν ) + Fz (γk cν − βk sν )    +      cν +     sν
+                ∂ι                       h                  ∂ι     ∂ι      ∂ι
+                ∂αk
+           +N       , k = 1, 2, 3, 4,                                        (107)
+                 ∂ι
+where cν , sν denote cos ν, sin ν, respectively, and αk , βk , γk denote the k-th
+component of the vectors α, β, γ deﬁned below:
+ α = (−ι8 , ι7 , −ι6 , ι5 ),      β = (−ι6 , ι5 , ι8 , −ι7 ),    γ = (−ι7 , −ι8 , ι5 , ι6 ).
+The partial derivatives of r, σ, c, h, ν are reported in Section 3.1. Moreover, we
+need the following relations:
+    ∂b1                         3                                                   
+        = − Ũ2 , Ũ3 , ι1 Ũ4 + ι2 Ũ5 + 4µU2 U4 − χ(ι1 Ũ3 + ι2 Ũ4 + 2µU2 U3 ), 05 ,
+    ∂ι                           2
+    ∂b2                      1               3                                    
+        = 2χ + Ũ1 , Ũ2 , ι1 Ũ3 + ι2 Ũ4 + µ(Ũ5 − 4U5 ) + χ(b1 − 2µU4 ), 05 ,
+    ∂ι                        2               2
+    ∂b4                        3                            5
+        = Ũ3 − 4U3 , 2U22 , ι1 (Ũ5 − 4U5 ) + 4ι2 U2 U4 + µ(Ũ7 − 8U7 )
+    ∂ι                          2                            2
+               − χ[ι1 (Ũ4 − 2U4 ) + 2ι2 U2 U3 + µ(Ũ6 − 4U6 )], 05 ,
+        ∂b5                    ∂r r ∂c          ∂c 1  2 2
+2ι1 c       = (ι1 U1 + ι2 U2 )     −       − cU3     +        (c U3 − rι2 U2 ), 2rU2 ,
+        ∂ι                      ∂ι   c ∂ι         ∂ι 2 ι1
+                                                                           
+             r(ι1 U3 + 2ι2 U4 ) − 3c2 U5 + χ[c2 U4 − r(ι1 U2 + ι2 U3 )], 05 ,
+      ∂u5    1  ι2        1                                     ∂c
+          =     − U1 , U1 , [ι2 U3 − χ(ι1 U1 + ι2 U2 )], 05 + u5 c ,
+       ∂ι   cι1  ι1        2                                      ∂ι
+where 05 ∈ R5 is a row vector of null entries. Assuming that U depends only
+on r, t (see the remark in Section 2.6), we have
+                                ∂U    ∂U ∂r ∂U ∂t
+                                    =        +       .                                 (108)
+                                 ∂ι    ∂r ∂ι   ∂t ∂ι
+
+                                             32
+Let us denote by y either F or P, and with yℓ the component of y(r, ṙ, t) along
+one of the directions associated to er , eν , ez . Then, we can write
+                                ∂yℓ       ∂y      ∂eℓ
+                                    = eTℓ    + yT     ,                             (109)
+                                ∂ι        ∂ι      ∂ι
+where
+                         ∂y    ∂y ∂r ∂y ∂ ṙ ∂y ∂t
+                            =         +         +       .                (110)
+                         ∂ι    ∂r ∂ι    ∂ ṙ ∂ι   ∂t ∂ι
+The matrices ∂r/∂ι, ∂ ṙ/∂ι are provided in Section 3.1, together with ∂er /∂ι,
+∂eν /∂ι, while ∂ez /∂ι can be easily obtained from the expression
+
+             ez = (2ι6 ι8 + 2ι5 ι7 , 2ι7 ι8 − 2ι5 ι6 , ι25 − ι26 − ι27 + ι28 )T .   (111)
+
+Also note that
+                 ∂F   ∂P ∂(∇U )                   ∂F   ∂P ∂(∇U )
+                    =    −      ,                    =    −      .                  (112)
+                 ∂r   ∂r   ∂r                     ∂t   ∂t   ∂t
+Finally, we have
+ ∂t            1                                                              
+   = U1 , U2 , [ι1 U3 + 2ι2 U4 + 3µU5 − χ(ι1 U2 + ι2 U3 + µU4 )], 1, 0, 0, 0, 0 .
+∂ι              2
+                                                                            (113)
+
+
+D       Identities for the universal functions
+We collect the identities for the universal functions introduced in Eq. (11) that
+we used to derive some equations of this paper (see Battin, 1999, sects. 4.5,
+4.6). For simplicity, we omit the argument α in the universal functions. These
+formulae are:
+                                                 χn
+                         Un (χ) + αUn+2 (χ) =       , n ∈ N,
+                                                 n!
+                                U0 (χ)2 + αU1 (χ)2 = 1,
+                           U1 (χ)2 − U0 (χ)U2 (χ) = U2 (χ),
+                 U0 (χ)U3 (χ) − U1 (χ)U2 (χ) = U3 (χ) − χU2 (χ),
+                   U1 (χ)U3 (χ) − U2 (χ)2 = 2U4 (χ) − χU3 (χ),
+
+the double argument identities:
+
+                  U0 (2χ) = U0 (χ)2 − αU1 (χ)2 ,
+                  U1 (2χ) = 2U0 (χ)U1 (χ),
+                  U2 (2χ) = 2U1 (χ)2 ,
+                  U3 (2χ) = 2U3 (χ) + 2U1 (χ)U2 (χ),
+                  U5 (2χ) = 2U1 (χ)U4 (χ) + χ2 U3 (χ) + 2U5 (χ),
+
+                                             33
+and the diﬀerential relations:
+                 ∂U0            ∂Um
+                      = −αU1 ,       = Um−1 , m ∈ N+ ,
+                 ∂χ              ∂χ
+                     ∂Un   1
+                         = (nUn+2 − χUn+1 ), n ∈ N.
+                     ∂α    2
+
+References
+Allan RR, Ward GN (1963) Planetary equations in terms of vectorial elements.
+  Mathematical Proceedings of the Cambridge Philosophical Society 59(3):669–
+  677
+Amato D, Baù G, Bombardelli C (2017) Accurate orbit propagation in the pres-
+ ence of planetary close encounters. Monthly Notices of the Royal Astronomical
+ Society 470(2):2079–2099
+Amato D, Bombardelli C, Baù G, Morand V, Rosengren AJ (2019) Non-
+ averaged regularized formulations as an alternative to semi-analytical or-
+ bit propagation methods. Celestial Mechanics and Dynamical Astronomy
+ 131(5):21
+Battin RH (1964) Astronautical Guidance. McGraw-Hill, Inc., New York
+Battin RH (1999) An Introduction to the Mathematics and Methods of Astro-
+  dynamics, revised edn. AIAA Education Series, AIAA, Reston, VA
+Baù G, Urrutxua H, Peláez J (2014) Edromo: an accurate propagator for ellipti-
+  cal orbits in the perturbed two-body problem. Advances in the Astronautical
+  Sciences 152:379–399, proceedings of the 24th AAS/AIAA Space Flight Me-
+  chanics Meeting, January 26-30, 2014, Santa Fe, New Mexico
+Baù G, Bombardelli C, Peláez J, Lorenzini E (2015) Non-singular orbital ele-
+  ments for special perturbations in the two-body problem. Monthly Notices of
+  the Royal Astronomical Society 454(3):2890–2908
+Baù G, Milani A, Bombardelli C, Amato D (2016) New orbital el-
+  ements for accurate orbit propagation in the Solar System. URL
+  https://indico.esa.int/event/111/contributions/288/attachments/418/463/PaperICATT.pdf,
+  presented at the 6th International Conference on Astrodynamics Tools and
+  Techniques, 14-17 March 2016, Darmstadt
+Bohlin K (1911) Note sur le probléme des deux corps et sur une intégration
+  nouvelle dans le probléme des trois corps. Bulletin Astronomique 28:113–119
+Bond VR (1974) The uniform, regular diﬀerential equations of the KS trans-
+  formed perturbed two-body problem. Celestial Mechanics 10:303–318
+Born GH, Christensen J, Seversike LK (1974) Special perturbations employing
+  osculating reference states. Celestial Mechanics 9:41–53
+
+                                     34
+Broucke RA (1966) Regularized special perturbation techniques using Levi-
+  Civita variables. In: 3rd and 4th Aerospace Sciences Meeting, American In-
+  stitute of Aeronautics and Astronautics, paper 66-8
+Broucke RA, Cefola P (1972) On the Equinoctial Orbit Elements. Celestial
+  Mechanics 5:303–310
+Broucke RA, Cefola P (1973) A note on the relations between True and Eccentric
+  Anomalies in the Two-Body Problem. Celestial Mechanics 7:388–389
+Broucke RA, Lass H (1975) On redundant variables in Lagrangian mechanics,
+  with applications to perturbation theory and KS regularization. Celestial Me-
+  chanics 12(3):317–325
+Burdet CA (1968) Theory of Kepler Motion: The General Perturbed Two Body
+  Problem. Zeitschrift für angewandte Mathematik und Physik 19:345–368
+Burdet CA (1969) Le mouvement Keplerien et les oscillateurs harmoniques.
+  Journal für die reine und angewandte Mathematik 238:71–84
+Chelnokov YN (1992) Application of quaternions in the theory of orbital motion
+  of a satellite. I. Cosmic Research 30(6):612–621
+Chelnokov YN (1993) Application of quaternions to artiﬁcial satellite orbital
+  motion. II. Cosmic Research 31(3):231–240
+Crawford DF (1969) Two-Body Perturbation Matrix. AIAA Journal 7(6):1163–
+  1164
+Danby JMA (1992) Fundamentals of Celestial Mechanics, 2nd edn. Willmann-
+ Bell, Richmond, VA
+Deprit A (1968) Concerning Kustaanheimo-Stiefel’s Regularization. Zeitschrift
+  für angewandte Mathematik und Physik 19:369–372
+Deprit A (1975) Ideal Elements for Perturbed Keplerian Motions. Journal of
+  Research of the National Bureau of Standards 79B (Math. Sci.)(1-2):1–15
+Deprit A, Elipe A, Ferrer S (1994) Linearization: Laplace vs. Stiefel. Celestial
+  Mechanics and Dynamical Astronomy 58(2):151–201
+Der GJ (1997) An Elegant State Transition Matrix. Journal of the Astronautical
+  Sciences 45(4):371–390
+Everhart E, Pitkin ET (1983) Universal variables in the two-body problem.
+  American Journal of Physics 51(8):712–717
+Ferrándiz JM (1988) A general canonical transformation increasing the number
+  of variables with application in the two-body problem. Celestial Mechanics
+  41:343–357
+
+
+
+                                      35
+Goldstein H (1980) Classical Mechanics, 2nd edn. Addison-Wesley, Reston, VA
+Goodyear WH (1965) Completely General Closed-Form Solution for Coordi-
+ nates and Partial Derivatives of the Two-Body Problem. The Astronomical
+ Journal 70(3):189–192
+Goodyear WH (1966) A general method for the computation of Cartesian coor-
+ dinates and partial derivatives of the two-body problem. Tech. Rep. CR-522,
+ NASA
+Hansen PA (1857) Auseinandersetzung einer zweckmässigen Methode zur
+ Berechnung der absoluten Störungen der kleinen Planeten. Abhandlungen
+ der Königlich Sächsischen Gesellschaft der Wissenschaften 5:41–218
+Herrick S (1945) “Nearly Parabolic” and “Nearly Rectilinear” Orbits. The As-
+  tronomical Journal 51:123
+Herrick S (1953) Tables for Rocket and Comet Orbits. U. S. National Bureau
+  of Standards, Applied Mathematics Series, 20, Washington, D. C.
+Herrick S (1960) Positions, velocities, ephemerides referred to the dynamical
+  center. Astrodynamical report, No. 7, TN-60-773, Air Force Oﬃce of Scientiﬁc
+  Research
+Herrick S (1965) Universal Variables. The Astronomical Journal 70(4):309–315
+Herrick S (1971) Astrodynamics. Von Nostrand Reinhold, London
+Junkins J, Akella MR, Alfriend KT (1996) Non-Gaussian error propagation in
+  orbital mechanics. Journal of the Astronautical Sciences 44(4):541–563
+Kustaanheimo P, Stiefel EL (1965) Perturbation theory of Kepler motion based
+ on spinor regularization. Journal für die reine und angewandte Mathematik
+ 1965(218):204–219
+Lara M (2017) Note on the ideal frame formulation. Celestial Mechanics and
+  Dynamical Astronomy 129:137–151
+Marsden BG, Sekanina Z, Yeomans DK (1973) Comets and nongravitational
+ forces. V. The Astronomical Journal 78(2):211–225
+Milani A, Gronchi GF (2010) Theory of Orbit Determination. Cambridge Uni-
+ versity Press, New York
+Milanković M (1939) O upotrebi vektorskih elemenata u računu planetskih pore-
+ mećaja. Glas SAN, Beograd CLXXXI:1–72
+Peláez J, Hedo JM, de Andrés PR (2007) A special perturbation method in
+  orbital dynamics. Celestial Mechanics and Dynamical Astronomy 97(2):131–
+  150
+
+
+
+                                     36
+Pitkin ET (1965) A Regularized Approach to Universal Orbit Variables. AIAA
+  Journal 3:1508–1511
+Pitkin ET (1966) Integration with Universal Variables. AIAA Journal 4(3):531–
+  534
+Roa J (2017) Regularization in Orbital Mechanics, Theory and Practice. De
+  Gruyter, Berlin, Boston
+Roa J, Kasdin NJ (2017) Alternative set of nonsingular quaternionic orbital
+  elements. Journal of Guidance, Control, and Dynamics 40(11):2737–2751
+Roa J, Peláez J (2015) Orbit propagation in Minkowskian geometry. Celestial
+  Mechanics and Dynamical Astronomy 123(1):13–43
+Roa J, Peláez J (2017a) The theory of asynchronous relative motion I: time
+  transformations and nonlinear corrections. Celestial Mechanics and Dynami-
+  cal Astronomy 127(3):301–330
+Roa J, Peláez J (2017b) The theory of asynchronous relative motion II: uni-
+  versal and regular solutions. Celestial Mechanics and Dynamical Astronomy
+  127(3):343–368
+Rosengren AJ, Scheeres DJ (2014) On the Milankovitch orbital elements for
+  perturbed Keplerian motion. Celestial Mechanics and Dynamical Astronomy
+  118(3):197–200
+Roy AE, Moran PE (1973) Studies in the application of recurrence relations to
+  special perturbation methods. Celestial Mechanics 7(2):236–255
+Scheifele G (1970) On nonclassical canonical systems. Celestial Mechanics 2:296–
+  310
+Sconzo P (1967) A heuristic approach to the introduction of a universal variable.
+  Memorie della Società Astronomica Italiana 38:85–105
+Shefer VA (2007) Variational equations in parametric variables and transforma-
+  tion of their solutions. Cosmic Research 45(4):348–353
+Shepperd SW (1985) Universal Keplerian State Transition Matrix. Celestial
+  Mechanics 35:129–144
+Sitarski G (1967) Correction of Cometary Orbits in Rectangular Coordinates.
+  Acta Astronomica 17(1):65–72
+Sperling H (1961) Computation of Keplerian Conic Sections. American Rocket
+  Society Journal 31(5):660–661
+Stiefel E, Rössler M, Waldvogel J, Burdet CA (1967) Methods of Regularization
+  for Computing Orbits in Celestial Mechanics. Tech. Rep. CR-769, NASA,
+  Washington, D. C.
+
+                                       37
+Stiefel EL, Scheifele G (1971) Linear and Regular Celestial Mechanics. Springer-
+  Verlag, Berlin
+Stumpﬀ K (1947) Neue Formeln und Hilfstafeln zur Ephemeridenrechnung. As-
+  tronomische Nachrichten 275:108–128
+Stumpﬀ K (1959) Himmelsmechanik. VEB-Verlag, Berlin
+Stumpﬀ K (1962) Calculation of Ephemerides from Initial Values. Tech. Rep.
+  TN D-1415, NASA
+Sundman KF (1913) Mémoire sur le problème des trois corps. Acta Mathematica
+  36:105–179
+Urrutxua H, Sanjurjo-Rivo M, Peláez J (2016) DROMO propagator revisited.
+  Celestial Mechanics and Dynamical Astronomy 124(1):1–31
+Vitins M (1978) Keplerian Motion and Gyration. Celestial Mechanics 17:173–
+  192
+Walker MJH, Ireland B, Owens J (1985) A set of modiﬁed equinoctial orbital
+ elements. Celestial Mechanics 36:409–419
+Wong P (1962) Nonsingular Variation of Parameter Equations for Computation
+ of Space Trajectories. American Rocket Society Journal 32:264–265
+
+
+
+
+                                      38
+

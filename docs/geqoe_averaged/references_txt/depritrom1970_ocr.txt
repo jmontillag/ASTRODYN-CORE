@@ -1,0 +1,3183 @@
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+FOR SMALL AND MODERATE ECCENTRICITIES
+ANDRE DEPRIT and ARNOLD ROM
+Boeing Scientific Research Laboratories, Seattle, Wash., U.S.A.
+(Received 27 August, 1969)
+Abstract. Perturbation techniques based on Lie transforms as suggested by Deprit were used as
+the theoretical foundation for programming the analytical solution of the Main Problem in Satellite
+Theory (all gravitational harmonics being zero except Jz). The collection of formulas necessary and
+sufficient to construct an ephemeris is given in the exposition. Short and long period displacements,
+as well as the secular terms, have been obtained up to the third order in Je as power series of the
+eccentricity. They result from two successive completely canonical transformations which it has
+been found convenient not to compose into a unique transformation. Division by the eccentricity
+appears nowhere in the developments — neither explicitly nor implicitly. The determination of the
+constants of motion from the initial conditions has been given an elementary solution that is both
+complete and explicit without being iterative. The program was developed by Rom from MAO’s
+package of subroutines for Mechanized Algebraic Operations. Reliability tests have been run in two
+instances: in-track errors for ANNA 1B are only 20 cm after 210 days in orbit, while for RELAY II,
+they are 2.4 m, even after 350 days in orbit.
+1. Introduction
+By the present communication, we announce that the theory of an artificial satellite
+can be produced explicitly in fully analytical form by means of programs which
+enable computers to process literal expressions. We justify this effort by displaying
+in two particular instances the accuracy yielded by the series over very long arcs.
+Theories of artificial satellites can be characterized by the basic coordinates they
+use to map the phase space. For no other reason than our personal liking for Delau-
+nay’s elements, we have chosen to develop the Main Problem as set up by Brouwer
+(1959). This selection does not imply a judgment on the relative merits of Keplerian
+ellipses versus spheroidal coordinates
+(Vinti,
+Kislik, Aksenov),
+elliptic elements
+derived from spheroidal coordinates (Iszak) or other intermediate orbits (Sterne,
+Garfinkel, Aksnes). But we submit that comparison of analytical theories will not
+lead to definitive conclusions unless we have the capabilities of generating each of
+them automatically by computer so that we can transfer analytically the constants
+of one theory into those of any other.
+Our treatment of the Main Problem is original on five points:
+(i) We discarded the so-called Von Zeipel’s method, which is an algorithm devised
+by Poincaré (1893) to generate a canonical transformation from a determining
+function in mixed variables (old coordinates and new momenta). Instead, we use
+a formalism proposed elsewhere (Deprit, 1969) under the name of Lie transforms.
+Celestial Mechanics 2 (1970) 166-206. All Rights Reserved
+Copyright © 1970 by D. Reidel Publishing Company, Dordrecht- Holland
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+167
+The advantage is that we generate explicitly the canonical transformations and their
+inverses without inversions or substitutions, and that we avail ourselves of a systematic
+procedure for transforming any state function into the new phase variables.
+(ii) We gave up Brouwer’s plan for a theory in a closed form. Indeed, although we
+could reproduce by Lie transforms the first order terms computed by Brouwer with
+Von Zeipel’s method, we found that, at the second order, the quadrature for W,
+prescribed by the Lie transforms involves, among others, terms of the type
+(l—f)r-%sin2g,
+(l—f)r°*sin(f
++ 2g)
+(l—f)r-*sin2g,
+(l—f)r°*sin(f
+— 2g)
+(l—f)r-?sin2g,
+(l—f)r-°sin(f +29)
+(I— f)r° sin(f — 29).
+We tried repeatedly to express in closed form the integrals of these functions over
+the mean anomaly. Actually, Moses (1969) indicated that such quadratures might
+not be expressible in closed form by means of the usual elementary functions. Similar
+terms have been encountered by Aksnes (1967) in his theory of an artificial satellite.
+In sum, the possibility of implementing Brouwer’s theory beyond the second order
+in a closed form by means of rational, sine and cosine functions may now be regarded
+aS an open question that might likely be answered in the negative. For this reason,
+we decided to expand the perturbing function in powers of the eccentricity.
+(iii) Delaunay’s mapping from polar coordinates to elliptic elements has the zero
+eccentricity as a singularity. It causes troubles in the corrections to be computed for
+the mean anomaly and the argument of perigee. One way of circumventing them
+would be to coordinatize the phase space by means of eccentric elements as defined
+by Poincaré or Hori. But it would generate considerable, although not insuperable,
+complications in the perturbation algorithm
+(see, for instance,
+Meffroy,
+1968).
+Instead, taking advantage of the systematic rule offered by Lie transforms for con-
+verting state functions, we decided, on one hand, to retain Delaunay’s elements as
+the phase coordinates, while, on the other hand, we base the ephemeris of the satellite
+on functions of these phase coordinates that are exempt from singularities for zero
+eccentricities. We have selected the mean distance
+F=/+g to the node, the eccentric
+functions C=e cosg, S=e sing, and the usual Delaunay’s elements, namely the
+longitude A of the ascending node, the polar component H of the angular momentum,
+and the action L=,/ (ua).
+(iv) We obtain the short and long period terms through the third order in J,, and
+the secular terms through the fourth order in J,. In practice, so high an order may
+seem unrealistic. But, because the series are purely literal, they constitute a sort of
+archive document: within the accuracy of twelve significant figures, their coefficients
+have been determined once and for all. In the majority of cases where the second
+order is sufficient, the user can ignore in the series the contributions of the third order.
+But for very long arc predictions, it is, of course, imperative to take into account
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+168
+ANDRE DEPRIT AND ARNOLD ROM
+the secular terms of order three and four. In sum, the higher the order ofa
+literal
+theory, the more users it is likely to serve.
+Brouwer’s theory consists essentially of two successive canonical transformations.
+We tried to compose them into a unique transformation as Brouwer proposed it in
+his original paper. But the operations involved so large a number of terms in the end
+products as well as in the intermediate results that we concluded it would be more
+economical to keep the two mappings separate.
+(v) The Main Problem of an artificial satellite is treated here explicitly as a problem
+of initial conditions. The constants of the motion are not left to be determined by
+successive iterations (Cain, 1962) or by least squares; the inverse canonical trans-
+formations are used to develop explicitly the series that express the average elements
+in terms of the osculating elements.
+The present communication, rather broad in its intentions, means more than
+reproducing by machine the original paper of Brouwer and its extension by Kozai.
+In fact we reworked its underlying formalism and saw to it that it lended itself to a
+smooth automatic processing by computers. At the same time, we eradicated the
+main sources of difficulties that so far have adversely affected the use of several
+theories of artificial satellites, namely, the premature truncations in J,, the determi-
+nation of the constants of the motion, and the singularity of the zero eccentricity.
+Having established that the Main Problem of Brouwer’s theory can be solved to the
+greater convenience of the users, we reckon that the completion of Brouwer’s theory
+now is more a matter of developmental effort than a research problem.
+The basic steps of the paper are the classical ones. We expounded on the introduc-
+tion of Delaunay’s variables with more details than are necessary for an expert (Section
+3); but, in the classroom and in seminars, we observed that the standard references
+do not adequately meet with the demands of astrodynamics engineers in this matter.
+Sections 4-6 cover the elimination of short period terms, i.e., the construction of a
+canonical transformation to average over the mean anomaly, while Sections 7 and
+8 outline the elimination of the long period terms, i.e., the averaging over the argu-
+ment of perigee by constructing a second canonical transformation. We conclude the
+analytical study by indicating how the secular equations and the ephemeris (in
+position and velocity) ought to be computed so that the singularity of zero eccen-
+tricity can be readily eradicated (Sections 9 and 10).
+Finally we present numerical evidence as to the reliability of the present solution.
+As illustrations, we took the satellites ANNA 1B and RELAY II because their
+orbits have recently served to compare various theories (Bonavito et al.,
+1969).
+Positions and velocities computed from the series are compared with the results of
+an accurate stepwise integration of the Main Problem. The errors exhibited are
+unusually small, although they are accumulating over time intervals comparable
+with the period of rotation of the perigee. Our purpose here is only to establish that
+the analytical solution as we have it does not distort appreciably, even over long
+arcs, the problem it purports to solve, which is solely Brouwer’s Main Problem of
+Satellite Theory.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+169
+2. The Main Problem
+In the six-dimensional phase space product of the three-dimensional Euclidean space
+of positions (x, y, z) by the three-dimensional Euclidean space of velocities (XY, Y, Z),
+consider the Hamiltonian function
+rn
+R.\
+H=4(X? 4 Y°+Z*)—-- [ — iJ, (*) (3 sin?B— |
+(1)
+r
+r
+where
+r= |x? 4 y? 4 z*|t/?
+and f is the latitude with respect to the coordinate plane Oxy, thus unambiguously
+defined by the trigonometric relations
+cosB =(x*4+ y*)'*/r,
+sinB =z/r.
+The system described by the Hamiltonian (1) constitutes the Main Problem (MP)
+in the theory of a close satellite for an oblate planet. In that context, u>0 is the
+constant of gravitation for the planet (dimension: length*/time’), R,>0 is the mean
+radius of the planet, whereas J,40 is a (dimensionless) constant of oblateness.
+This is a reversible system with three degrees of freedom. Its Hamiltonian being
+conservative, it admits as a first integral
+A = constant.
+(2)
+Moreover the same Hamiltonian being invariant with respect to the commutative
+group of rotations around the position axis Oz, the MP possesses as a second integral
+the function
+H=xY-—yX,
+(6))
+which is the component along Oz of the angular momentum per unit of mass with
+respect to O for the particle in motion relative to the coordinate system Oxyz.
+The integral (3) is used to render ignorable one coordinate in the Hamiltonian (1).
+Consider the function
+S = S(xq, yy, h, X, Y, Z)
+= — xy(X cosh + ¥ sinh) — yy[(— X sinh + Y cosh) + Z7]*”.
+For the sake of brevity introduce the auxiliary function
+I =1(h, X, Y, Z)
+unambiguously defined by the consistent trigonometric relations
+cos] =(— X sinh + Y cosh)/[(— X sinh + Y cosh) + Z7]'”,
+sin
+J = Z/[(— X sinh + Y cosh)? + Z7]'".
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+170
+ANDRE DEPRIT AND ARNOLD ROM
+The equations
+x =— 0S/0X = xy cosh — yy sinhcosT,
+y =— OS/0Y = xy sinh + yy coshcosT,
+z=— 0S/0Z = yy sin,
+Xy = — OS/Oxy = X cosh + Y sinh,
+Yy = — 0S/0yy =[(— X sinh + Y cosh) + Z7]"”,
+H =—0S/0éh=xY
+— yX
+define implicitly a completely canonical transformation from the
+state variables
+(x, y, z, X, Y, Z) to the state variables (xy, yy, h, Xy, Yy, H). The first three equations
+determine a coordinate transformation from the position frame Oxyz to any frame
+OxyyyN whose plane Oxyyy contains the position vector. This transformation
+composes a rotation about the axis Oz with an amplitude / that carries the axis Ox
+onto the axis Oxy, and a rotation about the axis Ox, with the amplitude J that carries
+the plane Oxy onto the plane Oxyyy. Accordingly the angle h is called the longitude
+of the ascending node Oxy, and the angle J the inclination of the plane Oxyyy over
+the plane Oxy.
+The last three equations of the transformation are inverted to obtain
+X = Xy cosh — Yy sinh cos TI,
+Y = Xy sinh + YycoshcosI,
+These formulas mean that the plane Oxyyy has been selected to contain permanently
+the velocity vector, and that (Xy, Yy) are the components of the velocity vector in
+that plane. For this reason the coordinate plane Oxyyy is called the instantaneous
+orbital plane; we shall denote it by I(t).
+The following identities are trivial consequences of the transformation equations:
+Pax
+ty +2 =xy + yy,
+V7=X*
++ Y74+ 27 =XK4- Vy,
+x°-X=xX + y¥ +72Z=XyXy + WwYy.
+The angular momentum G =x
+x X per unit of mass is oriented along the coordinate
+axis ON normal to I(t), its component along that axis being
+G = Xn Yn — YyXy;
+consequently
+yZ—zY =GsinJ sinh,
+zX —xZ=—GsinI cosh,
+H=xY
+—- yX=Goosl.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+171
+Also in the new variables the formulas defining the latitude become
+cosB =(xzx + yx) 7/r,
+sinB = (yy/r) sin.
+As a result of the rotation from the fixed frame Oxyz to the moving frame OxyyyN,
+the Hamiltonian of the MP turns out to be
+KH = H (Xp; YNo > Xn» Yw> H)
+u
+R.\” (, yn
+=4(Xy + Yy)--— [ —4J, (**) (3 — sin’ J — ') |
+(4)
+r
+r
+r
+In the list of arguments for #, where the coordinate A was expected, we place a
+dash to emphasize that it has become an ignorable coordinate.
+For a satellite whose planetocentric distance r is of the order of R,, the part of (4)
+which contains J, is of the order of J,. Henceforth assuming that J, is a small
+number, we decompose (4) into the sum
+KH =H + J,H
+(5.1)
+with
+HL
+KH = Ho (xy, Yu» —> Xn> Ynys —)=4(Xy + Yn) ~~
+(5.2)
+R2
+2
+r
+r
+In this way, the MP is interpreted as basically a problem of two bodies described by
+(5.2), but perturbed by forces whose potential is J,#,.
+Along this line of approach our interest lies in simplifying as much as possible
+the principal component #,. A first step in that direction consists of introducing
+the polar components in the instantaneous orbital plane IJ(t). Thus consider the
+function
+S = S(r, 0, Xy, Yy) = — r(Xy cos6 + Yy sin@)
+and the completely canonical transformation from the state variables (xy, yy, Xn, Yw)
+to the state variables (r, 6, R, O) implicitly defined by the equations
+yy = — OS/OYy =r
+sind,
+R =— OS/or = Xy cos + Yy sind,
+O =— 08/00 = r(— Xy sin# + Yy cos@).
+We easily check that
+O = Xn Yy — YyXy,
+I
+Xyt+ Yy =R*°+507,
+r
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+172
+ANDRE DEPRIT AND ARNOLD ROM
+so that the Hamiltonian (5) transforms into
+with
+If,
+1
+7,
+Ul
+2
+r
+r
+I
+uR,
+2
+2
+HH, =H,(r, 0,-,—-, 9, H) =; —3 LG — 300s I) — 3 sin* I cos 26].
+r
+(6.3)
+We aim at simplifying further the principal part (6.2) by rendering ignorable all
+state variables but one action. This ultimate reduction of the problem of two bodies
+is accomplished by Delaunay’s mapping. Consider the function
+P= P(r, L, G; w) =[—(w/L’) + 2(ulr) -(G7/r*)]"".
+For fixed Z and G such that
+L>G>0,
+(7)
+P taken as a function of r has two distinct roots, namely
+rp =rp(L, G; wy) =[L—(L — G’)'7] Lin,
+rg =rg(L, G3 n)=[L+(L-G*)"] L/[n,
+such that r4>rp>0; moreover, P is real under the condition that rp<r<ry,, in
+which case it takes the form
+P =(uJLr)[(r4— 1) (7 — ry).
+Under the assumption (7), consider the function
+S = S(r, 6, L, G; wu) = GO + | PG L, G; pw) dr
+and the completely canonical transformation from the state variables (r, 0, R, O)
+to the state variables (/, g, L, G) implicitly defined by the equations
+R = 0S/or = P(r, L, G; p),
+0 =0dS/00=G,
+| = 6S/OL = (u"/L’) | d7/P(7, L, G; yu),
+g = 0S/CG=0-—G | d7/7*P(7, L, G; p).
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+173
+It can be expressed in a closed form. Indeed define the functions a=a(L, mw) and
+e=e(L, G) by the conditions
+a>Q,
+LU = pa,
+1>e>0,
+G=L(1-—e’)'”.
+In terms of a and e, the roots ofP(r)=0 become
+rp=a(l—e),
+ry=a(1 +e).
+Now uniformize the quadrature for / by substituting for the variable r an angle u
+such that
+r=a(l—ecosu);
+compute that
+dr = ae sinu du
+r4—1r = 2ae cos*(u/2),
+r — rp = 2ae sin’ (u/2),
+and check that the equation in / becomes
+l/=u-—esinu.
+The quadrature defining g is uniformized by substituting for the variable r an angle
+f such that
+l/r =(1 + ecosf)/p,
+where p=p(G;; p) is defined by the conditions
+p>0,
+G=upp.
+.
+Calculate that
+dr =(e/p)r’ sinf -df,
+rg— r= [2e[(1 — e)] r cos*(f/2),
+r— rp = [2e/(1 + e)] r sin? (f/2),
+and so check that
+g=O0-f.
+From the resulting identities
+R = (Le/r) sinu = (ue/G) sinf
+,
+we easily derive that
+R? + (7/1?) = (2uir) — (WIL).
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+174
+ANDRE DEPRIT AND ARNOLD ROM
+°
+In sum, Delaunay’s mapping transforms the Hamiltonian (6) into the sum
+H =H (1,g,-,L,6,H)=Hy +h,
+(7.1)
+1
+uR2
+r
+x [4 — 3 cos? I) — 3 sin? I sin(2f + 2g)].
+(7.3)
+3. The Case of Small Eccentricities
+We propose to expand the perturbation #, as given by (7.3) in power series of the
+eccentricity, thus limiting the application of the theory to close satellites with small
+eccentricities.
+The development of 1/r3, cos2f/r? and sin2f/r° is implemented automatically
+by computer (Deprit and Rom, 1967). The following remarks are in order. As power
+series of e with coefficients being trigonometric sums in the multiples of /, the func-
+tions 1/r°, e*cos2f/r? and e*sin2f/r* present the d’Alembert characteristic (Brouwer
+and Clemence, 1961). Therefore, if we introduce the mean distance
+F=l+g
+to the ascending node (Delaunay, 1867), we can observe that the power series
+sin(2f
++2
+.
+sin@2f + 29) = ) e) A,, sin(kl + 2F)
+r
+jz0
+k
+whose trigonometric arguments are not / and g but / and F presents also the d’Alem-
+bert characteristic, 1.e., the summation index kK satisfies both conditions:
+[kl <j,
+k =j(mod. 2).
+We complete the expansion of #, by observing that
+cosI = H/G =(H/L)(1—e*) "’,
+thus making use of the binomial series to develop cosJ in powers of e. Eventually
+trivial manipulations of power series in e will bring #, in the form
+Hy =p RIL? Ye! [#150 + Hy; o(H/L)"]
+j=0
+where, for any j>0, the coefficients #,,;) and #,,,; are finite sums of cosine
+functions with arguments of the type p/+2kF, the multiples k and p
+satisfying the
+conditions
+k=0
+or
+1,
+lp] <j,
+p =j (mod.
+2).
+To illustrate the development, we have edited in Table I the results up to degree 5
+in e obtained by computer. We have omitted the factor
+uRiL° = n7?a7(R,/a) = n?R2.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+175
+TABLE I
+Expansion of the Perturbation Potential #;
+ee
+Ind. term
+4-2?
+$- 48?
+op -bi?
+cos 2F
+—$+ar
+SB
+— 34 — Br
+e cos!
+t—an
+33 — Sen"
+e cos(I + 2F)
+— 21 4 24y?
+360 _ 201y?
+e cos(! — 2F)
+3 — 37?
+— 3, — 24’
+e” cos 21
+9 _ 21y?
+1 — 67
+e” cos(2] + 2F)
+— 51 4. 547?
+115 _ 8p?
+e* cos(21 — 2F)
+Missing
+e* cos 3]
+$3 4 1590p?
+e* cos(3l + 2F)
+— 845 4 845y°
+e* cos(3l
+— 2F)
+—~at+ an’
+e* cos 4
+4 — 23?
+e* cos(4l + 2F)
+— 1599 4 1599)?
+e* cos(4I — 2F)
+— 34+
+The various trigonometric arguments are entered in Column
+1;
+the cosines are multi-
+plied already by the smallest power of e compatible with the d’Alembert characteristic.
+Then the second column lists the principal parts of the coefficients, the next column
+the parts of degree e*, and so on. Notice that we have put
+y= H/L.
+As we Shall see later, the theory of satellites depends vitally on the fact that the
+expansion of #, does not contain the argument
+2g =2F—2I. This is proved to be
+the case by computing that
+20
+J |
+4p27-37-3 (
+a)
+<#A,>,=— | #,dl=4y'RIL
+°G
+1—3-—,
+}.
+27
+G
+0)
+The d’Alembert character we just emphasized will also prove quite useful. Indeed
+the perturbation algorithm we are going to use will consist exclusively of Poisson
+brackets, formal quadratures and averagings involving series that will all derive
+from #,. But the algebra of series having the d’Alembert characteristic is closed for
+these operations. Thus by checking that the initial input #, has this character, we
+make certain that the formalism will produce only functions having the same charac-
+ter. In particular, we do not have to make provision for negative powers of the
+eccentricity.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+176
+ANDRE DEPRIT AND ARNOLD ROM
+4. Elimination of the Short Period Terms
+We propose to build a completely canonical transformation from the osculating
+Delaunay’s state coordinates (J, g, h, L, G, H) to new coordinates (/’, g’, h’, L’, G’, H’)
+such that, in the transformed Hamiltonian, the variable /’ becomes ignorable. We
+want the transformation in power series of J,. To this effect we shall use the pertur-
+bation technique based on Lie transforms (Deprit, 1969).
+As we propose to truncate the development after J;, we need only to fill in the
+triangle
+#%
+#2
+Ht
+H9
+1
+ft?
+KH?
+Hs
+KH
+KH»
+Ene
+2a
+ee ce2
+The last line is to be computed in anticipation of the long period elimination that
+we Shall execute later on.
+We enter the triangle by putting
+HS = KH o(-, “>
+9 L, a) —),
+KH? = KH (NV, g’, ~ 9 L, G', H'),
+H=0
+for
+n>2.
+Let us indicate by
+0d Ow
+Od ow
+0p OW
+dd dw
+(OW
+=| aaa an | t+ lacs am ae
+ol’
+oL
+OéL
+al
+0g
+0G
+OG
+ag
+ni op op
+op op
+Oh’ 0H’
+OH’ On
+the Poisson bracket of the functions ¢ and w in the phase space (I’, g’, h’, L, G’, H’).
+The calculations of the Poisson brackets require in the present case some attention.
+We have to deal with functions whose list of arguments is formally
+Lie, H’,l',g’.
+Thus, on one hand, because the variable h’ is ignorable in both @ and y, the calcula-
+tion of (¢; w) will reduce to the first two Jacobians. On the other hand, L’ appears
+in two places, among the explicit variables, but also implicitly in e’, whereas G’
+.
+appears not among the explicit arguments but only implicitly in e’. Therefore by
+differentiation in chain we have that
+0p
+Od Oe’
+(1 — e’’)'!* ad
+(8.1)
+aG’
+de’ 6G
+Le’
+de’
+7)
+0
+0d
+de’
+0
+1-—e'’@
+OL
+OL}.
+de’
+6L
+OL
+}..
+Le’
+Oe
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+177
+The square root appearing in 0¢/0G’ will of course be replaced by its binomial
+expansion in powers of e’. Assume that the functions ¢@ and w have the d’Alembert
+characteristic we already mentioned; then the above formulas indicate that their
+partial derivatives with respect to L’ and G’ lose this characteristic, and worse yet,
+contain terms in e’~*. Nevertheless, the Poisson bracket (¢; W) retains the d’Alembert
+characteristic (Brown and Shook, 1933). For in the course of calculating the
+Jacobians
+0d OW
+=0d OW
+q
+0p OW
+dd Ow
+SPP PE
+ang 2
+ol’ dL
+OL al
+dg’ 0G’
+OG’ dg’
+the terms in e’~* cancel one another. If the programming techniques for manipulating
+literal expressions by computers enable one to process polynomial variables with
+negative exponents — such is the case for MAO (Rom, 1969) — it is relatively easy to
+write subroutines that will implement the partial differentiations 0/0G’, 0/0L’ as
+written in (8.1) and (8.2). Then the natural cancellation in the Poisson bracket (¢; W)
+of the terms in e’~* may serve as a check on the validity of the coding while in the
+initial phase of debugging the program, and asa test of the absolute accuracy on the
+coefficients obtained as soon as the program becomes operational.
+Notice that for any function (I, g’, h’, L’, G’, A’),
+(9; 6) =— wL °(d¢/al').
+After these preliminaries, we outline the operations that accomplished the elimina-
+tion of the short period terms.
+Order 1.
+The basic identity being
+we selected
+He0 =HDr .
+Then putting
+P, =H -H,,
+we obtained the generator W, by the quadrature
+7
+W, = uw? | P, dl’.
+Averaging and quadrature are two operations simple to program in MAO’s language.
+The average of a function @ periodic in /’ is obtained by transferring from the Poisson
+series @ into the Poisson series <@)> the terms whose trigonometric argument does
+not contain /’. Then the terms left in @ constitute the properly periodic part of ¢; let
+us call it A. As
+F contains no constant term, the quadrature
+7
+W= | FP dal’
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+178
+ANDRE DEPRIT. AND ARNOLD ROM
+;
+is aPoisson series having the same type as Y. A term like cos(pl’ +a) of F is
+:
+ferred into W as the term (1/p) sin(pl’ +«); similarly a term like sin(p/’ +a) o
+transferred into W as the term (—1/p) cos(pl’ +«). Table II lists the development ot
+W up to e?.
+TABLE II
+The first order generator W; (the expansion must be multiplied by w?.R.2’—-%)
+oe’?
+e’*
+sin 2F"
+—etan’
+te — ie"
+— tee — Deen”
+e'sin('+2F’)
+9 — 3+ 3”
+‘oe — all
+— $13 — sian”
+e" sin(I' — 2F’)
+—$3+en"
+det en”
+— sora + $73”
+e’* sin 21’
+gs — 44"
+qe — 3n"°
+e* sin(2l'+2F’)
+—S31+4 51y”
+11s — 2p"?
+e’* sin(2I'—2F’)
+_— Missing
+1303
+t
+12
+12
+eins
+36 7 aan
+;
+siz Si
+;
+e*sin(3l' + 2F')
+ —RaP t Pay?
+—59 — BBE?
+eo” sin(3l' — 2F')
+64 — ean
+;
+— yore + Toran
+|
+e’™
+sin 41’
+aoe — hin’
+e’* sin(4l’ + 2F’)
+— 533 4 533)?
+" sin(4l’—2F’)
+—24 49”
+e~
+sin5!
+23600
+— T5600"
+e sin(Sl’+2F)
+— — 3282 + SAS tn"
+"5
+os
+t
+t
+t
+e
+sin(Sl’—2F’)
+= —~shaq
++ ston”
+The final result is a first order generator of the form
+W, =W,(l',9', -, L, G’, H’; R., p)
+2p2y7'-3
+'j
+fyyr
+=H RL
+XY eT Ws,
+3,0 + Wi, 5,2
+(WILY
+j=
+where, for anyj>0, the coefficients W, ; . and W, , , are finite sums of sine functions
+in the arguments pl’ +2kF’ with
+k=O or 1 and the d’Alembert characteristics |p| <j,
+p=j (mod. 2). As for the first order component #4 in the averaged Hamiltonian,
+we obtain
+H
+= Ho (-, “39
+9 L, G’, H’; R,, )
+= uRiL° y e/7J [#o,;.0 + Ho, ;,.(H'/L)"] )
+j=0
+where, for any
+7>0, the coefficients Ho j,0 and Hy j,2 are purely numerical.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+179
+ sidentally, until we reached the end-products of the transformation, we decided
+:.
+...8p explicitly among thepolynomial symbols of our Poisson series the quantities
+“u and R,, thus not availing ourselves of a natural system of units like the Vanguard
+units to render dimensionless Delaunay’s action momenta. Indeed it proved useful
+to constantly monitor the validity of our codings as well as the operational condition
+of the equipment
+by inspecting the physical dimensions of the state variables as they
+were being generated. For instance, in the present problem, all elements #; of the
+basic Lie triangle have the dimensions of an energy per unit of mass (Le., length?/
+time*) whereas the generators W, have those of an action per unit of mass (i.e.,
+length?/time).
+|
+Order 2.
+Until the moment comes to compute it, the second order generator
+W, is assumed to be the null Poisson series. Under this assumption we calculate in
+the Lie triangle the provisional elements
+KH = H+ (#3; W,) + (#9; W,) = (#3; W,),
+Ho =H; + (H0; W,).
+Thus we arrive at the second order differential identity
+#3 + (H9; W,) = 3.
+We select for #5 the terms of #5 independent from /’; we put
+P,=Ff,(I,9',-,L,6,H)=H5- #35
+and we obtain the second order generator through the quadrature
+lV’
+-
+W, = u*Le { FP, dl’.
+It turns out to be a series of the form
+W, = W,(I', 9’, —, L, G', A’; Re, bw)
+= wROL' yy e" Wo, 5,0 + Wo, j,2(H'/LY + Wo, ;4(H'/L)*]
+jJ20
+where, for any j>0, the coefficients W, ; 9, W2,;,. and W,,,4 are finite sums of
+sine functions in the arguments pl’+2kF’ with k=0,
+1 or 2 and the d’Alembert
+characteristic |p|<j, p=j (mod. 2). The second order part #6 in the averaged
+Hamiltonian is of the type
+Hs = KH (-, g'; 9 L, G', H’; R,, yy)
+= pRL" Ye [H, 3.0 + #0,j,2(H
+LY + #6, ;,4(H'/E)"]
+j20
+where, for any j7>0, the coefficients HS, 3,0 Hs, j,2 and Hs, j,4 are sums of cosine
+functions in the argument 2kg’ with k=0 or 1.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+180
+ANDRE DEPRIT AND ARNOLD ROM
+TABLE UI
+The second order generator W2 (the expansion must be multiplied by u+R.4L’—”)
+e'?
+*
+t
+t
+'
+12
+t
+sin 2F
+ge tan” Tet
+a8
++ za — Atle”
+sin 4F’
+ee — San” — San
+— $4 45n — yan
+e’ sin I’
+tas + ean” — it in’*
+e’ sin(I' + 2F’)
+8S _ 33y/? 4 179y/4
+e’ sin(I' — 2F’)
+$5 — 18S
+y/* + a
+e’ sin(I' + 4F’)
+1s _ AS’? 4 £5y/4
+e’ sin(I' — 4F’)
+Tis — ean+ Tren”
+,
+.
+t
+!
+14
+e’* sin 2]
+ase — Tse
+— yeeN
+e'? sin(20 + 2F")
+$32 — 8284"? + 1azan*
+e’* sin(2l'—2F')
+Missing
+e'* sin(2I' + 4F")
+$82 — 4889
+e"* sin(2I'—4F’)
+ — a3_ + San!” — zen"
+Order 3.
+The element #;
+in the triangle can now be completed; thus we compute
+We begin the calculations at order 3 by putting W,=0, and we compute under this
+assumption the elements in the fourth row of the triangle:
+He = Hs + (H2; Wi) + 2(H2; We) + (HO; Ws) = 2(4; We),
+H. = H+ (#4; Wi) + (Ho; Wr)
+H = H+ (Ho; W,).
+Then we treat the differential identity
+As we have already done twice before, #5 takes from #@ the terms independent
+from /’; then, if
+the third order generator W; is derived from the quadrature
+y
+W3= °L? | 2: dl’.
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+181
+The result is a series
+W,=W;3(I,9', -, L, G', H’; wu, R.)
+I-
+yj
+ryrt\2
+try
+= p°ReL
+»y eT
+W3 79 + Ws; 2CH/L) + W3, ;, 4(H /Ly*
+jz0
++ Ws, ;,6(H'/L)°] )
+the coefficients W; ;9, W3,;,2, W3,;,4. Ws,j;,6 being finite sums of sine functions
+in the arguments pl’ +2kF’ such that 0<k <6,
+|p| <j and p=j (mod. 2).
+TABLE IV
+The third order generator W3 (the expansion has to be multiplied by uw®R&L’-")
+nF’
+_ 471 4 8757,/2
+_ 30741,/4 | 22455,
+76
+sin
+To24 + 10244
+i024"
++ “foranN
+sin 4F"
+125 — 1905.47 + 1834" — 1s ttn’°
+.
+P
+12
+14.
+’
+sin 6F
+— 35a + rohan”
+— Bhan" +H’
+e’ sin I’
+By — Bey” + 1288 Ay! — 2458 29/°
+roe
+!
+?
+12
+14
+16
+e'sin(I' +2")
+fify +123$2q? — E8704
++ 20¢8n
+pos
+,
+!
+!
+14
+A)
+e'sin(I’—2F’) 78s
+— Aen +4+ieen aE T EL
+fos
+t
+'
+2
+t
+As)
+esin( + 4F') et — 138552
++ 288h tH" —12
+e'sin(I' —4F")
+RAY — 18S)? — 255599! — Lesa
+e" sin (/’ 7 6F’)
+— yy + sia
+| — sia — Foon’?
+fos
+!
+/
+,
+!
+16
+esin(l’—6F')
+— 45+ 8¢on
+— Ffon”
++ Aan
+Order 4.
+As we shall see later on, in order to find the third order contributions
+to the long period and secular terms, we need to know the fourth order component
+in the Hamiltonian averaged over the mean anomaly
+/. Consequently we have
+computed partially the elements in the fifth row of the triangle, namely
+Hs = H+ (H3; W,) + 3(H23 Wr) + 3(H2; Ws) + (Ho; Wa)
+Hs = H+ (43; W,) + 2(H1; Wr) + (Ho; Ws),
+Hi = H+ (Hi; W,) + (6; Wa);
+then, arriving at the differential identity
+we determined Hs by passing to it the terms of KH > that do not depend on /’.
+The constructions we just outlined have been implemented automatically, using
+MAO as algebraic processor. The development of #, in power of e had been trun-
+cated after degree 16, for no other reason than to set a limit. At each order of the
+elimination, two degrees in e are lost through the differentiation with respect to G’
+involved in the Poisson brackets. This way we know #5 up to e'®, but #5 up to
+e'4, #5 up to e!” and #6 up to e’® only. By listing the number of terms in the
+© Kluwer Academic Publishers
+*« Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+182
+ANDRE DEPRIT AND ARNOLD ROM
+TABLE V
+Recapitulation of the Hamiltonian averaged over the short period angle and of the generators of the
+averaging transformation
+KH9
+Wy
+KHyi
+We
+KH9?
+W3
+KH9
+Wa
+KH 4
+e’0
+4
+2
+2
+6
+3
+12
+4
+20
+5
+et
+6
+6
+0
+15
+0
+28
+0
+7 )
+0
+e”?
+8
+6
+2
+ifs)
+—«~6
+36
+8
+60
+10
+e’3
+12
+12
+0
+29
+0
+56
+0
+90
+0
+e’4
+14
+12
+2
+30
+6
+60
+12
+100
+15
+es
+18
+18
+0
+4S
+0
+84
+0
+135
+0
+e’6
+20
+18
+2
+45
+6
+84
+12
+140
+20
+e’@
+24
+24
+0
+60
+0
+112
+0
+180
+0
+e’8
+26
+24
+2
+60
+6
+112
+12
+180
+20
+e’9
+30
+30
+0
+75
+0
+140
+0
+225
+0
+e/10
+32
+30
+2
+715
+6
+140
+12
+225
+20
+el
+36
+36
+0
+90
+0
+168
+0
+e/12
+38
+36
+2
+90
+/
+6
+168
+12
+e/13
+42
+42
+0
+105
+0
+e/l4
+44
+42
+2
+105
+6
+e/15
+48
+48
+)
+e/16
+50
+48
+2
+Total
+452
+444
+18
+848
+45
+1200
+72
+1400
+90
+various components calculated so far, Table V purports to suggest the size of the
+programming chores and how fast the elimination gains in complexity as the order
+increases.
+5. The Elements of the Short Period Elimination
+The generators W,, W,, W; determine a completely canonical transformation from
+the osculating elements u=(/, g, h, L, G, H) to a new set of variables u’=(I', g’, h’,
+L’, G', H’), the equations being of the form
+u=u' + Jyug(u’) + $Jzug(u’) + gJzuo(u') +--.
+Since the coordinate h’ is ignorable in the generators,
+H=H'.
+On the other hand the partial derivatives of the generators with respect to L’ and G’
+do not have the d’Alembert characteristic in reference
+to the pair
+(e’/');
+as a
+matter of fact, they will contain negative powers of e’, which is a reflection of the
+fact that, for circular orbits, the direction of the perigee is undetermined. But such
+divisors do not appear in the developments that express the mean distance to the
+ascending node
+F=Il+g
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+183
+TABLE VI
+Recapitulation of the series necessary and sufficient to evaluate
+the short period perturbations
+Joa'—2
+e’
+AF’
+Ah’
+AC’
+AS’
+AL’
+1
+)
+2
+1
+4
+4
+2
+1
+6
+3
+6
+6
+6
+2
+6
+3
+12
+12
+6
+3
+12
+6
+12
+12
+12
+4
+12
+6
+20
+20
+12
+5
+18
+)
+20
+20
+18
+6
+18
+)
+28
+28
+18
+7
+24
+12
+28
+28
+24
+8
+24
+12
+36
+36
+24
+)
+30
+15
+36
+36
+30
+10
+30
+15
+44
+44
+30
+11
+36
+18
+44
+A4
+36
+12
+36
+18
+52
+52
+36
+13
+42
+21
+52
+52
+42
+14
+42
+21
+60
+60
+42
+15
+24
+48
+16
+24
+48
+338
+217
+454
+454
+434
+2
+0
+6
+4
+)
+9
+)
+1
+15
+10
+18
+18
+15
+2
+21
+13
+27
+27
+24
+3
+30
+19
+36
+36
+30
+4
+36
+21
+45
+45
+39
+5
+45
+30
+51
+51
+45
+6
+51
+31
+63
+63
+54
+7
+60
+40
+69
+69
+60
+8
+66
+41
+81
+81
+69
+9
+75
+50
+87
+87
+75
+10
+81
+5]
+99
+99
+84
+11
+90
+60
+105
+105
+90
+12
+96
+61
+117
+117
+99
+13
+70
+105
+14
+71
+114
+672
+572
+807
+807
+912
+3
+0
+12
+9
+16
+16
+16
+1
+28
+21
+32
+32
+28
+2
+40
+30
+48
+48
+44
+3
+56
+42
+64
+64
+56
+4
+68
+51
+80
+80
+72
+5
+84
+63
+96
+96
+84
+6
+96
+72
+112
+112
+100
+7
+112
+83
+128
+128
+112
+8
+124
+92
+142
+142
+128
+)
+140
+104
+160
+160
+140
+10
+152
+114
+175
+175
+156
+11
+125
+168
+12
+135
+184
+912
+941
+1053
+1053
+1288
+Total
+1922
+1730
+2314
+2314
+2634
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+184
+ANDRE DEPRIT AND ARNOLD ROM
+and the state functions
+C=ecosg,
+S=esing
+in terms of the new variables (J’, g’, h', L, G’, H’). Therefore we propose to calculate
+the ephemeris of the satellite by means of the following elements: F, h, C, S, L and
+Hf. For all of them except the last one, we have obtained their expansions in powers
+of J,, the coefficients coming in power series of e’.
+We review here the formal characteristics of these series; the statistics of Table VI
+make it plain that we cannot think of reproducing them in print. For the sake of
+brevity, we have put
+n =H'|L,
+a’ =a’'/R,.
+Also the upper limits mentioned in the signs of summation are merely anecdotic;
+these are the degrees of the eccentricity
+e’
+after which we have truncated the
+expansions.
+A. THE MEAN DISTANCE F TO THE ASCENDING NODE
+F =F + Joo’
+Fi + 4Jza’ “Fy + tdp0'” OFS,
+t
+ij
+/
+t
+12
+Fo=
+dD
+eLFiio+Fi,z2n7
+1,
+O<j<14
+t
+rj
+t
+t
+12
+’
+’
+Fo=
+DY
+e![Fi0+ %,j2n
++ Fj"),
+O0<j<12
+’
+tj
+t
+’
+12
+t
+t
+’
+16
+Fy=
+De?
+[F350 + Fs, 3,20
++ Fs, jan “4 Fs,
+6°].
+O<j<10
+The coefficients Fy; 0, Fi, ;,2,---. F3,;,6 are finite sums of sine functions in the
+arguments pl’+2qF” such that in F, ; ,, we have the conditions O0<q<r, |p|<j and
+p=j (mod. 2).
+B. THE LONGITUDE h OF THE ASCENDING NODE
+h=h' +n" (Joa
+*hy + ZJza! “hs + gJga’°h3),
+hi‘ =
+3
+ev hy. j,0°
+0<j<16
+’
+'j
+/
+’
+12
+ny=
+Yo
+e*(hy jo
++h5,;,2n"),
+O<j<14
+t
+tj
+’
+t
+12
+/
+/
+hng=
+YD
+e%(hs,0 +5, 5,20
++5,
+5, an *).
+O<j<1i2
+The coefficients hi ; 9, A2, ;,0,---» 23,;,4 are finite sums of sine functions in the
+arguments pl’+2qF’ such that in h, , ,, we have 0<q<r, |p| <j and p=j (mod. 2).
+C. THE SCALAR C = e Cosg
+C=C 4+ Ja’ ?C, + 4AJga’ “C5 + bSZ a’ °CS,
+r
+rj
+/
+t
+12
+Ch=
+dY eCjo + C1, 5,2n""),
+O<j<14
+/
+rj
+’
+’
+12
+/
+’
+C,=
+»
+e" (C2, 5,0 + Co, 5,20
++ C2,5,4M *);
+O0<j<i2
+t
+rj
+'
+t
+12
+r
+t
+r
+16
+Cz=
+bd
+e(Cy 0+ C5, j,2n° + C5, jan *+ C3, 5,6n"°).
+0<j<10
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+185
+The coefficients Ci; 9, Cj,;,2.---» C3,;,6 are
+finite sums of cosine functions in
+arguments pl’ +(2q +1) F’ such that, in C; , , we have
+0<q<r, |p| <j, p=j (mod. 2).
+D. THE SCALAR S = e Sing
+S=S' + Jna’~7S) + 4J30'~ 485 + bp a' SG,
+Si=
+>»
+(Si 5,0 + $4,j, an’),
+o<sj<14
+So=
+Yo
+e4(So
+5.0 +85, ;,2n' + So, ;,4n'*),
+0<j<12
+S3s=
+>)
+e?(S53,0+53,;, on’ + S3, jan” + S5,;,6n"°)-
+0<j<10
+The coefficients Sj; 9, Si,j,25-- S3,;,6 are finite sums of sine functions in the
+arguments pl’ +(2qg+1) F’ such that, in S; , , we have 0<q<r, |p| <j, p=j (mod. 2).
+E. THE ACTION L
+L=U(1+J,0'~7L, + 43fa'*L, + Lega’ °L,),
+L,=
+»
+(Ly 5,0 + Ly;, on”),
+0<j<16
+T,=
+>)
+ee? (Ly 5,0 +L,;, an’? + Ly,;, an’),
+O<j<14
+T3=
+>)
+e?(L33,0+Ls,;, an” + 3, j, an’ + D3, j, of’°).
+O0<j<12
+The coefficients Ly ,
+9 Ly, ;,2.-., L's, ;,6, are finite sums of cosine functions in the
+arguments p/’+2qF’ such that, in L’, ,
+, we have 0<q<r, |p|<j and p=j (mod. 2).
+Given the values of F’, h’, C’, S’, L and H’ at an instant t, the preceding series
+enable us to evaluate the corresponding functions F, h, C, S, L and H at thatinstant
+of time. Indeed the decomposition
+pl’ + 2qF’ =(2q + p) F’ — pg’
+implies that in all the coefficients, the elements e’ and g’ enter only through poly-
+nomials in C’ and S’. For instance, a term like e’°cos(3/’ +4F’) can be evaluated as
+follows:
+e’> cos(3l' + 4F’) = e'*[(e’* cos 3g’) cos 7F’ +(e’ sin 3g’) sin 7F’|
+wherein
+oe’? _— Cc’? 4 Ss”,
+e’* cos3g' = 4C'° —3C’,
+e’* sin 3g’ = S’(4C’? — 1).
+Thus nowhere is it needed to evaluate separately the eccentricity e’ and the argument
+of perigee g’. In sum, as far as the short period perturbations are concerned, the
+above series overcome entirely the indetermination in the direction of the perigee
+which is inherent to circular and almost circular orbits.
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+186
+AN DRE DEPRIT AND ARNOLD ROM
+6. Initialization of the Elements F’, h’, C’, S’, L
+After the short period terms have been eliminated, the Hamiltonian becomes the
+function
+HK’ — H’'(-, gq’, h’, L, G’, H’)
+=H + J, + ZIgHy + GIgHs + qe HY
+(©)
+with
+/
+ys
+|
+Lue
+KH =H (-, “9
+9 L, a) —) =_ 4 yl?
+KH =H (-,g',-,L,6,H)=&%j,
+2<k<4.
+Now that /’ is ignorable in the transformed variable, the action L turns out to be an
+integral.
+On one hand, through the elimination of short period terms, the solution of the
+Main Problem reduces to integrating the Hamiltonian equations generated by (9)
+and composing their solutions with the functions that express canonical normalization.
+On the other hand, the initial conditions determine the initial values of the elements
+F,h, C, S,
+L and H, but not of the transformed elements. Therefore, to insure that
+the solution in (1’, g’, h’, L’, G’, H’) corresponds through the transformation to the
+initial elements (Fo, 4p, Co, So, Lo, H), we must provide the way of determining the
+initial values of the transformed elements (Fo, fo, Co, So, Eo, H). In a Calculus of
+Perturbations based on Lie transforms, the initialization of the transformed variables
+is accomplished by constructing explicitly the inverse mapping, or rather the genera-
+tors (V,, V,, V;) of the inverse mapping. As it was established elsewhere (Deprit, 1969),
+at least up to the third order, they result from these straightforward operations:
+As we did in the case of the direct transformation, we by-passed the explicit
+construction of the inverse transformation itself, for the equations expressing /’ and
+g' in terms of J, g, h, L, G, H will involve negative powers of e. Instead we addressed
+ourselves directly to the task of expressing the elements F’, h’, C’, S’, L in terms of
+F, h, C, S, L. These expansions have the same form as the ones described in the
+previous section for the direct transformation. Inserting in these series the initial
+values Fo, ho, Co, So, Lo and the value for the integral H would then provide the
+initial values F5, ho, Co, So and the value of the integral L’.
+7. Elimination of the Long Period Terms
+Following the main steps of Satellite Theory as outlined by Brouwer, we now consider
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+187
+constructing a completely canonical transformation from the variables (J’, g’, h’, L,
+G', H’) into the variables (/", g”, h”, L’, G", H”) to the effect of rendering the angle
+g” ignorable in the transformed Hamiltonian.
+|
+|
+The construction is again based on determining the transformation generators
+®,, ®,, ©, and so on. Thus entering a triangle similar to the one displayed at the
+beginning of Section 4, we put
+|
+KH? (I, g”, —, L’, G", H") _ KH (I", g", _, L’, G", H").
+_
+Order 1.
+The differential identity
+HS + (H5; %,) = Ho
+is satisfied by putting
+Hy = H*
+and by requesting that
+_
+or that ®, do not depend on /”.
+According to what we observed in Section 4,
+KH =H(-,-,-,
+1, G', H")
+oO,
+J2
+Consequently
+644
+4p2pnryn-8
+°
+u2j
+1
+1
+NW
+LTHN\2
+aq” 7 7H R-GL
+X Ut ve
+[#o, j+1,0 + Ho, j41,2(H/LEYJ
+jJ2
+_ 2u*R2L"~ 7 (1 — etl? y Qs EA j+1,0 4 KH), j41.2 (H"/L’)"]
+j=0
+The program has been set up to expand (1 —e”)'/*, to multiply this binomial develop-
+ment with the explicitly written power series in e””, and to bring 04%5/dG" in a power
+series of the form
+.
+0H 6
+,
+—_— = D(L’, G’, H") = 3/4u*R2L'"A [ +) 4"
+0G
+j21
+where
+H’?
+A=1-—-5 ye 5
+and, for any j>1, the coefficient A; is
+a polynomial in A and H”/L’. By introducing
+A as a symbol in the list of polynomial variables, it becomes feasible to expand 1/D
+in power series of e” and, as a matter of fact, this artifice makes this inversion quite
+an elementary operation for an automatic processor of Poisson series like MAO.
+The power series 1/D plays an essential role at the subsequent orders in the elimination
+of the long period term.
+:
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+188
+ANDRE DEPRIT AND ARNOLD ROM
+Order 2.
+The element
+HS =H
++ (H9;O)
++ (#3; ®)
+|
+reduces to
+H, = H5 + (#3; ®,)
+if we assume that
+0¢g,/el” = 0,
+i.e., if we select for the second order generator ¢, a function that does not depend
+explicitly on /”. Consequently
+Hs, = KH, +(H5; ©) = H3 4+2(H4; @,).
+This relation constitutes a differential identity in the unknowns #5 and ®,. We can
+satisfy it by selecting for #5 the average of #5 over the angle g”, so that
+KH =H 5(-,-,-, L', G', HW") =H
+,y,
+by assuming that
+so that the identity reduces to the quadrature
+om,
+11
+a = 5 (#9 — #2),
+Og
+2D
+The results of these operations are, on one hand for the transformed Hamiltonian,
+a second order component of the type
+KH: _ ueRiL 10 y es [H5. j,0 4 HS, j2 (H"/L’) 4 Hs, j4 (H"/L')*]
+j20
+and, on the other hand for the canonical transformation, a first order generator of
+the type
+®, = w’R2L'~? sin 2g” y A iel*4
+y
+@,
+, (HL).
+jz1
+O<K<j+1
+Order 3.
+Entering the fourth row of the transformation triangle for #’, we meet
+the element
+Hy =H + (H3; Oy) + 2(H4; Oy) + (H9; Gs).
+Assuming that
+we reduce it to the sum
+KH = H3 +(H35; ©)
++ 2(H9; 4).
+We isolate in it the part yet unknown by putting
+H, =H
++ (#2; ,)
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+189
+so that
+The partial element #3 is to be computed whereas the Poisson bracket (#{; ®)
+is set aside until ®, has been determined.
+We treat in the same way the elements
+HY = H+ (#5; ©) + (LH; P),
+H3 = H? + (H3; 0).
+By putting
+Hy = H+ (#45 %)),
+#3 =F} + (43:9),
+so that
+H = #5 +3(#4;
+©),
+H3 = R24 3H; O),
+we isolate in them the parts that we are able to compute and isolate the Poisson
+bracket. In fact, the relation
+#3 + 3(H9; ®y) = #3
+constitutes a differential identity to be satisfied by the unknowns 73 and ©,.
+As we have done repeatedly, we propose to take for #3 the average of #3 over
+g", and while we assume that
+we obtain ®, from the quadrature
+0,
+11,7,
+ay=
+0 (Ho #9).
+0g
+3 D
+These operations produce, on one hand for the averaged Hamiltonian, the third
+order component which is a series of the form
+KH? = p®RoL’*4 y A ie"?s
+y
+Hs, (HL),
+j=0
+O<k<j+3
+and, on the other hand for the canonical transformation, the second order generator
+bs = REL! y Ai 1¢e"24
+y
+®, , ,(H’/L),
+je1
+O<K<j+3
+the coefficients ©, , , being finite sums of sine functions in the arguments 2pg” with
+l<p<Muin{y, 2).
+Order 4.
+Before computing the fourth order row in the triangle, we complete
+the elements of the third order:
+H, = #,—4(Ho — H 9),
+#3 = 8? - (#3
+#3),
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+190
+ANDRE DEPRIT AND ARNOLD ROM
+Then in the element
+Hs = Hg + (H3; Dy) + 3(H9; Gy) + 3(H4; G3) + (HG; G4),
+we assume that
+.
+0®,/al” =0,
+we isolate the terms that we can already compute at this stage, namely
+Hs = Hy, + (H3; By) + 3(H2; ®)
+|
+so that
+KH, = H54+3(H3; 5).
+Similarly in the element
+Hy = Hs + (H2; ©) + (Hj; G2) + (Ho; Bs)
+we group the terms that we are already able to evaluate:
+Hs = Hs + (H3; By) + 2(H4; ®)
+and this way we come to the relation
+|
+KH = H+ 4(H3; ®).
+Proceeding likewise for the element
+HY = Hy + (#4; G1) + (HG; ®),
+we put
+Hi = H+ (#5; 1) + (HL; ®)
+and arrive at the decomposition
+KH =H} +4(H#2; 5).
+Finally, by introducing
+H
+=H} + (Ho; G,),
+we are led to the differential identity
+#5 +4(H4; ®3) = #5.
+Hence, after transferring into #65 the terms of #65 that do not depend on g”, we
+perform the quadrature
+se agp
+es- #9
+to obtain the third order generator of the canonical transformation. This is
+a power
+series in e”* of the form
+@,=y°ROU** Y Ase"
+Sg,  (H"/L')*
+jz1
+O<k<j+4
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+191
+whose coefficients ®, ,, are finite sums of sine functions in ‘the arguments 2pg”
+with 1 <p<Min{(j, 3).
+We list in Table VII the number of terms contained in the series obtained so far.
+This summary indicates how the elimination of short period terms has simplified to
+a very large extent the further reduction of the Main Problem. But the reduction
+has been bought at the expense of more sophisticated manipulations in the con-
+struction of the now completely normalized Hamiltonian.
+TABLE VII
+Recapitulation of the Hamiltonian averaged over the long
+:
+period angle and of the generators of the averaging
+transformation
+Ho
+Diy
+KHo%
+Be
+Ho
+D3
+Hot
+e”0
+2
+0
+3
+0
+4
+0
+5
+e”?
+2
+3
+3
+5
+5
+7
+7
+e”4
+2
+4
+3
+12
+6
+16
+8
+e”6
+2
+5
+3
+14
+7
+27
+9
+e”8
+2
+6
+3
+16
+8
+30
+10
+e710
+2
+7
+3
+18
+9
+33
+11
+ete
+2
+8
+3
+20
+10
+e”14
+2
+9
+3
+Total
+18
+42
+24
+85
+49
+113
+50
+8. The Elements of the Long Period Elimination and Their Initialization
+The generators of the transformation from (I’, g’, h’, L’, G’, H’) to (I", g’, h", LV’,
+G", H”) do not depend on the angles /” and h”; hence the transformation does not
+change the actions L’ and A’: thus
+L=L'
+and
+H' =H".
+In order to avoid the presence of divisors in e”, we do not determine the trans-
+formation through its equations expressing /’, g’, h’ and G’ in terms of the new
+variables, but rather by means of the elements F’=I'+g’,
+h', C’=e'cosg’ and
+S’ =e’sing’. The algorithm by which these state variables are expressed in terms of
+the new variables with the help of the generators ©,, ©,, ®, has been described
+elsewhere (Deprit, 1969). Here it suffices to record the morphology of the resul-
+ting series. For the sake of brevity, we have put
+ny” — A’ /L ,
+ot” — a”/R, ;
+© Kluwer Academic Publishers
+¢ Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+192
+ANDRE DEPRIT AND ARNOLD ROM
+A. THE MEAN DISTANCE F’ TO THE ASCENDING NODE
+F’ _ F’ 4 Joa"
+*Fi 4 1 J} 0" *F 4 LJ5a"~ °FY,
+”
+n2ji4-j-1
+”
+u2k
+Fi=
+>)
+eva’
+Fan",
+1<j<6
+O<k<jt+2
+w"
+n2i4-j-2
+"”
+n2k
+Fy=
+),
+eva”?
+DD
+Fan”,
+1<j<5
+O<k<j+4
+wo
+u2j
+~4-j-3
+"
+n2k
+Fy=
+)
+eva”
+DFS
+ian"
+1<j<4
+O<k<j+6
+The coefficients F,’,, are sums of sine functions
+in the arguments 2pg” with
+1<p<Min(r,
+j).
+B. THE LONGITUDE hi’ OF THE ASCENDING NODE
+h! _ h” 4 n" (Joa 7hy 4 12a" *h’ 4 13a"~°h3),
+wo
+N2j4-j-1
+"
+12K
+hy =
+» eA
+»y
+hy, 5K
+)
+1<j<7
+O<k<j+i
+wo
+u2j4—-—j-2
+"
+2k
+hy =
+» eA
+»
+hy, j,kM
+1<j<6
+O<k<j+3
+wo
+N2j
+A-j-3
+"
+n2k
+hy=
+y
+eva
+Dy
+Sj".
+O<j<5
+O<k<j+5
+The coefficients Ay, , are sums of sine functions in the arguments 2pg”
+with
+l1<p<Min(r,
+/).
+C. THE SCALAR C’ = e’ cosg’
+Cc’ __ Cc"
+" J
+Nn—-2n0
+172 u—4con
+yo n—6c"
+= C" + e"(Jna" “Cl + tJz0
+2+ gJzu
+3)>
+wo
+N2jA4—-j-1
+"
+n2k
+C, =
+» eA
+»
+Cian
+>
+0<j<6
+O<k<j+2
+nw
+NIJ
+A-—j-2
+"
+u2k
+Co=
+) eA
+dy»
+Cia,
+O<j<5
+O<k<j+4
+wo
+N2j
+~4-j-3
+"
+u2k
+a
+ae
+dy
+C350"
+O<j<4
+O<kSjt+5
+The coefficients C;,’ ; ,, are sums of cosine functions in the arguments (2p +1) g” with
+l1<p<Min(r,
+/).
+D. THE SCALAR S’ = e’ sing’
+Ss’ _ Ss” 4 e" (Jya” 784 4 1 J20"~*8% 4 Lia" °S5),
+an
+N2jAa-jr-1
+"
+u2k
+Si=
+),
+eva
+»
+Sta,
+0<j<6
+O<k<j+2
+wo
+N27
+A-—j-2
+"
+2k
+So=
+) eA
+Saye",
+O<j<s5
+O<k<j+4
+Wo
+n2j
+~4-j-3
+"
+"2k
+S3s=
+) eA
+>
+ S3,5,00"".
+O<j<4
+O<k<j+6
+The coefficients S;’,
+, are sums of sine functions in the arguments (2p+1)g” with
+l1<p<Min(r, j).
+.
+The inverse transformation,
+i.e., the mapping from (/", g”, h”, L", G’, H”) to
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+193
+(l', g’, h', L’, G’, H’) is generated from functions W,, 2, W3,..., which are easily
+derived from the generators ©,, ®,, ®3,... of the direct transformation:
+Wil(-, g', ~™3 L, G’, H’) ne @, (-, g’, ™9 L, G’, H’),
+Wo(-, g', ™s L, G', H’) = —_ P,(-, g'; ™9 L, G', H’),
+These generators will be used to express the state variables F”, h”, C”, S” in terms of
+F’, h', C’, S’, L’' and H". In particular, if we give to the elements the initial values
+Fo, ho, Co, So, L’ that we computed in Section 6, we obtain from the series the cor-
+responding initial values Fo, hg, Co and Sg of the elements resulting from the elimina-
+tion of the long period terms.
+9. The Secular Terms
+After elimination of the long period terms, the Hamiltonian of the Main Problem
+is the series
+HO" = KH" (-,-,-, LU, 6, HW) = H¢ 4+ LH) 4+AGH, +I
+with
+1 py’?
+KH > =H
+—,-,-,[l',-,- ire, ir
+0
+0 (
+)
+9) [’”?
+KH =H) (-,-,-, 1,6", H")= #5,
+KH, =H5(-,-,
+1, G6, WH") = Xo.
+The canonical equations it generates have a
+trivial solution. Since the angle coordi-
+nates are all ignorable, the actions L’, G” and H” are constants of the motion. There-
+fore, the frequencies
+CH”
+OX”
+OH"
+y=
+nw?
+y=
+nw?
+v3 =
+”
+OL
+0G
+OH
+are also constants. Let us review their morphology:
+A. ANOMALISTIC MEAN MOTION V,
+yy =n"
+(14 Joa” 7,
+5 + 4Jg0" 4, 9 + GIga"”
+vy 3g +peda"
+*vy 4),
+N27
+n2
+Wi=
+YY eri pot+%,1,520"),
+0<j<7
+n2j
+n2
+ng
+Y2=
+»
+@ (v1
+9, 5,0 +%1,2, 5,20" +1, 2,5,4"")>
+0<j<6
+N2j4—-j-1
+u2k
+W403
+»
+eA?
+3
+V4.3,5,K7
+0<j<s
+O<K<j+4
+N2jAa—j-2
+n2k
+14>
+» ia
+ad
+»
+V1.4,
+9, K47
+O<j<4
+O<k<j+6
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+194
+ANDRE DEPRIT AND ARNOLD ROM
+TABLE VIII
+|
+Summary of the long period corrections to F’, h’,
+e’cosg’ and e’sing’
+1
+—
+0
+0
+0
+3
+3
+2
+4
+3
+8
+8
+4
+5
+4
+10
+10
+6
+6
+5
+12
+12
+8
+7
+6
+14
+14
+10
+8
+7
+16
+16
+12
+9
+8
+18
+18
+14
+9)
+39
+42
+81
+81
+2
+0)
+0
+)
+)
+5
+2
+6
+5
+12
+12
+4
+14
+12
+21
+21
+6
+16
+14
+24
+24
+8
+18
+16
+27
+27
+10
+20
+18
+30
+30
+12
+20
+74
+85
+119
+119
+3
+0
+0)
+0)
+7
+7
+2
+8
+7
+16
+16
+4
+18
+16
+27
+27
+6
+30
+27
+40
+40
+8
+33
+30
+44
+44
+10
+33
+89
+113
+134
+134
+Total
+202
+240
+334
+334
+B. MEAN MOTION OF THE PERIGEE V>
+no n—2
+n—2
+2.n-4
+3.n-6
+Vy = Jgn"a"
+“(v9.4 + ZdQ0"
+“v2 o + GJQa"
+“V2.3
++agdzn"
+v24),
+n2i7
+n2
+Yai =
+»
+e
+"(V2,1, 7,0 + V2, 1, 7, 2M
+);
+O0<j<7
+n2J
+n2
+ud
+Y22>=
+»
+e
+(V2, 2, 7,0 + V2, 2, 7, 2M
++ V2.2, 7,41
+);
+0<j<6
+w2jpa—-j-71
+N2k
+v2.3 >
+» eA?
+\
+¥2,3,7,K7
+O<j<5
+O<k<jt+4
+n2j4a4—-j-2
+2k
+V2.4 >
+\
+er
+A?
+y
+V2.4, j,k
+O<j<4
+O<k<jt+6
+C. MEAN MOTION OF THE ASCENDING NODE V3
+won
+2dow
+nw—2
+2. n—-4
+3.n-6
+v3 = Jn"al"”
+“n" (v3.4 + ZJon"”
+“v39 + Gq"
+“V3,3 + aqgJza"””
+°v34),
+n2j
+¥31>
+\
+V3.1, 7 © -
+0<j<8
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+195
+;
+n2j
+~
+wd
+‘
+;
+V32=
+de’
+(V3,2,5,0
++ %3,2,5,2M"
+)>
+0<j<7
+n2k
+u2jAau—j-1
+2k
+Y33=
+¥3,3,0,.K0
++
+»
+ewan"
+»
+¥3,3,7,K7
+>
+0<k<2
+|
+1<j<6
+.
+—O<KSj+4
+n2k
+NZJ AU-jr-2
+2k
+¥34=
+>
+3,400
++
+DY eA"
+>»
+3,454
+O<k<3
+1<j<5
+O<K<j+5
+Instead of integrating the differential equations in /” and g", which raises for the
+initial conditions Jj and go the problem of divisions by the small eccentricities e,
+and e5, we determine the elements F”, C”, S”. Thus the integration of the secular
+part of the Main Problem results in the following formulas:
+F" = 1" +9" =(, + v2) (t— to)
++ Fo,
+C" = e" cosg” = Co cos v2 (t — to) — So sin v2 (t — to),
+S” = e” sing” = So cosv2(t — to) + Co sinv2(t — to),
+h” = v3(t — to) + ho.
+10. Computation of the Coordinates and Velocities
+After the series for the direct and inverse transformations eliminating all periodic
+terms have been obtained, we are in a position to compute at any instant — within
+the time interval of validity of the theory — the position and the velocity of the
+satellite from coordinates and velocity components at an epoch fy. At this stage we
+adopt Vanguard units.
+Given (Xo, Vo, Zo» Xo» Yoo Zo), the initial values of the elements Fo, hp, Co, So, Lo,
+Hf are determined from the following system of formulas:
+The components of the angular momentum being
+Ay = YoZ9 — ZoVo5
+Bo = ZoXo — X0Z0>
+H = XoVo — YoXo>
+we compute its norm at fo,
+Gy =./A2 + BB+ H’,
+|
+so that the trigonometric relations
+Ag = Go sin Ip sin ho 9
+By = — Go sinIp cos ho,
+'
+H = Go Cos Ip
+determine unambiguously the initial longitude hy) of the ascending node and the
+initial inclination. Next we rotate the coordinate axes so that 0& and Oy lie in the
+orbital plane [I (t.) with O€ coinciding with the ascending node at the initial instant
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+196
+ANDRE DEPRIT AND ARNOLD ROM
+to. In this frame of reference, the initial coordinates and velocities of the satellite are
+€o = Xq COShy + Yo sinhy,
+No = (— Xo Sin hy + yo Cosh) cosIg + Zo sinI,
+No = (— Xp sin hg + Po cos hg) cos Ip + Zp sin Ip.
+Evidently the initial planetocentric distance is
+ro= JES +00.
+Moreover, from Laplace-Hamilton’s vector oriented along the apsidal
+line, we
+obtain that
+Co = Goto — foro”
+So = — Goto — Noro. 9
+which relations determine the square of the eccentricity
+eg =CotS6.
+Having evaluated the quantity
+2E9 = (£9 + 70) — 2ro",
+we are now in a position to calculate the initial semi-major axis
+ag =— Eo,
+hence Delaunay’s action at time ty), namely
+Lo = | ao .
+There remains to compute Fo.
+We know that
+Co
+rn
+ar
+.
+— = (cosEy — @9) COS gy — /1 — eo sinEy singy,
+ao
+No
+;
+—
+7.
+— = (cosEy — @9) singg + /1 — €9 sinEy COS gy,
+ao
+E, designating here the eccentric anomaly at the epoch fp. We put
+Wo = Eo + Jo>
+so that we can rewrite the above expressions:
+Co
+—
+hy.
+.
+— = cosWy — Co
++ (1 — ./1 — @) sinEy singg,
+ao
+H
+.
+ey
+ae
+— sinWy — So —(1 — /1 — e5) sinEy cos go,
+ao
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+197
+or else
+(4
+S
+,
+a cCOSWo — Co + —___
+== o sin Eo,
+Co;
+C
+.
+= sinWo — So —2—— &9 sin Ey.
+Deducing therefrom that
+1
+|
+€9
+,
+— (Cong — So€o) = (Co sin Wo — So cos Wo) — —— ===
+sin Ey
+Ao
+1+ /1-¢
+= e)./1—e sinEg,
+we then conclude that
+Co
+So(Cotlo — Soo)
+COSWo = Cy
++ — —- ——
+= =SOS
+Ao
+ay /1—e2(1+,/1 — @)
+;
+No
+Co(Cono — So€o)
+sin Wo = So + —_— + i pa 7
+Pa
+te
+These formulas that are exempt from singularities and ambiguities at e7 =O determine
+the angle W,. Finally an obvious modification of Kepler’s equation produces
+The initial values Fo, ho, Co, So, Lo, H are entered into the series expressing the
+averaged elements F’, h’, C’, S’, L’ in terms of the osculating elements F, h, C, S, L
+and H; the substitution produces the initial values Fy, ho, Co, So and the value of the
+integral L’. They are then introduced in the series expressing F”, h”, C” and S” in
+terms of F’, h’, C’, S’, L’ and H, which results in the determination of the initial
+values Fo, ho, Co, and So.
+At this stage we are in a position to evaluate from the series the numerical values
+of the three basic mean motions v,, v, and v3. This is the last step in the initialization
+phase of the ephemeris.
+The calculation of the position and velocity at any instant t follows the same line
+as the initialization, but in the reverse order.
+First we evaluate the state variables F”, h”, C” and S” at time t from the simple
+formulas given at the end of Section 9. Then the series described in Section 8 provide
+the average state variables F’, h’, C’, S’, L at time t, whereas the series of Section 5
+furnish the osculating elements F, h, C, S, L at that instant.
+After the process of evaluating the series numerically is completed, we determine
+the coordinates and components of the velocity from the following system offormulas:
+Kepler’s equation in the form
+wW=F+Csinw —Scosw
+is solved by iteration to obtain the anomaly w=E+g. The eccentricity and the
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+198
+ANDRE DEPRIT AND ARNOLD ROM
+semi-major axis are computed from the relations
+e=C4+S*,
+a=L.
+The position in the nodal frame of reference is given by
+S
+,
+€=a cos — C+ ———— (Csinw —S cos) |
+1 + J1 — e?
+,
+C
+,
+y=a sin — § ———__— ((Csiny -S cos) |
+1+ J1-—e
+Knowing
+.
+G=aL/1-2, r=
+/@P +7’,
+|
+we can use Hamilton’s vector to get the components of the velocity in the nodal
+frame,
+|
+.
+1
+n
+—
+S + —],
+1
+C
+7=—(C+-}].
+Thereafter, having produced the inclination from the relations
+|
+cosI=H/G,
+0<I<nz,
+|
+we perform the usual rotations to pass from the nodal frame to the original inertial
+frame, and we come finally to the Cartesian coordinates
+x= €cosh—ycosI sinh,
+y=€sinh+ycosI cosh,
+.
+z=ynsinI,
+and the components of the velocity
+x=écosh—ncosIsinh,
+|
+.
+y= ésinh +
+cos! cosh,
+'Zg=nsini.
+-
+|
+11. Reliability Tests
+While the coding was in development, repeated checks were applied to test its correct-
+ness. The series generated by the program were constantly checked for their physical
+dimensions and their d’Alembert characteristic. Subroutines that, in the parlance
+of the trade, are called expert, like taking partial derivatives with respect to Delaunay’s
+actions G and L or computing a Poisson bracket, have been thoroughly tested. For
+instance, in regard to the canonical transformation (J, g, h, L, G, H)>(I, g’, h’, L,
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+199
+G’, H’), we satisfied ourselves that the Poisson bracket (/; g) is indeed equal to zero,
+i.e., that the coefficients in the result are smaller than 107’? in relative accuracy.
+(N.B. They should have come exactly equal to zero had we operated in integer
+arithmetic.) The general course of a reduction by Lie transforms has been implemen-
+ted on a number of simple examples like the simple pendulum, Duffing’s equation
+and the relativistic harmonic oscillator.
+The ultimate test of reliability is
+a comparison of the positions and velocities
+predicted by the series with those of a highly accurate numerical integration scheme.
+We chose to integrate the equations of the Main Problem by recurrent power
+series. All Taylor expansions involved are computed at each step through degree 16;
+the time step is selected so as to maintain 12 significant figures in both the integral
+of energy and the integral of polar angular momentum. The procedure is rapid,
+highly accurate, and stable; it enables one to follow for very long arcs the orbit
+corresponding to a given set of initial conditions (Deprit and Zahar, 1966).
+In order to allow comparisons with other prediction methods, we borrowed from
+Bonavito et al. (1969) the initial Cartesian coordinates and velocities they assign for
+the artificial satellites RELAY IJ and ANNA IB. Table IX lists the initial conditions,
+TABLE IX
+Constants of the motion for the test orbits
+ANNA 1B
+RELAY II
+Initial osculating elements
+Fo (in radians)
+2.538 875 214278
+3.273 083 492 516
+ho (in radians)
+0.949 636751 294
+— 2.384959 105 384
+So
+— 0.002 107 639 831
+— 0.025 229 668 345
+Co
+— 0.006 371 881 838
+— 0.234623 580641
+Lo Gn Vanguard units)
+1.085 131662111
+1.322050356567
+H (in Vanguard units)
+0.695 348 576283
+0.884 318 864 870
+Short period corrections
+Fo — Fo
+0.273044549 x 10-8
+— 0.052347711 x 10-8
+h’o — ho
+0.342 375395 x 10-3
+— 0.006 726021 x 10-3
+S’o — So
+— 0.369 163708 x 10-3
+0.123 600234 x 10-8
+C’o — Co
+0.015 809392 x 10-3
+0.563 272260 x 10-3
+L’—Lo
+— 0.128216782 x 10-3
+— 0.452874015 x 10-8
+Long period corrections
+F"0 — F’o
+0.005 752 x 10-6
+0.846017 x 10-6
+h’o —h’o
+0.012755 x 10-6
+2.070715 x 10-6
+S”o — So
+— 0.561488 x 10-6
+— 2.404673 x 10-6
+C”0 — Co
+1.410317 x 10-6
+21.619075 x 10-6
+Periods
+2n/Vv1
+1547™108,2139
+3215™005.4528
+27/v2
+121905238™15s.35
+331903550™54s.43
+2n/|vs|
+9941 7534™55s.60
+332922512™575,11
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+200
+ANDRE DEPRIT AND ARNOLD ROM
+0.04
+°
+0'005
+‘
+.
+;
+2°”
+.
+; e
+0.02
+.° e
+0
+al
+O'olacee*t
+100
+200
+50.0
+150.0
+250.0
+350.0
+Days
+Days
+y
+Mean Distance to the Node F
+Y
+—0.5
+ce
+.
+0.1
+°
+”n
+2
+®
+°
+o
+har)
+°
+2
+0
+e5
+°
+e
+ar
+°
+°
+oe
+£
+® 20
+= 0
+=
+-01]
+°
+=
+=
+-0.2
+e
+—0.5
+;
+50.0
+150.0
+250.0
+350.0
+°
+Days
+100
+200
+Days
+Semi Major Axis a
+2.0x107!!
+5.0 x 10-9
+ete eg
+0
+Oh}
+=
+;
+ae -10.0 xa
+—
+—11
+2.0
+x10
+700
+200
+50.0
+150.0
+250.0
+350.0
+aysY
+Eccentric Element S=esin g
+Days
+3.0 x 10-11
+@)
+O
+=~
+.
+-1.0 x 10711
+“tee ome *
+-10.0 x 10-9
+50.0
+150.0
+250.0
+350.0
+~3.0 x 10-11
+D
+100
+200
+ays
+Days
+Eccentric Element C=ecos g
+ANNA 1-B
+RELAY II
+Fig. 1.
+Errors on osculating elliptic elements.
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+201
+the osculating elements at epoch, the corrections to be applied in order to obtain
+from them the constants of the motion as per our theory, and the basic periods.
+We examined the residuals (integration-series) for the elliptic elements selected in
+our theory. Disagreements on the inclination J and in the longitude of the node h
+are simply insignificant. As expected, the mean distance F to the node shows a
+secular deviation (see Figure 1). For ANNA 1B, the residuals in the semi-major
+axis suggest a long period error coupled with a secular trend; for RELAY II, the
+presence of a long period error is well marked in the element C. For all other variables
+presented in Figure 1, the effects of short period errors caused by the truncatures in
+the eccentricity and J, seem to mask long period and secular tendencies.
+More revealing quantities to evaluate long range reliability are the intrinsic devia-
+tions. If x;, y;, Zz, (resp. Xs, Vs, Zs) are the coordinates at time ¢ furnished by the
+numerical integration (resp. the literal series), and if X;, Y;, Z,; (resp. Xs, Ys, Zs) are
+the components of the velocities, the directions of the tangent, binormal and normal
+to the orbit at time ¢ are given by the triplets
+t; = (X;/ Vin Yr/Vi1, Z7/ V7)
+where
+Vi = (Xp + ¥p + Z7)"",
+b; = (A,/G,, B;/G;, C;/Gy)
+where
+A, = y;Z; — 2X1,
+By = Z,X; — X;Z1,
+Cy = X,Y, — yrX7,
+G, = (A; + By + Cz)’,
+and
+Then the dot products
+(X; — Xs)ty, (Ky — Xs)*Dy, (X; — Xs)*by
+constitute the projections of the error in position respectively on the tangent (‘in-track
+error’), the normal (‘along-track error’) and the binormal (‘across-track error’) of the
+orbit at time ¢. It is a characteristic feature of a perturbation theory that, while it
+yields a very close approximation of the orbit even over very long range, it leaves in
+error the basic clocks of the motion, namely the frequencies v,, v,, v3. However
+small the level of errors on these clocks, they accumulate linearly with time. The
+predicted orbit coincides nicely with the real trajectory of its initial conditions, but
+the satellite takes a more and more pronounced habit of arriving too early or too
+late at the expected meeting places. This story can be read in the diagrams of position
+errors (Figure 2). The deviations along and across the track are totally insignificant,
+but the errors in track show a secular trend. (Note that for both satellites, the tests
+cover more than one revolution of the perigee.) Comparison with similar tests by
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+202
+ANDRE DEPRIT AND ARNOLD ROM
+0.2
+5
+2.0
+ote
+01
+2
+oo
+‘
+= 10
+cote
+0
+oles
+“
+0)
+100
+200
+50.0
+150.0
+250.0
+350.0
+Days
+In-Track
+Days
+0.10
+;
+0.10
+£
+.
+= 0.0
+S
+O19.
+150.0
+250.0
+350.0
+-0.10
+Days
+100
+200
+Along -Track
+o
+£
+5
+= 0°
+2 0.0
+-0.05
+-0.10
+100
+200
+50.0
+150.0
+250.0
+350.0
+Days
+Days
+Across -Track
+Anna 1-B
+Relay II
+Fig. 2.
+Intrinsic errors in position (integration-series).
+Arsenault et al. (1964), Lubowe (1966) and Bonavito et al. (1969) should -restore
+confidence in the capabilities of a satellite theory based on Delaunay’s elements.
+For ANNA 1B, after more than 3000 revolutions, the in-track error reaches only
+0.2 meter; as for RELAY II, after 2800 revolutions, it is still as small as 2 meters.
+Computations were carried on an IBM 360-44, a machine not specially renowned
+for its speed. No effort was made to optimize the evaluation of the series; we were
+exclusively concerned with establishing that the series were correct, and that the
+algorithm could claim to be valid over unusually large arcs. This being said, for
+whatever they may mean, here are some indications of the computing times. It took
+about | min to evaluate the constants of the motion; this job is done once and for all at
+epoch. Likewise the determination of position and velocity at any date from the con-
+stants of motion took | min. On the other hand, the numerical integration took also
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+203
+about 0.01 min per point, the integration step being roughly a tenth of the anomalistic
+period. One crude way of emphasizing one of the advantages of the analytical theory
+is to contrast the time it takes to compute the position and velocity for two revolutions
+of the perigee in the case of ANNA 1B: 2 min by the theory (1 min for initialization
+and | min for the entry at the date) versus about 5 hours by the numerical integration.
+)
+12. Conclusions
+|
+In Perturbation Theory, Lie transforms will likely supersede Von Zeipel’s method;
+they provide easy routine schemes for inverting canonical transformations, for
+determining the constants of the motion, and for transposing state variables.
+Analytical expansions, however large the number of terms in the series, are capable
+of very high accuracy over long intervals of time. As a matter of fact, a Satellite
+Theory carried through the fourth order in its secular terms can deliver the accuracy
+presently contemplated by radar and laser experiments.
+Computers can be programmed to generate developments of average complexity.
+The present theory eradicates the difficulties caused by small eccentricities. It is
+evidently incomplete. But it has solved in principle the problems to be encountered
+from including more terms of the gravitational field, the luni-solar perturbations
+and other perturbations derived from force functions.
+Readers interested in having the series produced by the present algorithm should
+contact the first author of the paper.
+Acknowledgements
+The outline of the present paper has been presented at the VII Annual Seminar in
+Celestial Mechanics, The University of Texas at Austin, January 13-14, 1969, where
+Dr. Boris Garfinkel gave us the opportunity of discussing in detail some of its aspects.
+Then followed a research report at the 50th Meeting of the American Geophysical
+Union, Washington, April 24, 1969. Once the research was completed, it became the
+topic of our lectures at the Summer Institute in Dynamical Astronomy, Massachusetts
+Institute of Technology, June 30 — July 2, 1969. We are grateful to Dr. Musen and
+Dr. Vinti for their comments and suggestions at that occasion.
+The IBM 360-44 of our laboratories is not suited to perform in one stretch the
+very long operations involved in the present theory, particularly those commanded
+by the elimination of the short period terms. In this respect we are especially grateful
+to our operator, Mr. John Pryor; his sense of humor and his patient enthusiasm
+eventually overcame the limitations and failures of our equipment.
+.
+Notes Added on the Manuscript
+1. EVALUATION OF THE FACTOR n” IN THE ANOMALISTIC MEAN MOTION v,
+Professors Breakwell and Vagners (AAS Science and Technology Series, Vol.
+11,
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+204
+ANDRE DEPRIT AND ARNOLD ROM
+Space Flight Mechanics Specialist Symposium, 1967, pp. 27-44) have pointed to a
+possible inconsistency in the use of Brouwer’s theory of an artificial satellite. After
+elimination of the long period perturbations, the anomalistic frequency v, is expressed
+through the second order in terms of the constant L’, G’, H; yet the elimination of
+the short period perturbations yielded the constant L’ in terms of the initial conditions
+through the first order in J, only. Hence the factor n” =L°/u’ in the expression for
+v, is known through the first order only in terms of the initial conditions. In full rigor
+then, from Brouwer’s theory over time intervals of order 1/J,, the error must be of
+order J,. In order to decrease this estimate to the second order in J,, Breakwell and
+Vagners propose to evaluate n”, not from Kepler’s third law, but directly from the
+integral of energy.
+In the present theory, the factor n” in the anomalistic mean motion v, is known
+through the third order in terms of the initial conditions. At first we wanted to be
+consistent and dropped the terms of order four in the mean motions v,, v, and v3.
+Figure 3 shows that in the case of RELAY II, the errors in the mean distance F to
+F
+0.04
+0:03
+oKey.
+0.01
+eS
+1Odays
+20days
+30 days
+Fig. 3.
+Errors in the mean distance F for RELAY II when the fourth order secular terms are not
+taken into account in the mean motions.
+the node would have been as large as 0704 after 30 days in orbit. However, in spite
+of the inconsistency, we decided to use the terms in Jy for the mean motions v,, v9,
+v3. The result has been that, for RELAY II it took 350 days for the error on F to
+reach 0704 (see Figure 1 in the text).
+Professor Vagners feels strongly that the in-track error could be further improved
+if the factor n” in v, is estimated immediately from the integral of energy.
+Within the frame of this theory the definite fourth order of L could be obtained
+in three steps: first one would carry the quadrature indicated in the text to obtain
+W,; then one would complete the triangular recursion to calculate the fourth order
+generator V,; finally one would complete the triangle that leads to express L in terms
+of the elements F, C, S, H, G at epoch.
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+THE MAIN PROBLEM OF ARTIFICIAL SATELLITE THEORY
+205
+But, evidently, one should keep in mind that the capability of carrying literal
+manipulations by computers exposes the construction of a theory to the risks inherent
+to a futile escalation in accuracy.
+2. THE VIRTUAL SINGULARITY OF SMALL ECCENTRICITIES
+Among the numerous suggestions made to eliminate that singularity from Brouwer’s
+theory, we overlooked the contribution of R. H. Lyddane in 1963 (Astron. J. 68,
+555-58). As a matter of fact, it turns out that our solution to this problem is basically
+identical to Lyddane’s procedure.
+The phase space of the Main Problem is coordinatized by means of Delaunay’s
+elements. The solution
+consists in building canonical transformations
+of these
+variables. However, the computation of the ephemeris is not based on the equations
+of the transformations, but rather on equations that express their effects on a set of
+non-singular elements.
+In Brouwer’s
+theory,
+the reducing canonical transformations
+are
+defined by
+determining functions in mixed variables. Lyddane makes use of these functions to
+see how the eliminating mappings transform the set of non-singular elements
+A=l+gt+h,
+a,
+ecosl
+esinl,
+sin4J cosh,
+sin4J sinh,
+into functions of the constants L’, G”, H, 1$, g5, ho. The elements selected by Lyddane
+as well as Brouwer’s generating functions have all the d’Alembert characteristics
+necessary and sufficient to make sure that the functions do not imply even implicit
+singularities at
+e=0. Lyddane proves this point by an implicit transfer from Delaunay’s
+elements to Poincaré’s variables.
+The present theory rediscovered, after Lyddane, that the elements involved in the
+calculation of the ephemeris need not be such that their functional relations to the
+constants constitute a canonical transformation. That the elimination of the angle
+coordinates be performed by canonical transformations is essential for a reason that
+is not stressed enough: provided that nowhere during the construction the d’Alembert
+characteristics are violated, the final Hamiltonian, hence the mean motions v,, v,,
+v3, Will be invariant with respect to the eliminating canonical transformations.
+Beyond that point, the canonical character is no longer imperative. With a sys-
+tematic procedure for transforming functions of the basic state-coordinates and a
+software package to automate the algorithm, why not select the constants of the
+motion and the ephemeris elements so as to suit better the practical cases under
+investigation?
+We are thankful to Dr. Charles J. Cohen and Dr. Max Lane for referring us to
+Lyddane’s article.
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System
+1970CeMec...2..166D
+206
+ANDRE DEPRIT AND ARNOLD ROM.
+References
+|
+.
+Aksnes, K.: 1967, Astroph. Norv. 10, 156.
+ae
+Arsenault, J. L., Enright,
+J. D., and Purcell, C.: 1964, ASTIA Documents 437-75 and 437-76.
+Bonavito, N. L., Watson, S., and Walden, H.: 1969, NASA TN D-5203.
+|
+Brouwer, D.: 1959, Astron. J. 64, 378.
+Brouwer, D. and Clemence, G. M.: 1961, Methods of Celestial Mechanics, Academic Press, New
+York, Ch. II, p. 79.
+Brown, E. W. and Shook, C. A.: 1933, Planetary Theory, Cambridge University Press, Cambridge
+(G.B.), Ch. VI, p. 141 et seq.
+;
+Cain, B. J.: 1962, Astron. J. 67, 391.
+Delaunay, C.: 1867, Mémoires de l’Académie des Sciences 2g, p. 801.
+Deprit, A.: 1969, Cel. Mech. 1, 12.
+|
+Deprit, A. and Rom, A.: 1967, Bull. Astron., Série 3, 2, 425.
+-
+Deprit, A. and Zahar, R.: 1966, Zeit. angew. Math. Phys. 17, 425.
+Lubowe, A. G.: 1966, AIAA J. 4, 361-63.
+Meffroy, J.: 1968, NASA Goddard Space Flight Center Memorandum X-641-68-320.
+Moses, J.: 1969, Tutorial Session, July 2, Summer Institute in Dynamical Astronomy, M.I.T.,
+Cambridge, Mass.
+Poincaré, H.: 1893, Les Méthodes nouvelles de la Mécanique céleste, Gauthier-Villars, Paris,
+Tome II,
+Chapitre VIII, p. 17 et seq.
+Rom, A.: 1969, Boeing Document D1-82-0840 submitted for publication in Cel. Mech.
+© Kluwer Academic Publishers
+* Provided by the NASA Astrophysics Data System

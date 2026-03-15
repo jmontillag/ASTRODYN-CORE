@@ -1,0 +1,796 @@
+64. . 3 67K
+
+
+
+
+               1959 November                THE        ASTRONOMICAL                        JOURNAL                                     (367
+1959AJ
+
+
+
+
+              The variations 8r, hi, 8 sin 6, 8 ip can be readily              formulae, which led to the discovery of the mixed
+              incorporated into the computational scheme of                    secular term.
+              section ii.                                                                               REFERENCES
+                The author expresses his deep appreciation to                  Brouwer, D. 1959, A. J. 64, 378.
+              Dr. Dirk Brouwer, the Director of Yale Uni-                      Garfinkel, B. 1958, A. J. 63, 88.
+                                                                               Jeffreys, H. 1952, The Earth (Cambridge University Press).
+              versity Observatory, for the inspiration and                     King-Hele, D. G. and Merson, R. H. 1959, Nature 183,
+              encouragement received throughout this work.                        881-882.
+              He is also grateful to Dr. Gen-ichiro Hori for                   Sterne, T. E. 1958, A. J. 63, 28.
+                                                                               Vinti, J. P. 1959, J. Research Nat. Bur. Standards 63B, 105.
+              the conscientious checking of the mathematical                   von Zeipel, H. 1916, Ark. Mat. Astr. Fys. 11, 1.
+
+
+
+
+                                         THE MOTION OF A CLOSE EARTH SATELLITE
+                                                          By YOSHIHIDE KOZAI
+                       Smithsonian Astrophysical Observatory and Harvard College Observatory, Cambridge, Massachusetts
+                                                           Received October 30, 195Q
+
+                 Abstract. In the present paper perturbations of six orbital elements of a close earth satellite moving in the gravita-
+              tional field of the earth without air-resistance are derived as functions of mean orbital elements and time. No assumptions
+              are made about the order of magnitude of eccentricity and inclination. However, it is assumed that the density distribu-
+              tion of the earth is symmetrical with respect to the axis of rotation, that the coefficient of the second harmonic of the
+              potential is a small quantity of the first order and that those of the third and the fourth harmonics are of the second order.
+              The results include periodic perturbations of the first order and secular perturbations up to the second order.
+                 However, the solutions have some singularities for an orbit whose eccentricity or inclination is smaller than a quantity
+              of the first order, and this case is treated in a different way.
+                 By using Delaunay’s canonical elements a theorem is proved that there are no long-periodic terms of the first order
+              in the expression of the semi-major axis.
+
+                 I. The disturbing function. In the present paper              torial plane. A2 is taken to be of the first order
+              it is assumed that air-drag is absent and that                  of small quantities, and A$ and A± are to be of
+              the gravitational field of the earth is axially sym-            the second order. The coefficients of higher har-
+              metric. Under these assumptions the gravita-                    monics may be of the third order of small quan-
+              tional potential of the earth at a point where                  tities or less. (O’Keefe, Eckels and Squires 1959,
+              the geocentric distance and the latitude are r                  Kozai 1959).
+              and 8, respectively, is expanded into the series                   The purpose of the present author is to derive
+              of spherical harmonics,                                         the periodic perturbations of the first order and
+                                                                              secular perturbations up to the second order.
+                                                                              Therefore terms of higher order than the fifth in
+                                                                              the potential series may be neglected.
+                                                                                 As the satellite is always on an ellipse, whose
+                                                                              position and shape are variable, it is convenient
+                                                                              to express r and ô in (1) by elliptical elements of
+                                                                              the satellite by the following relations:
+
+                                                                                                          a{i — e2)
+                                                                                                         1 + e cos v ’                  (2)
+                                                                       (o                     sin 8 = sin i sin (^ + co),
+
+              where G is the gravitational constant and M is                 where a is the semi-major axis, e is the eccen-
+              the mass of the earth. The second and fourth                   tricity, i is the inclination to the equator, œ is
+              terms in the expression of the potential are due               the argument of perigee and v is the true anomaly.
+              to the oblate ness of the earth, and the third term               The disturbing function due to the oblateness
+              is due to the asymmetry with respect to the equa-              of the earth is then
+
+
+
+
+                  © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 3 67K
+1959AJ
+
+
+
+
+              368                    THE       ASTRONOMICAL                    JOURNAL                       64, No. 1274
+
+              R = U - GM/r
+
+                     [A2(aV I i          i . 2     i . .             ,
+                = GM I —3 I - I \          sin z H— sin21 cos 2(v + «)
+                     L a \ r/ J 3        2        2
+
+
+                            +                               sin (v    œ) — I sin2 i sin 3 (y + ai) [ sin i
+                                Ï?6)‘I( 8 “•*-;)
+
+                                                 - sin2 ^' + g sin4 i + sin2 i ^ _ I Sm
+                                                                                      • 2 A cos 2 (v + ai)
+                                                                               \7  2
+
+                                                                                        + - sin4 i cos 4(y + 4].      (3)
+                                                                                          o
+
+              The true anomaly, v, is easily transformed to the mean anomaly, M, which is a linear function of time
+              in non-perturbed motion, by the differential equation
+
+                                                         dv      a-
+                                                                                                                      (4)
+                                                         dM
+
+              r/a and v appearing in the disturbing function of (3) are then functions of e and M only, and are
+              periodic with respect to ikf. Therefore, R is also a periodic function of M and co. In R, terms depending
+              neither on M nor on co are called secular, terms depending on co but not on M are long-periodic,
+              and terms depending on M are short-periodic.
+                As the long-periodic perturbations originate from terms of the second order in R, we must retain
+              secular terms and long-periodic terms' up to the second order. However, for short-periodic terms
+              we need only terms of the first order.
+                 Using the following relations (Tisserand 1889) :
+
+
+                                                                           dM = (1 — e2)- •3/2
+
+
+                                          (7) sin* - (ï) COS 2V = O,
+
+
+                                                  cos v = e(i — e2) •5/2
+                                           u
+
+                                           (7) sinî; = (7) C0S 3V = (7) sin 311 = o,                                   (5)
+
+
+                                                 (7) = d-e2)-^(l+le2),
+
+
+                                                 cos 2z> = — e2(i — e2)~7/2,
+                                          (7)'             4
+
+                                          /¿Y .          (a\                 /<z5\ .
+                                          I - I sm 2z) = I - I cos         = I — I sin 4^ = o,
+
+
+              we can pick up only necessary terms by the above criterion as follows :
+
+
+
+
+                    © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 3 67K
+
+
+
+
+              1959 November           THE         ASTRONOMICAL                         JOURNAL                     369
+1959AJ
+
+
+
+
+              where Ri,      Rz and R^ are first-order secular, second-order secular, long-periodic, and short-periodic
+              parts of the disturbing function, respectively.
+                 2. Perturbations of short period. The differential equations representing variations of orbital
+              elements are :
+                                            da        2 SR
+                                            dt       na dM ’
+
+                                             de      i — e2 dR         Vi — e2 dR
+                                             dt       na2e dM           na2e du ’
+
+                                            du               cos i      dR             Vi — e2 dR
+                                                          2        2
+                                            dt          na Vi — e sin i di              na2e de 1
+                                                                                                                    (7)
+                                             di              cos i        dR
+                                             dt      na2^l i     e¿ sin i dcx) ’
+                                            dti                          dR
+                                            dt       na2^J i      ¿
+                                                                 e sm t¿ di ’
+                                           dM                i - g2 dR        2_dR
+                                               = n
+                                            dt                na2e de        na da ’
+
+              where n is related to a by n2az — GM.
+                 To derive short-periodic perturbations of the first order, after replacing R by R4 in (7), one may
+              regard a, n, e, i and a> on the right-hand sides of equations (7) to be constant. However, n, appearing
+              as the first term of the last equation without any factor, is variable, but it is a known function of
+              time, after obtaining the expression of the semi-major axis. True anomaly, v, may be regarded also
+              to be a known function of time on the right-hand side, and one can transform the independent variable
+              from ¿ to y by
+                                                        dt    _i(r\2
+                                                  dt = vTv dM                             dv.                       (8)
+                                                       dM      n\a ) Vi
+
+              Then, for example, the short-periodic perturbations of the inclination are obtained by,
+
+                                                            COS l           '2dR,
+                                             dis =     2 2       2                dv.                               (9)
+                                                      n a (i — e ) sin i in)' do)
+
+
+
+
+                 © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 3 67K
+
+
+
+
+               370                           THE        ASTRONOMICAL                                JOURNAL                         64, No. 1274
+1959AJ
+
+
+
+
+              where the integrand can be expressed by a finite trigonometric series and is, of course, integrable
+              analytically within the necessary accuracy. The results for the six elements are as follows :
+
+                  da.                                                    (i — e2) 3/2 f + I ~ ) sin2 i cos 2(y + co)
+                                                                                          (“)                        ]■
+                           i — e2 A
+                     des                            ^ sin2                      —
+                                                                                    i1 — ^2)_3/2|              s n2
+                                                                                                               ^      ^ cos 2 ^
+                             e    a¿
+
+                                                      sin2 i A 2
+                                                             — j COS 2 (y + Cl)) A~ e COS (v + 2Cl)) + ~ ^ COS (3^ "t" 2w)
+                                                        2e ap
+
+                   7 _ Al ^2 — ^ sin2               {v — M + e sin v)
+                  CiO^s ,0
+                 p
+                                  i   :                       1 .                               e .
+                           + (, -L n,i )|i(I _ - e ] sin v + -2 sin 2v
+                                                  2
+                                                                                                — sm 3^
+                                               4 /                                              12
+
+                                 1
+                                   Í 1 • 2 ' I /1              • 2 A e2 [1 sin (v + 2co) + — sin2 i sin (y — 2co)
+                                 e \4          V2       16         /                       lo
+                                                                            1
+                              i / 5 .           A .        /   ,     N ,      ( 7 . , .        1 (    !9 . 2 A 2
+                                                                     J                                         e \ sin (3Z) + 2co)          (10)
+                              2\2               J                           e \ 12             6\     8      /
+
+                                                                           3                           ^
+                                                                         + - sin2 i sin (42/ + 2co) + — sin2 i sin ($v + 2co)
+                                                                           o                          lo                      ]•
+
+                  dis =          ^ sin 2Í I cos 2 (z; + co) + £ COS (y + 2co) + - COS (3^ + 2Cl)) [ ,
+                           4 ^             l                                    3
+
+                             ,4s
+                 düo =               cos i \ v — M + e sin v — - sin 2 (z; + co) — - sin {v + 2a>) — - sin (3z; + 2co) [ ,
+
+
+               edMs        —^Vi — g2|^— ^1 —^sin2^|^i —s^n v + “ sin 2z; +                                     sin 3Z)
+                                                                                                          12
+
+                           + sin2     j - ( I + 7 e2) sin (v + 2œ) — — sin (z; — 2œ) — ^ ^                                sin (3z; + 2co)
+                                     •iK'+ïA“'
+
+                                                                                       3                     ^
+                                                                                       - e sin (4z; + 2cu) — — sin (5z; + 2co)
+                                                                                       ö                     lo                ]■
+              where
+                                                                         p = a(i — e2).
+
+                As the mean values of cosjv (j = 1,2, • • •) with respect to M do not vanish, but
+
+
+                                                  COS JV                                                                                    (11)
+                                                                   (■ + v,g-70'(1 + ’'V7^î)'
+
+              mean values of these short-periodic perturbations are not zero, except for those of a.                              Their mean
+              values with respect to M are :
+
+
+
+
+                 © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 3 67K
+
+
+
+
+              1959 November               THE     ASTRONOMICAL                            JOURNAL                                   371
+1959AJ
+
+
+
+
+                                   -T-   A           i - e2
+                                   aes = —r22 sirr t —^ cos 2V cos 2co,
+                                         p             6e
+
+                                                               i — e1
+                                   dois                               COS 2V ,             COS2 Í COS 2V sin 2o),
+                                                                 6e2
+
+                                                 I a2 .      .
+                                   dis              -T Sin 21 COS 2V COS 2co,                                                       (12)
+                                                12 p2
+
+                                           i a       .        .
+                                   düs = — 7—72 COS l COS 2V sm 2CO,
+                                           6
+
+
+                                              A2
+                                  ^Tfs           Vi — £2 sin2 7                                  sin 2co.
+                                              ¥
+
+              Therefore,            ¿cos — ¿cos, dis — dis, dMs — dMs and    — ¿A2S must be the short-periodic
+              perturbations whose mean values with respect to the mean anomaly are zero.
+                 Expressions of the mean anomaly and the argument of perigee are rather complicated, so it is
+              better to combine the four elements a, e, co and M into the radius vector r and the argument of
+              latitude L = z; + co by the following relations :
+
+                                              dr         e     -     i   r da
+                                              — = - -r . .    sin v dm +      — cos v de,
+                                              a    -yj i — ez            a a
+
+                                                   a2 i                   /     r \a
+                                              dv = —2 71 — e2 dM + sin z; I i + — )-r de.
+                                                   r                      \     P/
+                Putting
+
+                                        da = —                 ^ sin2 7^ Vi — e2 + das,              de — de s
+
+
+                                        j = dois
+                                        aco j — 73 77-
+                                                   A2 sin
+                                                       . 221. sm
+                                                               . 2co,
+                                                 O p¿
+
+                                     dM = ¿AT, + I ^ Vi               e2 sin2 i sin 2co,
+
+
+              the deviations of the radius vector and argument of latitude of the satellite, from those computed
+              by mean orbital elements are obtained as follows :
+
+               dr                                                    r    I                              1
+                  = “—7(1 — - sin2 7/1 — i — -K(1 — Vi — c2) cos v +                                  +i 7 —- sm
+                                                                                                               • 221• cos 2(v
+                                                                                                                            / +1 oi),
+                                                                                                                                   \
+              ' a   3 ap\   2       J[       e                       a Vi —                              6 ap
+
+              dL =              2 s^n2 7^ (fl — ikf + £ sin v)
+
+                                       \ í  /     2                   \                                  1                          ^I3
+                                    2                                                                 2
+                      +       — I sin 7^| ~e{^ ~ \ ~             ~~       sin z; + g (1 — Vi — e ) sin 2z;|
+
+
+                      — ^     — I sin2 ij e sin (v + 2co) ~ (2 ~~           S n2
+                                                                             ^       S n 2
+                                                                                      ^      ^              ^ cos2 ^ s^n (3V   2w
+                                                                                                                                 )J •
+
+
+
+
+                 © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 3 67K
+
+
+
+
+              372                      THE       ASTRONOMICAL                     JOURNAL                   64, No. 1274
+1959AJ
+
+
+
+
+                 The secular perturbations of the first order are easily derived by putting R = Ri in (7), as
+                                                           A2
+                                                ¿ô = coo + -^y^(2   ^ sin2 i t,
+                                                               ^2 — 7
+
+
+                                                Ï2 = 120 — Ty
+                                                           p^ñt cos i
+                                               M = Mo T ñt,
+                                                            A
+                                                ñ ■= no +        no (1 -Lin^-) v i — e%
+                                                            P[
+              where co0, Oo and Mo are mean values at the epoch, that is, the initial values, from which periodic
+              perturbations have been subtracted, no is the unperturbed mean motion, which is related to the
+              unperturbed semi-major axis do by no2aoz = GM.
+                It is more convenient to adopt as a mean value of the semi-major axis not do but
+
+                                              a = do
+
+              so that the following relation holds :
+
+                                          n2dz = GM                                                                (h)
+
+              And to derive the expressions of (13) this value of ä has been already adopted as a mean semi-
+              major axis.
+                 3. A theorem on non-existence of long-periodic terms in the semi-mdjor dxis. As is well known, Poisson
+              proved a theorem of non-existence of secular perturbations of the semi-major axis of a planetary
+              orbit. However, there are some differences between theories of planetary and satellite motions.
+              Because the perihelion and node of an ordinary planet moves around the sun with the period of
+              some ten thousand years, one may expand e sin a>, e cos w, i sin 0 and i cos B into power series ol
+              time in the planetary theory, so that terms depending only on w and 2 must be regarded to be secular,
+              not long-periodic. From this point of view Poisson proved the theorem. Now we observe the motion
+              of an earth satellite for a long interval of time, in which the line of apside makes several revolutions.
+              So the corresponding theorem in the satellite motion is that there are no long-periodic terms in the
+              expression of the semi-major axis.
+                 Let us transform variables from Kepler’s elements to Delaunay’s canonical ones :
+
+                                   L = V/ia,       G = V/xa(i — e2),          H ~ ^¡¡j.d(\ — e2) cos 7,
+                                                                                                                  (15)
+                                    l = M,         g = w,                     h — 2,
+              where ¡jl = GM.
+                These variables must satisfy the following canonical equations:
+
+                                        dL      d_F         dG     dF           dH     dF
+                                        dt      dl !        dt                   dt    dh ’
+                                                                                                                  (16)
+                                         dl                 dg          dF       dh       dF_
+                                         dt      " dL ’     dt          dG’      dt       dH’
+              where
+                                                            F
+                                                                = ^ + R-
+
+
+
+
+                 © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 3 67K
+
+
+
+
+              1959 November           THE     ASTRONOMICAL                   JOURNAL                              373
+1959AJ
+
+
+
+
+                Since F does not depend on h, there is an integral H = constant. Variations of the semi-major
+              axis are represented by :
+                                                      dL    dF     dRi
+                                                      dt ~ dl ~dl’
+
+              where /¿2/2L2, Ri, R2 and Rz are omitted in F because they do not depend on /.
+                Long-periodic perturbations of the first order of L will come from long-periodic terms of the
+              second order of dR±/dl, which may be expanded into Taylor’s series,
+
+
+
+
+              where terms of higher than the third order are neglected and in parentheses l, L, g and G are replaced
+              by their respective mean values, l = ñt      U, L = Lo, g :=     + go and G = G; dl, dL, dG and dg
+              are deviations of instantaneous values from their respective mean values and are of the first order.
+              ñ and g are secular motions of the mean longitude and the longitude of perigee, and are supposed
+              to be known.
+                 In equation (17) one must consider only long-periodic terms of the second order, and after inte-
+              grating with respect to time only such terms of the first order, omiting other terms. The first term
+              of (17), dR±/dl, cannot have any long-periodic terms of any order, so must be omitted. As R± depends
+              on t only through M within the accuracy of the first order, the following relations hold :
+
+
+
+                                                                                                                 (18)
+
+                                     J V dldG J      ñ \ dG / ’       J \ dldg )     ñ\ dg )'
+
+                Integrating dR^/dl in (17) with respect to time by parts using the relations (18), one has
+
+                       dR, ,
+              dL
+
+
+
+
+                               i {[(dRAdL , (dRAfdl                \ , ZdRAdG , fdRA/dg                  \
+                                                                                                           dt.   (19)
+                               ñ J \ \ dL ) dt + \ dl )\ dt       n
+                                                                   j + VdG,U+\dg/L¿                  g
+                                                                                                         )
+
+              After integration the first part contains only terms of the second order, so can be omitted.       The
+              second part is transformed to
+
+
+
+
+                                                                      +                                     dt
+                                                                          (fXfMf )(f)]
+
+                         fdn(^)dt.                                                                               (20)
+
+
+
+
+                   © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 3 67K
+
+
+
+
+              374                     THE      ASTRONOMICAL                        JOURNAL-               64, No. 1274
+1959AJ
+
+
+
+
+                By using the relation nU = const., this equation is written as
+
+
+
+
+                                                                                                                 (21)
+                                                 - á                - ¿z{Rfí-
+
+              Since the terms are all of the second order after integration, one can conclude that there are no long-
+              periodic perturbations of the first order in the expression of the semi-major axis. Of course there
+              are no secular terms in the semi-major axis.
+                4. Secular perturbations of the second order and long-periodic perturbations. Let Ei be one of the six
+              orbital elements of a satellite, and express its variation by the differential equation
+
+                                                                dEj
+                                                                                                                  (22)
+                                                                 dt ~ U'
+
+              A function /¿ may be expanded into a power series of deviations from the mean orbital elements as
+
+
+                                                f(23)
+
+              Secular perturbations of the second order and long-periodic perturbations of the first order will come
+              from the terms of the second order on the right-hand side of (23). However, the complete first order
+              expression of dEj is not yet known except for da. By integrating equation (23) by parts as in the pre-
+              vious section, there holds,
+
+
+                                                               L LF.jdEj-]                                        (24)
+              where
+                                                          j
+                                                          Fij- =             dt.
+
+              If Ei is the inclination, i, for example,
+
+                                                                   cos i      dR
+                                                     U =        2       2
+                                                              na ^I — e sin i
+
+              In this case dfi/dEj has neither long-periodic nor secular terms as far as the terms of the first order
+              are concerned. As it is easily proved that i and e cannot contain any secular terms, ^jFijdEj can
+              be omitted from the equation of the inclination, because this is of the second order and has no
+              secular terms.
+                Therefore all terms on the right-hand side of (23) for the inclination are known and long-periodic
+              terms can be picked up by using the following relations (Tisserand 1889) :
+
+
+
+
+                    © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 3 67K
+
+
+
+
+              1959 November               THE        ASTRONOMICAL                      JOURNAL                                   375
+1959AJ
+
+
+
+
+                                                               =(i - at9/2(i+3e2+f<?4),
+
+
+                                                         cos v = 2e(i — e2)~9/2 ^         ^      >
+                                                  (“)
+
+                                                                              2 _9/2
+                                                        cos 2v = — e2{i - e)            + i e2),
+                                               (t)'              2 V
+
+                                                        cos 2)V = — {i — e2) 9/2,
+                                               (“)'
+
+                                                        cos 4z> = — C1 — e2) 9/2,
+                                               (;)'
+
+                                                        cos jv = o,     (J > 4),
+
+
+                                                        (“J = (I - e2)_3/2,
+
+
+                                                                      (! _ g2)-3/2i
+                                                  (7) cos» =
+
+
+                                                        cos> = o,       (i > 1).
+
+                Then the expression of long-periodic perturbations of the inclination are derived as :
+
+                            —    A 2 e2 sin 2i        14-15 sin2 i      A4 18-21 sin2 i
+                  1,1       ls                                                                cos 2co — - -^-7 e cos i sin a>.   (25)
+                        ~        ^)2 8(4-5 sin2 7)                                                      4 A 2p
+
+                Now there is an integral, Va(i — e2) cos i — const., and it has been already proved that there are
+              no long-periodic perturbations of the first order in the semi-major axis, so dei, the long-periodic
+              perturbation of the eccentricity, is
+
+                                   e¿ sin 2
+                                 — *2
+                  de i =                  - dii
+                                      cos t
+
+                                    A2    e sin2 i  f 14-15 sin2 i         A4 18-21 sin2 i
+                            des T                 2                                             cos 2a> +i -3 ^3  ...
+                                                                                                               — sin t sin a?.   , .v
+                                                                                                                                 (26)
+                                    pa 4(4-5 sin i)                                                         4^42a
+
+                However, the same principle cannot be applied to obtain the expressions of the node and the
+              argument of perigee, because in these cases dfi/di, dfi/de and dfî/da have secular terms. But
+              fortunately complete expressions of di, de and da have already been derived. And since it is also
+              proved that Ffadu and FjMdM do not include secular terms, the following expressions are derived :
+
+                     L2 _          ^2 f 3 , ^_2             2V1
+              Ù = — —2 n cos ^ i +
+                    V         L         2   6
+                                                                                                             2
+                                                                                     A4                   in i ^
+                                                                                                 . 12-21 sin*
+                                                                                   — -—74 n cos t                1+72 )■         (27)
+                                                                                      ÿ                14
+
+
+
+
+                 © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 3 67K
+
+
+
+
+              376                        THE           ASTRONOMICAL                      JOURNAL                         64, No. 1274
+1959AJ
+
+
+
+
+                  -4 2 _       2                      A2
+              u = ~^n
+                  p2 ^2 — ~ sin ^               +            + - - 2V7AT
+                                                      ÿ2
+
+                                                                                               •   cos4 7
+                                      -sin’*(S“5“3Vi“9l]“Ä
+
+                                       1 ^4*      -12        Q3 sin
+                                                             —   . 2 7. + —
+                                                                          21 sin4 i + e2 / 27 189 81  \1
+                                         P*      [7          14           4         ^ Vh“^81112^^81114^’                         (28)
+
+
+              where ï and e are mean values of the inclination and the eccentricity over all the periods, and
+
+                                                                    p = ä(l — ë2).
+                             A2    è?2 cos i r 7-15 sin2 i             A a 9-21 sin2 i
+                                            2
+                             P* 2(4--5 sin i) [_
+                                      5 sin2 i J 14-15 sin2 i                       :
+                                                                                 m2* 1 .
+                                                                       A4 18-21 sin              , 3 243 cos*
+                              + 2                                                     M sin 2co H     7— ;—e cos co,             (29)
+                                    (4-5 sin2 i)                                      IJ           4 ^4 2/? sin *  »             \
+                             3A2 . 2
+              dcoi — dcx)s        sin i sin 200
+                             8 p2
+                                     A2                     14-15 sin2 ¿ . 2       , 28-158 sin2 ¿ + 135 sin4 í
+                                                2                       sin 1 — e2
+                                    ~¥ L 4-5 sin i              24                               48
+
+                                A±(l    8—21 sin2 i .                  „ 36-210 sin2 7 + 189 sin4 7
+                                                   • sim i
+                                  A22 V                                                                )
+                                    e2 sin2 ¿(13-15 sin2 i) ( I4-I5sin
+                                                              14-15 sin27i   244 18-21 sin2 7 \ ~| .
+                                          (4-5 sin2 7)2                                           sin 2co
+                                                            V     24       -^7       ^        jjsi
+                                                                                           3 24 3 sin2 i — e2 cos2 * 1            . .
+                                                                                         + - -rr          ^^           cos co.   (30)
+                                                                                           4. A 2p       sim         e
+                It is very difficult to derive the long-periodic perturbations of the first order of the mean anomaly
+              because the long-periodic perturbations of the second order of the semi-major axis are not known.
+              However, usually the atmosphere of the earth changes the mean motion of the actual satellite so
+              much that any long-periodic variations of the mean anomaly cannot be detected from observations
+              with good accuracy.
+                The results are then :
+
+                                 a — a         das,        a = do
+
+                                 e = ë + des — des + dely
+                                 * — * T dis — dis T di i.
+                                 co — coo T           T dois — dois T doiiy                                                      (31)
+                                 Œ = í2o T            4“ düs — düs T
+
+                                ikf = Mo         ñt        dMsj     ?* =      j i +         ~ 2 s^n2        ^
+
+                                no2a0z = GM,
+
+
+
+
+                    © American Astronomical Society • Provided by the NASA Astrophysics Data System
+64. . 3 67K
+
+
+
+
+              1959 November               THE           ASTRONOMICAL             JOURNAL                                       377
+1959AJ
+
+
+
+
+              where e and l are mean values with respect to M          The variation of the eccentricity is expressed by
+              and cu, and ojo,    and Tfo are initial values from
+              which periodic perturbations have been sub-                                3 ^3 ...         . -
+              tracted. On the right-hand sides of these expres-                    e =       — sm 2 + eo sm co.
+                                                                                         4 aA z
+              sions one must always use constant mean values
+              as a, e, i, a — œt, Q, — Ùt and M — ñt.                  In this case düx = dii = o, because they have a
+                 5. The case when the inclination or eccentricity      factor e.
+              is very small. In the previous sections it is as-            When the inclination is very small, instead of
+              sumed that 4-5 sin2 i, i and e are not very small.       co, the longitude of perigee, tt = co + Í2 is adopted.
+              If e is very small, periodic perturbations of M          The longitude of perigee moves secularly as
+              and co become very large. However, in the case
+              of the short-periodic perturbations the difficulty
+                                                                                           7T = 7T¿ + 7T 0,
+              will vanish, if elements are transformed from M
+                                                                       where
+              and co to r and z; + co.
+                                                                                                    A2 _
+                 For the long-periodic perturbations the vari-                               zr =       n.
+              ables must be transformed from e and co to                                            pa2
+
+                                    ^ — e cos co,                         The variations of i sin Í2 and i cos Q are derived
+                                                                       as in the previous case as
+                                    r] = —e sin co.
+              These variables must satisfy                                      t• sm
+                                                                                    • o
+                                                                                      12 = t•0 sm
+                                                                                                • f>
+                                                                                                  12 +i -3 ——
+                                                                                                            ^3 e cos tt,
+                                                                                                         4. A 2p
+               di;     dR            3^3 . Ys .2 ,.         \
+                           — COT]       sin ^ l -sm 1 — I ),
+               dt      07]           2 a*       \4          /                         O = to• cos 12
+                                                                                                  Ô +_1_ -3 —7
+                                                                                                            -43 e sm
+                                                                                                                   . tt,
+                                                                                i cos 12
+                                                                (32)                                      4 A 2p
+               df]        dR
+                                                                       where
+                                                                                            12 = 12¿ + 12o.
+              where co has the same value as in the previous
+              section.                                                 If io is much smaller than 3eAz/4A2p, then
+                The solutions of these equations are
+                         e cos co = 60 cos co,                                                      4 A 2pio
+                                                                               12 — tt T 900                ■ cos (tt — 12),
+                                                                                                    3 Az
+                                        . - . 3 -43 . .
+                         e sin co = £0 sin co +   — sm 1.
+                                                4  2
+              where                                                            i• ^ ~3 TT
+                                                                                       ^3 e +, to. cos (tt
+                                                                                                       . — 12).
+                                                                                                           m
+                                                                                    4 A 2p
+                                    CO — cot     COO.
+                                                                         I am grateful to Drs. Don A. Lautman and
+              eo and coo are constants of integration.
+                 If eo is much smaller than 3^3/40^2, which is         Gen-Ichiro Hori who kindly read the manuscript.
+              of the first order, the argument of perigee cannot
+              move around the earth completely, but oscillates                                 REFERENCES
+              around the value 900 as follows :                        Kozai, Y. 1959, Smithsonian Astroph. Obs., Special Rep.
+                                                                         No. 22.
+                                      4. aA2eo                         O’Keefe, J. A., Eckels, A. and Squires, K. 1959, A. J. 64,
+                            co = 90 + —^^—:     cos co.                  24-5-
+                                      3 A3 sm ^                        Tisserand, F. 1889, Traité de Mécanique Céleste, Vol. 1.
+
+
+
+
+                     © American Astronomical Society • Provided by the NASA Astrophysics Data System
+

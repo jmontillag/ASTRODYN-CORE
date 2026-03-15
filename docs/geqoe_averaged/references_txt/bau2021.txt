@@ -1,0 +1,1695 @@
+                                                                       A generalization of
+                                                                 the equinoctial orbital elements
+arXiv:2105.04424v3 [astro-ph.EP] 27 Aug 2021
+
+
+
+
+                                                Giulio Baù∗           Javier Hernando-Ayuso†                  Claudio Bombardelli‡
+
+
+                                                                                         Abstract
+                                                          We introduce six quantities that generalize the equinoctial orbital ele-
+                                                      ments when some or all the perturbing forces that act on the propagated
+                                                      body are derived from a disturbing potential. Three of the elements define
+                                                      a non-osculating ellipse on the orbital plane, other two fix the orientation
+                                                      of the equinoctial reference frame, and the last allows one to determine the
+                                                      true longitude of the body. The Jacobian matrices of the transformations
+                                                      between the new elements and the position and velocity are explicitly
+                                                      given. As a possible application we investigate their use in the propa-
+                                                      gation of Earth’s artificial satellites showing a remarkable improvement
+                                                      compared to the equinoctial orbital elements.
+
+
+                                               1      Introduction
+                                               The set of elements investigated by Broucke and Cefola (1972):
+
+                                                                        a,                        λ0 = M0 + ω + Ω,
+                                                                         h = e sin(ω + Ω),        k = e cos(ω + Ω),                   (1)
+                                                                                i                         i
+                                                                         p = tan sin Ω,            q = tan sin Ω,
+                                                                                2                         2
+                                               where a, e, i, Ω, ω, M0 are the classical Keplerian elements, are usually rec-
+                                               ognized as the equinoctial orbital elements, hereafter EqOE. This expression
+                                               was coined by Arsenault et al (1970), who were also the first to introduce the
+                                               equinoctial reference frame (see Section 2.2). The appearance of similar elements
+                                               in Celestial Mechanics dates back to Lagrange’s secular theory of planetary mo-
+                                               tion. A slight different version of the quantities p, q, where the inclination i
+                                               replaces i/2, is employed in Lagrange (1781, p. 130). Moreover, the two quanti-
+                                               ties N and M introduced at p. 135 of Lagrange’s paper, are a small-inclination
+                                               approximation of k and h, after dividing by the gravitational parameter.
+                                                   ∗ University of Pisa, Largo B. Pontecorvo 5, 56127, Pisa, Italy
+                                                  † (in his personal capacity) ispace, inc., Sumitomo Fudosan Hamacho Building 3F, 3-42-3,
+
+                                               Nihonbashi Hamacho, Chuo-ku, Tokyo, Japan 103-0007
+                                                  ‡ Technical University of Madrid (UPM), E-28040 Madrid, Spain
+
+
+
+
+                                                                                              1
+    One of the most relevant variations of the EqOE is due to Walker et al (1985).
+They proposed to replace the semi-major axis with the semi-latus rectum and
+the mean longitude at epoch (λ0 ) with the true longitude. In this way, the
+resulting set can be applicable to all orbits, while the EqOE work with negative
+values of the Keplerian energy only. However, both these sets are singular for
+retrograde equatorial orbits (i.e., i = π), and for rectilinear motion.
+    Battin (1999, Sect. 10.4) provided useful relations for the classical equinoc-
+tial elements and their time derivatives, employing the mean longitude in place
+of λ0 . Broucke and Cefola (1972) reported also the matrix of the partial deriva-
+tives of the position and velocity with respect to the EqOE, and the inverse
+of that matrix, along with the Lagrange and Poisson brackets. The authors
+discuss the advantages of the EqOE with respect to the universal variables
+for computing general perturbations of planets. In a subsequent paper, Ce-
+fola (1972) focused instead on their use as a special perturbation method and
+obtained single-averaged variational equations in Lagrange’s form for different
+perturbing forces, showing also some numerical results. Moreover, an alterna-
+tive set of EqOE was presented that is non-singular for i = π (the singularity is
+moved to i = 0).
+    Thanks to the renewed interest in the EqOE showed in the early 1970s,
+they became very appealing for orbit computation programs. For example,
+the theory of motion of artificial satellites around the Earth known as Draper
+Semianalytic Satellite Theory (see Danielson et al, 1995, and references therein),
+is based on these elements. Furthermore, Junkins et al (1996) showed that
+orbital elements can be more effective than Cartesian coordinates in predicting
+the shape of uncertainty distributions with the linear error theory, especially
+when the observed arc is sufficiently wide. However, classical orbital elements
+are strongly affected by nonlinearities arising from small values of inclination
+and eccentricity, while non-singular elements, as the EqOE, are well-suited to
+the representation of uncertainties also in these situations (Milani and Gronchi,
+2010, pp. 120–121). An important advance in this research field is due to
+Horwood et al (2011), who replaced the semi-major axis with the mean motion.
+The resulting alternate set of elements (AEqOE) preserves Gaussianity of the
+initial state uncertainty through its propagation at any time in a pure two-body
+dynamics. This property was already noticed by Milani and Gronchi (2010,
+Sect. 7.4) for the orbit identification problem. Curiously enough, the mean
+motion appears as one of the elements in the forementioned paper by Arsenault
+et al (1970).
+    Generalizations of the EqOE that account for perturbing forces in the el-
+ements definition have been proposed. In a recent work, Aristoff et al (2021)
+show the improvement in nonlinear uncertainty propagation obtained by a set of
+“J2 equinoctial orbital elements (J2 EqOE)”. The proposed elements are defined
+through a multi-step iterative algorithm that hinges on the Brouwer-Lyddane
+solution of the J2 -perturbed satellite problem. No direct ordinary differential
+equations are provided for the evolution of these elements. Another relatively
+recent contribution is due to Biria and Russell (2018), who introduced the oblate
+spheroidal equinoctial orbital elements, which are formally defined as the mod-
+
+
+                                        2
+ified EqOE of Walker et al (1985), using spheroidal elements based on Vinti’s
+(1959) theory in place of Keplerian elements. The new equinoctial elements
+have been used by Biria and Russell (2020) to write the analytical solution of
+Vinti’s problem.
+     In this paper we propose a generalization of the EqOE which is possible when
+some or all of the perturbing forces are derivable from a disturbing potential
+energy U . In Section 2 we describe how U can be embedded in the definitions of
+the generalized semi-major axis (a) and generalized Laplace vector (µg), which
+fix a non-osculating ellipse on the orbital plane at every instant of time. The
+projections of g along the in-plane axes of the equinoctial reference frame define
+p1 , p2 , i.e., the generalized versions of the elements h, k. Kepler’s equation is
+written in a new form where the generalized mean longitude L or L0 appears.
+The generalized mean motion ν and the quantities q1 , q2 , which coincide with p,
+q in (1), complete our set of generalized equinoctial elements, hereafter GEqOE.
+The idea behind the proposed method is the same that led to the development
+of two non-singular sets of orbital elements known as DromoP and EDromo
+(Baù et al, 2013, 2015). We remark that while DromoP and EDromo employ
+redundant variables, the GEqOE consist of only six quantities: ν, p1 , p2 , L (or
+L0 ), q1 , q2 .
+     In Sections 3 – 6 we report the transformation from position and velocity
+to the GEqOE and its inverse, the time derivatives of the GEqOE, and the
+Jacobian matrix of the transformation together with the inverse of this matrix.
+In Section 7 we include some numerical tests to evaluate the orbit propagation
+performance of our new elements against the alternate EqOE as well as the
+Cartesian elements (i.e., Cowell’s method).
+
+
+2    Derivation of the GEqOE
+Consider a point P of mass m, which represents a small body (e.g., a spacecraft),
+subject to the gravitational attraction of a body of mass M (e.g., a planet). We
+introduce a reference frame
+
+                                   Σ = {O; ex , ey , ez },                     (2)
+
+with the origin in the center of mass O of the planet and fixed directions in
+space. Let us use r to indicate the position of P relative to O, and ṙ for the
+time derivative of r in Σ. The point mass is also subject to a perturbing force
+F:
+                              F = P − ∇U (r, t),                            (3)
+where U is the opposite of the disturbing potential, and can depend on r
+and time t. For future use, we introduce the orbital reference frame Σor =
+{O; er , ef , eh }, where
+
+                            r                                  r × ṙ
+                    er =       ,    ef = eh × er ,     eh =            .
+                           |r|                                |r × ṙ|
+
+
+                                             3
+    In the remainder of the article, we will refer to the equinoctial orbital elements
+to indicate the set of elements presented in Broucke and Cefola (1972).
+
+2.1    The non-osculating ellipse Γ
+Let h = |r × ṙ| be the magnitude of the angular momentum vector of P and
+r = |r| the orbital distance. Assume that r and h are strictly positive quantities.
+We define the effective potential energy as
+
+                                               h2
+                           Ueff (r, ṙ, t) =       + U (r, t).
+                                               2r2
+Then, the total energy E can be written in the form
+                                         1 2 µ
+                        E (r, ṙ, t) =     ṙ − + Ueff (r, ṙ, t),
+                                         2     r
+where ṙ is the radial velocity and µ = G(M + m), with G the gravitational
+constant. We introduce the generalized angular momentum
+                                     p
+                                 c = 2r2 Ueff ,                        (4)
+
+and the generalized velocity vector
+                                               c
+                                    υ = ṙ er + ef .                              (5)
+                                               r
+The pair of vectors (r, υ) defines a non-osculating ellipse Γ, having one focus
+located at the center of mass of the primary body of attraction. Its shape is
+fixed by the generalized semi-major axis and generalized eccentricity, given by
+                                       µ
+                                 a=−      ,                                       (6)
+                                      2E
+                                    1p 2
+                                 g=      µ + 2E c2 .                              (7)
+                                    µ
+Denoting by e the eccentricity and by EK the Keplerian energy, we find
+                                    2U  2
+                       g 2 = e2 +       h + 2r2 (EK + U ) .
+                                                         
+                                     µ2
+
+
+The ellipse Γ lies on the orbital plane and its orientation on this plane is fixed
+by the generalized Laplace vector (see Figure 1)
+
+                              µg = υ × (r × υ) − µer ,
+
+where |g| = g.
+   Remark 1 Note that when ṙ = 0, P is at the pericenter/apocenter of both
+the osculating conic defined by the Keplerian orbital elements and the non-
+osculating ellipse Γ.
+
+
+                                               4
+Figure 1: View from the angular momentum vector of the osculating ellipse
+(in light grey) and the non-osculating ellipse Γ described in Section (2.1). The
+generalized true anomaly θ and generalized longitude of pericenter Ψ are also
+shown. The velocities ṙ and υ of P along the two ellipses have the same radial
+component ṙ.
+
+
+   Let us introduce the generalized true anomaly θ through the relations
+
+                                           c2
+                               g cos θ =      − 1,                           (8)
+                                           µr
+                                           cṙ
+                               g sin θ =       ,                             (9)
+                                           µ
+which are analogous to the well-known relations for the Kepler problem
+
+                                           h2
+                               e cos f =      − 1,
+                                           µr
+                                           hṙ
+                               e sin f =       ,
+                                           µ
+where f is the true anomaly. The angle θ allows us to recover the orientation
+of the radial direction from that of g.
+
+
+
+
+                                       5
+2.2     The elements ν, p1 , p2 , L
+Consider the classical equinoctial reference frame
+
+                             Σeq = {O; eX , eY , eZ }.
+
+The axis OX, associated to eX , is rotated of Ω from the ascending node in the
+retrograde direction; the axis OY , associated to eY , is rotated of π/2 from the
+axis OX in the direction of the motion. The unit vector eZ completes the right-
+handed orthonormal basis. The angular displacement between the direction of
+er and the departure direction defined by eX is called true longitude, and is
+given by
+                                  L = $ + f,                                 (10)
+where
+                                   $ = ω + Ω,
+with ω the argument of pericenter and Ω the longitude of the ascending node.
+We define the angular variable Ψ as
+
+                                   Ψ = L − θ.                                (11)
+
+When U = 0 the angle θ coincides with f and thereby Ψ = $, which becomes
+constant if we have also P = 0. It is straightforward to check that through the
+angle Ψ we can obtain the direction of the Laplace vector from the direction of
+eX , and for this reason we call it the generalized longitude of pericenter (see
+Figure 1).
+    The first three elements of the new set are defined as
+                                       1
+                                ν :=     (−2E )3/2 ,                         (12)
+                                       µ
+                               p1 := g sin Ψ,                                (13)
+                               p2 := g cos Ψ,                                (14)
+
+where ν is the generalized form of the mean motion n, and p1 , p2 are the
+generalized versions of the equinoctial orbital elements h, k (Broucke and Cefola,
+1972). For later use, we introduce the generalized semi-latus rectum
+
+                                 % = a(1 − g 2 ),                            (15)
+
+and note that the following formula holds:
+
+                                    c2 = µ%,                                 (16)
+
+which is obtained from (6), (7), (15). Moreover, since
+                                               1/3
+                                           µ
+                                  a=                   ,                     (17)
+                                           ν2
+
+
+                                         6
+                                     g 2 = p21 + p22 ,
+
+we can write c as function of ν, p1 , p2 :
+                                          1/3 q
+                                     µ2
+                                 
+                            c=                     1 − p21 − p22 .           (18)
+                                     ν
+
+   At this point we need to make another step to define the fourth generalized
+equinoctial element. We first introduce the generalized eccentric anomaly G
+through the relations
+
+                                  r = a(1 − g cos G),                        (19)
+                                        √
+                                 rṙ = g µa sin G,                           (20)
+
+which are analogous to the well-known relations for the Kepler problem
+
+                                  r = a(1 − e cos E),
+                                        √
+                                 rṙ = e µa sin E,
+
+where a, E are the semi-major axis and eccentric anomaly, respectively. Then,
+the generalized Kepler’s equation can be written as
+
+                                  M = G − g sin G,                           (21)
+
+where M is the generalized mean anomaly
+
+                                     M = ν(t − t0 ),                         (22)
+
+and t0 is the time of passage through the pericenter of the ellipse Γ (see Remark
+1).
+    We include in the GEqOE the generalized mean longitude
+
+                                      L := M + Ψ.                            (23)
+
+After defining in a similar way the generalized eccentric longitude as
+
+                                      K = G + Ψ,                             (24)
+
+we can put equation (22) in the form
+
+                           L = K + p1 cos K − p2 sin K,                      (25)
+
+where the right-hand side is derived from (21) by taking into account (13),
+(14), (23), (24). If we know the values of p1 , p2 , L we can compute K by solving
+Kepler’s equation (25). The orbital distance and the radial velocity are obtained
+by means of the formulae:
+
+                          r = a(1 − p1 sin K − p2 cos K),                    (26)
+
+
+                                              7
+                                   √
+                                   µa
+                            ṙ =      (p2 sin K − p1 cos K),                  (27)
+                                   r
+which follow from equations (19), (20) where we use the definitions (13), (14),
+(24). Considering also relation (17), we recognize that r and ṙ are known from
+the first four GEqOE, i.e., ν, p1 , p2 , L, which are defined in equations (12),
+(13), (14), (23).
+   It is worth noting that r and ṙ can also be expressed as functions of the true
+longitude. From equations (8), (9) and (11), (13), (14) we have
+                                             %
+                              r=                          ,                   (28)
+                                  1 + p1 sin L + p2 cos L
+                                  µ
+                              ṙ = (p2 sin L − p1 cos L),                     (29)
+                                  c
+where % is introduced in (15).
+
+2.3    The remaining elements
+The three elements ν, p1 , p2 determine the shape and orientation of the non-
+osculating ellipse Γ on the orbital plane, and L fixes the position of P with
+respect to Σeq . Therefore, the remaining elements of the proposed set need to
+characterize the orientation of Σeq with respect to Σ (see equation 2), which
+can be recovered by applying the sequence of rotations Ω, i, −Ω, where i is the
+orbital inclination.
+   The two elements p, q in Broucke and Cefola (1972), that is:
+
+                                                i
+                                       q1 := tan  sin Ω,                      (30)
+                                                2
+                                                i
+                                       q2 := tan cos Ω                        (31)
+                                                2
+satisfy our request, and therefore it is natural to include them in the set of
+GEqOE. An alternative to q1 , q2 is represented by the Euler parameters e1 ,
+e2 , e3 that define the orientation of Σeq with respect to Σ (Goldstein, 1980, p.
+155)1 :
+                          i                     i           i
+                e1 := cos cos Ω, e2 := sin , e3 := cos sin Ω.                  (32)
+                          2                     2           2
+Note that both these elements and q1 , q2 suffer of the singularity for i = π. The
+Euler parameters allow us to partially control the error accumulation during
+the propagation by monitoring the quantity e21 + e22 + e23 . On the other hand,
+they make the set of GEqOE redundant, increasing the dimension of the state
+vector from 6 to 7. We refer to Section 5.2 for more details about the alternative
+formulation with e1 , e2 , e3 in place of q1 , q2 .
+  1 One of the Euler parameters is identically equal to 0.
+
+
+
+
+                                              8
+2.4     Summary
+A set of generalized equinoctial orbital elements consists of
+
+              ν (eq. 12),     p1 (eq. 13),        p2 (eq. 14),      L (eq. 23),
+
+along with
+                               q1 (eq. 30),       q2 (eq. 31).
+The generalized mean longitude L can be replaced by the generalized mean
+longitude at epoch L0 as shown in Section 5.1. These sets of elements represent
+two generalizations of the alternate equinoctial orbital elements proposed by
+Horwood et al (2011) (see the Introduction), with an improved propagation
+performance, as it will be shown in Section 7.
+
+
+3     From position and velocity to the GEqOE
+Assume that we know the position (r) and velocity (ṙ) at some time t with
+respect to the reference frame Σ (see equation 2). We want to determine the
+values of the new elements.
+   First, we get the quantities
+                                                         r · ṙ
+                                 r = |r|,         ṙ =          ,
+                                                           r
+and compute the total energy:
+
+                            E (r, ṙ, t) = EK (r, ṙ) + U (r, t),
+
+where EK is the Keplerian energy and the disturbing potential energy U does
+not depend on ṙ. The element ν is obtained from equation (12).
+    From the Keplerian orbital elements Ω, i, which are determined by classical
+formulae, we compute q1 , q2 through equations (30), (31), and the unit vectors
+eX , eY of the equinoctial reference frame Σeq by
+                             1                                   T
+                 eX =        2    2 1 − q12 + q22 , 2q1 q2 , −2q1 ,
+                        1 + q1 + q2
+                                                                                  (33)
+                           1                                  T
+                 eY =      2    2 2q1 q2 , 1 + q12 − q22 , 2q2 .
+                      1 + q1 + q2
+    Inversion of relations (28), (29) yields
+                                %             cṙ
+                          p1 =      − 1 sin L −     cos L,                        (34)
+                                  r             µ
+                                %             cṙ
+                          p2 =      − 1 cos L +     sin L,                        (35)
+                                  r              µ
+where
+                        cos L = er · eX ,          sin L = er · eY ,
+
+
+                                              9
+with er the radial unit vector, and eX , eY given by (33). The quantity c is
+obtained using formula (4), wherein h = |r × ṙ|.
+   In order to determine the generalized mean longitude L, we need to know
+the value of the generalized eccentric longitude K. Let us introduce
+
+                  S = (µ + cw − rṙ2 ) sin L − ṙ(c + wr) cos L,
+
+                  C = (µ + cw − rṙ2 ) cos L + ṙ(c + wr) sin L.
+
+It is possible to show that (see Appendix A)
+
+                                  S                         C
+                      sin K =          ,        cos K =          ,         (36)
+                                µ + cw                    µ + cw
+where                                      r
+                                                 µ
+                                    w=             ,                       (37)
+                                                 a
+and a depends on ν (see 17). The value of L is found by means of the generalized
+Kepler’s equation (25), which is written as
+
+                                                  Cp1 − Sp2
+                          L = atan2(S, C) +                 .
+                                                   µ + cw
+   Finally, we point out that an alternative way to get p1 , p2 is given by the
+formulae:
+                                                    
+                             1          r      rṙ
+                     p1 =           1−     S−√ C ,
+                          µ + cw        a        µa
+                                                     
+                             1      rṙ         r
+                     p2 =          √ S+ 1−          C ,
+                          µ + cw     µa          a
+
+which are derived by solving equations (26), (27) for p1 , p2 and making the
+substitutions in (36).
+
+
+4    From the GEqOE to position and velocity
+Assume that we know the values taken by the new elements at some time t and
+we want to find r and ṙ at that epoch.
+   We first solve Kepler’s equation (25) for K. Then, we compute a from (17),
+and obtain r and ṙ from (26) and (27). By combining these two equations with
+(28), (29), and considering (15), (16), we find
+                        a
+                           αp1 p2 cos K + (1 − αp22 ) sin K − p1 ,
+                                                                
+                sin L =
+                        r
+                                                                           (38)
+                        a
+                           αp1 p2 sin K + (1 − αp21 ) cos K − p2 ,
+                                                                
+                cos L =
+                        r
+
+
+                                           10
+where
+                                          1
+                               α=      p              .                      (39)
+                                    1 + 1 − p21 − p22
+After computing the unit vectors eX , eY of the equinoctial reference frame by
+means of (33), we can obtain the unit vectors er , ef of the orbital basis through
+the rotation:
+                              er = eX cos L + eY sin L,
+                                                                             (40)
+                              ef = eY cos L − eX sin L.
+
+    Finally, the position and velocity vectors are given by the formulae
+                                                       h
+                           r = rer ,     ṙ = ṙer +     ef .                (41)
+                                                       r
+Since the function U does not depend of ṙ we can use equation (4) to calculate
+h:
+                           h = c2 − 2r2 U (r, t),
+                               p
+
+where c2 is obtained from (18).
+
+
+5     Time derivatives of the GEqOE
+The time derivative of ν is
+                                         1/3
+                                         ν
+                                 ν̇ = −3 2     E˙ ,                          (42)
+                                         µ
+
+where
+                                                     h
+                     E˙ = Ut + P · ṙ = Ut + ṙPr + Pf ,                     (43)
+                                                     r
+and Ut denotes the partial derivative of U (r, t) with respect to t.
+   The angular velocity of Σeq with respect to Σ is
+
+                          w = wX eX + wY eY + wh eh ,
+
+where
+                           r
+                    wX = Fh  cos L,
+                           h
+                           r
+                    wY = Fh sin L,
+                           h
+                           h             r   i
+                    wh =     2
+                               − L̇ = −Fh tan sin(ω + f ),
+                           r             h   2
+
+
+
+
+                                         11
+and Fh is the projection of the perturbing force along eh . Note that wh is not
+defined when i = π. If we divide wX , wY , wh by Fh r/h, and denote the resulting
+quantities with ŵX , ŵY , ŵh , we have
+
+                             ŵX = cos L,
+                             ŵY = sin L,                                       (44)
+                             ŵh = q1 cos L − q2 sin L,
+
+where q1 , q2 are defined in (30), (31). The expression for ŵh is obtained noting
+that
+                                  ω + f = L − Ω.
+   For the time derivatives of p1 , p2 we find (see the derivation in Appendix B)
+                                   
+                 h−c       r            1  rṙ                    
+      ṗ1 = p2          −    ŵh Fh   +         p1 + ς˜p2 + ς cos L  (2U − rFr )
+                   r2     h             c c
+               r
+            + (ς p1 + ς˜ sin L)E˙ ,                                              (45)
+               µ
+                                   
+                 r           h−c        1  rṙ                    
+      ṗ2 = p1     ŵh Fh − 2         +         p2 − ς˜p1 − ς sin L (2U − rFr )
+                 h             r        c c
+               r
+            + (ς p2 + ς˜ cos L)E˙ ,                                              (46)
+               µ
+where Fr = F · er , Fh = F · eh and we use the non-dimensional quantities
+                                     r
+                                ς=     ,    ς˜ = 1 + ς.                         (47)
+                                     %
+
+Concerning the element L, we can write (see the derivation in Appendix C)
+
+                             h−c     r          rṙc 
+                     L̇ = ν +    2
+                                   − ŵh Fh +        ς˜α E˙
+                               r     h           µ2
+                                                                              (48)
+                            1 1         r
+                          +       +α 1−      (2U − rFr ),
+                            c α          a
+
+where α is defined in (39). For the remaining two elements q1 , q2 we need the
+derivatives (see Battin, 1999, eqs. 10.51, 10.52, p. 493)
+                                 r
+                          q̇1 =    Fh (1 + q12 + q22 ) sin L,                   (49)
+                                2h
+                                 r
+                          q̇2 =    Fh (1 + q12 + q22 ) cos L.                   (50)
+                                2h
+     The right-hand side of equations (42), (45), (46), (48), (49), (50) can be
+efficiently computed by following the procedure outlined in Section 4.
+
+
+
+
+                                           12
+5.1     Constant time element
+The equinoctial elements presented in Broucke and Cefola (1972) comprise the
+mean longitude at epoch λ0 = $ + nt0 , where we recall that n is the mean
+motion and t0 the time of pericenter passage. This quantity is a constant of
+the motion when the perturbations are turned off, and being related to the
+physical time we can refer to λ0 as a constant time element. On the other hand,
+the generalized mean longitude L included in the GEqOE varies linearly with
+time along Keplerian motion (see equation 48), and therefore it is a linear time
+element.
+   In place of L, we may consider the generalized mean motion at epoch L0 ,
+which we define as2
+                                 L0 := Ψ − νt0 .
+Using equations (22), (23), we see that
+
+                                       L0 = L − νt,
+
+and therefore its time derivative can be computed from (42), (48), resulting in
+                                            1/3           
+                        h−c    r               ν        rṙc
+                  L̇0 =       − ŵh Fh + 3t         + 2 ς˜α E˙
+                         r2    h               µ        µ
+                                           
+                          1 1          r 
+                        +      +α 1−         (2U − rFr ),
+                          c α          a
+
+where α, ς˜ are introduced in (39), (68). We note that a term dependent explicitly
+on time arises in the expression of L̇0 , which is not present in L̇. For long-term
+propagations this term may grow enough to deteriorate the efficiency of the
+propagation.
+
+5.2     Alternative formulation
+If the Euler parameters e1 , e2 , e3 given in (32) are used in place of q1 , q2 , then,
+eX , eY are computed from the formulae
+                                                                  T
+                        eX = e21 + e22 − e23 , −2e1 e3 , 2e2 e3        ,
+                                                                  T
+                        eY = 2e1 e3 , e21 − e22 − e23 , −2e1 e2        .
+
+The time derivatives of the Euler parameters read
+                                    r
+                             ė1 =     Fh (ŵh e2 + ŵX e3 ),
+                                   2h
+                                       r
+                             ė2 = − Fh (ŵh e1 − ŵY e3 ),
+                                      2h
+   2 Another possible definition is L̃ := Ψ + νt , which represents a direct generalization of
+                                      0         0
+the element λ0 . In this case we have L̃0 = L − M + νt0 .
+
+
+
+                                             13
+                                      r
+                           ė3 = −      Fh (ŵX e1 + ŵY e2 ),
+                                     2h
+where ŵX , ŵY are defined in (44) and
+                                   e2
+                       ŵh =             (e3 cos L − e1 sin L),
+                                e1 + e23
+                                 2
+
+
+with sin L, cos L obtained by (38).
+
+
+6     The fundamental matrix and its inverse
+The fundamental matrix is defined as the matrix of the partial derivatives of
+position and velocity with respect to the set of elements used for describing the
+motion (Broucke, 1970). We consider in this section the two sets of GEqOE
+given by ν, p1 , p2 , q1 , q2 , along with either L or L0 . In Broucke and Cefola
+(1972), the fundamental matrix and its inverse are expressed using the perifocal
+reference frame. However, since its basis is not defined when the eccentricity is
+zero, we prefer to have the unit vectors of the equinoctial and orbital reference
+frames appearing directly in (52), (53), (54), (55) (see Danielson et al, 1995).
+We use the notation:
+
+            X = r cos L,                            Y = r sin L,
+                              h                                       h
+            Ẋ = ṙ cos L −     sin L,              Ẏ = ṙ sin L +     cos L,
+                              r                                       r
+for the components of the position and velocity vectors along the directions of
+the unit vectors eX , eY , that is
+
+                    r = XeX + Y eY ,            ṙ = ẊeX + Ẏ eY .
+
+Moreover, we introduce the non-dimensional quantities
+                  q
+              β = 1 − p21 − p22 ,            γ = 1 + q12 + q22 ,                 (51)
+
+where β = 0, γ = 0 when g = 0, i = π, respectively.
+
+6.1    Partial derivatives of position and velocity with re-
+       spect to the GEqOE
+We obtain the partial derivatives of r, ṙ with respect to the GEqOE by direct
+differentiation of equations (41), wherein r, ṙ and er , ef are replaced by the
+expressions reported in (26), (27) and (40), respectively. Relations (25), (38)
+
+
+
+
+                                           14
+are also necessary. Regarding the position, we have:
+                ∂r      2
+                   = − r,
+                ∂ν     3ν
+               ∂r        αp
+                              2
+                                        a
+                   = −a         q + eY − [X + p2 (r + αβa)] ef ,
+               ∂p1          β             %
+               ∂r      αp1            a
+                   =a        q − eX + [Y + p1 (r + αβa)] ef ,
+               ∂p2        β             %
+                                                                                 (52)
+                ∂r  1
+                   = υ,
+                ∂L  ν
+                ∂r     2
+                    = − (rq2 ef + Xeh ),
+                ∂q1    γ
+                ∂r   2
+                    = (rq1 ef + Y eh ),
+                ∂q2  γ
+where the generalized velocity υ and the non-dimensional quantity α are intro-
+duced in (5), (39), respectively, and
+
+                                 q = p2 eY − p1 eX .
+
+     Remark 2. It is possible to prove that the derivatives of r with respect to a,
+p1 , p2 , L̃0 (see the footnote 2), q1 , q2 can be written in the same form as the
+derivatives of r with respect to a, h, k, λ0 , p, q that are reported in Broucke
+and Cefola (1972, Table I). We just have to replace in the latters the osculating
+eccentric anomaly (E), eccentricity (e), semi-major axis (a), longitude of peri-
+center (ω + Ω) by G, g, a, Ψ, respectively, and the unit vectors ep , eq of the
+perifocal reference frame3 by their generalized versions e0p , e0q , which are defined
+as (see also Figure 2)
+
+                             e0p = eX cos Ψ + eY sin Ψ,
+
+                             e0q = eY cos Ψ − eX sin Ψ,
+
+where Ψ is given in (11).
+  3 These two unit vectors are denoted by P, Q in Broucke and Cefola (1972).
+
+
+
+
+                                          15
+   The partial derivatives of the velocity with respect to the GEqOE are:
+            ∂ ṙ    1
+                 =     ṙ + f0 ef ,
+            ∂ν     3ν
+                                                         
+           ∂ ṙ       µa 2σ1          p
+                                         2   σ2       p1      1
+                 =−             ṙ +       −      er + ef + s1 + f1 ef ,
+           ∂p1         r µβ            rw     c        h       r
+                                                         
+           ∂ ṙ       µa 2σ2          p
+                                         1   σ1       p2      1
+                 =−             ṙ −       −      er + ef + s2 + f2 ef ,
+           ∂p2         r µβ            rw     c        h       r
+                                                                          (53)
+            ∂ ṙ    1               µ     r        1
+                 =       −2ṙṙ +      1−     er + s3 + f3 ef ,
+           ∂L      rν               r      a         r
+           ∂ ṙ  2
+                = (q2 ṙ × eh − Ẋeh ) + f4 ef ,
+           ∂q1   γ
+           ∂ ṙ    2
+                = − (q1 ṙ × eh − Ẏ eh ) + f5 ef ,
+           ∂q2     γ
+
+where the variable w is defined in (37),
+                                           
+                           r 2         ∂U
+                    f0 =         U −         ,
+                           h 3ν         ∂ν
+                                                 
+                             1 2σi a        ∂U
+                     fi = −          U +r           ,     i = 1, 2,
+                             h    β          ∂pi
+                                              
+                             1 2ṙ        ∂U
+                    f3 = −         U +r          ,
+                             h ν           ∂L
+                                 r ∂U
+                    fi+3 = −           ,   i = 1, 2,
+                                 h ∂qi
+and
+                          1
+                      σ1 =  [αp1 (% − r) − Y ],
+                          r
+                          1
+                      σ2 = [αp2 (% − r) − X],
+                          r
+                                 ∂r   h     ∂r
+                       si = ṙ       + eh ×     ,       i = 1, 2,
+                                 ∂pi  r     ∂pi
+                                 ∂r  h     ∂r
+                      s3 = ṙ       + eh ×    .
+                                 ∂L  r     ∂L
+In (53) the terms fi , (i = 1, . . . , 5) are equal to zero if U = 0.
+    If the constant time element L0 is used instead of L, we have
+                                   ∂r   1     2 
+                                      =    tυ − r ,
+                                   ∂ν   ν      3
+
+                                           16
+Figure 2: View from the angular momentum vector of the unit vectors eX , eY
+of the equinoctial basis, and of e0p , e0q , which are the generalized counterparts
+of the unit vectors ep , eq of the perifocal basis.
+
+                                ∂r   ∂r
+                                   =    ,
+                               ∂L0   ∂L
+and
+                ∂ ṙ    1              t c                      
+                     =    ṙ + f0 ef + 2    (c − h) ṙ × eh − µer ,
+                ∂ν     3ν             r ν h
+               ∂ ṙ   ∂ ṙ
+                    =      .
+              ∂L0     ∂L
+On the other hand, the partial derivatives of r, ṙ with respect to p1 , p2 , q1 , q2
+remain the same as in (52), (53).
+    Remark 3. The partial derivative of U with respect to any element χ of our
+set of GEqOE is computed by the chain rule
+                                  ∂U   ∂U ∂r
+                                     =       .
+                                  ∂χ   ∂r ∂χ
+
+
+6.2    Partial derivatives of the GEqOE with respect to po-
+       sition and velocity
+The inverse of the fundamental matrix for the equinoctial elements is obtained
+in Broucke and Cefola (1972) using the Poisson brackets and the fundamental
+
+
+                                         17
+matrix (see also Broucke, 1970). Here, we proceed as follows. As concerns the el-
+ements q1 , q2 , we simply put the expressions given in Broucke and Cefola (1972,
+Table III) for the derivatives of p, q in a suitable form to avoid singularities for
+small eccentricities and inclinations (as in Danielson et al, 1995). For the gener-
+alized mean motion ν we started from equation (12) and used the definition of
+the total energy. The computation for the elements p1 , p2 was done considering
+equations (34), (35) and taking into account (10). Finally, concerning L and
+L0 , equations (25), (26), (27) were used.
+    The partial derivatives with respect to the position and velocity read4
+       ∂ν         3aν
+           = − 2 eTr + f0 ,
+       ∂r          r
+                                                      
+      ∂p1     1              T    h        c      X T p2 Λ T
+           = (p1 + sin L)er −          2−      p2 +      e −     e + f1 ,
+       ∂r     r                  cr        h         a f       h h
+                                                      
+      ∂p2     1              T    h        c      Y T p1 Λ T
+           = (p2 + cos L)er +          2−      p1 +      e +     e + f2 ,
+       ∂r     r                  cr         h        a f       h h
+                                                                               (54)
+       ∂L      ṙ           T    h      c    α         
+                                                          T    Λ T
+           = (%α − rβ)er −           2 − + (% − r) ef − eh + f3 ,
+       ∂r     cr                cr       h    a                h
+      ∂q1    γ Ẏ T
+          =−     e ,
+      ∂r     2h h
+      ∂q2    γ Ẋ T
+          =−     e ,
+      ∂r     2h h
+and
+              ∂ν        3
+                   = − √ ṙT ,
+              ∂ ṙ      µa
+             ∂p1       c             h           ṙ        p2 λ T
+                   = − cos L eTr +      2 sin L − X eTf +        e ,
+             ∂ ṙ      µ             µ            c           h h
+             ∂p2     c             h           ṙ       p1 λ T
+                   = sin L eTr +      2 cos L + Y eTf −        e ,
+             ∂ ṙ    µ             µ            c           h h
+                                                                                       (55)
+             ∂L  c                    2r  T hṙ                   λ
+                   =      α(r − %) − √      e +      α(% + r)eTf + eTh ,
+              ∂ ṙ     µr               µa r      cµ                h
+             ∂q1    γY T
+                  =   e ,
+             ∂ ṙ   2h h
+             ∂q2    γX T
+                  =   e ,
+             ∂ ṙ   2h h
+where
+                                   3 ∂U
+                           f0 = − √       ,
+                                    µa ∂r
+   4 We found a typo in the expression of ∂λ /∂x reported in Broucke and Cefola (1972, Table
+                                            0
+III): α5 /α6 has to be replaced by α5 /α4 .
+
+
+                                            18
+                                1                   ∂U
+                        f1 =       (% + r)Y + p1 r2      ,
+                               µ%                     ∂r
+                                1                   ∂U
+                        f2 =       (% + r)X + p2 r2      ,
+                               µ%                     ∂r
+                               rṙ          ∂U
+                        f3 =       (% + r)α    ,
+                               cµ           ∂r
+and
+                     λ = Y q2 − Xq1 ,         Λ = Ẏ q2 − Ẋq1 .
+The vectors fi (i = 0, . . . , 3) are equal to zero if U = 0.
+   Finally, the partial derivatives of the constant time element L0 are given by
+                      ∂L0   ∂L     α        1 ∂U 
+                          =    − 3t 2 eTr − √       ,
+                       ∂r   ∂r      r         µa ∂r
+                      ∂L0     ∂L      3t
+                            =      + √ ṙT .
+                       ∂ ṙ   ∂ ṙ     µa
+
+    Remark 4. If L0 is employed in place of L, terms that are linear in time are
+introduced in the expressions of ∂r/∂ν, ∂ ṙ/∂ν, ∂L0 /∂r, ∂L0 /∂ ṙ.
+
+
+7     Numerical tests
+We employ the generalized equinoctial elements (GEqOE) ν, p1 , p2 , L, q1 , q2
+(Section 2.4) to propagate the motion of an artificial satellite around the Earth.
+Starting from the case in which only the perturbation due to the J2 zonal har-
+monic of the geopotential is considered, we then add the third-body gravitational
+attraction of the Moon and Sun. The GEqOE are compared to the alternate
+equinoctial orbital elements (AEqOE) presented in Horwood et al (2011, Sec-
+tion 10.4) and Cowell’s method. We deliberately select a very simple numerical
+integrator, which is a fourth order Runge-Kutta with a fixed step size, in order
+to highlight the impact of the particular set of elements on the propagation per-
+formance. The errors are computed by taking as true the solution obtained by
+using the Dromo(PC) formulation presented in Baù and Bombardelli (2014) and
+an adaptive step size Runge-Kutta Dormand-Prince 5(4)7FM method described
+in Dormand and Prince (1980) with a tolerance of 10−13 .
+
+7.1    The main problem
+Let us introduce an Earth-centered inertial reference frame. In particular, we
+denote by Oz the axis pointing to the North Pole and by ez the corresponding
+unit vector. We consider here the unrealistic case in which the perturbing force
+F (see equation 3) is given by
+
+                                   F = ∇R(r),
+
+
+                                         19
+where R is the disturbing potential associated with the J2 term of the Earth’s
+gravitational field:
+                                           A
+                             R = −U = 3 (1 − 3ẑ 2 ),                           (56)
+                                           r
+with
+                                         2
+                                  GM J2 req           z
+                            A=              ,    ẑ = ,
+                                      2               r
+and z = r · ez . The quantity req denotes the equatorial radius of the Earth. We
+have
+                                 3A 
+                          F = − 4 (1 − 5ẑ 2 )er + 2ẑez .
+                                                         
+                                  r
+In the differential equations of the generalized equinoctial elements the perturb-
+ing force appears only as 2U − rFr , rŵh Fh , rFh , where Fr = F · er , Fh = F · eh .
+A straightforward computation yields
+
+              2U − rFr = −U ,
+                        3A                       3A
+              rŵh Fh = 3 ẑ 2 (1 − q12 − q22 ) = 3 ẑ 2 C (1 + q12 + q22 ),
+                        r                        hr
+                       6A
+              rFh = − 3 ẑ C ,
+                       hr
+where we used the relation
+                                             C
+                                        cos i = ,
+                                             h
+and C is the component of the angular momentum vector along Oz, which is a
+first integral of the motion. Taking into account that the total energy E is also
+a first integral in this case, the time derivatives of the GEqOE become
+
+               ν̇ = 0,
+                                       
+                         h−c                 1  rṙ                       
+              ṗ1 = p2          −  I ẑ    −         p1 +  ς
+                                                           ˜ p2  + ς cos L   U,
+                          r2                 c c
+                                          
+                           h−c                 1  rṙ                       
+              ṗ2 = −p1           −   I ẑ   −         p2 −   ς
+                                                              ˜ p1 − ς sin L   U,
+                            r2                 c c
+                                                            
+                    h−c               1 1               r
+             L̇0 =         − I ẑ −          +α 1−             U,
+                      r2              c α                a
+              q̇1 = −I sin L,
+              q̇2 = −I cos L,
+
+where
+                              3A
+                              I=   ẑ C (1 + q12 + q22 ).
+                             h2 r3
+The meaning of the variables a, α, ς˜, ς is explained in (6), (39), (68). In
+the equations above the quantities C , a, ν remain constant along the motion
+
+
+                                             20
+Table 1: Initial conditions for the numerical tests: rp is the radius of perigee
+in km, e, i, Ω, ω, M0 are Keplerian elements. Angular variables are given in
+degrees and expressed with respect the J2000 frame.
+
+                      rp               e           i      Ω     ω    M0
+                 1)   7178.1366        0           45      0     0   0
+                 2)   7178.1366        0           90      0     0   0
+                 3)   26000            0.74        63.4   30   270   0
+
+
+and their values are determined by the initial position (r) and velocity (ṙ). In
+particular, the value of the element ν is computed by (see equation 12)
+                                                         3/2
+                              1 2A          2           2
+                           ν=       (1 − 3ẑ∗ ) − |ṙ∗ |       ,
+                              µ r∗3
+
+where r∗ , ẑ∗ , ṙ∗ refer to the starting epoch of the propagation.
+   The initial conditions specified in the row labeled 1) in Table 1, which cor-
+respond to a low Earth orbit, are propagated for 12 days. Figure 3 shows the
+position error at the final time obtained with different values of the integration
+step size. The same initial conditions are then propagated for 365 days using a
+step size of 1 minute. The time evolution of the errors in the position and total
+energy are displayed in Figure 4. It is evident that the GEqOE are much better
+than the EqOE and Cowell’s method for this test case.
+
+7.2    J2 and third-body perturbations
+Third-body perturbing forces due to the gravitational attraction of the Moon
+and Sun are switched on in the following tests. Since we decided to not derive
+them from a potential, these forces determine the vector P in equation (3). On
+the other hand, the force exerted by the Earth’s oblateness is derived from the
+potential R introduced in (56).
+    The same performance plots shown in Section 7.1 are obtained for the initial
+conditions reported in the rows 2) and 3) of Table 1, which correspond to a
+low Earth orbit and a Molniya orbit. The initial epoch of the propagations
+is January 1, 2020 UTC. For a short-term propagation (in the order of a few
+days), we display in Figure 5 the variation of the position error referred to the
+final time as the step size of the integrator is enlarged. Then, for a long-term
+propagation (in the order of hundreds of days) Figure 6 shows the time evolution
+of the position error using a step size of 1 minute. The timespan of the Molniya
+orbit propagation was chosen about 7 times larger in order to have the same
+number of revolutions as the case of the low Earth orbit.
+    From these results we see that third-body perturbations do not deteriorate
+the performance of the GEqOE, when compared to the case in which only a con-
+servative perturbation is present. The generalized equinoctial orbital elements
+
+
+                                              21
+                                     10 6
+
+
+
+                                     10 3
+               Position error (km)
+
+                                        1
+
+
+
+                                     10 -3
+
+                                                                     Cowell
+                                                                     AEqOE
+                                     10 -6                           GEqOE
+                                         30   10 2                       10 3
+                                                     Time step (s)
+
+
+Figure 3: Position error after 12 days of propagation for increasing values of the
+integration step size. The initial conditions correspond to the low Earth orbit
+reported in the row 1) of Table 1. Only the perturbation arising from the J2
+zonal harmonic of the geopotential is considered. Note that a logarithmic scale
+is applied to both axes.
+
+
+brings a substantial improvement with respect to the AEqOE and Cowell’s
+method.
+    Because the Molniya orbit is quite eccentric, it is reasonable to use also a vari-
+able step size numerical integrator: we chose the same Runge-Kutta Dormand-
+Prince method that provides the true solution. The relative tolerance controls
+the selection of the step size and tighter tolerances imply shorter steps. The
+total number of evaluations of the vector field at the end of the propagation
+can be taken as a measure of the computational cost. In Figure 7 we show
+for decreasing values of the relative tolerance the number of evaluations and the
+corresponding maximum position error reached in a 85.6 days propagation inter-
+val. We denote with GEqOE(c) the set of generalized orbital elements in which
+L0 (see Section 5.1) is employed instead of L. While in the previous numerical
+tests GEqOE and GEqOE(c) exhibit an almost identical performance, in this
+test the latter formulation is better: it is faster and decreases the minimum
+achievable position error. We see that the formulations GEqOE and GEqOE(c)
+are much more efficient than AEqOE and Cowell’s method.
+
+
+8     Conclusions and future work
+We have introduced six orbital elements that generalize the classical equinoctial
+elements in the presence of perturbations that are derivable from a disturbing
+potential. The latter appears in the intrinsic definition of the new elements,
+
+
+                                                        22
+                                                         Cowell
+                                                  10 4
+                                                         GEqOE
+                                                         AEqOE
+
+                                                  10 2
+                           Position error (km)
+
+
+
+
+                                                  10 0
+
+
+                                                 10 -2
+
+
+                                                 10 -4
+
+
+                                                 10 -6
+
+                                                           1         10         100   365
+                                                                  Time (days)
+
+
+                                                         Cowell
+                                                 10-2    GEqOE
+                                                         AEqOE
+            Total energy error (km2/s2)
+
+
+
+
+                                                 10-5
+
+
+
+
+                                                 10-8
+
+
+
+
+                                                 10-11
+
+
+
+
+                                                 10-14
+                                                            1         10        100   365
+                                                                  Time (days)
+
+
+Figure 4: Time evolution of (top) the position error and (bottom) the error of
+the total energy throughout 365 days of propagation of the initial conditions
+reported in the row 1) of Table 1. Only the perturbation arising from the J2
+zonal harmonic of the geopotential is considered. Note that a logarithmic scale
+is applied to both axes.
+
+
+
+
+                                                                    23
+                                    10 6
+
+
+
+                                    10 3
+              Position error (km)
+
+
+
+
+                                       1
+
+
+
+                                    10 -3
+
+                                                                    Cowell
+                                                                    AEqOE
+                                    10 -6                           GEqOE
+                                        30   10 2                       10 3
+                                                    Time step (s)
+
+
+
+
+                                    10 6
+
+
+
+                                    10 3
+              Position error (km)
+
+
+
+
+                                       1
+
+
+
+
+                                    10 -3
+                                                                    Cowell
+                                                                    AEqOE
+                                                                    GEqOE
+                                    10 -6
+                                        25     10 2                      10 3
+                                                    Time step (s)
+
+
+Figure 5: Position error for increasing values of the integration step size. The
+initial conditions correspond to (top) the low Earth orbit and (bottom) the
+Molniya orbit reported in the rows 2) and 3), respectively, of Table 1. The
+former is propagated for 12 days, the latter for 85.6 days. Perturbations due to
+the J2 zonal harmonic of the geopotential and the attraction of the Moon and
+Sun are considered. Note that a logarithmic scale is applied to both axes.
+
+
+
+
+                                                       24
+                                            Cowell
+                                    10 4
+                                            GEqOE
+                                            AEqOE
+
+                                    10 2
+              Position error (km)
+
+
+
+
+                                    10 0
+
+
+                                    10 -2
+
+
+                                    10 -4
+
+
+                                    10 -6
+
+                                              1           10         100     365
+                                                       Time (days)
+
+
+                                            Cowell
+                                    10 4    GEqOE
+                                            AEqOE
+
+                                    10 2
+              Position error (km)
+
+
+
+
+                                    10 0
+
+
+
+                                    10 -2
+
+
+
+                                    10 -4
+
+
+
+                                    10 -6
+                                                  10          100     1000   2700
+                                                       Time (days)
+
+
+Figure 6: Time evolution of the position error. The initial conditions correspond
+to (top) the low Earth orbit and (bottom) the Molniya orbit reported in the
+rows 2) and 3), respectively, of Table 1. The former is propagated for 365 days,
+the latter for 2604 days. Perturbations due to the J2 zonal harmonic of the
+geopotential and the attraction of the Moon and Sun are considered. Note that
+a logarithmic scale is applied to both axes.
+
+
+
+
+                                                         25
+                                                                                    Cowell
+                                     10 6                                           AEqOE
+                                                                                    GEqOE
+                                                                                    GEqOE(c)
+
+
+
+              Function evaluations
+
+
+                                     10 5
+
+
+
+
+                                     10 4
+                                        10 -5   10 -3                1            10 3     10 5
+                                                        Max position error (km)
+
+
+Figure 7: Function evaluations (see the text) versus maximum position error in
+85.6 days of propagation for decreasing (right to left) values of the integrator
+relative tolerance. The initial conditions correspond to the Molniya orbit re-
+ported in the row 3) of Table 1. Perturbations due to the J2 zonal harmonic of
+the geopotential and the attraction of the Moon and Sun are considered. Note
+that a logarithmic scale is applied to both axes.
+
+
+through the generalization of different orbital motion quantities. The new ele-
+ments are defined for a negative value of the total energy, and a positive value of
+the effective potential energy. They are non-singular for circular and equatorial
+trajectories, and are affected by the same singularities of their classical coun-
+terpart (retrograde equatorial and rectilinear orbits). Equations of motions,
+transformation from and to Cartesian coordinates are provided along with the
+associated Jacobian matrices.
+    Representative propagation tests for low Earth orbits show a dramatic in-
+crease in performance (accuracy and computational cost) for a propagator based
+on the new elements compared to the alternate equinoctial orbital elements as
+well as Cartesian coordinates. Ongoing research is focused on the application
+of the proposed elements to the problem of uncertainty propagation.
+
+
+Acknowledgements
+G. Baù acknowledges the projects MIUR-PRIN 20178CJA2B titled “New fron-
+tiers of Celestial Mechanics: theory and applications”, and PRA 2020-82 ti-
+tled “Sistemi dinamici in logica, geometria, fisica matematica e scienza delle
+costruzioni”. Moreover, he acknowledges the INdAM group “Gruppo Nazionale
+per la Fisica Matematica”. The views expressed are those of the authors and
+do not necessarily represent the views of ispace, inc.
+
+
+                                                                26
+Conflict of Interest
+The authors declare that they have no conflict of interest.
+
+
+A        Expressions of sin K, cos K
+Note that from (11), (24) we can write
+
+                                   K = L − (θ − G).
+
+Let us consider the well-known relation
+                                   
+                               θ−G      sin θ − sin G
+                         tan          =               .
+                                2       cos θ + cos G
+
+After replacing sin θ, cos θ, sin G, cos G with the expressions that can be derived
+from (8), (9), (19), (20), respectively, we find
+                                          
+                                     θ−G          rṙ
+                              tan            =         ,
+                                       2        c + wr
+
+where w is defined by equation (37). Taking into account the formulae
+
+                                     2ι                                1 − ι2
+               sin(2 arctan ι) =          ,        cos(2 arctan ι) =          ,
+                                   1 + ι2                              1 + ι2
+where in our case
+                                            rṙ
+                                     ι=          ,
+                                          c + wr
+we get
+                             1 
+                    sin K =       (1 − ι2 ) sin L − 2ι cos L ,
+                                                            
+                            1+ι 2
+
+                             1 
+                    cos K =       (1 − ι2 ) cos L + 2ι sin L .
+                                                            
+                            1+ι 2
+
+
+Finally, with the aid of the definition of the total energy in terms of r, ṙ, c, U ,
+it is possible to show that
+
+                     2ι        c + wr          1 − ι2       rṙ2
+                        2
+                          = ṙ        ,             2
+                                                      =1−        .
+                    1+ι        µ + cw          1+ι        µ + cw
+
+B     Time derivatives of p1 , p2
+From equations (13), (14) we have
+
+                              ṗ1 = ġ sin Ψ + g Ψ̇ cos Ψ,                        (57)
+                              ṗ2 = ġ cos Ψ − g Ψ̇ sin Ψ.                        (58)
+
+
+                                              27
+    For the time derivative of g we use relation (7) and so we need the expressions
+of E˙ , ċ. The former is given in (43), the latter is derived from the definition of
+c provided in (4) and results:
+                                       1 2 ˙
+                                ċ =     [r E + rṙ(2U − rFr )].                 (59)
+                                       c
+Then, we find
+                            1 h 2         2 ˙
+                                                                  i
+                    ġ =        (c + 2E r  )E + 2E r ṙ(2U − rFr )  .
+                           µ2 g
+
+After writing 2E as a function of c, g by means of relation (7), and using
+
+                                     c2                         µ
+                           r=                  ,         ṙ =     g sin θ,
+                                µ(1 + g cos θ)                  c
+
+which directly follows from (8), (9), we obtain
+
+                         r                    g2 − 1
+                  ġ =      ς cos θ + ςg)E˙ +
+                           (˜                        ς sin θ(2U − rFr ),         (60)
+                         µ                       c
+
+where ς, ς˜ are introduced in (68).
+   From the definition of Ψ we write
+
+                                         g Ψ̇ = g L̇ − g θ̇.                     (61)
+
+The expression of L̇ can be derived, for example, from Battin (1999, eqs. 10.78,
+10.81, pp. 500–501):
+
+                                   h    r      i
+                            L̇ =     2
+                                       + Fh tan sin(L − Ω).                      (62)
+                                   r    h      2
+The time derivative of θ is obtained by differentiation of both sides of equation
+                                                    rṙc
+                                        tan θ =           ,
+                                                  c2 − µr
+
+which is a consequence of (8), (9). We first use
+
+                                      µ   c2   2U
+                                r̈ = − 2 + 3 −    + Fr ,                         (63)
+                                      r   r     r
+to get
+                             c     c
+                     θ̇ =     2
+                                −     [(2U − rFr ) cos θ + ς˜ċ sin θ].
+                            r     µrg
+Then, we replace ċ with the expression in (59) and find
+                  c     1 h                c                              i
+          θ̇ =     2
+                     −      ς r sin θ)E˙ +
+                           (˜                 cos θ + ς˜ṙ sin θ (2U − rFr ) .   (64)
+                 r     µg                   r
+
+
+                                                28
+From equations (61), (62), (64) we have
+             g           gr       ς˜r        1
+    g Ψ̇ =      (h − c) − ŵh Fh + E˙ sin θ + (˜
+                                               ς g + ς cos θ)(2U − rFr ),      (65)
+             r2          h         µ         c
+where (see 44)
+                                              i
+                              ŵh = − tan       sin(L − Ω),
+                                              2
+and we applied the substitution
+                         c                     µ
+                           cos θ + ς˜ṙ sin θ = (˜
+                                                 ς g + ς cos θ).
+                         r                     c
+   The expressions of ġ, g Ψ̇, given in (60), (65), are inserted in (57), (58), and
+by using the definitions of p1 , p2 (see 13, 14) and the relation L = Ψ + θ, we get
+equations (45), (46).
+
+
+C      Time derivative of L
+From equation (25) we have
+
+                L̇ = K̇(1 − p1 sin K − p2 cos K) + ṗ1 cos K − ṗ2 sin K,
+
+which can be written as
+                                   r
+                            L̇ = K̇ + ṗ1 cos K − ṗ2 sin K,                   (66)
+                                   a
+taking into account relation (26). We first consider ṗ1 cos K − ṗ2 sin K. Using
+(45), (46), the following four terms will appear:
+
+                     p1 sin K + p2 cos K,        p1 cos K − p2 sin K,
+
+and
+              ς(cos L cos K + sin L sin K),       sin L cos K − sin K sin L,   (67)
+where ς is introduced in (68). The first two terms are written as functions of r,
+ṙ, a through (26), (27). Solving equations (38) for sin K, cos K we get
+                   1h             r                     r            i
+           sin K =     (1 − αp21 )    sin L + p1 − αp1 p2     cos L + p2 ,
+                   β                a                       a
+                   1 h             r                     r           i
+           cos K =     (1 − αp22 )    cos L + p2 − αp1 p2     sin L + p1 ,
+                   β                a                       a
+where α, β are defined in (39), (51). In particular, we used the relation
+
+                                 β = 1 − α(p21 + p22 ).
+
+The expressions above for sin K, cos K are needed to write the two terms (67)
+as
+
+          ς(cos L cos K + sin L sin K) = 1 − ς + β ς 2 − α(1 − ς)2 ,
+                                                                 
+
+
+                                            29
+                                                 cṙ
+                 sin L cos K − cos L sin K =         [ς + α(1 − ς)] ,
+                                                 µ
+where we noticed that
+                                                  1
+                             p1 sin L + p2 cos L =   − 1,
+                                                  ς
+                                                  cṙ
+                             p2 sin L − p1 cos L = ,                          (68)
+                                                  µ
+and
+                                                   r
+                             αβ = 1 − α,             = β 2 ς.                 (69)
+                                                   a
+We can write
+
+         ṗ1 cos K − ṗ2 sin K =
+                                          
+            h−c      r                 r 1       r
+                2
+                  −    ŵ  F
+                          h h      1 −   +     1−     (1 + αβς)
+              r     h                  a   c       a
+                            (rṙ)2
+                                     
+                                                  rṙ h        r i
+          + α(1 + βς) −            w (2U − rFr ) + 2 c α + ς 1 − α E˙ ,       (70)
+                             cµ                   µ             a
+
+where w is introduced in (37) and we applied the relations
+           r                                 r
+               + 1 − ς + β ς 2 − α(1 − ς)2 = 1 −
+                           
+   ς˜ 1 −                                           (1 + αβς) + α(1 + βς),
+            a                                    a
+                                h         r i
+   ς˜c [ς + α(1 − ς)] − rςw = c α + ς 1 − α .
+                                           a
+   We deal with the time derivative of K. From (11), (24) we have
+
+                                    K̇ = L̇ + Ġ − θ̇.                        (71)
+
+The expressions of L̇, θ̇ are shown in (62), (64). By differentiation of both sides
+of equation
+                                             rṙ
+                                 tan G =           ,
+                                         w(a − r)
+which follows from (19), (20), and using (63), we find
+
+                   w    1 h µr sin θ                                 i
+            Ġ =     − √             (r + a) ȧ + (cos G)(2U − rFr )  .
+                   r  g µa 2ca2
+
+Then, considering that
+
+                                    cos θ + g                 2a2 ˙
+                         cos G =               ,       ȧ =      E,
+                                   1 + g cos θ                 µ
+we can write
+                 w    r h                 µ                      i
+          Ġ =     − √    sin θ(r + a)E˙ + (cos θ + g)(2U − rFr ) .           (72)
+                 r  cg µa                 c
+
+                                            30
+From equations (71) and (62), (64), (72) we obtain
+
+                 w h−c       r     1h      r i
+          K̇ =     + 2 − ŵh Fh + 1 + α 1 −     (2U − Fr r)
+                 r     r    h      c        a
+                   rṙα 1
+                           r ˙
+                              
+                 −        −     E.                                          (73)
+                    µ w c
+
+   After using (70), (73) in equation (66) we obtain
+                                                    
+                   h−c     r          rṙc 
+                                                ˙ 1
+          L̇ = ν + 2 − ŵh Fh +            ς˜α E + (1 + α)(1 + βς)
+                    r      h           µ2         c
+                             2
+                                
+                   r   (rṙ)
+               − βς −          w (2U − rFr ).
+                   a    cµ
+
+Finally, the expression of L̇ reported in (48) follows noting that
+
+                                     r   (rṙ)2   1     r
+              (1 + α)(1 + βς) − βς     −        w= +α 1−    ,
+                                     a    cµ      α      a
+
+where we used relations (68), (69), and
+                                                 2ς − 1
+                      (p2 sin L − p1 cos L)2 =          − β2.
+                                                   ς2
+
+References
+Aristoff JM, Horwood JT, Alfriend KT (2021) On a set of J2 equinoctial orbital
+  elements and their use for uncertainty propagation. Celestial Mechanics and
+  Dynamical Astronomy 133(9):1–19
+Arsenault JL, Ford KC, E KP (1970) Orbit Determination Using Analytic Par-
+  tial Derivatives of Perturbed Motion. AIAA Journal 8(1):4–9
+Battin RH (1999) An Introduction to the Mathematics and Methods of Astro-
+  dynamics, revised edn. AIAA Education Series, AIAA, Reston, VA
+Baù G, Bombardelli C (2014) Time elements for enhanced performance of the
+  Dromo orbit propagator. The Astronomical Journal 148(43):1–15
+Baù G, Bombardelli C, Peláez J (2013) A new set of integrals of motion to prop-
+  agate the perturbed two-body problem. Celestial Mechanics and Dynamical
+  Astronomy 116:53–78
+Baù G, Bombardelli C, Peláez J, Lorenzini E (2015) Non-singular orbital ele-
+  ments for special perturbations in the two-body problem. Monthly Notices of
+  the Royal Astronomical Society 454(3):2890–2908
+Biria AD, Russell RP (2018) Equinoctial elements for Vinti theory: Generaliza-
+  tions to an oblate spheroidal geometry. Acta Astronautica 153:274–288
+
+
+                                       31
+Biria AD, Russell RP (2020) Analytical Solution to the Vinti Problem in Oblate
+  Spheroidal Equinoctial Orbital Elements. The Journal of the Astronautical
+  Sciences 67:1–27
+Broucke RA (1970) On the Matrizant of the Two-Body Problem. Astronomy
+  and Astrophysics 6:173–182
+
+Broucke RA, Cefola PJ (1972) On the equinoctial orbit elements. Celestial Me-
+  chanics 5:303–310
+Cefola PJ (1972) Equinoctial orbit elements – application to artificial satel-
+  lite orbits, AIAA paper 72–937, presented at the AIAA/AAS Astrodynamics
+  Conference. Palo Alto, CA.
+Danielson DA, Sagovac CP, Neta B, Early LW (1995) Semianalytic satellite
+ theory. Tech. Rep. NPS-MA-95-002, Naval Postgraduate School, Monterey,
+ CA
+Dormand JR, Prince PJ (1980) A family of embedded Runge-Kutta formulae.
+ Journal of Computational and Applied Mathematics 6(1):19–26
+Goldstein H (1980) Classical Mechanics, 2nd edn. Addison-Wesley, Reston, VA
+Horwood JT, Aragon ND, Poore AB (2011) Gaussian Sum Filters for Space
+  Surveillance: Theory and Simulations. Journal of Guidance, Control, and
+  Dynamics 34(6):1839–1851
+Junkins JL, Akella MR, Alfriend KT (1996) Non-Gaussian Error Propagation
+  in Orbital Mechanics. In: Advances in the Astronautical Sciences, pp 283–298
+Lagrange JL (1781) Théorie des variations séculaires del éléments des planètes.
+  Première partie contenant les principes et les formules générales pour
+  déterminer ces variations. Nouveaux mémoires de l’Académie des Sciences et
+  Belles-Lettres de Berlin Reprinted in Œuvres de Lagrange, Gauthier-Villars,
+  Paris (1870), vol. 5, pp. 125–207
+Milani A, Gronchi GF (2010) Theory of Orbit Determination. Cambridge Uni-
+ versity Press, Cambridge, UK
+
+Vinti JP (1959) New Method of Solution for Unretarded Satellite Orbits. Jour-
+  nal of Research of the National Bureau of Standards–B Mathematics and
+  Mathematical Physics 62B(2):105–116
+Walker MJH, Ireland B, Owens J (1985) A set of modified equinoctial orbit
+ elements. Celestial Mechanics 36:409–419
+
+
+
+
+                                        32
+

@@ -1,0 +1,1891 @@
+1971PASJ...23..567H
+Publ. Astr. Soc. Japan 23, 567-587 (1971)
+Theory of General Perturbations for Non-Canonical Systems
+Gen-ichiro HorRI
+Department of Astronomy, University of Tokyo, Tokyo
+(Received April 10, 1971)
+Abstract
+The theory of general perturbations originally developed for the solution
+of canonical systems
+is generalized so as to be applicable to non-canonical
+systems.
+The features of the original theory are preserved as far as possible.
+Perturbed Kepler motion is discussed as an application of the general theory.
+Another application to the non-linear oscillations is shown by the solution of
+van del Pol’s equation.
+Finally the present theory
+is compared with the
+original theory applied to the generalized canonical system.
+Key words:
+General perturbations; Non-canonical system; Non-linear os-
+cillations.
+1.
+Introduction
+The given equations of motion
+dz;
+.
+—=*
+= Z;(2)
+,
+=1,-+++,m),
+1
+are transformed, by the change of variables
+z—€, to
+G5 7H, =, m),
+(2)
+dt
+in such a way that the new equations of motion
+(2) have some advantages for
+the solution.
+This is the idea of perturbation theories based on the transforma-
+tions of variables.
+When the given equations of motion are in the canonical form
+dx;
+OF
+dy;
+oF
+.
+SS Sr,  -,
+=], ---,m’
+,
+3
+dt
+ody;
+dt
+ON;
+(J
+)
+(3)
+with the Hamiltonian F(x, y), we apply a canonical transformation 2, y—é,7 so
+that the new equations are again canonical and may be written in the form
+d&;
+oF*
+dn;
+of'*
+(j
+>.
+> 9,
+’
+=1,---,m’),
+(4
+dt
+on’
+dt
+06’
+~
+where we have
+F(a, yy=F*E, 7) .
+(5)
+Several theories (VON ZEIPEL 1916; Hori 1966;
+DeEpPrRIT 1969) have been de-
+veloped for the solution of the canonical systems, and in all of them, equation (5)
+567
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1971PASJ...23..567H
+568
+G. Hori
+[Vol. 23,
+is the basic relation.
+In general, if either the given system or the applied trans-
+formation
+is not canonical, we do not have such a simple relation as equation (5)
+linking the old and the new systems, and this yields some complications for the
+construction of perturbation theories for non-canonical systems.
+However, a trial was made by BROWER and HORI
+(1961) with some
+success,
+by applying a canonical transformation to a non-canonical system—the drag prob-
+lem of the motion of an
+artificial
+satellite.
+Later the theory was improved by
+LANE (1965).
+We present here the generalization of the HORI’s (1966) version of the pertur-
+bation theory originally developed for canonical systems.
+The generalization based
+on the DEPRIT’s
+(1969)
+version has been made by KAMEL (1970).
+On the other
+hand, BREEDLOVE (1969), CHOI (1970), and KAMEL (1971) have adopted an entirely
+different approach and reformulated equations (1) in the canonical form
+dz;
+OF
+dp;
+oF
+;
+— =, —_—_=——- 2;
+=1,°°',m
+’
+4)
+dt
+0p;
+at
+02;
+(J
+)
+(6)
+‘with the Hamiltonian
+P= 2. DiS;
+(7)
+by
+artificially introducing m momenta p; conjugate to z;.
+The original order m
+of equations (1) is doubled in equations (6), and this is the price
+paid for obtain-
+ing canonicity.
+In Section 8 we compare this approach with the present one, and
+show that the former reduces to the
+latter
+if the algorithm
+is required to be
+independent of artificial momenta p.
+2.
+Generalization
+In the Hori’s (1966) version of the perturbation theory,
+use
+is made of the
+canonical transformation x, y— é, 7,
+oy
+1
+ps
+ej=Es+ Di —— DEER,
+yi=nit+ D — DEy; ,
+3)
+n=l1 n!
+n=l n!
+‘where the operator Ds is defined by
+the braces standing for the Poisson bracket expression.
+For an arbitrary function
+f(z, y), we have the expansion formula
+lL
+pn
+fe, W=FE, 1+ & = DYE, 1) «
+(10)
+We see that equation (10)
+includes equations (8) as special cases.
+In these equa-
+tions, we assume that the function S(é,7), which generates the canonical trans-
+formation,
+is small enough so as to guarantee the convergence of the infinite
+series in the right-hand members of equations (8) and (10).
+We first generalize the canonical transformation
+(8) and consider a general
+transformation z—C by introducing a set of m generating functions
+7;(¢) of
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1971PASJ...23..567H
+No. 4]
+General Perturbations for Non-Canonical Systems
+569
+variables €1,-°°-,€m in place of one function S(€,7) in the canonical case.
+Let the
+operator Dr be defined by
+Drf()=T;2L, and Dzf=D34( 7535)
+(11)
+OC;
+oC;
+where the Einstein convention is used.
+This operator
+is reduced
+to Ds
+if m is
+even, say 2m’, and we put Cj=&;, Cm’s3=7; (J=1,---, m’),
+Tj; and S being related
+by
+_ 9S
+OS
+a
+)
+T;= ans?
+Tn’ sj
+a8;
+”
+(7=1,---,
+m’).
+(12)
+Equations (8) are then generalized to
+zimtrt Et DiimePbs
+(18)
+and equation (10) to
+fe=fO)+ B= DISO=e"2
+FO)
+(14)
+We assume that 7; are small enough to assure the convergence of the series.
+The inverse transformation of equation (10), which expresses f(&, 7) in terms
+of x, y, is given by
+—j)"_
+FE N=fle, W+E,—"* Dare, w),
+(15)
+where S stands for [S(€, 7)]e.7+2.y.
+Similarly, if T; and D7; are introduced by
+—
+—
+@
+T3=([Ti(Q)]c42,
+Da= liz ;
+(16)
+ej
+we have the inverse relation of equation (14),
+|
+fO=f)+ & ™Dife=eFfe)
+(17)
+corresponding to equation (15) in the canonical case.
+3.
+New Equations of Motion
+The new equations of motion (2) are derived from equations (1) by three steps:
+we first express € in terms of z, as the special case of equation (17) with f(z)=z;,
+Cj=e 2;
+5
+(18)
+we then take the time derivative of equation (18), and in view of
+d _ 7 ,, 9
+_p_
+|
+dt = Z;(2) 32; =D; ,
+(19)
+we have
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1971PASJ...23..567H
+570
+G. Hort
+[Vol. 23,
+| “ag DIE :
+(20)
+and finally we apply the formula (14) to the right-hand member of equation
+(20)
+so as to express d¢,;/dt in terms of €.
+The result is
+doi —p»D
+—Drf
+.—
+FX
+We note that the
+J; are small
+quantities,
+say, of the first order, and the
+terms of the middle member are arranged according to their order of magnitude:
+er Dre r= Si + Dep, © S—" p= > 1" _ psp, px .
+(22)
+ul
+y!
+n=0 v=0 (n—v)!v!
+The order m terms are written in the form
++_s (—1(") De* DeDi
+(23)
+nm!
+v=0
+v
+If the generalized Poisson bracket expression is introduced by
+_
+__ m 04; _
+OT;
+DrZj=|Z, T\j=Tx a
+Lk aCe’
+(25)
+and
+ni.
+_
+G
+n—1
+n—-1
+OT;
+DirZj=[-:- (4, 7], T),--- Ty=Te
+sc BDPIZ(DAth)— ,
+(26)
+OC
+OCx
+then we can prove that
+|
+"
+0
+xs (- 1y () De" DzDp=( DPA) 5p =DezPit. «
+(27)
+yv=0
+Vv
+OCk
+In fact, for n=0, equation (27) reduces to
+Dz=Dixy ’
+which is true because of equation (24).
+Suppose equation (27) is correct for n=N—1.
+Then we have
+N
+=(-1())
+DE"D:D}
+N—1
+—_
+N—1
+—
+=Dr & (-1)"("*)
+peDede & (-1(™" *) Di DsD$Ds
+=DrD... [Z, 7], PF] —D,; 000 [Z, T'], «08 Dr
+0
+0
+0
+0
+=T,—|
+(QZ) |(
+DY ae (T'Ger)
+ar(a
+) a | (DY
+Ds) 5 ( Tze
+|
+m9
+oyw-17,_(
+on-t
+ae baer
+=| 7 Ole Dra Dr er) OCn | 001
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1971PASJ...23..567H
+No. 4]
+General Perturbations for Non-Canonical Systems
+Byal
+—
+N
+0 —
+=(GDh Zi) = = Dy... [7,7], 7], -++T] «
+oti
+Equation (27) is thus proved.
+Therefore we have
+e?’r Dze~?Tej= (Dent Dee ryt 3 Duz, T],T]+ °° +)
+=Z;+[Z,T+
+> UZ, TI, Tht + 02725.
+(28)
+When equations (1) are equivalent to equations (8) with m=2m’, we have
+0
+I
+as is easily verified, where
+_ 9
+Ary O
+Zi(C)= an; FE, 9),
+= Sm (OQ)=
+36; Fé, 7),
+(30)
+in addition to equation (12).
+The operators Dr for a scalar f(f) and Dr for a vector Z;(f) are called Lie
+derivatives after LIE
+(1888), and we
+call equation (14) Lie’s expansion formula.
+The author does not know whether equation (27) and therefore equation
+(28)
+are
+new or not.
+In Section 8, we see another indirect proof of equation (28), which was
+suggested by H. Kinoshita of the Tokyo Astronomical Observatory.
+4.
+Algorithm through the Fourth Order
+We assume that
+Z;,
+Tj, and Z;* may be expanded in powers of a small
+parameter of the first order,
+Z5= Zp
++ ZFO AZO 4 ZO cee,
+(31)
+T= TYE TORT/O+ oe.
+,
+(32)
+ZFH=LZPROLZAOLZHOLZO
+oe.
+(38)
+where T;
+igs absent in equation (32) because J; is assumed to be of the first
+order.
+We have from equation
+(21),
+in view of equations (28), (31), (82), (83), the
+following terms:
+Zeroth order:
+ZO =LPRO
+,
+(34)
+First order:
+[Z,
+TY]; 4- 24,9 S Zi
+,
+(35)
+Second order:
+[Z, T];+[Z%, TO ]s3+ + l1Z, T], T')] 5+ 259 = ZF .
+(36)
+Third order:
+[Zo, T®];4+[Z%, T2};,4+[Z, TH+ (12, TY), T?);
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1971PASJ...23..567H
+572
+G. Hori
+[Vol. 23,
+1
+0
+2
+Al
+a
+1
+(1
+(L)].
++ S112, 7), T+ 12%, T), TP
++4 [[7, TT), TT], TY);+ 24; =Zj*® .
+(37)
+Fourth order:
+[Z, T’];,4+[Z, T]j4[Z°, T?];4-[(Z2Z, T];
+1
+1
+8
+1
+0
+(2
+2
+1
+ary [[Z, T], T: lit = U4! TT), T? 7+ @ 2", T®)], T?);
++5129, TY), T+
+12, PT), T+SZ, TY), TP;
++112, T), T”], T+ (2, TT), T®], T?];
+ai (7, T°], T°], T]i+i2, TY], T°), T4,;
+6
+9
+bf
+b
+b
+,
+’
++>, lllZ, T?], TY], TO], TOG ZGOHLH
+,
+(38)
+These equations correspond to equations (16) to (20) of the previous paper on the
+canonical case.
+As in the canonical case, equations for each order, are simplified with the use
+of the equations of the preceding orders, and we have:
+Zeroth order:
+ZQO=LFO
+|
+(34’)
+First order:
+[ZO, TY]; 4+Zj,P=
+ZO
+,
+(35’)
+Second order:
+[Z, Ts 1294240, T®];4+-Zj9%=Zie™|
+(36)
+Third order:
+[Z®, T+
+[Z4+Z*0, TH]; +
+[24 24®, TH);
+ai [[Zo—Zen, TH], TH]47,9=Z;*e)
+|
+(37')
+12
+3
+b
+°
+Fourth order:
+[Z, T’]5+[29428 Ts + [29428 TT);
+41 yze4 ze TH]; +5 129-2 T] TT);
+9
+b
+2
+b
+,
++
+11-249, T'}, T};+ 1Z—Z*®, T], TT);
++Zj9=
+Zi
+,
+(38’)
+These correspond
+to equations
+(16’)
+to
+(20’)
+of the previous paper and have
+analogous forms.
+The m equations in each order contain 2m unknowns, T;™and Z;*™(j=1,
+-++,m), so that some principle should be introduced to determine 2m unknowns
+from m equations.
+Let us consider the auxiliary equations
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1971PASJ...23..567H
+No. 4]
+General Perturbations for Non-Canonical Systems
+573
+G5 LZ),
+ (J=1, +++, m),
+(39)
+dt
+which are equivalent, except for the notation, to the unperturbed version,
+dz;
+SEF
+F(z)
+,
+dt
+5°
+(z)
+of the given equations of motion (1).
+We assume that the unperturbed problem
+is solvable, and denote its solution by
+Cj=Cj(t, c1,°+-, Cm),
+(J=1,---,m).
+(40)
+The term [Z®, 7*™]; which involves the unknouns T;™in the n-th order equa-
+tion is written, in view of equations (89), in the form
+WARD
+0T .(”)
+dTn)
+07;
+Z, Tm].
+Ty,
+SL
+— 7,
+—-9 — = _ ed
+1
+T,™,
+4]
+!
+i=
+OCK
+°
+OC
+dt r OC
+"
+(41)
+and we note that the
+coefficients 0Z;/0C,
+of JT,
+are known functions of
+tr
+because of equations (40).
+Therefore the equations for 7; in each order are
+adT;™
+VAD)
+(n) 1 O (0) (7) —Zn)
+7
+where 2; are known functions of
+ct, determined in the preceding orders of ap-
+proximation.
+Equations (42) reduce to the single equation
+_ 259 1 0c)
+=F a
+(48)
+dt
+in the canonical case.
+Sn» is then obtained by the quadrature
+S.= | U,—F.*)de .
+(44)
+In the present case, the 7; are obtained by solving the non-homogeneous linear
+differential equations with variable coefficients
+T
+(mn)
+°
+MI
+210 (6)- Te 05 — 258 »
+(g=1,-+-,m).
+(45)
+As F'.* is so determined in equation (44) that S.
+is free from secular or mixed
+secular terms, Z;*™
+in equations
+(45) are likewise determined so that JT; are
+free from these terms.
+This is necessary in the determination of Z;*™and T;™
+in so far as we require that our perturbation theory be formally valid for an
+unlimited interval of time.
+In the canonical case,
+the choice of the new Hamiltonian as the average of
+V,int, Fa*=<¥,>, not only meets the demand for Sx but also yields the integral
+Fy(é, 7)=const.
+In the present case, the demand
+for 7; is generally not suf-
+ficient to determine Z;*™such that the new equations of motion become more
+tractable by admitting some
+integrals,
+or
+in
+other
+ways.
+Analogous
+to
+the
+condition
+{Fo, F’'*}=0
+(46)
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1971PASJ...23..567H
+574
+G. Hori
+[Vol. 28,
+in the canonical case, we here put
+as the tractability condition, which leads to
+dZj™
+ZF, (0)
+OZi*
+dZ;*
+=i — = 7, * ——i— = Z;,\0) 2=
+’
+48
+dt
+"aCe
+ara
+dt
+(48)
+or
+dZ™
+= aZi
+.
+_
+— Fyn)
+=J,--:,
+49
+ds
+ar,
+(j=1
+1)
+CS)
+in each order.
+In fact, equation (48) shows that if the Z;* depend only on the
+integration constants of the solution of the auxiliary equations and not on
+cz for
+some indices 7, we have, for such 7, the integrals
+.
+Z;j =const.
+(50)
+This is the case of perturbed elliptic motion discussed
+in Section
+6.
+In another
+case,
+condition
+(49)
+leads
+to
+the form
+Z;*=f(C12+(22)C;
+(j=1,2),
+and the new
+equations become integrable,
+as shown in Section 7.
+Generally, the tractability
+depends on the form of Z;.
+We note that condition
+(49)
+is also derived when
+the original canonical theory
+is applied to the generalized canonical system with
+the requirement that the solution z(t) is obtained without any information about
+the momenta p which are
+artificially introduced
+(see
+Section
+8).
+Finally, we
+note that conditions (47) reduce to
+0
+0
+a
+.
+,
+On;
+0€3
+if equations (2) are written in the form (4) with m=2m’.
+Thus equations
+(47)
+are equivalent to equations (46) of the canonical case.
+5.
+Perturbed Elliptic Motion
+In equations (1) with Z;=Z;+2Z;", we replace the variables
+21, 22, °°+, 26 by
+the Delaunay variables L, G, H,
+l, g, h.
+Further, we put Z;%=0 for j=1, 2, 3,
+5,6 and
+44=y?/z13,
+Equations
+(1) then give a perturbed
+elliptic motion with
+Z; as the disturbing force components.
+In this case, equations (41) become
+(n)
+aT
+Bu?
+Zo,
+Toya
+— 4 -—  SETy™|
+[Z, T™],
+dt
+r
+1
+(52)
+and equations (85’) for the first order lead to
+~ ye 4 = Li,
+(j=1, 2, 8, 5, 6),
+(GS)
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1971PASJ...23..567H
+No. 4]
+General Perturbations for Non-Canonical Systems
+575
+_ at _ 8
+(1)
+(1)
+—
+FKL)
+dt
+rs TY
+4+ Q49= ZF
+,
+(54)
+f-
+where, as the auxiliary equations (89) show, C1, C2, Cs, Cs and
+Cs are constant in
+t while %
+is a linear function of t, G4=(+?/¢1*)t+ const.
+In equations (58) and (54), Z;" (7=1, ---,6) depend on + through %.
+Itis as-
+sumed that Z; are expressed as Fourier series in t.
+We then have
+LFUVSKZI>,
+ (7=1, 2, 3, 5, 6) ,
+(55)
+3
+Ty
+|(ZZ)
+de= | (Zi Z#)dee,
+ (G=1,2,8,8,6),
+66)
+and
+Zio =(Ze0_se T:”)
+(57)
+1
+3
+2
+T="\(z-a qT.)Zi) dts.
+(58)
+Therefore, we have the unique determination of Z;* and
+T;' except for the
+constants of integration in 7;", and the situation does not change in the second
+and higher orders.
+As equations (55) and
+(57) show,
+t or %
+is eliminated from Z;*", and in
+general from Z;*®, Z;*®,---
+if we go to higher orders.
+In the new system (2),
+therefore, the equation for Ca,
+dlsOA
+Fe ZK
+ee
+59
+di
+ra +
+La)
+Lah)
+4+
+(59)
+is separated from the others
+GLROTM,
+(G1, 2,8,5, 6).
+(60)
+If we can solve C1,
+C2, Cs, Cs, and Cs of equations (60), C4 is obtained from equa-
+tion (59) by a quadrature.
+Therefore the order of the equations of motion
+is
+reduced by one by means of the transformation z—C€ given by equations (13),
+where 7; are given by equations (56), (58), and similar equations in higher orders.
+The new equations of motion (60), together with equation (59), determine the long
+range behavior of the variables €.
+A second transformation €;—€,’ (7=1, 2, 3, 5,
+6) is used for the solution of equations (60).
+In this case, the Z;*™play the roll
+of Z;, that
+is,
+the undisturbed parts of the force components, and Z;*-} ---
+become the disturbing force components.
+Except for this, the procedure of Sec-
+tion 4 is again applied to equations (60).
+Thus we may determine T;*, 7j*, ---
+and Z;**), Zj**2)..- for g=1, 2, 3, 5, 6.
+We note that the right-hand member of equation
+(59) is expressed in terms
+of C1’, Cs’, fs’, Cs’, and Ce’ by the help of Tj*(Z1’, G2’, Cs’, €s’, Ce’) (7=1, 2, 8, 5, 6),
+T.* not being needed since C4’ is absent.
+6.
+Main Problem of the Motion of an Artificial Satellite
+We consider, as an example, the main problem of the motion of an
+artificial
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1971PASJ...23..567H
+576
+G. Hori
+[Vol. 23,
+satellite.
+The problem has been discussed with the use of von
+Zeipel’s method
+(BROUWER 1959; KOZAI
+1962),
+or with the use of the canonical version of the
+present method (HorI 1966; AKSNES 1970).
+Observing that the disturbing forces
+Z;, Z|”
+are independent
+of
+zs, and that
+zs
+is constant and considered as a
+parameter, we solve the fourth order system
+SB = 7504 2504 Zi ,
+ (g=1,2,4,5),
+(61)
+where
+2
+Z;=0 (j=1, 2,5), A= +,
+(9)
+1
+and
+Zia
+FF
+|
+ay, -F
+i j=1,2),
+(68)
+02345
+02;
+with the disturbing function f'1+F%.
+Equations (55) to (58) then give
+|
+“Av® Y= Pe (C1, Ce, 28,5 C4, Cs, —_ )>=0 ’
+(64)
+2
+T=
+|S d=
+Fe,
+(n= 0, Fu=Fi)
+(65)
+nN
+OCs
+nN
+C18
+OF,
+wea) — (2A)\ —
+Ze
+(Ge) 0,
+(66)
+Tl) — 1 |OF dts,
+(67):
+n ) 00s
+OF:
+OF'1*
+.
+ey
+/PAL\_
+Of
+kK
+;
+Ze
+(Ge)
+a
+FSF),
+(68)
+TT) ——*\ (oe a 7 Fu) dts,
+(69).
+nN
+oti
+C1
+OF,
+oF\*
+Z¥O)
+= — (—\
+= —
+70),
+Hm
+Oa
+(0
+Ty — 7 \ edt
+(71)
+nN
+0b:
+Introducing S1(1, C2, 23, C4, 5,
+— ) by
+s.-} | Findl
+(72)
+n
+we have
+0Si
+OS1
+.
+T= —,
+TY=-—,
+=1,2).
+73
+j
+Ola..j
+8+
+5
+aC;
+€)
+)
+(73)
+Therefore the results given by equations (64) to (71) are the same as those given
+© Astronomical Society of Japan * Provided by the NASA Astrophysics Data System
+1971PASJ...23..567H
+No. 4]
+General Perturbations for Non-Canonical Systems
+577
+in the canonical case (HORI 1966).
+It is to be noted that 7:1" given by equation (65) is not a unique choice for
+T:.
+By another choice of the integration constant we may have
+ay 1
+T= —Fi.
+(74)
+n
+Equation (68) is then changed to
+OF, ,3?
+)
+(on
+3
+)
+Vi
+ee
+To\— —(=142F
+ann
+(Cog
+at,
+Gs
+'
+OF :* | 3
+( a
+(7)
+Obviously,
+the 7:1
+given by equation
+(74) cannot be obtained from the deter-
+mining function S: of equation (72), so the choice of equation (74) leads to another
+form of the solution where the perturbations in z; are not obtained from a
+single
+determining function.
+In the second approximation, we have, according to equations (29),
+[ZY
+4 Zo, TH],=es es Si,
+OCas3
+.
+(j=1, 2),
+[ZHV4 Feo, TH],
+7 — ap PtP Si},
+j
+.
+and Z;*® and T;* are obtained exactly the same as in the canonical case.
+The new equations of motion are
+FZ 80(C, Ce, &8y —3 —y —)+Z4j* (C1, Ce, 28, —y Cs, a) ’
+(j=2, 5) ’
+(76)
+an
+Ot _
+ZXO 4 Zye2)
+77
+dt
+C13 + eat
+as
+(77)
+with
+€1=const.
+(78)
+However, as mentioned above, equation (77) is separated from equations (76) and
+need not be considered until the latter are solved.
+In equations (76), Z;* are the lowest order terms and play the
+role of the
+undisturbed forees.
+Since Z;*") are free from all the angular variables, the solu-
+tion of equations
+(76)
+is attained
+in the same way as the preceding step.
+We
+consider a second transformation C2, €;— 2’, fs’ in the form
+C=C’ + THO (Ci, C2’, &83 ys Cs’, —)+ wey
+(j=2, 5) ’
+(79)
+C1 as well as zs being considered as a parameter.
+The auxiliary equations are
+Jf
+SEE ZK),
+(5=2,5)
+(80)
+.
+T
+with
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1971PASJ...23..567H
+578
+G. Hori
+[Vol. 23,
+LED = ZO (Cr, C2’, 283 —y —y —) ’
+(j=2, 5) °
+(81)
+In view of equations (66) and (70), we have
+Co’=const. in t*,
+(82)
+and
+C5’ = Z5**-).c*+eonst.
+(83)
+The first order equations (85’) are now written as
+d Teh
+;
+7
+dt* + Zi* (C1, Ce’, @3y —y Cs’, —)= Zr ’
+(j=2, 5) .
+(84)
+The guiding principle which determines Z;**® and T;* is that the T;*™are free
+from secular or mixed secular terms in t* or, which is the same, in €;’.
+Thus
+equations (84) lead to
+Zp
+=KZi) ,
+(€535))
+and
+|
+TY =(ZF) 4 | (Z5* 2) — Zj**2) gE 5! ,
+(86)
+where <
+> denotes the average with respect to ¢:’.
+The new equations of motion become
+ale’
+—— =(0),
+87
+dt
+(87)
+dts’
+eK(1
+/
+(2
+/
+dt~ = 5
+(C1, Ce 9 8) —~y —y —)+Zs
+(C1, Ce 9 &83 —~y sy —) ’
+(88)
+and their solution is
+C2’=const.
+,
+(89)
+C5’=(Z5**) + Z,**2))¢ + const.
+(90)
+Since equations
+(76) are solved, we next consider equation
+(77).
+Applying
+transformation (79) to the right-hand member of equation (77), we have
+al.
+pe
+=
+4 Bh)
+’
+- rs
+dt
+te +
+L4*
+(C1,
+C2”,
+23
+)
+OZ kD
+raeT2¥0
++ Zy*2(C1, Ca’, Zs, —, Os’, —)
+(91)
+2
+up to the second order, or after integration,
+|
+2
+com(FE +Ze +<Zk>) tteonst,
+1
+OZ*u)
++ (Zs**))-1 |(SE To*h) 4La?) — ¢Zi*®>)dts! .
+(92)
+2
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1971PASJ...23..567H
+No. 4]
+General Perturbations for Non-Canonical Systems
+579
+The first part of the right-hand member
+is the secular perturbation up
+to the
+second order and
+is denoted by C.’, while the second part is the long period per-
+turbation of the first order and is denoted by Ti*™,
+Finally, the perturbations in zs are obtained from
+os = Ze") (21, 22, 28, 24, 25, —) + Zo (21, 22, 3, 24, V5, —) «
+(98)
+In fact the transformations are written, to the first order, in the form
+Zi
+Cit T1 (C1, C2’, 285 C.’, C5’, a) ’
+250+ T5') (G1, C2’, @3, oa’, C5! —)+ T5*) (C1, Ce’, 389 —y Cs’, a) ’
+(j=2, 4, 5) ’
+and applying them to the right-hand member of equation (93), we have
+(1)
+os =Ze6"(C1, C2’, 23, Ca’, C5’, —)+ ie Ty)
+0Z_))
++ >
+(Tf)+ THF)
+4+ Ze (C1, Co’, za, Ca’, Cs’, —) ,
+(94)
+j=2,4,5
+OC,’
+an equation which can be integrated to give 2,
+since the right-hand member of
+equation (94) is now a known function of t.
+Omitting the C.’-dependent terms of
+second order, ze consists of the short and long-period terms of the first order and
+secular terms of the second order,
+being
+the same as obtained in the canonical
+case.
+The above-stated solution of the satellite motion is along the general procedure
+of Section 5.
+Alternatively we can proceed exactly as in the canonical case, where
+the problem is of the sixth order, and the transformations of zs and C4 are taken
+into account in the first stage z—€ and in the second stage €—’,
+respectively.
+However, the amount of calculation seems to be the same by both procedures.
+7.
+Application to Non-linear Oscillations
+We consider as an illustration the non-linear oscillations given by van del Pol’s
+equation
+|
+¥+e(a?—-1l)tt+a2=0,
+(35))
+or
+21=22 ’
+,
+(96)
+Zo —21—(217—1)
+22
+.
+We have
+AV (z)=22,
+LZ2° (z)=—a1,
+(97)
+ZAi™(z)=0,
+Ze'(z)=—e(a1?—1)ze
+.
+(98)
+The auxiliary equations (89) read
+a _7,06, ;
+ae 795-6, ,
+|
+Cs)
+dt
+dt
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1971PASJ...23..567H
+580
+G. Hori
+[Vol. 238,
+with the solution
+Ci=ccost,
+Ce=—csint.
+(100)
+In the first order theory, T;, Z;* are determined from equation (35’), or in
+view of equation (41) and equations (97), (98),
+dt
+,
+(101)
+_ aT.—Ty94
+Zo) — Zoe)
+dt
+,
+where Ze") are known functions of t by equations (100).
+Therefore equations (101)
+are linear equations with constant coefficients.
+This is the general feature when
+the undisturbed oscillation
+is given by 4+2”=0, and the same feature appears in
+higher orders.
+From equations (101) we have
+GT + TD
+ZF
+— Zo*) —GLY .
+(102)
+dt?
+dt
+Z2, which. is e(C2—C1202) in the present case, is expressed in general by Fourier
+series with multiples of
+zt as arguments.
+If cosz or sint is present in the right-
+hand side of equation (102), 7:1" has a mixed secular term, which should be avoided,
+according to the principle stated in Section 4.
+Such terms of Z:" being denoted by
+[Z2')]., equation (102) gives
+2
+(1)
+eT+719
+= Zo)[Zo],
+(103)
+dz?
+and
+*(1)
+GLE 4+ Zo* 1) =[Ze], ,
+(104)
+dt
+the latter. being satisfied by the choice
+*(1)
+aL — Jo*(1) — i [Zo]. .
+(105)
+dt
+2
+Since [Z2""]. consists of sine or cosine functions of the single multiple of t, condi-
+tion (105) implies that 7:*” changes into Z2*" if €:1 and C2 in 7*” are changed
+to C2 and —(:1, respectively.
+Generally, we determine 7:*™and Z2:*™by
+*K(n)
+ee = Zo ’
+(n=2, 3, .° -) ’
+(106)
+dt
+as equations
+(49) with j=1 suggest.
+Owing to conditions
+(105) and
+(106),
+the
+transformed equations of motion become integrable as shown below.
+In the present ease, Ze) consists of «te and —<¢12C2, and each is considered
+separately since equations
+(108) and
+(105) are linear.
+Consider,
+in general, the
+term
+(1'C27.
+Then
+[C:*C2‘]. determines Z:*", Z:*” by equation (105), and 7: is
+given by integration of equation (108).
+We write the result in the form
+© Astronomical Society of
+Japan « Provided by the NASA Astrophysics Data System
+1971PASJ...23..567H
+No. 4]
+General Perturbations for Non-Canonical Systems
+581
+Ti9)=[C1'C
+1]
+.
+(107)
+In the Appendix, [¢1'C2]. and [¢:*C24], are tabulated for 1+7=2,3,---,8,727. The
+cases 7<J7 are obtained by the change €:— C2, C2 > —Ci corresponding to t >7t-+7/2.
+With the help of the table we can manipulate the calculation without recourse to
+explicit use of
+Tt.
+With Z2'=e(Co—l17f2) we have
+(1) — © -+)
+HO
+( -=)
+27.2
+2
+108
+Z2
+> (2
+4
+C2,
+Zt
+9
+1
+A
+C1,
+C
+C1 + Ce
+’
+(
+)
+T:9=— (8C2Co—C28),
+To=— (1661-708
++ C12”) ,
+(109)
+32
+32
+where 7:2" ig obtained from the first of equations (101) in view of
+d_,
+9
+» O
+dt =Ce aC,
+Ci ate”
+In the second approximation, Z;* and 7; are determined by equation (86’), or
+equivalently by
+_dT, + 7,2)+6,
+— Zy*2)
+dt
+,
+(110)
+_aT,” — T2162) — Zo*2)
+dt
+,
+where
+1
+OZ1*"))
+OZ #4)
+aT
+aT |
+6,2)
+— =
+(1) 241
+1)242
+ge wySAL
+ey
+*(1)) = |
+i
+9 EE
+aC
++T>
+ACs
+Li
+aC
+(Zo)
++
+Zo*D) aC»
+1
+0
+0
+OT 2")
+(111)
+@ (2)
+(1) 2 7
+(1)
+*K(1)
+(1)
+WW Zz (1)
+*K (1) —Z7 *(1)
+= 4
+1% 7: gy (AD
+Lak)
++ Da
+(Lai Zak) —
+Zi)
+SE
+oT)
+—
+(1)
+*(1)) ——*_
+(Za
++
+Za)
+|. |
+Analogous to equations (103) and (105), we have
+dz
++71 —
+dit +
+2
+dt
+++
+2
+; ’
+(
+)
+dt
+— Zo
+— 2
+dt +
+2
+; e
+( 13)
+In view of equation (107) we can write
+T19=| So +929 |
+(114)
+dt
+p
+Then T.'2) is determined from the first of equations (110).
+The result is
+dG, 2)
+62
+———— + ,'?)= —— (820; 12018 —920 102? + €1° +580 19C2?7—7E100*) ,
+dt
+128
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1971PASJ...23..567H
+582
+G. Hori
+[Vol. 28,
+and by the table in the Appendix,
+2
+2
+Z,*2)
+—__ ©" (29
+9921.7
+¢4
+Z.*%)
+— ©
+(39
+32¢%+-Te!) C1 ,
+115
+1
+956 (82
+—23c?+7c')fe,
+2
+O56 (82—32c*?+7c*)f1
+(115)
+2
+‘
+11% =[egg (B05 + 905102 + BE 2661°C2?+ C1C2') ,
+(116)
+2
+T2?)=1536 (—19202+162612C2+186622—79614C2 8201262335605) .
+Similarly we have, in the third approximation,
+do;
+e3
+dr +@,8) = B07 0 Ba0E G2 — 46852? + 506E1%C2 + LODGE I*C2! + LO2E2°— 15161%C2
+— 201614023 —121017025 —7027)
+,
+8
+(3)— ©
+¢_
+2
+4_69¢8
+VA
+12088 |
+912¢c? +528c*—69c°)C1 ,
+(117)
+8
+Zo*'8)
+— —©__ (91
+2¢?
++-528¢4—69¢8)¢
+2
+12088 |
+12c? +528c*—69c°)f2
+limiting to only the secular perturbations.
+If periodic perturbations of the third
+order in # are required, we need 71 which is
+8
+(gy)
+2°
+1.79% 8
+D62F
+140
+,—P1 BBE 12098
+5
+T1
+147456 (—21601?S2+ 72028
+—2062214C2—2188717028+ 85022
++58901°C2 + 885014C2® + 13850617625 —17502") .
+(118)
+The new equations of motion are, by equations (108), (115), and (117),
+ae
+*K(j) —
+5( -<) _ _&
+lap
+99,2 7A
+di =>) Z1*
+9=Co+ 9
+1
+rn
+C1
+256 (82
+—-32c?+ 7c") le
+68
+__
+—9
+2
+4_
+6
++ 12088 '
+12c? +528c*—69c°)E: ,
+(119)
+aoe
+*) — — ( _ =)
+_& a9__29,22
+r
+di =>) Z2*9=—Ci+ 9
+1
+A
+Cet O56 (82
+—32¢c?+7c'*)01
+|
+2
+_ —9]
+2
+4
+6
+.
++ 12988 (
+2c? +-528c*—69¢°)C2
+Hence
+dl:
+dee
+dc?
+(
+a) 2
+e®
+9122
+Osi
+Be2\_ Oe _
+_ &
+an
+28c!—69c°)c?
+,
+Dy)
+2(oS +0)
+dt
+e{1
+ri c+ rag
+c*+528c'—69c*)c
+(120)
+and
+1
+aes
+dle
+ad,
+_, 41
+é*
+—
+(Cg.
+— 1 )=
+=~ —J[— —— (83—32¢?+7c')
+.
+121
+(oe ce) dt"
+t,
+256 |
+ote’)
+(21)
+Then c?=17+C2? and C1/C2 are obtained by two quadratures with two constants of
+integration.
+In fact, equation (120) leads to
+© Astronomical Society of
+Japan * Provided by the NASA Astrophysics Data System
+1971PASJ...23..567H
+No. 4]
+General Perturbations for Non-Canonical Systems
+583
+2 9(28/128)6%c2
+et —ees _
+et
+c*e
+[1+ ie.
+4
+const. e
+,
+(122)
+in the approximation neglecting O(e*).
+This equation shows c?—>4-+¢7/4 (et> +o)
+(the limit cycle), of which we note that the «* contribution comes from the third
+order theory.
+After 1 and f: are obtained, z1(=2) and z:(=2) are given by equation (13) or
+(1
+1
+2
+oli
+00:
+or, in view of equations (109) and (116),
+2
+ai=lit 35 (3C12C2—Co®) +erage!421601602
+43015 + 5801962? —B 961624) ,
+z=Cat 3 (166 —TCs9 +5002")
+(124)
+;
+.
++. Bqag 6
+OB2 + LATA a + 69BCe° — TBC tCa— 70212608 — 1556) ;
+Equations (119) admit the special solution
+Ci=cecos(@+9),
+¢2=—csin(@+¢),
+(G59)
+with
+244£
+ga(1-£);
+(126
+ry
+oe
+=(
+13)
+,
+and a phase constant ¢.
+Let ¢ be determined so that z: vanishes at ¢=0.
+Equa-
+tions (128) give the inverse transformation
+—
+_
+_
+TA
+_
+rT
+2
+Oz1
+022
+or
+2
+C1=21—7 (321222—22°) + aad (264218 —5042122? —83215-+ 266213 22—672122') ,
+Co=Z2— go (1621 —Tas8 + Barzs*)
+(128)
+.
++Sag (108% —2Aav%2n + 792218 8821422 + B8Gz1"20' + 12520") ,
+With t=0 we have
+_
+eo
+8(()\
+22.5
+C1(0)=21(0) + 614A (264213(0)
+—83215(0)) ,
+(129)
+C2(0)=—a5 (1621(0)—721°(0)) ,
+hence the condition
+© Astronomical Society of
+Japan ¢ Provided by the NASA Astrophysics Data System
+1971PASJ...23..567H
+584
+G. Hori
+[Vol. 23,
+2
+C20) +620) =e? =4+
+Zives 2:(0)=2-+ «2/96, and therefore, equations (129) become
+2
+15
+9
+=2(1+ Seopa Bet,
+or, eospnt- Se
+€1(0) 2(1+ < cos
+o=2
+192°
+or,
+cosg=1
+103 °
+,
+2
+€2(0)=—2 (1+ 3a) sinpane ,
+or, sin p= Se ,
+so that
+3
+3
+pao etl ).
+(180)
+Finally, we find the well-known expressions for the limit cycle,
+62
+3,
+é,
+3
+5
+—2,—(2—-—
+64.2
+6—-—
+=
+¢2
+— 2.2
+u=21 €
+5) es + , © sin
+4 nse 16
+cos 30
+96 cos
+56 ,
+(131)
+2
+L=Z2= (—2+=) sin0+ € cosd— + € cos 80—= e? sin 36+Se gin 50 .
+We note that
+e=(2+ ae?) cos d+3 ¢ sin 0— —sin 30+ 3.2 cos 36— 542 cos 50
+(132)
+4
+4
+16
+96
+,
+with an arbitrary constant a, satisfies equation (95) if terms of O(e*) are neglected.
+8.
+Generalized Canonical System
+In concluding the present
+article, we remark that when the original theory
+(HORI 1966) for canonical cases is applied to the generalized canonical system
+(6),
+with Hamiltonian
+(7), and
+if
+its algorithm
+is required to be independent of any
+knowledge about the momenta »p
+artificially introduced,
+this algorithm becomes
+exactly the same as that presented so far.
+In fact, let z,
+»—€, z be the canonical transformation applied to the generalized
+canonical system.
+Furthermore, let S(C,z) be the determining function of the
+canonical transformation, and let F'*(€,z) be the new Hamiltonian,
+so that the
+new equations of motion are
+Ori FS
+SG
+=1,--+,
+;
+dt
+on;’
+dt
+0G;
+0
+m)
+133)
+We choose S and F* in the form
+S=27;T(C),
+F*¥=723Z;*(€)
+.
+(184)
+First we prove
+D§F(C, 2)=75DTZQ) .
+(135)
+In fact, the form of F
+© Astronomical Society of
+Japan ¢ Provided by the NASA Astrophysics Data System
+1971PASJ...23..567H
+No. 4]
+General Perturbations for Non-Canonical Systems
+585
+as well as that of S leads to
+DsF={F, S}={23Z;, 25T)}=25[Z, T]j=13DrZ; .
+(137)
+If we assume equation (135) for n=N—1, we have
+DYF=DsD8"'F={D4N-'F, S}
+={177;DP"Z;, 253T3}
+=n(2-ota) n-(HaosEt
+J
+OCk
+T
+J
+T
+¥] OCe
+0
+_
+_
+OT;
+=n TepeDRZ,—-(DR Da) se |
+|
+=1;3D\Dt'*2;/)=1DTZ; ,
+(138)
+thus equation (135) is proved by mathematical induction.
+Hence we have
+mjZj*=F*=esk(C, =k a DBF=n »ya DR j=n302 12;
+or, if these hold with arbitrary z, we have
+Z;*=e7 TZ; .
+(189)
+This furnishes another proof of equation (28).
+Further, the requirement
+{Fo, F*}= (2325, 73Z5*}=0
+(140)
+yields
+Oa ob— Lik
+Zens Se =n) Za
+aE
+HOE |=alZ" 24;,
+(141)
+or the tractability condition (47), when
+{Fo, F'*}=0
+is required to hold with ar-
+bitrary z.
+The remarks in Section 8 are partly due to the comments of H. Kinoshita,
+and the author thanks him for his comments as well as for other discussions on
+this subject.
+Appendix.
+Table of [01*C:7]. and [f1*Ze"]p.
+Cite
+|
+eit,
+|
+[Cs'CaA]p
+G1
+|
+G1
+|
+1
+C1?
+3 (01? +202?)
+102
+~ Shite
+© Astronomical Society of Japan * Provided by the NASA Astrophysics Data System
+1971PASJ...23..567H
+586
+G. Hori
+[Vol. 28,
+c
+3 erty
+Ae (C8 +80:02")
+4
+32
+61762
+Fes
+= (—301°C2+02%)
+G14
+* (3014+1261202? +8Ce4)
+615Ce
+— <= (30196? + 261028)
+cs2Ce2
+Te (Blt +BaP
++2)
+G1
+2 cf01
+46(2015+50152? + 501024)
+C1402
+= cle
+* (—40140
+2— 01702+ C25)
+61302"
+7 effi
+= (C15—4018092 —CiCo4)
+G1
+= (5518+30014C22 +400120o4 + 16025)
+C18Ce
+— Re (ABCC + 206°C + BEE)
+C1402"
+i=(601+1501402? +20017024 + 802°)
+61528
+—as(6619C2 +1501902? +60102")
+ti"
+6st
+Sapp (— MG + 278CAP at + OBEN
++ B1BCACs9)
+61°C2
+Zz cle
+san(—21961802—185014628+15617C2° +4572”)
+6152"
+a e801
+sors (1801?—8101°C2? —25615004+50102°)
+61428
+= c%C2
+sais(876182—185014029—15017025 +1902”)
+G18
+ae(35018 + 28001%C2? + 560014024 +4487
+126 28 +128728)
+C1702
+—sie(350172 +70615028 +40618C05+166102")
+C12?
+Spe(OEEBBCP + TOC Ast +BCR!+1664)
+C1808
+— are (LOE Sa + BBLISCAE AAA
++ BEES
+Coho
+ye (BCP +OBE a2 + BOCA + 2BEL*C+ BE)
+References
+AXKSNES, K. 1970, Astr. J., 75, 1066.
+BRouWER, D. 1959, Astr. J., 64, 378.
+Brouweek, D., and Hori, G. 1961, Astr. J., 66, 193.
+© Astronomical Society of
+Japan ¢ Provided by the NASA Astrophysics Data System
+1971PASJ...23..567H
+No. 4]
+General Perturbations for Non-Canonical Systems
+587
+BREEDLOVE, J. 1969, Ph. D. Thesis, Yale University.
+CuHol, J.S. 1970, private communication.
+DEPRIT, A. 1969, Celest. Mech. 1, 12.
+Hor!l, G. 1966, Pnbl. Astr. Soc. Japan, 18, 287.
+KAMEL, A. A. 1970, Celest. Mech., 3, 90.
+KAMEL, A. A. 1971, Celest. Mech., to be published.
+Kozal, Y. 1962, Astr. J., 67, 446.
+LANE, M.H. 1965, Am. Inst. Aeronaut. Astronaut. Paper, No. 65-35.
+LIE, S. 1888, Theorie der Transformationgruppen, I (Teubner, Leipzig), chap. 1.
+VON ZEIPEL, H. 1916, Ark. Astr. Mat. Fys., 11, No. 1.
+© Astronomical Society of
+Japan ¢ Provided by the NASA Astrophysics Data System

@@ -1,0 +1,1471 @@
+Celestial Mechanics and Dynamical Astronomy       (2019) 131:45
+https://doi.org/10.1007/s10569-019-9923-3
+
+ORIGINAL ARTICLE
+
+
+
+Analytic orbit theory with any arbitrary spherical harmonic
+as the dominant perturbation
+
+Bharat Mahajan1           · Kyle T. Alfriend1
+
+Received: 1 April 2019 / Revised: 24 August 2019 / Accepted: 28 August 2019
+© Springer Nature B.V. 2019
+
+
+
+Abstract
+In the gravitational potential of Earth, the oblateness term is the dominant perturbation, with
+its coefficient at least three orders of magnitude greater than that of any other zonal or tesseral
+spherical harmonic. Therefore, analytic orbit theories (or satellite theories) are developed
+using the Keplerian Hamiltonian as the unperturbed solution, oblateness term as the first-order
+and the remaining spherical harmonics as the second-order perturbations. These orbit theories
+are generally constructed by applying multiple near-identity canonical transformations to
+the perturbed Hamiltonian in conjunction with averaging to obtain a secular Hamiltonian,
+from which the short-period and long-period terms are removed. If the oblateness term is
+the only first-order perturbation, then the long-period terms appear only in the second- or
+higher-order terms of the single-averaged Hamiltonian, from which the short-period terms
+are removed. These second-order long-period terms are separated from the Hamiltonian
+by the first-order generating function using a second canonical transformation. This results
+in a secular Hamiltonian dependent only on the momenta. However, in the case of other
+gravitational bodies with more deformed shapes compared to Earth such as moons and
+asteroids, the oblateness coefficient may have the same order of magnitude as some of the
+higher spherical harmonic coefficients. If these higher harmonics are treated as the first-order
+perturbation along with the oblateness term, then the long-period terms appear in the first-
+order single-averaged Hamiltonian. These first-order long-period terms cannot be separated
+using the generating function in the conventional way. This problem occurs because the
+zeroth-order Hamiltonian, i.e., the Keplerian part, is degenerate in the angular momentum.
+In this paper, a new approach to the long-period transformation is proposed to resolve this
+issue and obtain a fully analytic orbit theory when for the perturbing gravitational body,
+any arbitrary zonal or tesseral harmonic is the dominant perturbation. The proposed theory
+is closed form in the eccentricity as well. It is applied to predict the motion of artificial
+satellites for the two test cases: a lunar orbiter and a satellite of 433 Eros asteroid. The
+prediction accuracy is validated against the numerical propagation using a force model with
+6 × 6 gravity field.
+
+
+
+This article is part of the topical collection on 50 years of Celestial Mechanics and Dynamical Astronomy
+Guest Editors: Editorial Committee.
+
+B Bharat Mahajan
+    prince@tamu.edu
+1   Department of Aerospace Engineering, Texas A&M University, College Station, TX 77843-3141, USA
+
+
+                                            0123456789().: V,-vol                              123
+ 45   Page 2 of 25                                                       B. Mahajan, K. T. Alfriend
+
+
+Keywords Orbit theory · Artificial satellite theory · Zonal harmonics · Tesseral harmonics ·
+Canonical perturbation methods · Lunar orbiter · 433 Eros
+
+
+1 Introduction
+
+The beginning of the space age generated numerous analytic orbit theories for estimating
+the orbits of space objects (Mahajan 2018). Brouwer (1959) used von Zeipel’s method to
+obtain a perturbation solution to the artificial satellite problem including the zonal harmonics
+from J2 to J5 of the geopotential. His theory includes the secular terms up to second order
+and short-period and long-period terms up to first order. In contrast, Vinti (1959) obtained
+a closed-form solution using the spheroidal coordinates for the motion of an object about
+an oblate spheroid. Garfinkel (1959) also obtained a closed-form solution of a modified
+geopotential that included a portion of the oblateness potential. Kozai (1959) developed a
+similar theory to that of Brouwer by separating the secular, short-period, and long-period
+terms from the disturbing potential and then computed the variations of the orbital elements
+using Lagrange’s planetary equations. Of these, Brouwer’s theory with the addition of the
+atmospheric drag effects emerged as the basis for orbit prediction in the USA and maintaining
+the space object catalog.
+    von Zeipel’s method of performing canonical transformations suffer from a drawback of
+producing mixed-term generating functions. First Hori (1966) and then Deprit (1969) pro-
+posed the use of near-identity transformations for constructing the canonical transformations,
+which avoids the limitations of von Zeipel’s method. Subsequently, many special canonical
+transformations (Deprit 1981a; Alfriend and Coffey 1984; Coffey and Alfriend 1981) were
+proposed to transform the Hamiltonian in a simplified form suitable for further normaliza-
+tion. Using these transformations, the orbit theories for the artificial satellites of Earth have
+been constructed up to third and higher orders with the oblateness term considered as the
+first-order perturbation (Deprit 1981b; Coffey and Deprit 1982; Kudryavtsev 1995; Kinoshita
+1978).
+    In the geopotential, the oblateness coefficient (J2 ) is of O (10−3 ) and all the other coef-
+ficients have magnitudes of O (J22 ) or smaller. Therefore, the perturbation solutions are
+generally developed in powers of J2 with the oblateness term as the first-order perturbation
+and the rest of the harmonics treated at the second order. When using the canonical perturba-
+tion methods, the short-period averaging of the original Hamiltonian produces long-period
+terms, which are dependent on the argument of periapsis, in the new averaged Hamiltonian.
+These long-period terms occur for all the spherical harmonics included in the original Hamil-
+tonian except for the oblateness term. As a result, these long-period terms first appear at the
+second order and because the Keplerian Hamiltonian is degenerate in the angular momen-
+tum, these second-order terms are eliminated from the single-averaged Hamiltonian using
+the first-order term of the long-period generating function.
+    However, a problem occurs when any of the higher harmonic coefficients are of O (J2 )
+and must be treated as first-order perturbations. Then, the corresponding long-period terms
+appear at the first order in the single-averaged Hamiltonian and they cannot be separated from
+it using a long-period transformation in the conventional way. This is due to the fact that the
+zeroth-order (Keplerian) Hamiltonian is degenerate in the angular momentum, and thus, no
+partials of the generating function with respect to the argument of periapsis are available to
+eliminate the first-order long-period terms. As a result, the long-period transformation does
+not result in a Hamiltonian that is a function of only the momenta; consequently, one does
+
+
+123
+Analytic orbit theory with any arbitrary spherical harmonic                  Page 3 of 25   45
+
+
+not obtain a set of mean elements having only secular rates. In this paper, a novel approach
+is developed for addressing this problem and obtaining a secular Hamiltonian resulting in
+coordinates that are completely secular or in other words vary linearly with time. The proposed
+approach can be implemented using a two-step averaging process. The first step is the standard
+averaging process for the short-period terms for an arbitrary zonal or tesseral harmonic using
+the Keplerian Hamiltonian as the zeroth-order Hamiltonian, carried out to the desired order.
+In this work, the short-period averaging is, in fact, performed separately for the zonal and
+tesseral harmonics. The result is a new Hamiltonian that does not depend on the true or mean
+anomaly. Then, in the second step, the secular portion of this Hamiltonian with contributions
+from all the spherical harmonics considered is chosen as the new zeroth-order Hamiltonian.
+The remaining long-period part of the Hamiltonian is treated as the perturbation. This new
+zeroth-order non-Keplerian Hamiltonian is non-degenerate in the angular momentum, and
+the long-period averaging process can now be used successfully to separate the long-period
+terms.
+   The following sections present the complete mathematical development of a first-order
+orbit theory using a complete gravitational potential with all the zonal, sectorial, and tesseral
+harmonics considered as the dominant perturbations. The short-period terms due to the sec-
+torial and tesseral harmonics are eliminated first from the Hamiltonian in Sect. 3. This
+is followed by another transformation for separating the zonal short-period terms due to
+the zonal harmonics. In Sect. 4, the long-period terms are separated from the averaged
+Hamiltonian obtained in the previous section in order to completely normalize the original
+Hamiltonian. The formulae for the averaged Hamiltonians and the corresponding generating
+functions are derived in a generalized form, which makes them valid for any arbitrary spher-
+ical harmonic. Section 5 applies the proposed theory to the motion of a lunar orbiter and a
+satellite of 433 Eros asteroid, followed by conclusions in Sect. 6.
+
+
+2 Preliminaries
+
+The Hamiltonian for a perturbed Keplerian orbit may be expressed in the form of a power
+series as
+                                                           n
+                                          H = H0 +                   Hn ,                    (1)
+                                                                n!
+                                                          n=1
+where H0 is the zeroth-order Keplerian part, Hn is the perturbation term of order n, and 
+is the formal parameter used to separate the perturbation terms according to their respective
+order.  is set to unity in the final results. The methodology for the Delaunay normalization of
+the above Hamiltonian using the Lie-transform-based methods (Deprit 1969; Kamel 1969)
+rather than the von Zeipel’s method originally used by Brouwer (1959) is given here for com-
+pletion. The normalization is carried out by using a near-identity canonical transformation
+from the original canonical variables (x, X) to the new canonical variables (y, Y). The new
+Hamiltonian K dependent on (y, Y), sometimes referred to as Kamiltonian, may also be
+expressed as a power series as shown below:
+                                                        n 
+                          K (y, Y) = K0 (y, Y) +                Kn (y, Y).                   (2)
+                                                           n!
+                                                              n=1
+It is noted that the lower-case and upper-case canonical variables represent the coordinates
+and momenta, respectively, with boldface indicating vector quantities. The homological equa-
+
+                                                                                      123
+ 45   Page 4 of 25                                                                   B. Mahajan, K. T. Alfriend
+
+
+tions relate the old and new Hamiltonian terms and are given below up to second order
+(Deprit 1969):
+
+
+                     K0 = H0 ,                                                                                (3)
+                                            ∂ W1
+                     K1 = (H0 , W1 ) + H1 −      ,                                                            (4)
+                                             ∂t
+                                                                                 ∂ W2
+                     K2 = H2 + (H1 + K1 , W1 ) + (H0 , W2 ) −                         ,                       (5)
+                                                                                  ∂t
+where (−, −) represents Poisson bracket, which is defined with respect to the canonical
+variables (y, Y) as
+
+                                                    T                    T
+                                       ∂A       ∂B            ∂A       ∂B
+                           (A, B) =                       −                      .
+                                       ∂y       ∂Y            ∂Y       ∂y
+
+The superscript T denotes the transpose operator. The old and new variables are related
+through the following near-identity canonical transformations:
+
+
+                                   2                         
+                 x = y + (y, W1 ) +   (y, (y, W1 )) + (y, W2 ) + O ( 3 ),                                   (6)
+                                   2!
+                                    2
+                X = Y + (Y, W1 ) +     [(Y, (Y, W1 )) + (Y, W2 )] + O ( 3 ).                                (7)
+                                    2!
+The new variables can also be expressed in terms of the old variables using the inverse
+transformation equations
+
+
+                                   2
+                 y = x − (x, W1 ) +  [(x, (x, W1 )) − (x, W2 )] + O ( 3 ),                                  (8)
+                                   2!
+                                    2
+                Y = X − (X, W1 ) +    [(X, (X, W1 )) − (X, W2 )] + O ( 3 ).                                 (9)
+                                    2!
+It is noted that the generating function, W , is a function of (y,Y) and (x,X) in Eqs. (6–7) and
+(8–9), respectively.
+    In order to perform the Delaunay normalization of the gravitational potential using the
+canonical transformations, it needs to be first expressed in terms of the canonical variables.
+The Delaunay elements are used in this work, which are defined as
+
+                                                                        √
+                        l = M,                                     L=        μa,
+                       g = ω,                                      G = Lη,                                  (10)
+                       h = ,                                      H = G cos i,
+           √
+where η = 1 − e2 and the conventional notation is used for the classical orbital elements.
+The gravitational potential, in spherical coordinates with the zonal, sectorial, and tesseral
+spherical harmonics included, is (Kaula 1966)
+
+123
+Analytic orbit theory with any arbitrary spherical harmonic                   Page 5 of 25   45
+
+                           ∞      n
+                    μ              Re
+               V =−     1−     Jn         Pn (sin φ)
+                    r               r
+                           n=2
+                    ∞   n                                            
+                            Re n
+                  +                Pnm (sin φ) (Cnm cos mλ + Snm sin mλ) ,                   (11)
+                             r
+                         n=2 m=1
+
+where μ is the gravitational parameter, Re is the representative radius for the gravitational
+body under consideration, (r , φ, λ) are the radius, latitude, and longitude of the artificial
+satellite, and Pn and Pnm are the Legendre functions of the first kind and associated Legendre
+functions, respectively. The spherical harmonic degree and order are represented by n and
+m, respectively. Using a mix of the classical and Delaunay elements, the perturbation part
+of the above potential for an arbitrary spherical harmonic of degree n and order m can be
+written as (Kaula 1966)
+
+                               μRen 
+                                        p=n
+                     Vnm =            Fnmp (i) [C S1 cos( ) + C S2 sin( )] ,                 (12)
+                               r n+1
+                                        p=0
+
+where
+
+                                        ≡ (n − 2 p)( f + g) + m(h − θ ),
+
+
+
+                                              Cnm         if n − m is even
+                                 C S1 =
+                                              −Snm        if n − m is odd,
+
+
+                                                 Snm     if n − m is even
+                                  C S2 =
+                                                 Cnm     if n − m is odd,
+
+and θ represents the sidereal time, a measure of the central body’s rotation. The inclination
+function Fnmp (i) is given by (Yan et al. 2014; Emeljanov and Kanter 1989)
+
+
+                                    E        (n + m)!
+                                         n−m+1                   2n−2 p)
+                                                         j=min(n−m,
+                Fnmp (i) =(−1)             2
+                                                                            (−1) j
+                                           2n p!(n − p)!
+                                                          j=max(n−2 p−m, 0)
+                                                                        
+                                 2n − 2 p        2p                  i         i
+                              ×                           cos2n−s      sins        ,         (13)
+                                    j        n−m− j                 2          2
+where s = m − n + 2 p + 2 j and E() represents the integer part function.
+   For Earth, the oblateness coefficient J2 (= −C20 ) ≈ 0.00108, Jn (= −Cn0 ) is of O (J22 )
+for n > 2, and Cnm /Snm is of O (J22 ) for n ≥ 2, m = 1, . . . , n. However, this may not be true
+for the gravitational bodies with more deformed shapes. To address this type of scenarios in
+a general manner, all the spherical harmonic terms are considered to be of the same order of
+magnitude in this paper and are collected in the first-order Hamiltonian term H1 of Eq. 1 to
+obtain the complete Hamiltonian as
+
+                                              H = H0 +  H1 ,                                (14)
+
+                                                                                       123
+ 45   Page 6 of 25                                                         B. Mahajan, K. T. Alfriend
+
+
+where
+
+                                               μ2
+                                     H0 = −         ,
+                                               2L 2
+                                               ∞    n
+                                     H1 = −                 Vnm .
+                                                n=2 m=0
+
+It is noted that the minus sign in H0 and H1 is due to the adopted convention of considering
+the Delaunay angle elements as the first three coordinates and the action elements as the last
+three.
+
+
+3 Short-period averaging
+
+For a first-order theory, there is no coupling among any of the zonal, sectorial, and tesseral
+harmonics. As a result, the complete Delaunay normalization of the Hamiltonian H as given
+in Eq. (14) can be performed using the three separate transformations. First, the short-period
+terms due to zonals and tesserals are separated from H using two transformations, and
+then, the long-period terms are separated using the long-period transformation to obtain a
+completely secular Hamiltonian. In this section, the two transformations for separating all
+the short-period terms from H are derived.
+Tesseral short-period averaging The short-period effects due to the sectorial and tesseral
+harmonics are first eliminated from H by constructing a new Hamiltonian K , which consists
+of all the zonal harmonic terms in addition to the Keplerian part. It is assumed in the present
+work that no resonant long-period or secular effects exist due to any of the sectorial or tesseral
+harmonics. The homological equations up to first order given in Eqs. (3–4), relating the old
+and the new Hamiltonians, are
+
+
+                                K0 = H0 ,                                                         (15)
+                                                       ∂ W1
+                                K1 = (H0 , W1 ) + H1 −      .                                     (16)
+                                                        ∂t
+
+In the preceding equations, K1 is chosen to consist of all the zonal harmonics (for which
+m = 0) present in H1 from Eq. (14) as shown below:
+                                      ∞
+                                       μR n 
+                                             p=n
+                                               e
+                               K1 =                       Fn0 p (i)Jn A,                          (17)
+                                            r n+1
+                                      n=2           p=0
+
+where
+
+
+                                 cos((n − 2 p)( f + g)) if n is even
+                          A=                                                                      (18)
+                                 sin((n − 2 p)( f + g)) if n is odd,
+
+and Jn = −Cn0 . By substituting the preceding expression for K1 in the first-order homolog-
+ical equation in Eq. (16), the following partial differential equation (PDE) is obtained:
+
+123
+Analytic orbit theory with any arbitrary spherical harmonic                      Page 7 of 25   45
+
+
+                                                            ∞   n
+                                        ∂ W1      ∂ W1
+                                  −ñ        − wE      =    Vnm ,                               (19)
+                                         ∂l        ∂θ
+                                                              n=2 m=1
+
+where
+
+                                                     ∂ H0  μ2
+                                              ñ =        = 3,
+                                                      ∂L   L
+                                                 ∂    1 ∂
+                                                   =        ,
+                                                ∂θ   w E ∂t
+and w E is the angular velocity of the central body. This PDE must be solved in order to
+compute the first-order short-period generating function, W1 , for the tesseral and sectorial
+harmonics. A closed-form solution of the above PDE is not known to exist (Segerman and
+Coffey 2000). However, an exact solution, expressed in terms of two quadratures, is obtained
+by Mahajan et al. (2018) by using the method of characteristics. This solution, as follows, is
+used in the present work:
+
+                      ∞
+                                          p=n
+                              μRen                              nmp        nmp
+           W1 = −                          Fnmp (i) C S1 {cos(β)I1 − sin(β)I2 }
+                         ñ a η
+                             n+1  2n−1
+                    n=2                p=0
+                                   nmp           nmp 
+                   +C S2 {cos(β)I2 + sin(β)I1 } + F(θ − δ l, a, e, i, h, g),                    (20)
+where
+                                   β ≡ (n − 2 p)g + m(h − θ + δ l),                             (21)
+                       nmp
+                      I1      ≡     cos((n − 2 p) f − mδ l)(1 + e cos f )n−1 d f ,              (22)
+
+                        nmp
+                      I2      ≡     sin((n − 2 p) f − mδ l)(1 + e cos f )n−1 d f ,              (23)
+
+and δ is defined as the ratio of w E and ñ. Using W1 , the first-order short-period variations
+due to sectorial and tesseral harmonics can be computed by evaluating the Poisson brackets
+of the generating function with the canonical elements as shown in Eqs. (6–9). The results
+for the first-order short-period variations of the Delaunay elements due to the sectorial and
+tesseral harmonics are
+
+                                                   2               
+                                   2L ∂ W1             η    ∂ W1     −G ∂ W1
+                   l = (l, W1 ) =               +                +               ,              (24)
+                                    μ      ∂a         eL     ∂e      L2      ∂η
+                                   2                                    
+                                    −η      ∂ W1         1 ∂ W1       cos i     ∂ W1
+                  g = (g, W1 ) =                  +              +                   ,          (25)
+                                    eG       ∂e          L    ∂η     G sin i     ∂i
+                                           
+                                      −1       ∂ W1
+                  h = (h, W1 ) =                     ,                                          (26)
+                                    G sin i     ∂i
+                                              
+                                    ∂ W1        d f ∂ W1
+                  L = (L, W1 ) = −        −                 ,                                   (27)
+                                     ∂l          dl      ∂f
+                                    ∂ W1
+                  G = (G, W1 ) = −        ,                                                     (28)
+                                     ∂g
+                                     ∂ W1
+                  H = (H , W1 ) = −       ,                                                     (29)
+                                      ∂h
+
+                                                                                          123
+ 45   Page 8 of 25                                                             B. Mahajan, K. T. Alfriend
+
+where on the left hand side of the above equations indicates that these are short-period
+variations that must be added to the corresponding elements, whose time variations are
+determined by K , in order to recover the osculating elements. The following partials of the
+                  nmp       nmp
+two quadratures, I1 and I2 , are needed to compute the partials of W1 in the preceding
+equations:
+                     nmp
+                ∂ I1              dδ
+                           =m            l sin((n − 2 p) f − mδ l)(1 + e cos f )n−1 d f ,             (30)
+                  ∂a              da
+                 nmp
+               ∂ I2                dδ
+                           = −m          l cos((n − 2 p) f − mδ l)(1 + e cos f )n−1 d f ,             (31)
+                 ∂a                da
+
+
+          nmp                
+        ∂ I1      1          −3e(n − 1)                  (−(n − 1) + 4 p)
+                = 2                        cos(α( f )) +                   cos(α( f ) − f )
+          ∂e     η                2                              2
+                        ((3n + 1) − 4 p)                     e(2 p + 1)
+                      +                   cos(α( f ) + f ) +            cos(α( f ) − 2 f )
+                               2                                 4
+                        e(2n − 2 p + 1)
+                      +                  cos(α( f ) + 2 f ) (1 + e cos f )n−1 d f ,                   (32)
+                               4
+
+
+          nmp                
+        ∂ I2       1         −3e(n − 1)                  (−(n − 1) + 4 p)
+                 = 2                       sin(α( f )) +                   sin(α( f ) − f )
+          ∂e      η               2                              2
+                        ((3n + 1) − 4 p)                     e(2 p + 1)
+                      +                   sin(α( f ) + f ) +            sin(α( f ) − 2 f )
+                               2                                 4
+                        e(2n − 2 p + 1)
+                      +                  sin(α( f ) + 2 f ) (1 + e cos f )n−1 d f ,                   (33)
+                               4
+
+where
+
+                                        α( f ) ≡ (n − 2 p) f − mδ l,                                  (34)
+
+                             nmp
+                           ∂ I1
+                                   = cos((n − 2 p) f − mδ l)(1 + e cos f )n−1 ,                       (35)
+                             ∂f
+                             nmp
+                           ∂ I2
+                                   = sin((n − 2 p) f − mδ l)(1 + e cos f )n−1 .                       (36)
+                             ∂f
+
+The integrals in the preceding equations can be evaluated using series expansions in terms of
+either the eccentricity or the ratio of ñ and w E . They can also be computed very accurately
+using the numerical quadrature methods (Mahajan et al. 2018).
+Zonal short-period averaging The Hamiltonian K , obtained in the preceding subsection,
+consists of only the zonal harmonic perturbations in addition to the two-body term. If the
+secular or long-period effects due to resonant tesseral harmonics are known, they can also be
+included in K . However, in the present work these effects are ignored. For the zonal short-
+period transformation, it is noted that K is not a function of time. Therefore, the homological
+equations relating K to the new Hamiltonian K¯ [see Eqs. (3–5)] reduce to
+
+123
+Analytic orbit theory with any arbitrary spherical harmonic                                 Page 9 of 25   45
+
+
+                                K¯0 = K0 ,                                                                 (37)
+                                K¯1 = (K0 , W¯1 ) + K1 ,                                                   (38)
+                                K¯2 = K2 + (K¯1 + K1 , W¯1 ) + (K0 , W¯2 ),                                (39)
+where K¯ is chosen to consist of only the momenta and the long-period terms dependent
+on g. W¯ is the short-period generating function for the zonal harmonics. To obtain K¯1 , the
+average of K1 is computed with respect to l over the range (0, 2π). The powers of the cosine
+function introduced by the inverse powers of r in K1 can be converted into a form suitable
+for integration using the following formulae (Gradshteyn and Ryzhik 2014):
+
+                                                        n+1 
+                                                                
+                                                              n+1
+                               (1 + e cos f )n+1
+                                                   =                    es coss f ,                        (40)
+                                                                s
+                                                        s=0
+
+                                  ⎧                                   ⎫
+                                  ⎪
+                                  ⎨    2  
+                                     s−1                           ⎪
+                               1          s                     λs s ⎬
+                     coss f = s−1             cos((s − 2k) f ) +        ,                                  (41)
+                             2    ⎪
+                                  ⎩        k                     2 2s ⎪
+                                                                      ⎭
+                                           k=0
+
+where λs is defined as
+                                                   
+                                                       1 if s is even
+                                           λs =                                                            (42)
+                                                       0 if s is odd,
+and   represents the floor function. K is a function of the true anomaly, and in order to
+average it with respect to the mean anomaly, the following Keplerian relation between the
+true and mean anomalies is also needed:
+
+                                                          r2
+                                                 dl =        df.                                           (43)
+                                                         a2η
+By using the preceding relationship and the trigonometric identities, the following integral
+is obtained, which must be evaluated to obtain K¯1 :
+
+                                  ∞
+                               2π        μRen Jn 
+                                                       p=n                        2
+                      1                                                     n+1 r
+            K¯1 =                                   Fn0 p (i)A(1 + e cos f )        df,
+                     2π    0            a n+1 η2n+2                            a2η
+                                  n=2                  p=0
+                                  ∞
+                               2π                              n−1       
+                                        μRen Jn                
+                                                  p=n
+                      1                                               n − 1 es
+                 =                                    Fn0 p (i)
+                     2π    0          a n+1 η2n−1                       s    2s
+                                  n=2             p=0           s=0
+                          ⎧                      ⎫
+                          ⎪  2  
+                            s−1
+                          ⎨                  ⎪
+                                                 ⎬
+                                 s            s
+                      ×                B + λs s A d f ,                                                    (44)
+                          ⎪
+                          ⎩ k=0      k        2
+                                                 ⎪
+                                                 ⎭
+
+where
+                   ⎧
+                   ⎪
+                   ⎪ cos((n − 2 p − (s − 2k)) f + (n − 2 p)g)
+                   ⎪
+                   ⎨+ cos((n − 2 p + s − 2k) f + (n − 2 p)g)                          if n is even
+                B=
+                   ⎪
+                   ⎪ sin((n − 2 p + s − 2k) f + (n − 2 p)g)
+                   ⎪
+                   ⎩
+                     + sin((n − 2 p − (s − 2k)) f + (n − 2 p)g)                       if n is odd.
+
+                                                                                                     123
+ 45   Page 10 of 25                                                                                    B. Mahajan, K. T. Alfriend
+
+
+The preceding integration can be performed by retaining only those terms in K¯1 from K1 that
+do not depend on f . These terms are obtained when any of the three conditions: n − 2 p = 0,
+0 ≤ k = (n − 2 p + s)/2 ≤ (s − 1)/2, and 0 ≤ k = (s − (n − 2 p))/2 ≤ (s − 1)/2, is
+true. Therefore, the new Hamiltonian may be chosen as
+                   ∞                        n−1 
+                                                                    
+                         μRen Jn                    n − 1 es          s
+            K¯1 =                   F   n (i)
+                                     n0 2                      λn λs
+                       a η
+                        n+1  2n−1                     s    2 s        s
+                                                                      2
+                      n=2                                        s=0
+                        
+                        p=n               n−1 
+                                                                  
+                                                n − 1 es    s          s
+                      +         Fn0 p (i)                δk   C + δk     C ,                                                  (45)
+                                                  s   2s    k         k
+                          p=0             s=0
+
+where                                                      
+                                                               1 if n is even
+                                             λn =
+                                                               0 if n is odd,
+
+                                                   1           if k (k ) ≤ (s − 1)/2
+                                δk (k ) ≡
+                                                   0           otherwise,
+
+                                                      n − 2p + s
+                                                  k =             ,
+                                                           2
+                                                      s − (n − 2 p)
+                                                  k =               ,
+                                                            2
+
+                                          cos((n − 2 p)g)                      if n is even
+                                 C=
+                                          sin((n − 2 p)g)                      if n is odd.
+The above result provides a generalized expression for the short-period averaged Hamiltonian
+valid for an arbitrary zonal or tesseral harmonic, assuming no resonance effects due to any of
+the tesseral harmonics. Next, the homological equation given in Eq. (38) is solved to obtain
+the short-period generating function as shown below:
+                                         1                             
+                            W¯1 = − ∂ K                    K¯1 − K1 dl,
+                                              0
+                                         ∂L
+                                                                                              
+                                     1                                               r2
+                                = − ∂K                K¯1 (l − f ) −             K1 2 d f          ,                          (46)
+                                              0
+                                                                               p   a η
+                                         ∂L
+where the subscript p indicates that the integration is performed only for the periodic terms
+of the integrand. Using the definition of K¯1 and evaluating the preceding equation, W¯1 is
+obtained as
+                  −L 3 ¯
+          W¯1 =       K1 (l − f )
+                  μ2
+                    ∞
+                                 p=n           n−1             
+                       μn Ren Jn                    n − 1 es     s
+                  +                    Fn0 p (i)                λs s D
+                         G 2n−1                         s    2s    2
+                      n=2                  p=0                         s=0
+                                          p =n/2
+
+                                        n−1         2                                  2               
+                                                                        s−1
+                                                                                            s−1
+                      
+                      p=n                    n − 1 es      s                                          s
+                  +         Fn0 p (i)                                                E +                   E          ,       (47)
+                                                       s         2s              k                       k
+                      p=0               s=0                             k=0                    k=0
+                                                                        k =k                  k =k
+
+
+123
+Analytic orbit theory with any arbitrary spherical harmonic                       Page 11 of 25   45
+
+where
+
+
+                          D=         Adf,
+
+                                    n−2 p sin((n − 2 p)( f + g))
+                                      1
+                                                                   if n is even
+                              =      −1
+                                    n−2 p cos((n − 2 p)( f + g))   if n is odd,
+
+                ⎧
+                ⎨ n−2 p+(s−2k)
+                        1
+                               sin((n − 2 p + (s − 2k)) f + (n − 2 p)g)            if n is even
+        E =
+                ⎩        −1
+                    n−2 p+(s−2k) cos((n − 2 p + (s − 2k)) f + (n − 2 p)g)          if n is odd,
+
+                ⎧
+                ⎨ n−2 p−(s−2k)
+                        1
+                               sin((n − 2 p − (s − 2k)) f + (n − 2 p)g)            if n is even
+        E =
+                ⎩        −1
+                    n−2 p−(s−2k) cos((n − 2 p − (s − 2k)) f + (n − 2 p)g)          if n is odd.
+It is noted that the preceding results provide new closed-form generalized expressions for
+the first-order short-period averaged Hamiltonian in Eq. (45) and the first-order short-period
+generating function in Eq. (47) valid for an arbitrary zonal harmonic. These expressions
+are derived differently from the previous work done by De Saedeleer (2005) and arguably
+provide more compact representations.
+    The Hamiltonian, K¯ , obtained after the short-period averaging is a function of the
+elements, which exhibit secular and long-period variations, and are equivalent to the single-
+primed elements of Brouwer (1959). In this work, primes or overbars to indicate mean
+elements are omitted for notational convenience. The osculating elements can be recovered
+from these elements by adding to them the short-period variations due to the zonal and tesseral
+harmonics. Considering Eqs. (6–7), the first-order short-period variations due to the zonal
+harmonics are obtained by evaluating the Poisson bracket of these elements with W¯1 . The
+results for the Delaunay elements are as given below:
+                                                      2              
+                                                ¯            ∂ W¯1     −G ∂ W¯1
+                         ¯ W¯1 ) = 2L ∂ W1 + η
+                   l¯ = (l,                                        +               ,        (48)
+                                      μ       ∂a         eL   ∂e       L2      ∂η
+                                     2                                    
+                                      −η       ∂ W¯1       1 ∂ W¯1      cos i     ∂ W¯1
+                  ḡ = (ḡ, W¯1 ) =                  +             +                    ,   (49)
+                                      eG        ∂e         L   ∂η      G sin i     ∂i
+                                              
+                                        −1        ∂ W¯1
+                  h̄ = (h̄, W¯1 ) =                     ,                                   (50)
+                                      G sin i      ∂i
+                                                 
+                                      ∂ W¯1        d f ∂ W¯1
+                 L̄ = ( L̄, W¯1 ) = −        −               ,                              (51)
+                                       ∂l           dl    ∂f
+                                      ∂ W¯1
+                 Ḡ = (Ḡ, W¯1 ) = −         ,                                              (52)
+                                       ∂g
+                                       ∂ W¯1
+                H̄ = ( H̄ , W¯1 ) = −        ,                                              (53)
+                                        ∂h
+where and the overbar on the left hand side of the above equations indicate that these are
+short-period variations that must be added to the corresponding elements, whose time varia-
+tions are determined by K¯ , in order to recover the tesseral short-period averaged elements.
+    The application of the two short-period transformations sequentially, first for the sectorial
+and tesseral harmonics and then for the zonal harmonics, provides the benefit of including
+
+                                                                                            123
+ 45     Page 12 of 25                                                             B. Mahajan, K. T. Alfriend
+
+
+some of the coupling effects indirectly, which would not be possible in the case of a single
+combined transformation. This is because when computing the osculating elements from
+the mean elements, the zonal short-period transformation is applied first and then the result-
+ing elements are transformed into the osculating elements using the tesseral short-period
+transformation.
+
+4 Long-period averaging
+
+The long-period terms present in the short-period averaged Hamiltonian, K¯ , are separated
+in this section in order to obtain a completely secular Hamiltonian, K¯¯ . The conventional
+way of performing the long-period transformation follows the same approach as used in case
+of the short-period transformations. The original homological equations given in Eqs. (3–5)
+simplify for this case to
+
+                         K¯¯ 0 = K¯0 ,                                                                   (54)
+                         K¯¯ 1 = (K¯0 , W¯¯ 1 ) + K¯1 ,                                                  (55)
+                         K¯¯ 2 = K¯2 + (K¯¯ 1 + K¯1 , W¯¯ 1 ) + (K¯0 , W¯¯ 2 ).                          (56)
+The unperturbed Keplerian Hamiltonian, K¯0 , is degenerate in the angular momentum (G),
+and the long-period generating function, W¯¯ , is not a function of l; therefore, the preceding
+equations further simplify to
+
+                                    K¯¯ 0 = K¯0 ,                                                        (57)
+                                    K¯¯ 1 = K¯1 ,                                                        (58)
+                                    K¯¯ 2 = K¯2 + 2(K¯1 , W¯¯ 1 ).                                       (59)
+
+If the long-period terms are present in K¯1 , then these cannot be eliminated from K¯¯ 1 as evident
+in the preceding equations. The second zonal harmonic does not produce any long-period
+term when averaged with respect to the mean anomaly. Therefore, if J2 is the only first-order
+perturbation in H1 , a completely secular Hamiltonian can still be obtained (Brouwer 1959).
+However, this is not possible if an arbitrary spherical harmonic other than J2 is dominant and
+needs to be included in H1 .
+    In order to obtain a secular Hamiltonian in these cases, the degeneracy of the zeroth-order
+Hamiltonian with respect to the angular momentum must be addressed. This degeneracy may
+be removed by reordering the terms in K¯ such that the zeroth-order term, K¯0 , includes the
+Keplerian part and the secular part of K¯1 from Eq. (45). That is, the short-period averaged
+Hamiltonian, K¯ , may be rewritten as
+                                   K¯ = K¯0 +  K¯1 + O ( 2 ),                                          (60)
+where
+                             ∞                          n−1 
+                                                                             
+                      μ2            μRen Jn                    n − 1 es        s
+               K¯0 = −     +                   F   n (i)                  λ λ
+                                                                           n s s ,                       (61)
+                      2L 2       a n+1 η2n−1 n0 2                s     2s       2
+                             n=2                         s=0
+            ∞
+                          
+                           p=n           n−1 
+                                                      s                    
+                μR  nJ                         n −  1   e          s            s
+      K¯1 =         e  n
+                               Fn0 p (i)                     δk       C + δk      C .                    (62)
+              a n+1 η2n−1                        s      2s        k            k
+             n=2            p=0            s=0
+
+As before,  is a formal parameter, which is introduced only to separate the terms according
+to their respective order. K¯0 in the preceding equation is a non-Keplerian Hamiltonian, and
+
+123
+Analytic orbit theory with any arbitrary spherical harmonic                              Page 13 of 25   45
+
+
+therefore, the zeroth-order solution obtained is not a Keplerian ellipse. Only the even zonal
+harmonics contribute to K¯0 due to the presence of λn term. It is also noted that J2 has
+no long-period contributions to K¯1 . As a result, K¯1 = 0 if J2 is the only zonal harmonic
+considered and the first-order secular Hamiltonian K¯ for the main problem of artificial
+satellite is obtained. However, in the more general case, K¯1 is not zero and the long-period
+terms must be separated from it. Considering the new form of K¯ , the following homological
+equations are obtained up to second order:
+
+                            K¯¯ 0 = K¯0 ,                                                                (63)
+                            K¯¯ 1 = K¯1 + (K¯0 , W¯¯ 1 ),
+                                          ∂ K¯0 ∂ W¯¯ 1
+                                  = K¯1 −               ,                                                (64)
+                                           ∂G ∂ g
+                            K¯¯ 2 = K¯2 + (K¯¯ 1 + K¯1 , W¯¯ 1 ) + (K¯0 , W¯¯ 2 ),
+                                                                       ∂ K¯0 ∂ W¯¯ 2
+                                      = K¯2 + (K¯¯ 1 + K¯1 , W¯¯ 1 ) −               .                   (65)
+                                                                        ∂G ∂ g
+
+It is noted from Eqs. (61) and (62) that K¯1 is purely periodic and all the secular terms are in
+K¯0 . Therefore, K¯¯ 1 may be chosen to be equal to zero. The first-order long-period generating
+function for an arbitrary zonal harmonic is then computed from Eq. (64) as follows:
+
+             1
+  W¯¯ 1 =            K¯1 dg,
+            ∂ K¯0
+             ∂G
+               ∞                               n−1                      
+             1                               
+                                 p=n
+                        μRen Jn                      n − 1 es     s          s
+        =                            Fn0 p (i)                 δk   P + δk     P ,
+            ∂ K¯0      a η
+                        n+1 2n−1                       s   2 s    k         k
+             ∂G n=2                       p=0             s=0
+                                         p =n/2
+                                                                                                         (66)
+
+where
+
+                             P=           C dg,
+
+                                         (n−2 p) sin((n − 2 p)g)
+                                            1
+                                                                        if n is even
+                                  =        −1
+                                         (n−2 p) cos((n − 2 p)g)        if n is odd.
+
+It is noted that the critical inclination value is determined by equating the derivative of K¯0
+with respect to G to zero. Carrying out the differentiation of Eq. (61) with respect to G yields
+                                                                   
+            ∂ K¯0   ∂ K¯0         −η2            ∂ K¯0
+                                                 1    ∂ K¯0      cos i
+                  =                          +     +                      ,
+             ∂G      ∂e           eG             L∂η   ∂i       G sin i
+                      ∞                
+                                        n−1                   
+                             μRen Jn         1 n−1                s
+                    =                                    λn λs
+                          a n+1 Gη 2n−1      2 s   s              s
+                                                                  2
+                      n=2               s=0
+                                                                                        
+                                                                         cos i
+                     × (1 − 2n)es Fn0 n2 (i) − s es−2 η2 Fn0 n2 (i) + es        Fn0 n (i) ,              (67)
+                                                                          sin i     2
+
+
+
+
+                                                                                                   123
+ 45   Page 14 of 25                                                            B. Mahajan, K. T. Alfriend
+
+
+where
+
+                                         E   n−1(n)!         j=n
+                      Fn0 n2 (i) =(−1)        2
+                                                            (−1) j
+                                            2 ((n/2)!)
+                                             n        2
+                                                        j=0
+                                                                 
+                                       n   n                i          i
+                                    ×            cos2n−2 j     sin2 j     .
+                                       j n− j               2          2
+A single prime on the term Fn0 n2 (i) represents its derivative with respect to i. The preceding
+equations are completely free of singularities because of cancellations of the singular terms.
+The critical inclination value is found by equating Eq. (67) to zero. It is concluded from the
+preceding results that the critical inclination value in the presence of all the zonal harmonics
+depends on the eccentricity value in the general case. It is noted that W¯¯ 1 , in fact, has the
+magnitude of a zeroth-order term because of the presence of the critical inclination term [see
+Eq. (67)] in the denominator, which is a first-order term.
+    The first-order long-period variations are derived by evaluating the Poisson brackets
+  ¯                  ¯ are the mean elements. The results in the case of the Delaunay elements
+(X̄, W¯¯ 1 ), where X̄
+are
+                                  ¯               2 ¯               
+                                  2L ∂ W¯ 1           η   ∂ W¯ 1     −G ∂ W¯¯ 1
+                          l¯¯ =                  +               +               ,          (68)
+                                   μ      ∂a         eL    ∂e        L2      ∂η
+                                 2 ¯                ¯                    ¯
+                                  −η      ∂ W¯ 1        1 ∂ W¯ 1      cos i   ∂ W¯ 1
+                        ḡ¯ =                     +              +                   ,      (69)
+                                   eG       ∂e          L   ∂η       G sin i    ∂i
+                                          ¯¯
+                                     −1       ∂W 1
+                        h̄¯ =                      ,                                        (70)
+                                  G sin i      ∂i
+                                ∂ W¯¯ 1
+                       L̄¯ =            = 0,                                                (71)
+                                  ∂l
+                                ∂ W¯¯ 1    −1 ¯
+                       Ḡ¯ =            =        K1 ,                                       (72)
+                                 ∂g        ∂ K¯0
+                                         ∂G
+                              ∂ W¯¯ 1
+                      H̄¯ =    = 0.                                                    (73)
+                          ∂h
+The elements used in the right hand side of the preceding equations are the mean elements,
+which are similar to the double-primed elements of Brouwer (1959). The secular variations
+of these mean elements can be computed using Hamilton’s equations with K¯¯ as the secular
+Hamiltonian. The mean action elements are constants in time, and the constant secular rates
+of the angle elements for an arbitrary zonal harmonic of degree n are obtained from
+
+                           ˙ 2L ∂ K¯¯        η2 ∂ K¯¯   G ∂ K¯¯
+                         l¯¯ =           +            − 2       ,                                     (74)
+                                μ ∂a        eL ∂e      L ∂η
+                                2                                    
+                                 −η      ∂ K¯¯      1 ∂ K¯¯        cos i    ∂ K¯¯
+                       ḡ˙¯ =                  +            +                     ,                   (75)
+                                 eG       ∂e        L ∂η          G sin i    ∂i
+                                        
+                        ˙         −1        ∂ K¯¯
+                       h̄¯ =                      ,                                                   (76)
+                                 G sin i     ∂i
+where the double overbars on the right hand side of the equations are omitted again for
+notational convenience. By virtue of Eq. (63), the expression for ḡ˙¯ is given by Eq. (67).
+
+123
+Analytic orbit theory with any arbitrary spherical harmonic                        Page 15 of 25   45
+
+
+5 Applications
+
+The analytic orbit theory developed in the previous sections is applied to the motion of two
+artificial satellites: the first is a lunar orbiter, and the second orbits the asteroid 433 Eros.
+The unnormalized spherical harmonic coefficients of the Moon1 and 433 Eros2 are given in
+Tables 1 and 2. Inspection of the Moon’s coefficients shows that C20 has the largest magnitude
+followed by C31 , C22 , and C60 . The latter three are of the same order of magnitude and only
+one order of magnitude smaller than the former. In fact, the ratio of the magnitudes of C31
+to C20 is 0.14. For 433 Eros, C22 , S22 , C40 , and C60 are one order of magnitude smaller
+than the oblateness coefficient. The ratios of C40 to C20 and C22 to C20 are 0.33 and 0.45,
+respectively. In the case of Earth, C20 is at least three orders of magnitude larger than any
+other coefficient and the largest ratio of the magnitudes of any coefficient to that of C20 is
+only 0.002. Therefore, an orbit theory for 433 Eros must include C22 and C40 along with
+C20 as the first-order perturbations. It is noted that for a complete theory for a lunar orbiter,
+the third-body perturbation due to Earth has significant effects and needs to be included (De
+Saedeleer 2006). However, in the present work, the analytic theory for the lunar orbiter only
+considers the gravitational perturbations and the third-body effects are ignored, which can
+be incorporated using the conventional approaches as shown by De Saedeleer (2006).
+    The analytical expressions as derived for the first-order secular Hamiltonian and gener-
+ating functions in the previous sections are all expressed in a generalized form valid for any
+arbitrary spherical harmonic. As a result, a first-order orbit theory can be easily built using
+these generalized expressions with spherical harmonics included up to any degree and order.
+In the present work, these generalized expressions are implemented in a symbolic algebra
+software package and their partial derivatives are computed symbolically for zonal harmon-
+ics from J2 to J6 in order to compute the expressions for the secular rates, short-period,
+and long-period variations of the Delaunay elements. The expressions for the short-period
+variations due to the sectorial and tesseral harmonics are derived by hand. For demonstration,
+these analytical expressions are used to construct two orbit theories: the first for the lunar
+orbiter and the second for the 433 Eros orbiter, with all the spherical harmonics up to 6 × 6
+considered dominant perturbations. As discussed earlier, the long-period or resonant effects
+of the sectorial and tesseral harmonics are not considered in the present work.
+    If all the spherical harmonics up to 6 × 6 are included in the H1 term of the original
+Hamiltonian given in Eq. (14), then the secular Hamiltonian, K¯¯ , up to first order is
+
+                                             K¯¯ = K¯0 + O ( 2 ).                                 (77)
+
+By evaluating the expression given in Eq. (61) from n = 2 to n = 6, K¯¯ is obtained as
+                                  μ
+                       K¯¯ = −        + K¯¯ |n=2 + K¯¯ |n=4 + K¯¯ |n=6 + O ( 2 ),                 (78)
+                                 2 L2
+where
+
+                                                                  
+  ¯
+  ¯      μRe2 J2
+ K |n=2 = 3 3 F201 (i) + F200 (i) × 0 + F201 (i) × 0 + F202 (i) × 0 ,
+          a η
+
+1 Data retrieved on March 30, 2019, from http://pds-geosciences.wustl.edu/grail/grail-l-lgrs-5-rdr-v1/
+grail_1001/shadr/gggrx_1200a_sha.tab.
+2 Data retrieved on March 30, 2019, from https://sbn.psi.edu/pds/resource/nearbrowse.html.
+
+
+
+                                                                                             123
+    45   Page 16 of 25                                                            B. Mahajan, K. T. Alfriend
+
+
+Table 1 The Moon’s gravity model GRGM1200A unnormalized coefficients as measured by GRAIL
+mission
+n             m               Cnm                                  Snm
+
+2             0               −0.000203223560871                   0
+2             1               1.89313020989899×10−11               1.5146933495568×10−09
+2             2               2.2381387532075 ×10−05               5.86059183759659×10−10
+3             0               −8.459342178393×10−06                0
+3             1               2.84807022777237×10−05               5.89158264904969×10−06
+3             2               4.84049859737469×10−06               1.66616668871111×10−06
+3             3               1.71169602649627×10−06               −2.4740346309803×10−07
+4             0               9.70434253277103×10−06               0
+4             1               −5.70489105972404×10−06              1.57891241626164×10−06
+4             2               −1.59122222069953×10−06              −1.51539381224694×10−06
+4             3               −8.0670152605846×10−08               −8.03491032736319×10−07
+4             4               −1.2692023976215×10−07               8.29606171159122×10−08
+5             0               −7.42211918696389×10−07              0
+5             1               −8.66279054424634×10−07              −3.52722195988995×10−06
+5             2               7.11995662349507×10−07               1.71081805759989×10−07
+5             3               1.53985511643403×10−08               2.87362117301303×10−07
+5             4               2.14453844519568×10−08               5.26955848745972×10−10
+5             5               7.6589150664677×10−09                −6.7820126340736×10−09
+6             0               1.37675387844709×10−05               0
+6             1               1.20242758346682×10−06               −2.04535071385399×10−06
+6             2               −5.47039455997804×10−07              −2.69668097631117×10−07
+6             3               −6.87848776295172×10−08              −7.10638407618996×10−08
+6             4               1.2917397302938×10−09                −1.53616610816221×10−08
+6             5               1.1738100266618×10−09                −8.34649273663825×10−09
+6             6               −1.09132983765608×10−09              1.68440977528971×10−09
+
+The reference radius and gravitational constant are 1738 km and 4902.8001224453001 km3 /s2 , respectively.
+The value of the Moon’s sidereal rotation period is used as 27.3220 days. The values with the largest and the
+second largest order of magnitude are highlighted in bold
+
+
+                                            
+                    μ4 Re2              H2
+            = J2                  1−3            ,
+                   4L 3 G 3             G2
+                                                         
+                    3 μ6 Re4      G2            H2       H4
+ K¯¯ |n=4 = J4               5−3 2        3 − 30 2 + 35 4 ,
+                   128 L 3 G 7    L             G        G
+                                                 4                              
+                 5 μ8 R6               G 2      G             H2       H4       H6
+ K¯¯ |n=6 = J6          e
+                               63 − 70     + 15       5 − 105    + 315    − 231      .
+               2048 L 3 G 11           L2       L4            G2       G4       G6
+
+It is noted that only the even harmonics contribute to the first-order secular Hamiltonian. Using
+the preceding results, the secular variations of the mean Delaunay elements are computed up
+to first order in a straightforward manner by using Eqs. (74–76).
+
+123
+Analytic orbit theory with any arbitrary spherical harmonic                         Page 17 of 25    45
+
+
+Table 2 433 Eros gravity model unnormalized coefficients from NEAR mission
+n                m                 Cnm                                       Snm
+
+2                0                 −0.11730823892116                         0
+2                1                 −2.11453654036999×10−06                   −1.80744136559608×10−07
+2                2                 0.0531885762344478                        −0.0181446403126972
+3                0                 −0.00374232360832355                      0
+3                1                 0.00438547916269853                       0.00363836234929177
+3                2                 0.000606590143163718                      −0.000240394551651026
+3                3                 −0.00145249757637031                      −0.00168328195232911
+4                0                 0.0387944459886                           0
+4                1                 −9.52012546349172×10−05                   0.00012991262353829
+4                2                 −0.00390614283829429                      0.00103509812252799
+4                3                 −1.79404526644834×10−05                   −7.12399065781978×10−06
+4                4                 0.000368807714106221                      −0.00019238442311687
+5                0                 0.00218543636869044                       0
+5                1                 −0.0023678671891483                       −0.00104272783346457
+5                2                 −0.000126781332202482                     6.17062269039374×10−05
+5                3                 0.0001511694114223                        0.00011692462186204
+5                4                 3.8690753546703×10−06                     −5.43530823252772×10−06
+5                5                 −2.51306515430204×10−05                   −1.43782460033982×10−05
+6                0                 −0.0179497621895508                       0
+6                1                 −1.9165115025489×10−05                    −9.74106192828274×10−05
+6                2                 0.000813891437693812                      −0.000148125756779844
+6                3                 5.96640184914192×10−06                    1.56395119542098×10−06
+6                4                 −2.13764251724757×10−05                   6.69541971569532×10−06
+6                5                 −3.93777188512343×10−07                   3.86798920130381×10−08
+6                6                 1.18484157149138×10−06                    −3.73277755394728×10−07
+
+The reference radius and gravitational constant are 16 km and 0.000446275472004 km3 /s2 , respectively. The
+rotational angular speed is 1639.389232 degrees per day
+
+
+
+   Next, the long-period generating function W¯¯ 1 given in Eq. (66) is computed for all the
+zonal harmonics up to J6 . As discussed earlier, W¯¯ 1 has a singularity at the critical inclination
+and its value is computed by equating Eq. (67) to zero and solving for the value of the
+inclination in terms of a and e. Therefore, in general the value of the critical inclination
+depends on the semimajor axis and eccentricity of the orbit. For a circular orbit, the resulting
+equation to determine the value of the critical inclination up to first-order in the presence of
+zonal harmonics up to J6 is
+                                                                                        
+        960 (cos (i))2 − 192 J2 a 4 − 120 Re 2 J4 49 (cos (i))4 − 36 (cos (i))2 + 3 a 2
+                                                                                 
+         + 105 Re 4 J6 297 (cos (i))6 − 375 (cos (i))4 + 115 (cos (i))2 − 5 = 0.                (79)
+
+With the Moon as the central body, the values for the critical inclination for a circular orbit
+with semimajor axis equal to 1850 km are found to be 60.38◦ and 119.61◦ approximately.
+For 433 Eros, the critical inclinations for a orbit with semimajor axis equal to 50 km are
+
+                                                                                              123
+ 45   Page 18 of 25                                                                B. Mahajan, K. T. Alfriend
+
+
+found as 62.78◦ and 117.21◦ approximately. If the oblateness term is the only perturbation
+considered, i.e., for n = 2, the preceding equation reduces to 1 − 5 cos2 i = 0 for any value
+of the semimajor axis and eccentricity, which gives the well-known values, 63.4◦ and 116.6◦ ,
+for the critical inclination. The explicit expressions for W¯¯ 1 for zonal harmonics up to J6 are
+
+
+                 W¯¯ 1 = W¯¯ 1 |n=2 + W¯¯ 1 |n=3 + W¯¯ 1 |n=4 + W¯¯ 1 |n=5 + W¯¯ 1 |n=6 ,                 (80)
+
+where
+
+
+            W¯¯ 1 |n=2 = 0,                                                                               (81)
+                                                                                     
+                              eμ5 J3 Re 3 cos (g) sin (i) 5 (cos (i))2 − 1
+            W¯¯ 1 |n=3 = 3/8                                                             ,                (82)
+                                                      ḡ˙¯ L 8 η5
+                                                                                          
+             ¯            15 e2 μ6 J4 Re 4 sin (2 g) (sin (i))2 7 (cos (i))2 − 1
+            W¯ 1 |n=4 =                                                                      ,            (83)
+                                                  128 ḡ˙¯ L 10 η7
+                                                                                 
+              ¯               15 sin(i)e 3 e2 + 4 21 ci4 − 14 ci2 + 1 cos (g)
+              ¯
+            W 1 |n=5 = −
+                                                         128 ḡ˙¯ L 12 η9
+                                                                              
+                         35 sin(i)e3 9 ci4 − 10 ci2 + 1 cos (3 g)
+                       +                                                          J5 μ7 Re 5 ,            (84)
+                                          768 ḡ˙¯ L 12 η9
+                                                                                           
+             ¯             −525 e2 sin2 (i) sin (2 g) e2 + 2 33 ci4 − 18 ci2 + 1
+            W¯ 1 |n=6 =
+                                                       4096 ḡ˙¯ L 14 η11
+                                                                        
+                         315 e4 sin4 (i) 11 ci2 − 1 sin (4 g)
+                       −                                                    J6 μ8 Re 6 ,                  (85)
+                                             ˙
+                                             ¯
+                                    16384 ḡ L η  14     11
+
+
+and ci = cos(i). In the preceding equations, ḡ˙¯ is equal to the partial derivative of K¯¯ given in
+Eq. (78) with respect to G. The long-period variations for the Delaunay elements are computed
+by substituting the expression for W¯¯ 1 in Eqs. (68–73). These long-period variations are added
+to the mean elements to recover the short-period averaged elements, which are equivalent to
+the single-primed elements of Brouwer (1959). It is noted, however, that the contribution of
+J2 in the first-order long-period generating function is only through the critical inclination
+      ˙¯ This is in contrast to Brouwer (1959), in which the first-order long-period contribution
+term ḡ.
+of J2 is computed from the second-order terms.
+    The osculating elements are recovered by carrying out two short-period transformations,
+separately for the zonal and tesseral harmonics. The zonal short-period effects are computed
+using the generating function W¯1 given in Eq. (47). The contribution of J2 term to W¯1 is
+
+
+              −L 3 ¯
+  W¯1 |n=2 =       K1 (l − f )
+               μ2
+               μ2 Re2 J2                                                             e
+             +            (F200 (i) + F202 (i)) sin(2 f + 2g) + (F200 (i) + F202 (i))
+                  G3                                                                  2
+             × (sin( f + 2g) + sin(3 f + 2g)) + F201 (i)e sin( f )] ,
+
+
+123
+Analytic orbit theory with any arbitrary spherical harmonic                    Page 19 of 25   45
+
+                                   
+                  μ2 Re2          H2
+             = J2           1 − 3      ( f − l + e sin( f ))
+                   4G 3           G2
+                                                                              
+                 1        H2
+               −     1 − 2 (3e sin( f + 2g) + 3 sin(2 f + 2g) + e sin(3 f + 2g)) . (86)
+                 2        G
+Since the zonal short-period transformation is same as the one originally used by Brouwer
+(1959), the preceding expression matches exactly with his results. The expressions for the rest
+of the zonal harmonics can be similarly computed from Eq. (47) in a straightforward manner.
+Due to space limitations, these expressions are not provided here; however, the final results
+up to J6 are same as the ones provided by Mahajan (2018). Substituting W¯1 in Eqs. (48–53),
+the first-order short-period variations of the Delaunay elements due to the zonal harmonics
+can be computed. These expressions are derived in the present work using a symbolic algebra
+software package.
+    The final transformation involves computation of short-period effects due to the tesseral
+harmonics. For C22 /S22 , the expression for the tesseral short-period generating function can
+be evaluated using Eq. (20) and the result is
+
+                                 p=n
+                        μRe2  3(1 + cos i)2 
+             W1 = −                                 C22 {cos(β0 )I1220 − sin(β0 )I2220 }
+                      ñ a 3 η3           4
+                                  p=0
+                                                           
+                     + S22 {cos(β0 )I2220 + sin(β0 )I1220 }
+                      3 sin2 i 
+                     +          C22 {cos(β1 )I1221 − sin(β1 )I2221 }
+                          2
+                                                          
+                     +S22 {cos(β1 )I2221 + sin(β1 )I1221 }
+                      3(1 − cos i)2 
+                     +                 C22 {cos(β2 )I1222 − sin(β2 )I2222 }
+                             4
+                                                           
+                                                          
+                     +S22 {cos(β2 )I2222 + sin(β2 )I1222 } ,                                   (87)
+
+where
+
+
+                                       β0 ≡ −2g + 2(h − θ + δ l),                              (88)
+                                       β1 ≡ 2(h − θ + δ l),                                    (89)
+                                       β2 ≡ 2g + 2(h − θ + δ l),                               (90)
+                                                    nmp       nmp
+and the expressions for the quadratures I1       and I2     for n = 2, m = 2, p = 0, 1, 2 are
+evaluated using Eqs. (22–23). By substituting W1 in Eqs. (24–29), the short-period variations
+of the Delaunay elements due to the sectorial and tesseral harmonics can be computed. In the
+present work, the generalized expressions for the tesseral short-period variations are derived
+by hand using the expression of W1 given in Eq. (20).
+    In order to verify the accuracy of the proposed theory, the analytic expressions for the
+secular rates, the long-period, and short-period variations of the Delaunay elements are imple-
+mented in a MATLAB simulation, which includes the contributions from all the spherical
+harmonics up to 6 × 6. The ode45 numerical integrator of MATLAB, with a force model also
+consisting of 6 × 6 gravitational field, is used to generate the true trajectories. First, a lunar
+orbiter is simulated by choosing the initial osculating elements as given in Table 3. Its numer-
+ically propagated orbit for a time duration equal to 300 orbital periods is shown in Fig. 1. For
+
+                                                                                           123
+ 45     Page 20 of 25                                                                B. Mahajan, K. T. Alfriend
+
+
+Table 3 Initial osculating classical elements of the lunar orbiter and 433 Eros orbiter
+Orbiter          SMA(km)           Ecc          Inc(◦ )       RAAN(◦ )          AOP(◦ )          MA(◦ )
+
+Lunar            1850              0.05         50            50                50               50
+433 Eros         50                0.05         50            50                50               50
+
+
+Fig. 1 Numerically propagated
+orbit of the lunar orbiter in a
+6 × 6 gravity field. The Moon is
+drawn to scale
+
+
+
+
+the analytical theory, the initial mean elements were computed first by using the analytical
+osculating-to-mean transformation. The resulting mean elements were then analytically prop-
+agated to the desired time and converted to osculating elements using the mean-to-osculating
+transformation. Figures 2 and 3 show the plots of the numerically propagated osculating
+elements, analytically propagated osculating elements, and the mean elements for a time
+duration equivalent to 20 orbit periods. The results show that the first-order orbit theory
+is able to reproduce the variations in the orbital elements quite well for the time duration
+considered. The mean elements are able to capture the secular dynamics; however, the plots
+show bias between the osculating and mean elements except for the semimajor axis and mean
+anomaly. This apparent bias is due to the long-period variations. Figure 4 shows the variation
+of the classical elements for a longer time duration of 240 days. The osculating elements in
+this figure are obtained by only carrying out the zonal long-period and short-period trans-
+formations (no tesseral short-period transformation) of the mean elements. The long-period
+variations of the eccentricity, inclination, and argument of the periapsis are clearly seen in
+these plots. Figure 5 shows the similar plots, in which the osculating elements also include
+the tesseral short-period effects. The variations of these osculating elements closely match
+that of the numerically propagated elements as seen in the figure. The position and velocity
+errors of the analytic orbit theory, plotted in Fig. 6, are less than 1 km and 0.02 km/s after
+1.6 days of propagation, respectively.
+    Another simulation of an artificial satellite with 433 Eros as the central body is imple-
+mented using the initial conditions as given in Table 3. The true trajectory was again obtained
+by numerical propagation in MATLAB using a force model with 6 × 6 gravity model and is
+plotted in Fig. 7 for a duration of 30 orbit periods. The numerically and analytically prop-
+agated classical orbital elements are plotted in Figs. 8 and 9. The results show that the
+first-order analytic orbit theory captured the element variations in this case better than that
+for the lunar orbiter. This is due to the fact that the initial semimajor axis (=50 km) of the
+
+123
+Analytic orbit theory with any arbitrary spherical harmonic                      Page 21 of 25   45
+
+Fig. 2 First three osculating
+classical elements of the lunar
+orbiter propagated using
+numerical integration (num) and
+the analytic theory (osc). The
+mean elements (mean) are also
+shown
+
+
+
+
+Fig. 3 Last three osculating
+classical elements of the lunar
+orbiter propagated using
+numerical integration (num) and
+the analytic theory (osc). The
+mean elements (mean) are also
+shown
+
+
+
+
+Fig. 4 The mean elements (mean), numerically propagated elements (num), and the elements obtained after
+the mean-to-zonal short-period transformation (osc) for the lunar orbiter
+
+
+
+
+                                                                                           123
+ 45    Page 22 of 25                                                         B. Mahajan, K. T. Alfriend
+
+
+
+
+Fig. 5 The mean elements (mean), numerically propagated elements (num), and the elements obtained after
+the complete mean-to-osculating transformation (osc) for the lunar orbiter
+
+Fig. 6 Root-sum-square position
+and velocity errors of the analytic
+orbit theory for the lunar orbiter
+
+
+
+
+chosen orbit in the case of 433 Eros orbiter is more than three times the reference radius
+(=16 km) of 433 Eros, whereas for the lunar orbiter the relative size of the orbit is much
+smaller. The position and velocity errors for the 433 Eros orbiter are shown in Fig. 10 for a
+duration of 10 orbit periods. The position errors remain below 0.1 km after nearly 12 days
+of propagation.
+
+
+6 Conclusions
+
+In general, the short-period averaging of the zonal spherical harmonics with degree greater
+than two results in secular and long-period terms. If these spherical harmonics are treated as
+second-order perturbations with the oblateness term as the first-order perturbation, then the
+second-order long-period terms can be removed by averaging with respect to the argument of
+perigee for constructing satellite theories of Earth. However, for bodies with more deformed
+shapes, it may be necessary to consider the higher spherical harmonics as the dominant
+perturbation. The conventional approach to separating these long-period terms from the
+Hamiltonian fails. A novel method to carry out the long-period transformations is developed,
+
+123
+Analytic orbit theory with any arbitrary spherical harmonic   Page 23 of 25   45
+
+Fig. 7 Numerically propagated
+orbit of the satellite of 433 Eros
+asteroid in a 6 × 6 gravity field.
+433 Eros is drawn to scale with
+its shape approximated as an
+ellipsoid with axes equal to 20.6
+km, 5.7 km, and 5.3 km
+
+
+
+
+Fig. 8 First three classical orbital
+elements of the 433 Eros orbiter.
+The plots show numerically
+propagated (num), analytically
+propagated osculating (osc), and
+the mean (mean) elements
+
+
+
+
+Fig. 9 Last three classical orbital
+elements of the 433 Eros orbiter.
+The plots show numerically
+propagated (num), analytically
+propagated osculating (osc), and
+the mean (mean) elements
+
+
+
+
+                                                                        123
+ 45    Page 24 of 25                                                                 B. Mahajan, K. T. Alfriend
+
+
+
+
+Fig. 10 Root-sum-square position and velocity errors of the analytic orbit theory for the 433 Eros orbiter
+
+
+
+
+and it results in a completely secular Hamiltonian. As part of the method, the degeneracy
+of the Keplerian or zeroth-order Hamiltonian is eliminated by choosing a non-Keplerian
+Hamiltonian that consists of the two-body part as well as the first-order secular terms of all
+the zonal harmonics. This new approach results in a long-period term which is of zeroth
+order, not first order as in Brouwer’s theory. The analytic expressions for the secular, short-
+period, and long-period effects are derived in a generalized form valid for any spherical
+harmonic. Results presented for the motion of a lunar orbiter and a 433 Eros orbiter in a
+6 × 6 gravity field, show that the proposed first-order analytic theory is in agreement with
+the results obtained from the numerical integration.
+
+Acknowledgements The authors would like to thank Dr. Simone D’Amico and his graduate students at
+Stanford University for the motivation for studying this problem.
+
+Compliance with ethical standards
+
+Conflict of interest The authors declare that they have no conflict of interest.
+
+
+References
+Alfriend, K.T., Coffey, S.L.: Elimination of the perigee in the satellite problem. Celest. Mech. 32, 163–172
+     (1984)
+Brouwer, D.: Solution of the problem of artificial satellite theory without drag. Astron. J 64(1274), 378 (1959).
+     https://doi.org/10.1086/107958
+Coffey, S.L., Alfriend, K.T.: Short period elimination for the tesseral harmonics. In: AAS/AIAA Astrodynamics
+     Specialist Conference, Lake Tahoe, 81-109 (1981)
+Coffey, S.L., Deprit, A.: Third-order solution to the main problem in satellite theory. J. Guid. Control Dyn.
+     5(4), 366–371 (1982). https://doi.org/10.2514/3.56183
+De Saedeleer, B.: Complete zonal problem of the artificial satellite: generic compact analytic first order in
+     closed form. Celest. Mech. Dyn. Astron. 91(3–4), 239–268 (2005). https://doi.org/10.1007/s10569-004-
+     1813-6
+De Saedeleer, B.: Analytical theory of a lunar artificial satellite with third body perturbations. Celest. Mech.
+     Dyn. Astron. 95(1–4), 407–423 (2006). https://doi.org/10.1007/s10569-006-9029-6
+
+
+123
+Analytic orbit theory with any arbitrary spherical harmonic                               Page 25 of 25     45
+
+
+Deprit, A.: Canonical transformations depending on a small parameter. Celest. Mech. 1(1), 12–30 (1969)
+      10.1007/BF01230629, arXiv:1011.1669v3
+Deprit, A.: The elimination of the parallax in satellite theory. Celest. Mech. 24(2), 111–153 (1981a). https://
+      doi.org/10.1007/BF01229192
+Deprit, A.: The main problem in the theory of artificial satellites to order four. J. Guid. Control Dyn. 4(2),
+      201–206 (1981b). https://doi.org/10.2514/3.56072
+Emeljanov, N., Kanter, A.: A method to compute inclination functions and their derivatives. Manuscr. Geod.
+      14, 77–83 (1989)
+Garfinkel, B.: The orbit of a satellite of an oblate planet. Astron. J. 64(1959), 353–366 (1959)
+Gradshteyn, I.S., Ryzhik, I.M.: Table of Integrals, Series and Products. In: Zwillinger D. (ed.). 8th edn. Elsevier
+      Ltd (2014)
+Hori, G.I.: Theory of general perturbations with unspecified canonical variables. Publ. Astron. Soc. Jpn. 18(4),
+      287–296 (1966) http://adsabs.harvard.edu/full/1966PASJ...18..287H7
+Kamel, A.A.: Expansion formulae in canonical transformations depending on a small parameter. Celest. Mech.
+      1(2), 190–199 (1969). https://doi.org/10.1007/BF01228838
+Kaula, W.M.: Theory of Satellite Geodesy, 1st edn. Dover Publications Inc, New York (1966)
+Kinoshita, H.: Third-order solution of an artificial satellite theory. In: Szebehely, V. (ed.) Dynamics of Planets
+      and Satellites and Theories of Their Motion, Astrophysics and Space Science Library, vol. 72, pp. 241–
+      257. Springer, The Netherlands (1978)
+Kozai, Y.: The motion of a close earth satellite. Astron. J. 64, 367–377, 10.1086/108389, arXiv:1011.1669v3
+      (1959)
+Kudryavtsev, S.M.: The fifth-order analytical solution of the equations of motion of a satellite in orbit around
+      a non-spherical planet. Celest. Mech. Dyn. Astron. 61(3), 207–215 (1995). https://doi.org/10.1007/
+      BF00051893
+Mahajan B (2018) Absolute and relative motion satellite theories for zonal and tesseral gravitational harmonics.
+      Ph.D., thesis, Texas A and M University
+Mahajan, B., Vadali, S.R., Alfriend, K.T.: Exact delaunay normalization of the perturbed Keplerian Hamil-
+      tonian with tesseral harmonics. Celest. Mech. Dyn. Astron. 130(3), 25 (2018). https://doi.org/10.1007/
+      s10569-018-9818-8
+Segerman, A.M., Coffey, S.L.: An analytical theory for tesseral gravitational harmonics. Celest. Mech. Dyn.
+      Astron. 76, 139–156 (2000). https://doi.org/10.1023/A:1008345403145
+Vinti, J.P.: New method of solution for unretarded satellite orbits. J. Res. Natl. Bur. Stand. Sect. B Math. Math.
+      Phys. 62B(2), 105–116 (1959). https://doi.org/10.6028/jres.063B.012
+Yan, H., Vadali, S.R., Alfriend, K.T.: A recursive formulation of the satellite perturbed relative motion problem.
+      Proceedings of the AIAA/AAS Astrodynamics Specialist Conference, San Diego, CA. AIAA 2014-4133
+      (2014). https://doi.org/10.2514/6.2014-4133
+
+
+Publisher’s Note Springer Nature remains neutral with regard to jurisdictional claims in published maps and
+institutional affiliations.
+
+
+
+
+                                                                                                     123
+
