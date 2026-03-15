@@ -18,7 +18,9 @@ from .mean_elements import propagate_mean_delaunay
 from .short_period import (
     brouwer_sp_polar_batch,
     j2_sp_polar_batch,
+    mean_to_cartesian_w1_batch,
     osculating_to_mean,
+    osculating_to_mean_w1,
     precompute_orbit_averages,
 )
 
@@ -35,10 +37,11 @@ class LaraBrouwerPropagator:
     corrections, it degrades accuracy (verified numerically).
     """
 
-    def __init__(self, mu, Re, j_coeffs):
+    def __init__(self, mu, Re, j_coeffs, use_w1_sp=True):
         self.mu = mu
         self.Re = Re
         self.j_coeffs = j_coeffs  # {2: J2, 3: J3, 4: J4, 5: J5}
+        self.use_w1_sp = use_w1_sp  # Use W₁ Poisson bracket SP corrections
         self.mean_kep_0 = None
         self.mean_del_0 = None
         self.t0 = None
@@ -53,7 +56,14 @@ class LaraBrouwerPropagator:
         osc_kep = cartesian_to_keplerian(r0_vec, v0_vec, self.mu)
 
         # 2. Osculating -> mean (iterative first-order inverse)
-        self.mean_kep_0 = osculating_to_mean(osc_kep, self.mu, self.Re, self.j_coeffs)
+        #    Use W₁-consistent inversion when W₁ SP is enabled.
+        from .short_period import osculating_to_mean_w1
+        if self.use_w1_sp:
+            self.mean_kep_0 = osculating_to_mean_w1(
+                osc_kep, self.mu, self.Re, self.j_coeffs[2])
+        else:
+            self.mean_kep_0 = osculating_to_mean(
+                osc_kep, self.mu, self.Re, self.j_coeffs)
 
         # 3. Convert to Delaunay for ODE integration
         self.mean_del_0 = keplerian_to_delaunay(*self.mean_kep_0, self.mu)
@@ -148,17 +158,26 @@ class LaraBrouwerPropagator:
         om_arr = mean_del[:, 1]   # g
         M_arr = mean_del[:, 0]    # ell
 
-        # 3. Mean -> osculating Cartesian via Brouwer SP corrections
+        # 3. Mean -> osculating Cartesian
         J2 = self.j_coeffs[2]
-        r_osc, rdot_osc, u_osc, rfdot_osc, Om_osc, inc_osc = brouwer_sp_polar_batch(
-            a_arr, e_arr, inc_arr, Om_arr, om_arr, M_arr,
-            self.mu, self.Re, J2,
-            j_coeffs=self.j_coeffs,
-            orbit_averages=self._orbit_averages,
-        )
 
-        positions, velocities = polar_to_cartesian(
-            r_osc, rdot_osc, u_osc, rfdot_osc, Om_osc, inc_osc,
-        )
+        if self.use_w1_sp:
+            # Use exact W₁ Poisson bracket SP corrections (Lara 2021)
+            positions, velocities = mean_to_cartesian_w1_batch(
+                a_arr, e_arr, inc_arr, Om_arr, om_arr, M_arr,
+                self.mu, self.Re, J2,
+            )
+        else:
+            # Legacy polar-nodal SP corrections (SGP4-style)
+            r_osc, rdot_osc, u_osc, rfdot_osc, Om_osc, inc_osc = brouwer_sp_polar_batch(
+                a_arr, e_arr, inc_arr, Om_arr, om_arr, M_arr,
+                self.mu, self.Re, J2,
+                j_coeffs=self.j_coeffs,
+                orbit_averages=self._orbit_averages,
+            )
+
+            positions, velocities = polar_to_cartesian(
+                r_osc, rdot_osc, u_osc, rfdot_osc, Om_osc, inc_osc,
+            )
 
         return positions, velocities
