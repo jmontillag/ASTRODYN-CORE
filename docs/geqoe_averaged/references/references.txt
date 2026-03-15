@@ -101,7 +101,7 @@ Space Situational Awareness and Conjunction Assessment
 
 Rivero, A.S., Vázquez, R. & Merz, K. (2025). "Advancing Geometric Conjunction Filters to Handle Satellite Manoeuvres." ESA 9th Space Debris Conference (SDC9), paper 167.
 Rivero, A.S., Baù, G., Vázquez, R. & Bombardelli, C. (2025). "Fast and Accurate Computation of the Minimum Distance Between RSO Trajectories." ESA SDC9, paper 168.
-Rivero, A.S. et al. (2025). (Conjunction assessment for space debris). Chinese Journal of Aeronautics, S100757042500646X.
+Rivero, A.S., Baù, G., Bombardelli, C. & Vázquez, R. (2025). "A Novel Conjunction Filter Based on the Minimum Distance Between Perturbed Trajectories." Communications in Nonlinear Science and Numerical Simulation, 109236. doi:10.1016/j.cnsns.2025.109236.
 Rivero, A.S. (PhD thesis / predoctoral work). Universidad de Sevilla, IDUS repository (bitstream 16f23ab4-4a77-41f9-b4ac-52a1511136f3).
 
 

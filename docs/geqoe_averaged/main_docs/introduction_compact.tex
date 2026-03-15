@@ -4,7 +4,7 @@
 Analytical and semi-analytical satellite propagators remain indispensable
 wherever the cost--accuracy tradeoff favors algebraic evaluation over
 numerical integration: conjunction screening across large
-catalogs~\cite{rivero2025}, long-term orbit evolution for debris
+catalogs~\cite{rivero2025,rivero2025b}, long-term orbit evolution for debris
 mitigation, and mean-element uncertainty propagation for space
 surveillance.  This paper develops the first orbit-averaging theory for
 the Generalized Equinoctial Orbital Elements (GEqOE), combining three
@@ -23,8 +23,9 @@ Von~Zeipel method to Delaunay canonical variables, averaging over the mean
 anomaly to eliminate short-period terms; the theory treats $J_2$ at first
 order for periodic terms and second order for secular terms, with $J_3$
 through $J_5$ entering at $O(J_2^2)$ in Brouwer's ordering.
-Kozai~\cite{kozai1959} independently obtained equivalent closed-form
-results using Keplerian elements and the Lagrange planetary equations.
+Kozai~\cite{kozai1959} obtained equivalent closed-form
+results via an independent method, using Keplerian elements and the
+Lagrange planetary equations.
 Both formulations are closed-form in eccentricity but suffer from
 singularities at $e = 0$, $i = 0$, and the critical inclination
 $i \approx 63.4^\circ$ where the long-period divisor $(1 - 5\cos^2 i)$
@@ -88,10 +89,12 @@ is closed-form, and no complex variable techniques are employed.
 De~Saedeleer~\cite{desaedeleer2005} produced a generic first-order
 closed-form formula valid for any individual zonal harmonic, achieving an
 asymptotic gain of factor~$3n/2$ for the $n$th zonal, via Lie transforms
-and real-variable integral tables---the closest prior art in \emph{scope}
+and closed-form integration via dedicated trigonometric
+propositions---the closest prior art in \emph{scope}
 (generic zonal, closed-form) but fundamentally different in
-\emph{technique}.  Mahajan and Alfriend~\cite{mahajan2019} extended this
-line to arbitrary dominant harmonics for irregular bodies.
+\emph{technique}.  Mahajan and Alfriend~\cite{mahajan2019} developed a
+complementary approach treating arbitrary dominant harmonics for
+irregular bodies.
 
 %%% Equinoctial elements and DSST %%%
 In parallel with the canonical tradition, non-singular equinoctial orbit
@@ -136,9 +139,11 @@ longitude.  The resulting non-osculating reference orbit absorbs part of
 the perturbation into its shape, producing significantly improved
 propagation accuracy even in numerical integration mode~\cite{bau2021};
 when the disturbing potential vanishes, all quantities reduce exactly to
-classical equinoctial elements.  The element set also substantially
-improves uncertainty realism over multi-orbit
-propagations~\cite{aristoff2021,hernandoayuso2023}.  A generalized eccentric
+classical equinoctial elements.  Related $J_2$ equinoctial elements preserve uncertainty realism far
+longer than Cartesian or standard equinoctial
+representations~\cite{aristoff2021}; Hernando-Ayuso et
+al.~\cite{hernandoayuso2023} showed that GEqOE outperforms all
+predecessors in this regard.  A generalized eccentric
 longitude~$K$, satisfying a generalized Kepler equation with the classical
 $r/a$ Jacobian, serves as the natural fast angle; the present work
 propagates~$K$ because osculating~$K$ is recovered directly from the
@@ -166,16 +171,15 @@ of the eccentricity parameter---fundamentally different from working in
 the complex $F = e^{if}$ plane of the true anomaly.
 
 %%% Algebraic obstruction and the F-plane approach %%%
-It is well known~\cite{jefferys1971} that the equation of the center
-$f - \ell$ cannot be integrated in closed form within the algebra of
-trigonometric functions---an algebraic obstruction that forces all
-real-variable averaging methods to rely on integral tables, auxiliary
-substitutions, or truncated series.  The residue approach in $F = e^{if}$
+As has long been observed in the perturbation theory
+literature~\cite{jefferys1971}, the equation of the center $f - \ell$
+cannot be integrated in closed form within the algebra of trigonometric
+functions, so that real-variable averaging methods must typically rely on
+integral tables, auxiliary substitutions, or truncated series.  The residue approach in $F = e^{if}$
 adopted here circumvents this obstruction entirely by operating in the
 algebra of Laurent series rather than trigonometric functions.  The
 tangent-half-angle substitution $t = \tan(f/2)$, widely used in
-closed-form orbit averaging (e.g., by
-de~Saedeleer~\cite{desaedeleer2005} and Lara~\cite{lara2020}), is
+closed-form orbit averaging (e.g., by Lara~\cite{lara2020}), is
 mathematically related to $F$ through $t = -i(F-1)/(F+1)$---both convert
 trigonometric integrands to rational functions---but the tangent-half-angle
 substitution has always been used purely as a real-variable algebraic
@@ -218,12 +222,12 @@ reconstruction over multi-day arcs, with $1.7$--$55\times$ improvement
 over DSST and $4$--$335\times$ over Brouwer--Lyddane (identical gravity
 model).  This accuracy advantage is directly relevant to conjunction
 screening pipelines, where the accuracy of the underlying analytical
-propagator directly determines the false-positive rate of geometric
-conjunction filters~\cite{rivero2025}, so a propagator combining
+propagator significantly influences the false-positive rate of geometric
+conjunction filters~\cite{rivero2025,rivero2025b}, so a propagator combining
 sub-kilometer accuracy with analytical evaluation cost reduces operational
 workload while maintaining the throughput required for catalog-scale pair
 evaluations.  It is equally relevant to mean-element uncertainty
-propagation, where GEqOE's established advantage in maintaining Gaussian
+propagation, where GEqOE's established advantage in maintaining uncertainty
 realism~\cite{hernandoayuso2023} can now be combined with an analytical
 mean-to-osculating map for scalable catalog maintenance.
 
