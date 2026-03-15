@@ -215,3 +215,70 @@ only where needed. This prevents notation overload.
 ### TikZ + `\resizebox` incompatibility
 TikZ `\matrix` nodes fail inside `\resizebox` due to catcode issues. Use plain
 `\node` elements with manual positioning instead.
+
+---
+
+## 7. Lara-Brouwer Implementation Knowledge
+
+### SP map consistency determines comparison fairness
+The Lara propagator's J3-J5 performance is **limited by its J2-only SP map**,
+not by the mean propagator.  Adding J3/J5 frozen secular rates to the mean
+propagator **without** matching J3-J5 SP corrections actively degrades
+accuracy (Topex: 11 m J2-only → 10 km J2-J5).  The mismatch between what
+the mean propagator sees and what the SP map can reconstruct causes
+systematic growing error.
+
+### GEqOE error is dominated by J₂² secular drift
+At equal J2-J5 force model, GEqOE's propagation error (~4.4 km on Topex at
+30 days) is entirely from the missing second-order J₂² secular correction.
+Evidence: GEqOE J2-only and GEqOE J2-J5 produce identical errors — adding
+J3-J5 doesn't change the error because the SP map handles them correctly.
+Lara's Breakwell-Vagners calibration addresses this J₂² gap.
+
+### Lyddane-space iteration vs Cartesian-space iteration
+The `osculating_to_mean` inverse using Cartesian-space subtraction introduces
+O(J₂²) initialization bias (~32 m at 30 days on Topex).  The Lyddane-space
+iteration (`osculating_to_mean_w1`) subtracts in non-singular variables
+(e·cos ω, e·sin ω, M+ω) and converges to machine precision in 2-3 steps.
+Always use the Lyddane path for initialization.
+
+### Polar-nodal W₁ forward map avoids two numerical steps
+The polar-nodal heyoka cfunc (`mean_to_cartesian_heyoka_polar_batch`) computes
+{r, ṙ, u, rf̊, Ω, I} directly from Delaunay variables via Poisson brackets.
+This avoids: (1) solving Kepler equation for f, and (2) recovering Keplerian
+elements via atan2 — both of which introduce numerical noise at e→0.
+
+### Equinoctial SP eliminates atan2 singularity in GEqOE
+The GEqOE `mean_to_osculating_state_batch` goes through a polar round-trip:
+p₁,p₂ → atan2 → Ψ → add δΨ → g·sin(Ψ_osc).  At g→0 (near-circular),
+atan2 returns garbage.  The equinoctial batch path
+(`mean_to_osculating_state_equinoctial_batch`) works directly in (p₁, p₂)
+with complex-arithmetic SP corrections — no atan2.  This fixed a 15 km
+outlier at e=0.001 down to 1.9 km.  Always use the equinoctial batch path.
+
+### Round-trip test interpretation
+The osc→mean→osc round-trip error measures different things for different
+methods:
+- **GEqOE**: O(J²) truncation error of the direct first-order inverse
+  (non-iterative) — genuine SP map quality diagnostic (0.1–5 m)
+- **Lara**: Iteration convergence (self-consistent forward/inverse) —
+  measures Newton-Raphson tolerance, not SP map quality (~0 m)
+- **DSST**: Internal consistency (same code path both ways) —
+  machine precision, uninformative
+
+Only the GEqOE round-trip is meaningful for publication.
+
+### Critical inclination is a minimum, not a singularity, for GEqOE
+Grid heatmaps show GEqOE error is *minimized* at i ≈ 63.4° (252 m vs 1900 m
+at i=5°).  The (1-5cos²i) denominator of classical Brouwer theory is entirely
+absent from GEqOE — δ = 1-Q² vanishes at i=90° (polar), not 63.4°.  The
+frozen-orbit condition ω̇ ≈ 0 at critical inclination actually reduces secular
+along-track error accumulation.
+
+### Lara (2024) theory overview
+The paper composes three generating functions (parallax W^P, Delaunay W^D,
+long-period W^L) into a single W = W₁ + J₂·W₂.  The W₂ terms carry J₃ and
+J₄ via normalized coefficients J̃₃ = J₃/J₂ and J̃₄ = J₄/J₂.  The composed
+transform evaluates Poisson brackets once instead of three times (30%+ speedup).
+**Critical limitation**: W₂^L contains (5s²-4)⁻¹ denominators — singular at
+critical inclination.  J₅ is excluded as negligibly small.

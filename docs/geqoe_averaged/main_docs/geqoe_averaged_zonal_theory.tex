@@ -1998,6 +1998,9 @@ compensates for the eccentricity-driven growth in $\|\bm{u}_1\|$.
 This is distinct from the multi-orbit propagation error
 (Table~\ref{tab:j2j5_validation}), which measures accumulated second-order
 secular drift and is genuinely larger for high eccentricity.
+A systematic evaluation of this initialization truncation error across
+the full orbital parameter space is presented in
+Appendix~\ref{sec:parameter_space}, Figure~\ref{fig:roundtrip_geqoe}.
 
 \subsection{Zonal scaling test}
 \label{sec:scaling_test}
@@ -2483,6 +2486,121 @@ fair comparison for evaluating which theory produces a better osculating
 trajectory. Appendix~\ref{sec:dsst_comparison} extends this comparison to
 the DSST semi-analytical propagator, which occupies a different point on the
 cost--accuracy spectrum.
+
+% ================================================================
+% Appendix A.x: Parameter-Space Coverage
+% ================================================================
+
+\subsection{Systematic parameter-space comparison}
+\label{sec:parameter_space}
+
+The 12 test orbits of the preceding subsections sample representative
+regimes but leave open the question of how the theory performs
+\emph{between} those regimes.  To address this, a systematic grid
+evaluation is performed across four two-dimensional orbital parameter
+planes:
+\begin{itemize}
+  \item eccentricity vs.\ inclination ($e \in [10^{-3}, 0.7]$,
+        $i \in [5^\circ, 175^\circ]$, $30 \times 30$ grid),
+  \item semi-major axis vs.\ inclination ($a \in [6{,}600, 42{,}000]$~km,
+        $i \in [5^\circ, 175^\circ]$),
+  \item semi-major axis vs.\ eccentricity (with perigee floor
+        $a(1-e) > R_\oplus + 200$~km), and
+  \item initial mean anomaly vs.\ eccentricity
+        ($M_0 \in [0^\circ, 350^\circ]$, $e \in [10^{-3}, 0.5]$).
+\end{itemize}
+When a parameter is not on axis, it is held at the defaults:
+$a = 7{,}500$~km, $e = 0.05$, $i = 55^\circ$, $\Omega = 30^\circ$,
+$\omega = 90^\circ$, $M_0 = 0^\circ$.  Each grid point is propagated for
+50~orbits (normalizing across altitudes) with 64~samples per orbit using
+the $J_2$--$J_5$ zonal model, and the position RMS is computed against a
+Cowell reference integrated at $10^{-15}$ tolerance.
+
+Figure~\ref{fig:grid_comparison} shows side-by-side heatmaps of
+$\log_{10}(\text{position RMS [km]})$ for the GEqOE mean+SP theory (left
+panels) and the Lara--Brouwer propagator (right panels).  The GEqOE theory
+achieves lower error than Lara--Brouwer at every valid grid point across
+all four parameter planes.  Several features merit comment:
+\begin{itemize}
+  \item \textbf{Critical inclination}
+        ($i = 63.4^\circ$ and $116.6^\circ$): both methods achieve their
+        \emph{best} accuracy near these inclinations, with GEqOE reaching
+        a local minimum of $\sim\!250$~m.  This confirms that the
+        \mbox{$1 - 5\cos^2 i$} denominator of classical Brouwer theory is
+        a coordinate singularity, not a physical one: the frozen-orbit
+        condition $\dot\omega \approx 0$ actually reduces secular
+        along-track error accumulation.
+  \item \textbf{Eccentricity independence}: the equinoctial short-period
+        map produces smooth, monotonic behavior all the way down to
+        $e = 10^{-3}$.  No $\operatorname{atan2}(p_1, p_2)$ round-trip
+        is needed, so the circular-orbit singularity is fully avoided.
+  \item \textbf{$M_0$ insensitivity}: the GEqOE error is nearly
+        independent of initial mean anomaly, whereas Lara--Brouwer shows
+        appreciable $M_0$ dependence—reflecting the
+        Kepler-equation--based initialization of the Brouwer inverse.
+  \item \textbf{Altitude scaling}: GEqOE error drops below 10~m at
+        GEO altitudes ($a \approx 42{,}000$~km), consistent with the
+        $\varepsilon^2 \propto (R_e/a)^4$ scaling of first-order
+        truncation error.
+\end{itemize}
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=0.48\textwidth]{../figures/grid_ecc_inc.png}%
+\hfill%
+\includegraphics[width=0.48\textwidth]{../figures/grid_sma_inc.png}\\[6pt]
+\includegraphics[width=0.48\textwidth]{../figures/grid_sma_ecc.png}%
+\hfill%
+\includegraphics[width=0.48\textwidth]{../figures/grid_M0_ecc.png}
+\caption{Systematic parameter-space comparison of position RMS error
+(50~orbits, $J_2$--$J_5$).  Each panel shows GEqOE mean+SP (left) and
+Lara--Brouwer (right) on a shared $\log_{10}(\text{km})$ color scale.
+White dashed lines mark the critical inclination; black dashed lines
+indicate the perigee-altitude floor.  The GEqOE theory outperforms
+Lara--Brouwer at every valid grid point.}
+\label{fig:grid_comparison}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=0.95\textwidth]{../figures/topex_validation.png}
+\caption{Topex orbit validation ($a = 7707$~km, $e = 0.0001$,
+$i = 66.04^\circ$, 30~days).  The Lara \{1+:2:1\} $J_2$-only theory
+(blue, 11~m at 30~days) matches the published $<\!20$~m claim of
+Lara~\cite{lara2021}, benefiting from the Breakwell--Vagners second-order
+energy calibration.  The GEqOE $J_2$-only curve (cyan, 4.4~km) overlaps
+the GEqOE $J_2$--$J_5$ curve (green), confirming that the first-order
+theory error is dominated entirely by $J_2^2$ secular drift.
+The $J_2$--$J_5$ comparison (orange: Lara, green: GEqOE) shows GEqOE
+outperforming Lara by $2.3\times$ thanks to complete short-period
+corrections for all zonal degrees.}
+\label{fig:topex_validation}
+\end{figure}
+
+\paragraph{Initialization truncation error.}
+The round-trip diagnostic of Section~\ref{sec:roundtrip} is extended
+to the same four parameter planes in Figure~\ref{fig:roundtrip_geqoe}.
+The osc$\to$mean$\to$osc cycle measures the $O(\varepsilon^2)$ truncation
+error of the direct (non-iterative) first-order inversion, isolating the
+short-period map quality from the mean integrator.  The maximum error is
+$\sim\!5$~m (at high eccentricity near the default inclination), decreasing
+to below 10~mm at GEO altitudes.  Notably, the error is \emph{minimized}
+near the critical inclination, further confirming the absence of any
+coordinate singularity.  The $M_0$-vs-$e$ panel shows that the round-trip
+error is strongly $M_0$-dependent at higher eccentricities, reflecting
+the phase-sensitivity of the generalized Kepler equation $K \to L$
+inversion.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=0.95\textwidth]{../figures/roundtrip_geqoe.png}
+\caption{GEqOE initialization truncation error across four
+orbital parameter planes.  Color encodes $\log_{10}$ of the position
+round-trip error in metres.  The maximum error ($\sim\!5$~m) is bounded
+everywhere and minimized near the critical inclination.}
+\label{fig:roundtrip_geqoe}
+\end{figure}
+
 
 % ================================================================
 % Appendix B: DSST Comparison
@@ -3067,6 +3185,13 @@ orbital elements.
 Rivero, A.\,S., Bombardelli, C., V\'azquez, R. (2025).
 Short-term space occupancy and conjunction filter.
 \textit{Advances in Space Research}, 76, 2354--2372.
+
+\bibitem{rivero2025b}
+Rivero, A.\,S., Ba\`u, G., Bombardelli, C., V\'azquez, R. (2025).
+A novel conjunction filter based on the minimum distance between
+perturbed trajectories.
+\textit{Communications in Nonlinear Science and Numerical Simulation},
+109236.
 
 %%% Numerical integration and compiled evaluation %%%
 
