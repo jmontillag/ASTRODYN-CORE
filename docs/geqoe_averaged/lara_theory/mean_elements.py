@@ -129,6 +129,59 @@ def secular_rates_lara(L, G, H, mu, Re, J2):
 
 
 # ---------------------------------------------------------------------------
+#  Exact secular rates via heyoka automatic differentiation
+# ---------------------------------------------------------------------------
+
+_HEYOKA_SECULAR_CFUNC = None
+
+
+def _build_heyoka_secular_cfunc(mu, Re, J2):
+    """Build a heyoka cfunc for exact ∂K/∂(L,G,H) via symbolic differentiation."""
+    import heyoka as hy
+
+    L_s, G_s, H_s = hy.make_vars("L", "G", "H")
+
+    a_s = L_s**2 / mu
+    eta_s = G_s / L_s
+    eta2_s = eta_s**2
+    p_s = a_s * eta2_s
+    s2_s = 1.0 - (H_s / G_s) ** 2
+    s4_s = s2_s**2
+    H00_s = -mu**2 / (2.0 * L_s**2)
+
+    H01_s = H00_s * (Re / p_s) ** 2 * eta_s * (1.0 - 1.5 * s2_s)
+
+    bracket = (5.0 * (7.0 * s4_s - 16.0 * s2_s + 8.0)
+               + eta_s * (6.0 * s2_s - 4.0) ** 2
+               + eta2_s * (5.0 * s4_s + 8.0 * s2_s - 8.0))
+    H02_s = H00_s * (Re / p_s) ** 4 * (3.0 / (32.0 * eta_s)) * bracket
+
+    K_s = H00_s + J2 * H01_s + 0.5 * J2**2 * H02_s
+
+    dK_dL = hy.diff(K_s, L_s)
+    dK_dG = hy.diff(K_s, G_s)
+    dK_dH = hy.diff(K_s, H_s)
+
+    return hy.cfunc([dK_dL, dK_dG, dK_dH], vars=[L_s, G_s, H_s])
+
+
+def secular_rates_lara_exact(L, G, H, mu, Re, J2):
+    """Exact second-order secular rates via heyoka automatic differentiation.
+
+    Uses symbolic differentiation of K = H₀,₀ + J₂·H₀,₁ + J₂²/2·H₀,₂
+    (Lara 2021, Eq. 14) — no finite-difference precision loss.
+
+    Returns (dl_dt, dg_dt, dh_dt, 0, 0, 0).
+    """
+    global _HEYOKA_SECULAR_CFUNC
+    if _HEYOKA_SECULAR_CFUNC is None:
+        _HEYOKA_SECULAR_CFUNC = _build_heyoka_secular_cfunc(mu, Re, J2)
+
+    rates = _HEYOKA_SECULAR_CFUNC([L, G, H])
+    return float(rates[0]), float(rates[1]), float(rates[2]), 0.0, 0.0, 0.0
+
+
+# ---------------------------------------------------------------------------
 #  Second-order secular rates: J2² + J4  (Brouwer / SGP4)
 # ---------------------------------------------------------------------------
 
@@ -326,10 +379,13 @@ def propagate_mean_delaunay(y0, t_array, mu, Re, j_coeffs, rtol=1e-12, atol=1e-1
             frozen_rates += np.array(r_n, dtype=float)
 
     # Pre-compute Lara second-order secular rates at initial state (frozen).
-    # These are constant for a secular-only theory (L, G, H don't change
-    # at first order; their rates are zero).
-    lara_rates_0 = np.array(
-        secular_rates_lara(L0, G0, H0, mu, Re, j_coeffs[2]), dtype=float)
+    # Use heyoka exact derivatives when available (no FD precision loss).
+    try:
+        lara_rates_0 = np.array(
+            secular_rates_lara_exact(L0, G0, H0, mu, Re, j_coeffs[2]), dtype=float)
+    except Exception:
+        lara_rates_0 = np.array(
+            secular_rates_lara(L0, G0, H0, mu, Re, j_coeffs[2]), dtype=float)
 
     # BV correction goes into the dl/dt component only
     total_frozen = lara_rates_0 + frozen_rates

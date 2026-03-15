@@ -37,7 +37,7 @@ class LaraBrouwerPropagator:
     corrections, it degrades accuracy (verified numerically).
     """
 
-    def __init__(self, mu, Re, j_coeffs, use_w1_sp=True):
+    def __init__(self, mu, Re, j_coeffs, use_w1_sp=False):
         self.mu = mu
         self.Re = Re
         self.j_coeffs = j_coeffs  # {2: J2, 3: J3, 4: J4, 5: J5}
