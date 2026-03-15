@@ -10,7 +10,164 @@ Build a high-performance orbit propagator using **Generalized Equinoctial Orbita
 4. Provide dense output (polynomial evaluation at any sub-step time)
 5. Match or exceed the performance of an existing hand-derived analytical Taylor-4 J2-only implementation
 
-**Reference paper**: Baù, Hernando-Ayuso & Bombardelli (2021), "A generalization of the equinoctial orbital elements", Celestial Mechanics and Dynamical Astronomy, 133:50. All equation numbers below refer to this paper.
+**Reference paper**: Bau, Hernando-Ayuso & Bombardelli (2021), "A generalization of the equinoctial orbital elements", Celestial Mechanics and Dynamical Astronomy, 133:50. All equation numbers below refer to this paper.
+
+---
+
+## Current Status
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| 1 | Foundations (constants, conversions, perturbation interface, J2 model) | DONE |
+| 2 | Symbolic RHS construction (`rhs.py`) | DONE |
+| 3 | heyoka integrators (state-only, STM, propagation helpers) | DONE |
+| 4 | Validation tests (14 tests passing) | DONE |
+| 5 | Dense output + demo script | DONE |
+| -- | Cowell ground truth reference propagator | DONE |
+| 6 | General perturbations (third-body, non-conservative, higher geopotential) | DONE (core) |
+| 7a | Zonal harmonics (J2–Jn via auto-gradient) | DONE |
+| 7b | Post-review hardening + formal implementation note | DONE |
+| 8 | Continuous thrust and maneuver characterization framework | IN PROGRESS (8a-8c core implemented; measurement-model bridge added; broader estimation/uncertainty work still pending) |
+
+### Achieved Performance (J2-only, tol=1e-15)
+
+- **12-day propagation**: 3.9 ms, ~8 steps/orbit, Taylor order 19
+- **1-year propagation**: 98 ms
+- **Accuracy vs paper Appendix C**: 1.68e-7 km (0.17 mm) position error
+- **Accuracy vs heyoka Cowell ground truth**: 4.6e-8 km position error
+- **STM vs finite differences**: relative error ~1.5e-6
+- **Conversion round-trip**: <1e-10 km position, <1e-13 km/s velocity
+
+### Phase 6 Results (J2 + Sun + Moon)
+
+- **General equations vs J2-only**: position agreement < 1e-5 km (12-day)
+- **J2+Sun+Moon vs Cowell ground truth**: < 1e-3 km (12-day)
+- **Third-body effect size**: measurable but < 10 km for 12-day LEO
+- **JIT compile time**: ~2-4s (coarse ephemeris), ~minutes (full precision)
+- **25 GEqOE tests passing** (14 original + 11 Phase 6)
+
+### Phase 7a Results (Zonal Harmonics)
+
+- **ZonalPerturbation({2: J2}) vs paper reference**: < 1e-5 km (12-day)
+- **J2+J3+J4 vs Cowell ground truth**: < 1e-4 km (12-day)
+- **J3+J4 effect size**: measurable (0.01–100 km range for 12-day LEO)
+- **nu conservation**: preserved to machine precision (E_dot=0)
+- **Auto-gradient (diff_tensors+subs) vs finite differences**: relative error < 5e-5
+- **Optimized zonal fast path**: no Cartesian detour, Euler identity for 2U-rFr,
+  F_h from dU/dzhat (because r·eZ=0 in the orbital plane)
+- **51 GEqOE tests passing** (14 original + 11 Phase 6 + 22 Phase 7a + 4 hardening regressions)
+
+### Phase 7b Results (Post-Review Hardening)
+
+- **J2 fast path is now explicit opt-in** via `_j2_fast_path`, avoiding silent
+  misrouting of arbitrary static conservative models into the pure-J2 equations
+- **General path no longer requires hidden perturbation attributes** (`A`);
+  `mu` falls back to the package constant when absent
+- **Standalone third-body propagation works** without wrapping in a composite model
+- **Time-dependent perturbations are invariant to integrator `t0` offsets** via
+  symbolic relative time `hy.time - t0`
+- **Formal LaTeX implementation note added** in `docs/geqoe_taylor/paper/`
+
+### Phase 8a Results (Continuous-Thrust Core)
+
+- **7-state GEqOE propagation implemented** with mass-augmented state
+  $(\nu, p_1, p_2, K, q_1, q_2, m)$
+- **Continuous-thrust control layer added** via `ContinuousThrustLaw`,
+  `ConstantRTNThrustLaw`, and `ContinuousThrustPerturbation`
+- **Control coefficients exposed through `hy.par[i]`** so thrust magnitude and
+  `I_{sp}` can be changed without rebuilding the symbolic graph
+- **Dedicated thrust integrator builders added**:
+  `build_thrust_state_integrator()` and `build_thrust_stm_integrator()`
+- **Mass depletion implemented** with
+  $\dot{m} = -T / (g_0 I_{sp})$ using thrust magnitude in newtons and mass in kg
+- **GEqOE vs Cowell validation added** through a generic heyoka Cowell path for
+  arbitrary perturbation models, including propagated mass
+- **70 GEqOE Taylor tests passing** (`test_geqoe_taylor.py`,
+  `test_geqoe_taylor_general.py`, `test_geqoe_taylor_zonal.py`,
+  `test_geqoe_taylor_thrust.py`, `test_geqoe_taylor_shooting.py`)
+
+### Phase 8b Results (Sensitivity Core)
+
+- **State and parameter sensitivities implemented** for the 7-state thrust
+  system using `hy.var_args.vars | hy.var_args.params`
+- **Dedicated builder added**: `build_thrust_sensitivity_integrator()`
+- **Variational extraction helper added**:
+  `extract_variational_matrices()` returning `(y, Phi_x, Phi_p, param_names)`
+- **Runtime parameter ordering exposed** via `parameter_names_from_map()`
+- **Endpoint Jacobian selector added** via `extract_endpoint_jacobian()`
+- **Single-arc smooth spline law added** via `CubicHermiteRTNThrustLaw`
+- **Finite-difference regression added** for thrust-parameter endpoint
+  sensitivities
+
+### Phase 8c Results (Multiple-Shooting Prototype)
+
+- **Multi-arc transcription helper added** via `ShootingArc` and
+  `MultiArcShootingProblem`
+- **Per-arc decision-vector layout added** as `[x_i, p_i]` blocks with stable
+  variable names for downstream NLP assembly
+- **Sparse continuity residual/Jacobian assembly implemented** using the
+  existing 7-state thrust sensitivities
+- **Terminal-constraint helper added** for selected endpoint outputs
+- **Minimum-propellant objective helper added** with an exact gradient
+- **Named bounds helper added** for exact or suffix-based decision-variable
+  selectors
+- **Spec-driven solver layer added** via `TerminalConstraintSpec`,
+  `SmoothnessPenaltySpec`, and `ShootingSolveSpec`
+- **SciPy `trust-constr` adapter added** for minimum-propellant solves with
+  continuity, bounded terminal outputs, and optional smoothness regularization
+- **Executable prototype demo added** via
+  `examples/geqoe_heyoka/geqoe_taylor_shooting_demo.py`
+- **Example tree reorganized** into `examples/geqoe_native/`,
+  `examples/geqoe_heyoka/`, `examples/geqoe_compare/`, and
+  `examples/geqoe_reconstruction_lab/`
+- **Native-vs-heyoka coefficient comparison added** via
+  `examples/geqoe_compare/native_vs_heyoka_j2.py`
+- **Maneuver profile gallery added** via
+  `examples/geqoe_heyoka/maneuver_profile_gallery.py`
+- **Synthetic position-fit experiment added** via
+  `examples/geqoe_reconstruction_lab/position_fit_demo.py`
+- **Mixed position+range reconstruction demo added** via
+  `examples/geqoe_reconstruction_lab/mixed_position_range_fit_demo.py`
+- **Finite-difference regression added** for continuity Jacobians and the
+  minimum-propellant objective gradient, plus terminal-bounds and
+  smoothness-regularized solve checks
+- **General sampled-measurement interface added** via `MeasurementModel`,
+  `SampledMeasurement`, and `MeasurementResidualEvaluation`
+- **Weighted measurement residual/Jacobian assembly added** through
+  `MultiArcShootingProblem.evaluate_measurements()` and
+  `measurement_residuals()`
+- **Toy inertial-position observation model added** via
+  `InertialPositionMeasurementModel`, using exact state Jacobians chained
+  through the existing GEqOE + mass sensitivities
+- **Toy inertial-range observation model added** via
+  `InertialRangeMeasurementModel`, reusing the inertial-position map and an
+  exact line-of-sight reduction
+- **Measurement weights made uncertainty-ready** with direct whitening-matrix
+  support and convenience constructors from standard deviations/covariance
+- **Measurement-driven solve specs added** via `MeasurementObjectiveSpec`,
+  `DecisionTrackingPenaltySpec`, and `solve_measurement_fit(...)`
+- **Mixed batches across implemented toy models supported** because sampled
+  measurements are transcribed through a shared `MeasurementModel` interface
+- **Measurement solves default to exact first-order residual/Jacobian data plus
+  SciPy quasi-Newton curvature updates** for constrained multi-arc fits, while
+  the local Gauss-Newton Hessian remains available as an explicit option
+- **Local constrained covariance estimation added** via
+  `LinearizedCovarianceResult` and `MultiArcShootingProblem.estimate_covariance()`
+- **Reconstruction demo refactored** so intermediate inertial-position
+  residuals now come from the shared GEqOE measurement/transcription layer
+- **Finite-difference regression added** for sampled measurement Jacobians and
+  measurement-weight scaling, plus mixed-batch and solve-spec coverage
+- **Constrained maneuver-detection demo added** via
+  `examples/geqoe_reconstruction_lab/maneuver_detection_demo.py`, reporting
+  per-arc thrust significance from the local covariance model
+- **Prototype caveat documented**: exact-zero constant-thrust candidate arcs
+  still use a tiny positive floor in the detection demo because the current
+  sensitivity stack is numerically happier away from an exact zero-thrust value
+
+### Commits
+
+- `c101e50`: feat: Add heyoka-based GEqOE Taylor propagator with automatic STM (10 files, 849 lines)
+- `6921a53`: feat: Add Cowell ground truth reference and interactive demo script (3 files, 429 lines)
 
 ---
 
@@ -37,36 +194,45 @@ If $L$ is ever needed (e.g., for output), compute it from $K$ via the forward Ke
 ## Repository Structure
 
 ```
-geqoe_taylor/
-├── README.md
-├── pyproject.toml
-├── src/
-│   └── geqoe_taylor/
-│       ├── __init__.py
-│       ├── constants.py              # Physical constants (mu, J2, Re)
-│       ├── perturbations/
-│       │   ├── __init__.py
-│       │   ├── base.py               # PerturbationModel protocol
-│       │   ├── j2.py                 # J2 zonal harmonic
-│       │   └── j2_thirdbody.py       # J2 + Sun/Moon (later)
-│       ├── rhs.py                    # GEqOE RHS builder (symbolic)
-│       ├── integrator.py             # Wrapper: build/run heyoka integrators
-│       ├── conversions.py            # Cartesian <-> GEqOE conversions (numerical, not symbolic)
-│       └── utils.py                  # Helpers (Kepler solve for L<->K, etc.)
-├── tests/
-│   ├── test_conversions.py           # Round-trip Cartesian <-> GEqOE
-│   ├── test_rhs_eval.py             # RHS evaluation against finite differences
-│   ├── test_propagation.py          # Propagation accuracy vs reference
-│   ├── test_stm.py                  # STM vs finite-difference Jacobian
-│   └── test_paper_cases.py          # Reproduce Table 2/3 and Figs 3-7 from paper
-└── examples/
-    ├── propagate_leo.py             # Basic propagation example
-    └── compare_cowell.py            # GEqOE vs Cartesian comparison
+src/astrodyn_core/geqoe_taylor/
+    __init__.py                    # Package init, exports public API
+    constants.py                   # Physical constants (mu, J2, Re, A_J2)
+    perturbations/
+        __init__.py
+        base.py                    # PerturbationModel protocol
+        j2.py                      # J2 zonal harmonic (symbolic + numeric)
+        thrust.py                  # Continuous-thrust wrapper -> Cartesian P + m_dot
+        zonal.py                   # Arbitrary zonal harmonics J2-Jn (auto-gradient)
+    rhs.py                         # GEqOE RHS builder (symbolic heyoka expressions)
+    integrator.py                  # Wrapper: build/run heyoka integrators
+    conversions.py                 # Cartesian <-> GEqOE conversions (numerical)
+    thrust.py                      # Continuous-thrust law abstractions
+    utils.py                       # Helpers (Kepler solve for L<->K)
+    cowell.py                      # Cowell ground truth helpers (J2 + general)
+tests/
+    test_geqoe_taylor.py           # 14 tests: conversions, propagation, STM, Cowell
+    test_geqoe_taylor_thrust.py    # 6 tests: thrust core, mass flow, Cowell match
+examples/
+    geqoe_native/
+        geqoe_propagator.py        # Legacy/native GEqOE umbrella demo
+        geqoe_adaptive_benchmark.py
+        geqoe_adaptive_error_plot.py
+        geqoe_cpp_benchmark.py
+        geqoe_cpp_order1_parity.py
+        geqoe_legacy_vs_staged.py
+    geqoe_heyoka/
+        geqoe_taylor_demo.py           # Interactive demo (7 sections)
+        geqoe_taylor_shooting_demo.py  # Multiple-shooting optimization prototype demo
+        maneuver_profile_gallery.py    # Visual thrust / mass / orbit-response gallery
+    geqoe_compare/
+        native_vs_heyoka_j2.py         # Shared-component Taylor coefficient + speed comparison
+    geqoe_reconstruction_lab/
+        position_fit_demo.py           # Direct-shooting low-thrust fit to inertial positions
 ```
 
 ---
 
-## Phase 1: Foundations (No heyoka yet)
+## Phase 1: Foundations (DONE)
 
 ### 1.1 Physical Constants (`constants.py`)
 
@@ -79,495 +245,849 @@ A_J2 = MU * J2 * RE**2 / 2   # Convenience constant for J2 potential
 
 ### 1.2 Coordinate Conversions (`conversions.py`)
 
-Implement in plain NumPy (not heyoka expressions). These run outside the integrator.
+Implemented in plain NumPy (not heyoka expressions). These run outside the integrator.
 
-**Cartesian → GEqOE** (Section 3 of paper):
-- Input: `r_vec` (3,), `v_vec` (3,), `mu`, `perturbation: PerturbationModel`
-- Output: `(nu, p1, p2, K, q1, q2)`
-- Steps: compute orbital frame vectors (Eq. 4), `r`, `rdot`, `h`, total energy `E` (using `perturbation.U_numeric`), `nu` (Eq. 16), `q1/q2` (Eq. 35-36), equinoctial frame `eX/eY/eZ` (Eq. 37), generalized angular momentum `c` (Eq. 6), generalized velocity `upsilon` (Eq. 7), generalized Laplace vector `g` (Eq. 10), `p1/p2` as projections of `g`, then `X/Y`, `sin K/cos K` (Eq. 39), `K = atan2(sinK, cosK)`
-- **Important**: Accept `PerturbationModel` from day one (not a bare `U` function). This avoids refactoring conversions when moving from J2-only to general perturbations in Phase 6.
+**Cartesian -> GEqOE**: `cart2geqoe(r_vec, v_vec, mu, perturbation)` -> `(nu, p1, p2, K, q1, q2)`
+**GEqOE -> Cartesian**: `geqoe2cart(geqoe, mu, perturbation)` -> `(r_vec, v_vec)`
 
-**GEqOE → Cartesian** (Section 4 of paper):
-- Input: `(nu, p1, p2, K, q1, q2)`, `mu`, `perturbation: PerturbationModel`
-- Output: `r_vec` (3,), `v_vec` (3,)
-- Steps: `eX/eY` from `q1/q2` (Eq. 37), `a` from `nu` (Eq. 21), `alpha/beta` (Eq. 40), `X/Y` (Eq. 42), `r_vec = X*eX + Y*eY`, `r/rdot` (Eq. 31-32), `cos L/sin L` from `X/Y/r`, then `h` from `c` and `U` (Eq. 44), velocity components `Xdot/Ydot` (Eq. 43), `v_vec = Xdot*eX + Ydot*eY`
-
-**Validation**: Use Table 2 → Table 3 from the paper (Appendix B). The paper provides step-by-step numerical values for case (a). Implement a test that reproduces these exact numbers to 10+ significant figures.
+Both accept a `PerturbationModel` for the U-dependent terms (h, c, velocity reconstruction).
 
 ### 1.3 Perturbation Model Interface (`perturbations/base.py`)
 
 ```python
-from typing import Protocol
-
 class PerturbationModel(Protocol):
-    """Interface for perturbation models.
-    
-    A model must provide:
-    - U_expr(r, z, r_mag, t, pars): heyoka expression for potential energy U
-    - U_numeric(r_vec, t): numeric evaluation of U for coordinate conversions
-    - grad_U_numeric(r_vec, t): numeric gradient of U for coordinate conversions
-    """
-    
-    def U_expr(self, x, y, z, r_mag, t, pars) -> "heyoka expression":
-        """Return U as a heyoka symbolic expression.
-        
-        Args:
-            x, y, z: heyoka expressions for Cartesian position components
-            r_mag: heyoka expression for |r|
-            t: heyoka time expression
-            pars: dict mapping parameter names to par[i] indices
-        """
-        ...
-    
-    def U_numeric(self, r_vec, t) -> float:
-        """Evaluate U numerically (for coordinate conversions)."""
-        ...
-    
-    def grad_U_numeric(self, r_vec, t):
-        """Evaluate grad(U) numerically (for coordinate conversions). Returns (3,) array."""
-        ...
+    def U_expr(self, x, y, z, r_mag, t, pars: dict) -> "heyoka expression": ...
+    def U_numeric(self, r_vec, t) -> float: ...
 ```
 
 ### 1.4 J2 Perturbation (`perturbations/j2.py`)
 
-From Eq. 56 of the paper:
+From Eq. 56: $\mathcal{U} = -A/r^3(1 - 3\hat{z}^2)$ where $A = \mu J_2 r_e^2 / 2$.
 
-$$\mathcal{U} = -\frac{A}{r^3}(1 - 3\hat{z}^2)$$
-
-where $A = GM J_2 r_e^2 / 2$ and $\hat{z} = z/r$.
-
-Implement both symbolic (heyoka expressions) and numeric versions.
-
-For the symbolic version, express $z$ in terms of equinoctial quantities using Eq. 57:
-$$\hat{z} = \frac{2(Y q_2 - X q_1)}{r(1 + q_1^2 + q_2^2)}$$
-
-where $X = r \cos L$, $Y = r \sin L$. Since we integrate $K$, compute $\cos L$ and $\sin L$ from Eq. 60.
-
-**Key derived quantities needed in the RHS** (specific to J2-only, from Section 7.1):
-- Total energy $\mathcal{E}$ is a first integral → $\dot{\nu} = 0$, $\dot{\mathcal{E}} = 0$
-- $2\mathcal{U} - r F_r = -\mathcal{U}$ (derived in Section 7.1)
-- $F_h = -6A \hat{z} \cos i / r^4$
-- $w_h = I\hat{z}$ with $I = 3A\hat{z}(1 - q_1^2 - q_2^2)/(hr^3)$ (Eq. 58)
+Both symbolic (heyoka expression) and numeric (NumPy) versions implemented.
 
 ---
 
-## Phase 2: Symbolic RHS Construction (`rhs.py`)
-
-This is the core and hardest part. Build the GEqOE equations of motion as heyoka symbolic expressions.
+## Phase 2: Symbolic RHS Construction (DONE)
 
 ### 2.1 State Variables and Parameters
 
-```python
-import heyoka as hy
+State: `[nu, p1, p2, K, q1, q2]` as heyoka variables.
+Parameters:
+- J2 fast path: `mu = hy.par[0]`, `A_J2 = hy.par[1]`
+- General and zonal paths: `mu = hy.par[0]`
 
-def build_geqoe_system(perturbation_model, use_par=True):
-    """Build the GEqOE ODE system as heyoka expressions.
-    
-    State: [nu, p1, p2, K, q1, q2]
-    
-    Returns:
-        sys: list of (var, rhs) tuples for heyoka.taylor_adaptive
-        state_vars: list of heyoka variables
-        par_map: dict mapping parameter names to par[] indices
-    """
-    # State variables
-    nu, p1, p2, K, q1, q2 = hy.make_vars("nu", "p1", "p2", "K", "q1", "q2")
-    
-    # Runtime parameters (changeable without recompilation)
-    if use_par:
-        mu = hy.par[0]
-        # Additional params depend on perturbation model
-        par_map = {"mu": 0}
-        # Let perturbation model register its parameters starting at index 1
-    else:
-        mu = MU  # compile-time constant (faster but less flexible)
-        par_map = {}
-```
+### 2.2 Intermediate Quantities
 
-### 2.2 Intermediate Quantities from (nu, p1, p2, K, q1, q2)
-
-Build these as heyoka expressions in order. Each depends only on state variables and parameters.
+All built as heyoka expressions from state variables:
 
 ```
-# Shape quantities
-a = (mu / nu**2)**(1./3)                          # Eq. 21
-g2 = p1**2 + p2**2                                 # Eq. 22
-beta = hy.sqrt(1 - g2)                             # Eq. 40
-alpha = 1 / (1 + beta)                             # Eq. 40
-
-# Position from K (Eq. 42)
-sinK = hy.sin(K)
-cosK = hy.cos(K)
-X = a * (alpha*p1*p2*sinK + (1 - alpha*p1**2)*cosK - p2)
-Y = a * (alpha*p1*p2*cosK + (1 - alpha*p2**2)*sinK - p1)
-
-# Orbital distance and radial velocity (Eq. 31-32)
-r = a * (1 - p1*sinK - p2*cosK)
-rdot = hy.sqrt(mu*a) / r * (p2*sinK - p1*cosK)
-
-# True longitude trig functions
-cosL = X / r
-sinL = Y / r
-
-# Equinoctial frame unit vectors (Eq. 37) — needed for z-component
-gamma_inv = 1 / (1 + q1**2 + q2**2)
-# eX = gamma_inv * [1-q1^2+q2^2, 2*q1*q2, -2*q1]  (but we only need z-components for zhat)
-# eY = gamma_inv * [2*q1*q2, 1+q1^2-q2^2, 2*q2]
-
-# z-hat (Eq. 57)
-zhat = 2 * (Y*q2 - X*q1) * gamma_inv / r
-
-# Generalized angular momentum (Eq. 23)
-c = (mu**2 / nu)**(1./3) * hy.sqrt(1 - g2)
-
-# Physical angular momentum h from c and U (Eq. 44)
-# Need U as function of position — this comes from perturbation_model
-# h = sqrt(c**2 - 2*r**2*U)
+a = (mu / nu^2)^(1/3)           # Semi-major axis (Eq. 21)
+g2 = p1^2 + p2^2                # (Eq. 22)
+beta = sqrt(1 - g2)             # (Eq. 40)
+alpha = 1 / (1 + beta)          # (Eq. 40)
+X, Y = ...                      # Position in equinoctial frame (Eq. 42)
+r = a * (1 - p1*sinK - p2*cosK) # Orbital distance (Eq. 31)
+zhat = 2*(Y*q2 - X*q1) / (r*(1+q1^2+q2^2))   # (Eq. 57)
+c = (mu^2/nu)^(1/3) * beta      # Generalized angular momentum (Eq. 23)
+h = sqrt(c^2 - 2*r^2*U)         # Physical angular momentum (Eq. 44)
+h - c = -2*r^2*U / (h + c)      # Stable computation (avoids cancellation)
 ```
 
-### 2.3 Perturbation-Dependent Terms
+### 2.3 J2-Only Simplifications (Section 7.1)
 
-For the **J2-only** case (Section 7.1 of paper), the RHS simplifies because:
-- $\dot{\mathcal{E}} = 0$ (energy is conserved) → $\dot{\nu} = 0$
-- $2\mathcal{U} - rF_r = -\mathcal{U}$
+- Energy $\mathcal{E}$ is a first integral: $\dot{\nu} = 0$, $\dot{\mathcal{E}} = 0$
+- $2\mathcal{U} - rF_r = -\mathcal{U}$ (derived in Section 7.1)
 
-The simplified J2-only equations are given explicitly in Section 7.1. **Implement this case first.**
+### 2.4 Assembled ODEs (corrected)
 
-For the **general** case (Eqs. 45-51), the full terms $\dot{\mathcal{E}}$ (Eq. 46), $2\mathcal{U} - rF_r$, and $w_h$ must be computed from the perturbation model's symbolic expressions.
+**BUG FIX**: The original plan specified `ell/alpha` ($= c^2/(\mu\alpha)$) as the coefficient in $\dot{K}$. This is **wrong** — it gave $\dot{K} \approx 7.4 \times 10^{-3}$ (7x too large). The correct coefficient is `1 + alpha*(1 - r/a)`, matching Eq. 75 with the J2-only substitution $2\mathcal{U} - rF_r = -\mathcal{U}$ and $\dot{\mathcal{E}} = 0$.
 
-### 2.4 Assembling the ODEs
-
-For **J2-only** (from Section 7.1), the system is:
+Note: The existing L-based code uses $\Gamma = 1/\alpha + \alpha(1 - r/a)$ for $\dot{L}$. For $\dot{K}$, the coefficient differs because the L->K transformation shifts it: the $\dot{K}$ coefficient is $1 + \alpha(1 - r/a)$, not $\Gamma$.
 
 ```
-nu_dot = 0   # (energy integral)
-
-p1_dot = p2 * ((h-c)/r**2 - I*zhat) - (1/c) * (X/a + 2*p2) * U_val
-
-p2_dot = p1 * (I*zhat - (h-c)/r**2) + (1/c) * (Y/a + 2*p1) * U_val
-
-K_dot  = w/r + (h-c)/r**2 - I*zhat - (1/c) * (ell/alpha + alpha*(1-r/a)) * U_val
-         # where w = sqrt(mu/a), ell = c**2/mu
-         # Note: this is Eq. 75 with E_dot=0 and 2U-rFr=-U
-
-q1_dot = -I * Y / r
-
-q2_dot = -I * X / r
+nu_dot = 0                                                # Energy integral
+p1_dot = p2*(d - w_h) - (1/c)*(X/a + 2*p2)*U             # Eq. 47 simplified
+p2_dot = p1*(w_h - d) + (1/c)*(Y/a + 2*p1)*U             # Eq. 48 simplified
+K_dot  = w/r + d - w_h - (1/c)*(1 + alpha*(1 - r/a))*U   # Eq. 75 (CORRECTED)
+q1_dot = -I * sinL                                         # Eq. 50 simplified
+q2_dot = -I * cosL                                         # Eq. 51 simplified
 ```
 
 where:
-- `U_val` = $\mathcal{U}(r, \hat{z})$ from the J2 model (Eq. 56)
-- `I` = $3A\hat{z}(1 - q_1^2 - q_2^2)/(hr^3)$ (Eq. 58)
-- `h` = $\sqrt{c^2 - 2r^2\mathcal{U}}$ (Eq. 44)
-
-### 2.5 Important Implementation Notes
-
-1. **Substitution hints from Section 7.1 of the paper**: For numerical stability in the $\dot{K}$ expression, use:
-   - $1 - r/a = p_1 \sin K + p_2 \cos K$ (from Eq. 31)
-   - $r\dot{r}/c = (p_2 \sin K - p_1 \cos K)/\beta$ (derived from Eq. 32 and definitions)
-
-2. **The quantity $h - c$**: This is small (of order $J_2$). Computing it as `sqrt(c**2 - 2*r**2*U) - c` loses precision. Instead, use:
-   $$h - c = \frac{c^2 - 2r^2\mathcal{U} - c^2}{h + c} = \frac{-2r^2\mathcal{U}}{h + c}$$
-   In heyoka: `h_minus_c = -2*r**2*U_val / (h + c)`
-
-3. **The semi-latus rectum**: $\ell = c^2/\mu = a(1 - g^2)$ (Eq. 19-20). Use whichever avoids cancellation.
-
-4. **Avoid dividing by small quantities**: The expressions involve $1/c$, $1/r$, $1/h$. These are all well-behaved for non-degenerate orbits, but watch for $\beta = \sqrt{1 - g^2}$ near $g = 1$ (highly eccentric).
+- `d = (h - c) / r^2` with stable h-c computation
+- `w_h = I * zhat`
+- `I = 3*A*zhat*(1 - q1^2 - q2^2) / (h*r^3)` (Eq. 58)
+- `1 - r/a = p1*sinK + p2*cosK` (Eq. 31, for numerical stability)
 
 ---
 
-## Phase 3: Build heyoka Integrators (`integrator.py`)
+## Phase 3: heyoka Integrators (DONE)
 
-### 3.1 State-Only Integrator
+### 3.1 State-Only Integrator (6 DOF)
+
+`build_state_integrator(perturbation, ic, tol=1e-15)` -> `(ta, par_map)`
+
+### 3.2 State + STM Integrator (42 DOF)
+
+`build_stm_integrator(perturbation, ic, tol=1e-15)` -> `(ta, par_map)`
+
+Uses `hy.var_ode_sys(sys, hy.var_args.vars, order=1)` for automatic variational equations. Compact mode enabled by default for the 42-DOF system.
+
+### 3.3 Propagation Helpers
+
+- `propagate(ta, t_final)` -> `(times, states)` — step-by-step with adaptive stepping
+- `propagate_grid(ta, t_grid)` -> states array — dense output at specified times
+- `extract_stm(state_aug)` -> `(y, phi)` — extract 6x6 STM from 42-element state
+
+---
+
+## Phase 4: Validation (DONE — 14 tests passing)
+
+### Test Classes
+
+| Class | Tests | Description |
+|-------|-------|-------------|
+| `TestConversions` | 4 | Round-trip (case a, elliptical, retrograde), paper Table 3 values |
+| `TestKeplerEquation` | 2 | K->L->K round-trip, K=0 edge case |
+| `TestPropagation` | 4 | 12-day accuracy, nu conservation, step vs propagate_until, grid output |
+| `TestSTM` | 2 | STM vs finite differences (<1e-5 rel err), identity at t=0 |
+| `TestCowellGroundTruth` | 2 | GEqOE vs heyoka Cowell (<1e-6 km), Cowell vs paper (<1e-5 km) |
+
+Run: `conda run -n astrodyn-core-env pytest tests/test_geqoe_taylor.py -q`
+
+---
+
+## Phase 5: Dense Output and Demo (DONE)
+
+### 5.1 Dense Output
+
+Uses heyoka's built-in `propagate_grid()` for sub-step polynomial evaluation. No custom Taylor coefficient handling needed.
+
+### 5.2 Cowell Ground Truth (`cowell.py`)
+
+Two independent Cartesian J2 propagators for validation:
+- `propagate_cowell()` — scipy DOP853 (rtol=atol=1e-14)
+- `propagate_cowell_heyoka()` — heyoka Taylor (tol=1e-15, highest accuracy)
+
+Ground truth comparison (12 days, J2-only):
+```
+Method                     pos error (km)    pos error (m)
+GEqOE Taylor (heyoka)      4.6e-08           0.0000
+Paper Dromo (App. C)        2.1e-07           0.0002
+Scipy DOP853                9.6e-07           0.0010
+```
+
+### 5.3 Interactive Demo (`examples/geqoe_heyoka/geqoe_taylor_demo.py`)
+
+Seven sections: conversions, 12-day propagation, step history, dense output grid, STM computation, ground truth comparison, 1-year performance summary.
+
+Run: `conda run -n astrodyn-core-env python examples/geqoe_heyoka/geqoe_taylor_demo.py`
+
+### 5.4 Example Gallery And Comparisons
+
+The current example layout is intentionally split by backend and use case:
+
+- `examples/geqoe_native/` keeps the legacy/native GEqOE demonstrations and
+  staged/adaptive/C++ parity tools together.
+- `examples/geqoe_heyoka/` holds the new GEqOE Taylor demos, the
+  multiple-shooting prototype, and the maneuver-profile gallery.
+- `examples/geqoe_compare/native_vs_heyoka_j2.py` compares order-1..4 shared
+  Taylor derivatives and short-window series reconstructions between the old
+  J2 map and the heyoka backend.
+- `examples/geqoe_reconstruction_lab/position_fit_demo.py` shows a
+  continuous-thrust position-fit workflow built on the shared sampled-
+  measurement interface, using inertial position samples as the first bridge
+  toward maneuver characterization from intermediate states.
+
+---
+
+## Phase 6: General Perturbations (DONE — core)
+
+This phase extends the propagator beyond J2-only to support arbitrary conservative and non-conservative perturbations, using the full equations of motion (Eqs. 45-51).
+
+### 6.1 Implemented: Full Equations of Motion
+
+**IMPORTANT CORRECTION**: The q-dot equations listed in the original plan were wrong. The correct forms from the paper (Eqs. 50-51) are:
+
+$$\dot{q}_1 = \frac{\gamma}{2} w_Y, \quad \dot{q}_2 = \frac{\gamma}{2} w_X$$
+
+where $\gamma = 1 + q_1^2 + q_2^2$, and from Eq. 14/52:
+
+$$w_X = \frac{X}{h} F_h, \quad w_Y = \frac{Y}{h} F_h, \quad w_h = w_X q_1 - w_Y q_2$$
+
+Here $F_h = \mathbf{F} \cdot \mathbf{e}_Z$ is the total out-of-plane perturbation force projection, where $\mathbf{F} = \mathbf{P} - \nabla\mathcal{U}$ combines conservative and non-conservative forces (Eq. 3).
+
+The p-dot equations use the compact paper form (Eqs. 47-48) with combined $F_r = \mathbf{F} \cdot \mathbf{e}_r$ and the energy derivative $\dot{\mathcal{E}}$ term:
+
+$$\dot{p}_1 = p_2(d - w_h) + \frac{1}{c}\left(\frac{X}{a} + 2p_2\right)(2\mathcal{U} - rF_r) + \frac{1}{c^2}\left[Y(r + \varrho) + r^2 p_1\right]\dot{\mathcal{E}}$$
+
+$$\dot{p}_2 = p_1(w_h - d) - \frac{1}{c}\left(\frac{Y}{a} + 2p_1\right)(2\mathcal{U} - rF_r) + \frac{1}{c^2}\left[X(r + \varrho) + r^2 p_2\right]\dot{\mathcal{E}}$$
+
+where $\varrho = c^2/\mu$ and $d = (h-c)/r^2$.
+
+For $\dot{K}$, instead of the expanded Eq. 75, the implementation derives it from $\dot{\mathcal{L}}$ (Eq. 49):
+
+$$\dot{K} = \frac{a}{r}\left(\dot{\mathcal{L}} - \dot{p}_1 \cos K + \dot{p}_2 \sin K\right)$$
+
+This avoids a separate formula and is algebraically exact (from $\mathcal{L} = K + p_1 \cos K - p_2 \sin K$).
+
+### 6.2 Implemented Architecture
+
+**Auto-detection**: `build_geqoe_system()` first checks `_zonal_fast_path`, then `_j2_fast_path`, and otherwise falls back to the general equations. The J2 shortcut is opt-in because it hard-codes the Eq. 56 potential and Section 7.1 simplifications.
+
+**Perturbation protocol** (`perturbations/base.py`): `GeneralPerturbationModel` extends `PerturbationModel` with `grad_U_expr`, `P_expr`, `U_t_expr`.
+
+**Key identity for $2\mathcal{U} - rF_r$**: Using the Euler theorem for homogeneous functions:
+$$2\mathcal{U} - rF_r = 2\mathcal{U} + \mathbf{r} \cdot \nabla\mathcal{U} - r P_r$$
+
+The term $\mathbf{r} \cdot \nabla\mathcal{U} = x \frac{\partial\mathcal{U}}{\partial x} + y \frac{\partial\mathcal{U}}{\partial y} + z \frac{\partial\mathcal{U}}{\partial z}$. For any spherical harmonic term of degree $n$, this equals $-(n+1)\mathcal{U}_n$, giving $2\mathcal{U}_n - rF_{r,n} = (1-n)\mathcal{U}_n$.
+
+### 6.3 Implemented: Third-Body Gravity
+
+`perturbations/third_body.py` — Sun via `hy.model.vsop2013_cartesian` (heliocentric EMB, negated), Moon via `hy.model.elp2000_cartesian_e2000`. Both converted from ecliptic J2000 to equatorial J2000 via obliquity rotation ($\varepsilon = 23.4393°$). Time-dependent models consume the relative symbolic time `hy.time - t0`, so `epoch_jd` always refers to the epoch of the initial state even when the integrator uses a nonzero external time origin. Ephemeris truncation threshold controls JIT compile time:
+
+| Threshold (Sun / Moon) | JIT time | Position accuracy (12-day) |
+|------------------------|----------|---------------------------|
+| 1e-9 / 1e-6 (default) | ~minutes | sub-km |
+| 1e-4 / 1e-2 (coarse) | ~2-4s | adequate for most LEO |
+
+### 6.4 Implemented: Composite Perturbation
+
+`perturbations/composite.py` — Separates conservative (U) and non-conservative (P) contributions. Conservative models define the non-osculating ellipse (h, c); non-conservative models are external forcing.
+
+### 6.5 Implemented: Cowell Ground Truth
+
+`cowell.py` extended with `propagate_cowell_heyoka_full()` supporting J2 + Sun + Moon via the same ephemeris models.
+
+### 6.6 Commits and Test Results
+
+- **25 GEqOE tests passing** (14 original + 11 Phase 6)
+- **292 total project tests passing**
+- General equations match J2-only: position error < 1e-5 km (12-day)
+- J2 + Sun + Moon vs Cowell ground truth: < 1e-3 km (12-day)
+
+---
+
+## Phase 7: Higher-Order Geopotential (Zonal DONE, Tesseral TODO)
+
+Extend the conservative potential $\mathcal{U}$ to support arbitrary zonal ($J_n$) and tesseral ($C_{nm}$, $S_{nm}$) harmonics.
+
+### 7.1 Key Enabler: Automatic Gradient via `hy.diff_tensors` + `hy.subs`
+
+heyoka provides symbolic differentiation (`hy.diff_tensors`) and expression substitution (`hy.subs`). This eliminates manual gradient derivation for new potential models:
 
 ```python
 import heyoka as hy
 
-def build_state_integrator(perturbation_model, ic, t0=0.0, tol=1e-15, par_values=None):
-    """Build a state-only GEqOE Taylor integrator.
-    
-    Args:
-        perturbation_model: PerturbationModel instance
-        ic: initial conditions [nu, p1, p2, K, q1, q2]
-        t0: initial time
-        tol: integrator tolerance
-        par_values: list of parameter values matching par_map
-    
-    Returns:
-        ta: heyoka.taylor_adaptive integrator
-        par_map: dict mapping names to par[] indices
-    """
-    sys, state_vars, par_map = build_geqoe_system(perturbation_model)
-    
-    ta = hy.taylor_adaptive(
-        sys,
-        state=list(ic),
-        time=t0,
-        pars=par_values or [],
-        tol=tol,
-        compact_mode=False  # OK for 6-DOF
-    )
-    return ta, par_map
+# 1. Build U using placeholder Cartesian variables
+_x, _y, _z = hy.make_vars("_x", "_y", "_z")
+_r = hy.sqrt(_x*_x + _y*_y + _z*_z)
+U_placeholder = build_potential(_x, _y, _z, _r, ...)
+
+# 2. Auto-differentiate
+dt = hy.diff_tensors([U_placeholder], [_x, _y, _z], diff_order=1)
+dUdx_ph = dt[0, 1]  # dU/d_x
+dUdy_ph = dt[0, 2]  # dU/d_y
+dUdz_ph = dt[0, 3]  # dU/d_z
+
+# 3. Substitute GEqOE-derived Cartesian positions
+smap = {"_x": x_cart_expr, "_y": y_cart_expr, "_z": z_cart_expr}
+dUdx = hy.subs(dUdx_ph, smap)
+dUdy = hy.subs(dUdy_ph, smap)
+dUdz = hy.subs(dUdz_ph, smap)
+U_val = hy.subs(U_placeholder, smap)
 ```
 
-### 3.2 State + STM Integrator (42 DOF)
+This approach works for **any** potential that can be expressed symbolically in heyoka. The gradient is exact (not numerical), and CSE (common subexpression elimination) during JIT compilation keeps the compiled code efficient.
+
+### 7.2 Zonal Harmonics ($J_n$, arbitrary degree)
+
+Zonal harmonics are **conservative** and **time-independent**, so $\dot{\mathcal{E}} = 0$ and $\dot{\nu} = 0$. They extend $\mathcal{U}$ directly.
+
+**Potential** (individual term, degree $n$):
+
+$$\mathcal{U}_{J_n} = \frac{\mu J_n R_e^n}{r^{n+1}} P_n(\hat{z})$$
+
+where $\hat{z} = z/r$ and $P_n$ is the Legendre polynomial of degree $n$.
+
+**Euler identity**: Since $\mathcal{U}_{J_n}$ is homogeneous of degree $-(n+1)$ in $(x,y,z)$:
+
+$$2\mathcal{U}_{J_n} - r F_{r,J_n} = (1-n)\,\mathcal{U}_{J_n}$$
+
+For $n=2$: $-\mathcal{U}$ (current J2). For $n=3$: $-2\mathcal{U}_{J_3}$. For $n=4$: $-3\mathcal{U}_{J_4}$.
+
+**Legendre polynomial recurrence** (builds heyoka expressions):
 
 ```python
-def build_stm_integrator(perturbation_model, ic, t0=0.0, tol=1e-15, par_values=None):
-    """Build a GEqOE integrator with automatic 1st-order variational equations (STM).
-    
-    The augmented system has 6 + 36 = 42 state variables.
-    """
-    sys, state_vars, par_map = build_geqoe_system(perturbation_model)
-    
-    # Generate variational equations automatically
-    vsys = hy.var_ode_sys(sys, args=hy.var_args.vars, order=1)
-    
-    # Initial conditions: state + identity matrix (flattened)
-    ic_aug = list(ic) + [1 if i == j else 0 for i in range(6) for j in range(6)]
-    
-    ta = hy.taylor_adaptive(
-        vsys,
-        state=ic_aug,
-        time=t0,
-        pars=par_values or [],
-        tol=tol,
-        compact_mode=True  # Essential for 42-DOF variational system
-    )
-    return ta, par_map
+def _legendre_P(n, x):
+    """P_n(x) as a heyoka expression via Bonnet recurrence."""
+    if n == 0: return 1.0
+    if n == 1: return x
+    P_prev, P_curr = 1.0, x
+    for k in range(2, n + 1):
+        P_next = ((2*k - 1) * x * P_curr - (k - 1) * P_prev) / k
+        P_prev, P_curr = P_curr, P_next
+    return P_curr
 ```
 
-### 3.3 Propagation Interface
+**Gradient**: Use `hy.diff_tensors` + `hy.subs` (Section 7.1) — no manual derivation needed. Alternatively, the analytical gradient for degree $n$ is:
+
+$$\frac{\partial \mathcal{U}_{J_n}}{\partial x} = \frac{C_n \, x}{r^{n+3}}\left[-(n+1)P_n(\hat{z}) - \hat{z}\,P_n'(\hat{z})\right]$$
+
+$$\frac{\partial \mathcal{U}_{J_n}}{\partial z} = \frac{C_n}{r^{n+2}}\left[-(n+1)\hat{z}\,P_n(\hat{z}) + (1-\hat{z}^2)P_n'(\hat{z})\right]$$
+
+where $C_n = \mu J_n R_e^n$ and $P_n'$ is built alongside $P_n$ via the differentiated recurrence.
+
+**Implementation plan**: `perturbations/zonal.py`
 
 ```python
-def propagate(ta, t_final, max_delta_t=None, dense=False):
-    """Propagate to t_final, optionally with step clamping and dense output.
-    
-    Args:
-        ta: heyoka integrator
-        t_final: target time
-        max_delta_t: maximum step size (None = unclamped)
-        dense: if True, store Taylor coefficients for dense output
-    
-    Returns:
-        times: list of step boundary times
-        states: list of states at step boundaries
-        tc: Taylor coefficients if dense=True (for sub-step evaluation)
-    """
-    times = [ta.time]
-    states = [ta.state.copy()]
-    tcs = [] if dense else None
-    
-    while ta.time < t_final:
-        if max_delta_t is not None:
-            remaining = t_final - ta.time
-            step_limit = min(max_delta_t, remaining)
-            outcome = ta.step(max_delta_t=step_limit, write_tc=dense)
-        else:
-            # Let heyoka choose the step adaptively
-            # Clamp to not overshoot t_final
-            remaining = t_final - ta.time
-            outcome = ta.step(max_delta_t=remaining, write_tc=dense)
-        
-        times.append(ta.time)
-        states.append(ta.state.copy())
-        if dense:
-            tcs.append(ta.tc.copy())
-    
-    return times, states, tcs
+class ZonalHarmonicsPerturbation:
+    """Zonal harmonics J2 through Jn_max."""
+    is_conservative = True
+    is_time_dependent = False
 
+    def __init__(self, j_coeffs: dict[int, float], mu=MU, re=RE):
+        """j_coeffs: {2: J2, 3: J3, 4: J4, ...}"""
+        ...
 
-def extract_stm(state_aug):
-    """Extract the 6x6 STM from the 42-element augmented state.
-    
-    The variational state is stored after the 6 base state variables.
-    The layout follows heyoka's var_ode_sys convention.
-    """
-    y = state_aug[:6]
-    phi = state_aug[6:].reshape(6, 6)
-    return y, phi
+    def U_expr(self, x, y, z, r_mag, t, pars):
+        zhat = z / r_mag
+        total = 0.0
+        for n, Jn in self.j_coeffs.items():
+            Cn = self.mu * Jn * self.re**n
+            total = total + Cn / r_mag**(n+1) * _legendre_P(n, zhat)
+        return total
+
+    def grad_U_expr(self, ...):
+        # Option A: auto-diff via hy.diff_tensors + hy.subs
+        # Option B: analytical formula using P_n and P_n'
+        ...
 ```
 
+**Standard J-coefficients** (EGM2008, unnormalized):
+| n | $J_n$ |
+|---|-------|
+| 2 | 1.08262617385222e-3 |
+| 3 | -2.53265648533224e-6 |
+| 4 | -1.61989759991697e-6 |
+| 5 | -2.27296082868698e-7 |
+| 6 | 5.40681239107085e-7 |
+
+### 7.3 Full Geopotential: Tesseral and Sectoral Harmonics ($C_{nm}$, $S_{nm}$)
+
+Tesseral harmonics ($m \neq 0$) introduce **time dependence** because the potential is defined in the Earth-fixed (body) frame, which rotates.
+
+**Potential** (degree $n$, order $m$):
+
+$$\mathcal{U}_{nm} = \frac{\mu R_e^n}{r^{n+1}} \bar{P}_{nm}(\sin\varphi) \left[C_{nm}\cos(m\lambda) + S_{nm}\sin(m\lambda)\right]$$
+
+where $\varphi$ is geocentric latitude ($\sin\varphi = z/r$) and $\lambda$ is geographic (body-fixed) longitude.
+
+**Earth rotation**: The body-fixed longitude requires the Greenwich Sidereal Time:
+
+$$\theta(t) = \theta_0 + \omega_\oplus \, t$$
+
+where $\omega_\oplus = 7.2921150 \times 10^{-5}$ rad/s. The body-fixed coordinates are:
+
+$$x_\text{bf} = x\cos\theta + y\sin\theta, \quad y_\text{bf} = -x\sin\theta + y\cos\theta, \quad z_\text{bf} = z$$
+
+**Longitude trigonometry** (avoids `atan2` — built recursively):
+
+$$\cos\lambda = x_\text{bf}/r_{xy}, \quad \sin\lambda = y_\text{bf}/r_{xy}, \quad r_{xy} = \sqrt{x^2 + y^2}$$
+
+Higher-order terms via Chebyshev recurrence:
+
+$$\cos(m\lambda) = 2\cos\lambda\cos((m-1)\lambda) - \cos((m-2)\lambda)$$
+
+**Associated Legendre functions** (fully normalized $\bar{P}_{nm}$):
+
+$$\bar{P}_{mm}(u) = \sqrt{\frac{(2m+1)!!}{(2m)!!}} (1-u^2)^{m/2}$$
+$$\bar{P}_{nm}(u) = u \sqrt{\frac{2n-1}{n-m}} \bar{P}_{n-1,m}(u) - \sqrt{\frac{(n+m-1)(n-m-1)(2n-1)}{(n-m)(n+m)(2n-3)}} \bar{P}_{n-2,m}(u)$$
+
+All built as heyoka symbolic expressions.
+
+**Gradient**: Use `hy.diff_tensors` + `hy.subs` (Section 7.1). This is the strongly preferred approach for tesseral harmonics — the manual gradient is complex but auto-differentiation handles it exactly.
+
+**Time derivative $\mathcal{U}_t$** (for $\dot{\mathcal{E}}$ in the general equations): Since time enters only through $\theta(t) = \theta_0 + \omega_\oplus t$, and $\cos\theta$, $\sin\theta$ are heyoka expressions of `hy.time`, the time derivative can be computed by:
+
+1. Introduce a temporary variable `_t` in place of `hy.time`
+2. Build $\mathcal{U}$ with this variable
+3. Differentiate: $\partial\mathcal{U}/\partial t$ via `hy.diff_tensors`
+4. Substitute `_t → hy.time` via `hy.subs`
+
+Or analytically: $\mathcal{U}_t = -m\omega_\oplus \times$ (same expression with $\cos(m\lambda) \to \sin(m\lambda)$ and $\sin(m\lambda) \to -\cos(m\lambda)$).
+
+### 7.4 Design Choices: U vs P for Higher Harmonics
+
+| Approach | Pros | Cons |
+|----------|------|------|
+| **Add to U** (conservative) | More accurate h, c; preserves element structure | Larger expression trees |
+| **Treat as P** (non-conservative) | Simpler; same code path as third-body | h, c don't reflect higher-order terms |
+
+**Recommendation**:
+- **J2 always in U** (defines the non-osculating ellipse)
+- **J3–J6 in U** (small expression overhead, meaningful improvement for MEO/GEO)
+- **J7+ and tesseral in P** (expression complexity grows quadratically with degree; P treatment is adequate for small perturbations)
+- For research/high-accuracy: everything in U is possible up to degree ~20-30
+
+### 7.5 Expression Size and JIT Compilation Limits
+
+The number of spherical harmonic terms grows as $\sim N(N+1)/2$ for max degree $N$:
+
+| Max degree $N$ | Terms | JIT compile (est.) | Practical? |
+|----------------|-------|-------------------|------------|
+| 4 | 15 | < 5s | Yes |
+| 10 | 66 | ~10-20s | Yes |
+| 20 | 231 | ~1-2 min | Yes (compact_mode) |
+| 50 | 1326 | ~5-10 min | Marginal |
+| 70+ | 2556+ | Very slow | Use Cowell instead |
+
+For high-degree models ($N > 30$), a **Cowell formulation** with compiled acceleration routines (e.g., `heyoka.cfunc` for vectorized evaluation) is more appropriate than GEqOE.
+
+### 7.6 Implementation Plan
+
+**Step 1**: `perturbations/zonal.py` — Zonal harmonics $J_2$ through $J_{n_\text{max}}$ using `hy.diff_tensors` for auto-gradient. Conservative, time-independent.
+
+**Step 2**: `perturbations/geopotential.py` — Full spherical harmonics with Earth rotation model. Conservative, time-dependent. Uses `hy.diff_tensors` for gradient and time derivative.
+
+**Step 3**: Validation against Cowell ground truth with the same geopotential model. Compare paper cases (b)-(d).
+
+**Step 4** (optional): Atmospheric drag via `hy.model.nrlmsise00_tn` (thermoNET density model built into heyoka) + `hy.model.cart2geo` (Cartesian → geodetic). Non-conservative P.
+
+### 7.7 Validation Plan
+
+- J2+J3+J4 vs Cowell ground truth (12-day LEO)
+- Full 4×4 geopotential vs Cowell (12-day, paper cases b-d)
+- Energy drift rate for time-dependent potentials ($\dot{\nu} \neq 0$)
+- STM validation with finite differences for composite models
+
 ---
 
-## Phase 4: Validation Tests
+## Phase 8: Continuous Thrust and Maneuver Characterization (IN PROGRESS)
 
-### 4.1 Conversion Round-Trip (`test_conversions.py`)
+This phase adds continuous thrust as a first-class non-conservative component of
+the GEqOE Taylor framework and is the recommended path toward maneuver
+optimization, estimation, and future maneuver detection / characterization.
 
-- For each of the 4 initial conditions in Table 1 of the paper:
-  1. Convert Keplerian → Cartesian (Table 2)
-  2. Convert Cartesian → GEqOE (Table 3)
-  3. Convert GEqOE → Cartesian
-  4. Assert round-trip error < 1e-12 in position and velocity
-- For case (a), verify intermediate values against Appendix B step-by-step values
+### 8.1 Guiding Decision: Implement Smooth Control Infrastructure First
 
-### 4.2 RHS Evaluation (`test_rhs_eval.py`)
+Two independent research notes were reviewed:
 
-- At a given state, evaluate the heyoka RHS by doing a tiny step ($\Delta t = 10^{-10}$ s) and computing $(y_1 - y_0)/\Delta t$
-- Compare against a separate numerical implementation of Eqs. 45-51 (plain NumPy)
-- Agreement to at least 8 significant figures
+- `docs/geqoe_taylor/compass_continuous_markdown.md`
+- `docs/geqoe_taylor/deep-research-report-taylor-continuous-optim.md`
 
-### 4.3 Propagation Accuracy (`test_propagation.py`)
+**Conclusion**: the best path is **not** to begin with an orbit-averaged
+generalized TFC / mean-element formulation in GEqOE. That is not a small
+implementation detail; it is a separate research problem and should be treated
+as publication-scale theory work. The implementation path here should stay with
+the full GEqOE dynamics first.
 
-Reproduce Figures 3 and 5 from the paper:
+The implementation priority should be:
 
-- Case (a): LEO, J2 only, 12-day propagation
-  - Reference final state from Appendix C:
-    ```
-    x_f = -5398.929377366906 km    xdot_f = 2.214482567493 km/s
-    y_f = -390.257240638229 km     ydot_f = -6.845637008953 km/s
-    z_f = -4693.719111636971 km    zdot_f = -1.977748618717 km/s
-    ```
-  - These are obtained with Dromo(PC) + DOPRI5(4)7FM at tolerance 1e-13
+1. **Continuous thrust as a smooth non-conservative force model** in the current
+   GEqOE equations
+2. **Parameter sensitivities with respect to thrust-law coefficients** using
+   heyoka's variational system
+3. **Direct optimization-friendly transcription** (multiple shooting first)
+4. **Direct Fourier/TFC-style coefficientized thrust laws** in the propagated
+   GEqOE fast angle $K$
+5. **Uncertainty / maneuver characterization** using STMs, higher derivatives,
+   and eventually control-distance-like metrics
 
-- Cases (b), (c), (d): same but with J2 + third-body (Phase 6)
+This ordering best matches the current codebase and optimizes for performance,
+flexibility, and derivative consistency.
 
-**Test procedure**: Propagate with GEqOE+heyoka, convert final state to Cartesian, compare against reference. Position error should be < 1e-6 km for default tolerance.
+### 8.2 Why This Is the Best Path
 
-### 4.4 STM Validation (`test_stm.py`)
+From the research review, the strongest engineering conclusions are:
 
-For a single step of size $h$:
+- **Multiple shooting is the practical sweet spot** for GEqOE + heyoka when the
+  control is smooth but discontinuities or active constraints may exist
+- **Smooth thrust parameterizations** (cubic splines / B-splines first, then
+  Fourier) are preferable to piecewise-constant controls because Taylor
+  integrators lose efficiency on non-smooth controls
+- **Control should enter through the existing non-conservative term**
+  $\mathbf{P}$, preserving the GEqOE separation $\mathbf{F}=\mathbf{P}-\nabla U$
+- **Sensitivities with respect to control coefficients** are essential from day
+  one, because they unlock both optimization and future uncertainty workflows
+- **Orbit-averaged generalized TFC theory in GEqOE remains separate research
+  work**; the implementation target is direct Fourier-in-$K$ control inside the
+  full dynamics, not a mean-element reduction
 
-1. Propagate nominal state → $\mathbf{y}(t_0 + h)$, extract $\Phi$ from variational integrator
-2. For each component $j = 0..5$:
-   - Perturb: $\mathbf{y}_0^+ = \mathbf{y}_0$, $y_{0,j}^+ += \delta$
-   - Perturb: $\mathbf{y}_0^- = \mathbf{y}_0$, $y_{0,j}^- -= \delta$
-   - Propagate both for same $h$
-   - FD column: $\Phi_{:,j}^{FD} = (\mathbf{y}^+ - \mathbf{y}^-) / (2\delta)$
-3. Assert $\|\Phi - \Phi^{FD}\| / \|\Phi\| < 10^{-8}$
+### 8.3 Implemented Phase 8a Architecture
 
-Use $\delta = 10^{-7}$ (relative to element magnitude) for central differences.
+The recommended architecture is:
 
-**Important**: Use the same integrator tolerance for nominal and perturbed propagations. Build fresh integrator instances for each perturbation (do NOT reuse — heyoka integrators are stateful).
+#### A. Extend the propagated state with mass
 
-### 4.5 Paper Reproduction (`test_paper_cases.py`)
+Use the augmented state:
 
-Long-term propagation tests matching the paper's figures:
+$$\mathbf{y}_{thrust} = (\nu, p_1, p_2, K, q_1, q_2, m)$$
 
-- Case (a), 365 days, J2 only, 1-minute fixed step
-- Verify position error growth matches Figure 4 (top panel) qualitatively
-- The GEqOE curve should show ~1e-4 km error at 365 days with 60s step
+with
 
----
+$$\dot{m} = -\frac{T}{g_0 I_{sp}}$$
 
-## Phase 5: Dense Output and Post-Processing
+or a more general power-coupled electric-propulsion law if required.
 
-### 5.1 Dense Output for Sub-Step Evaluation
+Rationale:
+- Continuous thrust without mass flow is incomplete for maneuver
+  characterization / optimization
+- The added scalar state is cheap relative to the GEqOE geometry already being
+  evaluated
+- The 7-state system still fits naturally into heyoka variational propagation
 
-After `ta.step(write_tc=True)`, the Taylor coefficients are available in `ta.tc`. For a step from $t_n$ to $t_{n+1}$ with step size $h$:
+#### B. Add a control-law abstraction on top of `P_expr`
 
-$$y_i(t_n + \tau) = \sum_{k=0}^{p} c_{i,k} \tau^k, \quad \tau \in [0, h]$$
-
-where $p$ is the Taylor order (determined adaptively by heyoka). The coefficients $c_{i,k}$ are stored in `ta.tc` with layout: variable index varies fastest, then coefficient order.
+Implemented layer:
 
 ```python
-def dense_eval(tc, order, n_vars, tau):
-    """Evaluate dense output polynomial at time offset tau.
-    
-    tc: Taylor coefficients from ta.tc (flat array)
-    order: Taylor order (ta.order)
-    n_vars: number of state variables (6 or 42)
-    tau: time offset from step start
-    """
-    # tc layout: [c_{0,0}, c_{1,0}, ..., c_{n-1,0}, c_{0,1}, ..., c_{n-1,p}]
-    result = np.zeros(n_vars)
-    for k in range(order, -1, -1):  # Horner's method
-        result = result * tau + tc[k*n_vars:(k+1)*n_vars]
-    return result
+class ContinuousThrustLaw(Protocol):
+    def thrust_rtn_expr(self, state, t, pars, prefix) -> tuple:
+        """Return (T_r, T_t, T_n, T_mag, Isp) in RTN coordinates."""
 ```
 
-### 5.2 L Recovery from K
+and a perturbation wrapper:
 
-For output or comparison purposes, compute $L$ from $K$:
-$$L = K + p_1 \cos K - p_2 \sin K$$
-This is explicit (Eq. 30 read left-to-right).
-
-### 5.3 Output Coordinate Conversion
-
-After propagation, convert GEqOE state to Cartesian using the numerical conversion from Phase 1.2. This is done outside heyoka.
-
----
-
-## Phase 6: Generalization to Full Perturbations (Later)
-
-### 6.1 Non-Conservative Forces
-
-For drag, SRP, or empirical accelerations, the force $\mathbf{P}$ appears through projections $P_r$, $P_f$ in the RHS (Eqs. 46-49). These are *not* absorbed into $\mathcal{U}$.
-
-In heyoka, express $\mathbf{P}$ components in the orbital frame:
-- $P_r = \mathbf{P} \cdot \mathbf{e}_r$ where $\mathbf{e}_r = \mathbf{e}_X \cos L + \mathbf{e}_Y \sin L$
-- $P_f = \mathbf{P} \cdot \mathbf{e}_f$ where $\mathbf{e}_f = \mathbf{e}_Y \cos L - \mathbf{e}_X \sin L$
-
-The full equations (Eqs. 45-51) include $\dot{\mathcal{E}}$ (Eq. 46) which is no longer zero:
-$$\dot{\mathcal{E}} = \mathcal{U}_t + \dot{r}P_r + \frac{h}{r}P_f$$
-
-And $\dot{\nu} \neq 0$ when energy is not conserved (Eq. 45):
-$$\dot{\nu} = -3\left(\frac{\nu}{\mu^2}\right)^{1/3}\dot{\mathcal{E}}$$
-
-### 6.2 Third-Body Gravity
-
-Following the paper's Section 7.2 recommendation: treat third-body forces as non-conservative ($\mathbf{P}$), **not** absorbed into $\mathcal{U}$, for Earth-bound orbits. This avoids numerical instabilities.
-
-Third-body positions come from ephemerides. In heyoka, use `hy.time` as the independent variable and either:
-- Analytical ephemerides (e.g., `hy.model.vsop2013` for Sun, simple lunar theory for Moon)
-- Chebyshev polynomial approximations of JPL ephemerides (pre-computed for the propagation window, loaded as heyoka expressions)
-
-### 6.3 Higher-Order Geopotential
-
-For $J_n$ zonal harmonics beyond $J_2$: extend the potential $\mathcal{U}$ with additional Legendre polynomial terms. The symbolic expression becomes longer but the structure is unchanged. Only $J_2$ goes into $\mathcal{U}$; higher-order terms can be treated as non-conservative to avoid complexity (at the cost of slower element evolution).
-
----
-
-## Implementation Order (What To Build First)
-
-**Step 1**: `constants.py` + `conversions.py` + `test_conversions.py`
-- Pure NumPy, no heyoka dependency
-- Validate against Appendix B of the paper
-- This catches any misunderstanding of the formulation early
-
-**Step 2**: `perturbations/base.py` + `perturbations/j2.py` (numeric methods only)
-- J2 potential evaluation in NumPy
-- Used by conversions for the U-dependent terms
-
-**Step 3**: `rhs.py` — J2-only symbolic RHS
-- Start with the simplified J2-only equations from Section 7.1
-- Build heyoka expressions step by step
-- Test by constructing an integrator and checking a single tiny step
-
-**Step 4**: `integrator.py` — state-only propagator
-- Build and run the Taylor integrator
-- Propagate case (a) for 12 days
-- Compare final Cartesian state against Appendix C reference
-- This is the **first milestone**: if this matches, the RHS is correct
-
-**Step 5**: `test_stm.py` + STM integrator
-- Add `var_ode_sys` wrapper
-- Validate STM against finite differences
-- **Second milestone**: automatic STM that matches FD to ~1e-8
-
-**Step 6**: Dense output + helper utilities
-- Taylor coefficient extraction
-- Sub-step evaluation
-
-**Step 7** (later): General perturbations, third-body, non-conservative forces
-
----
-
-## Dependencies
-
-```
-heyoka >= 6.0.0    # Taylor integrator with var_ode_sys support
-numpy >= 1.24
-pytest
+```python
+class ContinuousThrustPerturbation:
+    """Map a thrust law into GEqOE-compatible non-conservative force projections."""
 ```
 
-Install: `pip install heyoka numpy pytest`
+This wrapper should:
+- support at least RTN / orbital-frame thrust components
+- optionally support inertial-frame thrust definitions
+- expose thrust magnitude, throttle, and $I_{sp}$ / power relations
+- return Cartesian $\mathbf{P}$ for compatibility with the existing general path
+
+The current implementation delivers:
+
+- `ContinuousThrustLaw` in `src/astrodyn_core/geqoe_taylor/thrust.py`
+- `ConstantRTNThrustLaw` as the first validation law
+- `CubicHermiteRTNThrustLaw` as the first smooth single-arc spline law
+- `ContinuousThrustPerturbation` in
+  `src/astrodyn_core/geqoe_taylor/perturbations/thrust.py`
+- `build_thrust_state_integrator()` / `build_thrust_stm_integrator()` as the
+  explicit 7-state public API
+- `build_thrust_sensitivity_integrator()` and
+  `extract_endpoint_jacobian()` for direct endpoint Jacobian access
+- `geqoe2cart()` support for 7-state inputs by ignoring the trailing mass entry
+- `ShootingArc` / `MultiArcShootingProblem` for the first multiple-shooting
+  transcription layer, including continuity constraints and a minimum-propellant
+  objective helper
+- named bounds plus a spec-driven SciPy `trust-constr` solve helper on top of
+  the same transcription layer
+- quadratic cross-arc smoothness regularization for selected control variables
+
+Not yet fully implemented inside Phase 8:
+
+- multi-segment spline / B-spline control laws
+- richer solver backends / sparse NLP wiring beyond the current SciPy adapter
+- higher-level optimization helpers
+
+#### C. Treat control coefficients as differentiable parameters
+
+The thrust-law coefficients should be mapped to `hy.par[i]`, not hard-coded as
+Python literals. This enables:
+
+- cheap coefficient changes without rebuilding the symbolic graph
+- variational equations with respect to both state and control coefficients
+- endpoint Jacobians for direct optimization
+
+**Recommended heyoka configuration**:
+
+```python
+hy.var_ode_sys(sys, hy.var_args.vars | hy.var_args.params, order=1)
+```
+
+This is the key enabler for performance: the same symbolic ODE defines both the
+state dynamics and the exact control sensitivities.
+
+### 8.4 Control Parameterization Strategy
+
+#### Phase 8a core (implemented): constant RTN law as the validation baseline
+
+The first shipped control law is intentionally simple:
+
+- `ConstantRTNThrustLaw` with runtime parameters for `(T_r, T_t, T_n, I_{sp})`
+- smooth in the Taylor sense (no switching / piecewise-constant control)
+- enough to validate mass flow, energy growth, and GEqOE-vs-Cowell agreement
+
+This is a validation-oriented control law, not the final optimization-facing
+parameterization.
+
+#### Implemented next step: cubic Hermite spline in normalized arc time
+
+The current smooth parameterization is:
+
+- `CubicHermiteRTNThrustLaw(duration_s, ...)`
+- RTN thrust components represented as cubic Hermite polynomials in
+  $\tau = t / \text{duration}_s$
+- endpoint values and endpoint slopes exposed as differentiable runtime
+  parameters
+
+This gives a smooth, single-arc control law that is compatible with Taylor
+integration and the current parameter-sensitivity machinery.
+
+#### Still pending after the Hermite law: multi-segment cubic splines / B-splines
+
+This remains the next parameterization to add on top of the current Hermite
+law for richer arc modeling.
+
+Why:
+- smooth enough for Taylor integration
+- local support (better than global polynomials)
+- flexible but not over-parameterized
+- easy to use in multiple shooting
+- robust under eclipse windows, arc segmentation, and active constraints
+
+Suggested controls per arc:
+- throttle $\sigma(\tau)$
+- in-plane angle $\gamma(\tau)$
+- out-of-plane angle $\delta(\tau)$
+
+or directly:
+- $P_r(\tau)$, $P_f(\tau)$, $P_h(\tau)$
+
+with $\tau \in [0,1]$ per arc.
+
+#### Phase 8b: direct low-order Fourier in $K$ or per arc
+
+Add truncated Fourier expansions directly inside the full GEqOE dynamics once
+the spline-based pipeline is stable.
+
+Why:
+- useful for smooth multi-revolution thrust patterns
+- closer to the TFC literature
+- lower parameter counts for quasi-periodic solutions
+
+But this should remain secondary to splines because:
+- Fourier is less natural with eclipses and local discontinuities
+- spline controls remain easier to localize and regularize in multi-arc solves
+
+This direct Fourier layer is intentionally **not** an averaged generalized-TFC
+law. The same coefficientized control is evaluated pointwise in the full GEqOE
+dynamics and differentiated through the existing variational equations. Any
+attempt to derive a reduced mean-element law in GEqOE should be treated as a
+separate research publication, not as a prerequisite for the working solver.
+
+#### Explicit non-recommendation for the first version
+
+Do **not** start with piecewise-constant thrust as the primary control
+parameterization. It is simple, but it is a poor fit for Taylor propagation and
+likely to degrade both performance and derivative quality.
+
+### 8.5 Recommended Optimization Strategy
+
+#### Phase 8a: multiple shooting first
+
+This is the recommended first transcription.
+
+Why:
+- compatible with existing propagator wrappers
+- allows arc boundaries aligned with discontinuities or eclipse transitions
+- robust under strong nonlinearities
+- leverages exact endpoint sensitivities from variational equations
+
+Decision variables should include:
+- control coefficients per arc
+- interior node states
+- optionally final time
+
+Constraints should include:
+- arc continuity
+- terminal orbit conditions
+- thrust / power / mass constraints
+- optional path constraints via node checks and event-aligned segmentation
+
+#### Phase 8b: add collocation / pseudospectral only if needed
+
+These are worthwhile only after the propagation and sensitivity layer is stable.
+They may become attractive for:
+- very large control dimensions
+- many active path constraints
+- problems where sparse NLP structure dominates overall performance
+
+### 8.6 Uncertainty-Driven Design Choices
+
+Because uncertainty propagation is a priority, the continuous-thrust
+implementation should be designed from the start to support:
+
+1. **STM wrt initial state and control coefficients**
+2. **Covariance propagation in the presence of parametric thrust uncertainty**
+3. **Control-law estimation / characterization via endpoint sensitivities**
+4. **Future higher-order maps** for nonlinear uncertainty propagation
+
+This implies two non-negotiable requirements:
+
+- control coefficients must be represented as heyoka parameters
+- the public API should expose sensitivities wrt both state and control
+
+### 8.7 Proposed Phase Breakdown
+
+#### Phase 8a: Continuous-thrust propagation core
+
+Delivered:
+- 7-state GEqOE + mass dynamics
+- `ContinuousThrustLaw` abstraction
+- `ContinuousThrustPerturbation`
+- constant RTN thrust validation model (`ConstantRTNThrustLaw`)
+- dedicated 7-state integrator builders
+- state-only propagation with continuous thrust
+- 7-state STM propagation wrt the initial augmented state
+
+Validation completed:
+- constant tangential thrust sanity case
+- GEqOE vs Cartesian Cowell under the same thrust history
+- mass-flow consistency checks
+
+Deferred within the broader Phase 8 roadmap:
+
+- multi-segment spline / B-spline control laws
+- direct optimization transcription
+
+#### Phase 8b: Variational sensitivities wrt control coefficients
+
+Delivered in the current 8b core:
+- STM wrt initial state and thrust parameters
+- endpoint Jacobian extraction utility
+- endpoint Jacobian selector for chosen outputs / parameters
+- regression tests against finite differences
+
+Validation completed:
+- directional derivative tests
+- sensitivity agreement vs finite differences for thrust coefficients
+
+Deferred within Phase 8b:
+
+- optional custom variational argument lists beyond `vars | params`
+
+#### Phase 8c: Multiple-shooting optimization prototype
+
+Delivered in the current 8c start:
+- multi-arc transcription helper
+- continuity-constraint assembly
+- terminal-constraint assembly
+- minimum-propellant objective assembly
+- named variable bounds
+- initial SciPy `trust-constr` solve helper
+- bounded terminal-output constraints
+- smoothness-regularized objective support
+- explicit solve-spec dataclasses for future backend reuse
+
+Measurement bridge now implemented inside Phase 8c:
+- a general sampled-observation definition (`SampledMeasurement`) sitting on
+  top of the existing multi-arc transcription
+- a measurement-model interface (`MeasurementModel`) with per-sample
+  evaluation and local state Jacobians
+- weighted residual/Jacobian assembly that chains these local measurement
+  Jacobians through the exact GEqOE + mass variational equations
+- a first toy observation type: sampled inertial Cartesian position
+- covariance-ready weighting via whitening matrices or diagonal standard
+  deviations
+
+Still pending after this measurement slice:
+- higher-level time-optimal and multi-term weighted objectives
+- path-constraint helpers beyond node-level variable bounds
+- richer sparse NLP solver interfaces
+- more observation types (velocity, line-of-sight, angles, range/range-rate,
+  mixed batches)
+- solver-level handling of priors, maneuver regularization, and mixed
+  estimation objectives as first-class transcription specs
+
+Why this was the right next slice:
+- the 8c core had already proven that control/state variables, continuity, and
+  endpoint constraints could be transcribed efficiently
+- the next bridge to maneuver detection / characterization was not a broader
+  solver backend first, but a clean way to express observations inside the
+  same architecture
+- inertial position is the right toy model because it is easy to validate, easy
+  to visualize, and directly useful for early maneuver-fitting experiments
+- the interface boundary now makes the path to future observation types
+  explicit: each new model only needs a measurement map and a Jacobian with
+  respect to the propagated 7-state sample
+
+Recommended first objectives:
+- minimum propellant
+- minimum time with bounded thrust
+- weighted smoothness-regularized objective
+
+#### Phase 8d: Direct Fourier/TFC-style full-dynamics extension
+
+Deliverables:
+- implement thrust expansions in generalized eccentric longitude $K$ inside the
+  full GEqOE dynamics
+- fit and regularize those coefficients with the same multiple-shooting,
+  measurement, and covariance machinery used by the other thrust laws
+- compare direct Fourier-in-$K$ control against spline-based direct
+  transcription
+
+Explicitly out of scope for this implementation phase:
+- deriving a GEqOE mean-element law for those coefficients
+- identifying surviving averaged coefficients or a reduced generalized-TFC set
+- claiming a closed-form control-distance metric in GEqOE coefficient space
+
+Those items remain valid research targets, but they are separate theory work.
+
+#### Phase 8e: Maneuver characterization and uncertainty
+
+Deliverables:
+- parameter-estimation view of continuous thrust
+- measurement-model-aware maneuver estimation with observation residuals,
+  priors, and maneuver regularization
+- uncertainty propagation wrt thrust coefficients
+- initial exploration of control-distance-like metrics in GEqOE space
+
+Longer-term:
+- second-order / higher variational equations
+- polynomial maps and nonlinear uncertainty transport
+
+### 8.8 Validation Plan for Continuous Thrust
+
+Recommended test campaign:
+
+1. **Two-body + constant tangential thrust**
+   - analytic sanity / monotonic semimajor-axis growth
+2. **GEqOE vs Cartesian Cowell with the same thrust law**
+   - state agreement over short and medium arcs
+3. **Mass depletion tests**
+   - consistency with $\int T/(g_0 I_{sp})\,dt$
+4. **Gradient verification**
+   - endpoint sensitivities wrt control coefficients
+5. **Multiple-shooting continuity tests**
+   - segment matching and event-aligned arc transitions
+6. **Measurement residual / Jacobian tests**
+   - toy inertial-position observations at arc-interior and arc-end samples
+7. **Initial uncertainty tests**
+   - covariance transport with uncertain thrust coefficients
+
+### 8.9 Final Recommendation
+
+The best path forward is:
+
+1. implement continuous thrust as a **smooth, parameterized non-conservative
+   perturbation with mass flow**
+2. expose **exact state-and-parameter sensitivities** via heyoka variational
+   equations
+3. build a **multiple-shooting optimization layer** on top of that
+4. then add **direct Fourier/TFC-style coefficientized control in full GEqOE
+   dynamics**
+5. keep any orbit-averaged generalized-TFC / mean-element reduction as a
+   separate research program
+
+This path is the best compromise between:
+- **performance**: smooth controls preserve Taylor efficiency
+- **flexibility**: splines + multi-arc support many mission types
+- **uncertainty readiness**: parameter sensitivities are available from the same backend
+- **research value**: the orbit-averaged generalized TFC formulation remains an
+  open, publishable extension rather than a prerequisite blocker
 
 ---
 
 ## Key Numerical Values for Testing
 
-From the paper, case (a) — LEO circular i=45°:
+From the paper, case (a) — LEO circular i=45deg:
 
 **Initial Cartesian** (Table 2):
 ```
@@ -580,7 +1100,7 @@ v = [0, 5.269240572916780, 5.269240572916780] km/s
 nu = 1.0395e-3 rad/s
 p1 = 0
 p2 = -8.5476e-4
-L  = 0 rad  →  K = 0 rad (since L=K when p1=0, p2 small, at L=0)
+K  = 0 rad
 q1 = 0
 q2 = 0.41421
 ```
@@ -593,18 +1113,33 @@ v_f = [2.214482567493, -6.845637008953, -1.977748618717] km/s
 
 ---
 
-## Pitfalls to Watch For
+## Dependencies
 
-1. **heyoka expression tree depth**: The GEqOE RHS involves deeply nested expressions. If compilation is extremely slow (>5 minutes), try `compact_mode=True` even for the 6-DOF system.
+```
+heyoka >= 6.0.0    # Taylor integrator with var_ode_sys support (tested with 7.9.2)
+numpy >= 1.24
+scipy              # For DOP853 Cowell reference
+pytest
+```
+
+Install: `conda install -c conda-forge heyoka-py` (recommended) or `pip install heyoka`
+
+---
+
+## Pitfalls and Lessons Learned
+
+1. **K_dot coefficient**: The coefficient of $\mathcal{U}$ in $\dot{K}$ is $(1/c)(1 + \alpha(1-r/a))$, NOT $(1/c)(\ell/\alpha + \alpha(1-r/a))$ as might be naively derived from $\dot{L}$. The L->K transformation changes the coefficient structure. Always verify against Eq. 75 directly.
 
 2. **Numerical precision of $h - c$**: Always compute as $-2r^2\mathcal{U}/(h+c)$ rather than $\sqrt{c^2 - 2r^2\mathcal{U}} - c$.
 
-3. **Initial K vs L**: At $t=0$, compute $K_0$ from $L_0$ by solving the Kepler equation (Eq. 30) with Newton-Raphson in the conversion routine. For the paper's test cases where $L_0 = 0$ and $p_1 = 0$, $K_0 \approx 0$ to high precision.
+3. **$1 - r/a$ stability**: Use $p_1 \sin K + p_2 \cos K$ (from Eq. 31) instead of computing $r/a$ separately.
 
-4. **Units**: The paper uses km and seconds throughout. Keep these units.
+4. **Cowell J2 sign**: The J2 perturbation acceleration is $-\nabla\mathcal{U}$ (force = $-$grad of potential energy). At the equator, J2 adds inward acceleration (extra attraction). Getting the sign wrong gives ~0.6 km error at 12 days.
 
-5. **heyoka `var_ode_sys` state layout**: The augmented state for first-order variational equations has the base state in positions 0..5, then the 36 STM entries. Use `ta.get_vslice(order=1, component=i)` to extract columns of the STM, or simply reshape `state[6:]` into `(6,6)`. Verify the convention (row-major vs column-major) against finite differences.
+5. **heyoka LLVM caching**: First build of an expression graph takes ~1.2s (LLVM JIT compilation). Subsequent builds with the same structure take ~9ms (per-process cache). The cache does not persist across Python sessions.
 
-6. **Step clamping**: When reproducing paper figures with fixed step sizes, use `ta.step(max_delta_t=h)`. heyoka may take shorter steps than `h` if the Taylor series doesn't converge, but it will never exceed `h`.
+6. **Units**: The paper uses km and seconds throughout. This implementation follows the same convention (no normalization). This differs from the existing code in `src/astrodyn_core/propagation/geqoe/` which normalizes with $L=R_e$, $T=\sqrt{R_e^3/\mu}$.
 
-7. **Thread safety**: Each `taylor_adaptive` instance is independent. Do not share instances across threads.
+7. **`var_ode_sys` state layout**: The 42-element augmented state stores the 6 base state variables followed by 36 STM entries in row-major order. Use `state[6:].reshape(6, 6)` to extract the STM.
+
+8. **Thread safety**: Each `taylor_adaptive` instance is independent. Do not share instances across threads.

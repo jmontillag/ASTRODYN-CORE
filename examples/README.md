@@ -68,7 +68,62 @@ Examples:
 - `ephemeris_from_oem.py` — OEM file parse and ephemeris round-trip
 - `sma_maintenance_analysis.py` — Full SMA maintenance mission workflow (scenario -> detector execution -> analysis)
 
-## 5) Batch TLE -> High-Fidelity Ephemeris
+## 5) GEqOE Native
+
+Legacy / pre-heyoka GEqOE examples now live in `examples/geqoe_native/`:
+
+```bash
+conda run -n astrodyn-core-env python examples/geqoe_native/geqoe_propagator.py --mode all
+conda run -n astrodyn-core-env python examples/geqoe_native/geqoe_adaptive_benchmark.py
+conda run -n astrodyn-core-env python examples/geqoe_native/geqoe_cpp_benchmark.py
+```
+
+Examples:
+- `geqoe_propagator.py` — Provider, adapter, pure-numpy, and staged-benchmark entry point
+- `geqoe_adaptive_benchmark.py` — Adaptive GEqOE accuracy / speed / checkpoint study
+- `geqoe_cpp_benchmark.py` — Python-vs-C++ staged GEqOE precision and runtime benchmark
+- `geqoe_cpp_order1_parity.py` — Focused parity check for the staged C++ backend
+- `geqoe_legacy_vs_staged.py` — Legacy vs staged GEqOE parity and timing comparison
+
+## 6) GEqOE Heyoka
+
+The new heyoka-backed GEqOE examples live in `examples/geqoe_heyoka/`:
+
+```bash
+conda run -n astrodyn-core-env python examples/geqoe_heyoka/geqoe_taylor_demo.py
+conda run -n astrodyn-core-env python examples/geqoe_heyoka/geqoe_taylor_shooting_demo.py
+conda run -n astrodyn-core-env python examples/geqoe_heyoka/maneuver_profile_gallery.py
+```
+
+Examples:
+- `geqoe_taylor_demo.py` — Propagation, STM, dense output, and Cowell comparison
+- `geqoe_taylor_shooting_demo.py` — Continuous-thrust multiple-shooting prototype with the SciPy optimization adapter
+  Note: the first shooting build compiles two variational systems, so expect a few seconds of startup time.
+- `maneuver_profile_gallery.py` — Visual gallery for constant thrust, smooth cubic-Hermite thrust, and the current two-arc shooting solution
+
+## 7) GEqOE Compare
+
+Comparison scripts that directly connect the native and heyoka GEqOE implementations:
+
+```bash
+conda run -n astrodyn-core-env python examples/geqoe_compare/native_vs_heyoka_j2.py
+```
+
+Examples:
+- `native_vs_heyoka_j2.py` — Order-1..4 J2 Taylor-derivative parity on shared GEqOE components, short-window series reconstruction, and setup/runtime comparison
+
+## 8) GEqOE Reconstruction Lab
+
+Exploratory maneuver-fitting examples intended to connect the new propagator stack to future detection / characterization workflows:
+
+```bash
+conda run -n astrodyn-core-env python examples/geqoe_reconstruction_lab/position_fit_demo.py
+```
+
+Examples:
+- `position_fit_demo.py` — Direct-shooting fit of a two-arc low-thrust profile to noisy inertial positions with initial-state and maneuver regularization
+
+## 9) Batch TLE -> High-Fidelity Ephemeris
 
 Resolve a YAML list of NORAD IDs to TLE, seed high-fidelity numerical propagation
 from EME2000 states, generate bounded ephemerides (+3 days), and export HDF5

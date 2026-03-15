@@ -1,0 +1,929 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+\title{A GEqOE Taylor--AD Orbit Propagator in ASTRODYN-CORE\\
+\large Implementation Note, Backend Design, and Uncertainty-Propagation Perspective}
+\author{ASTRODYN-CORE Internal Technical Note}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document summarizes the design and capabilities of the
+\texttt{astrodyn\_core.geqoe\_taylor} propagator implemented in ASTRODYN-CORE.
+The method combines generalized equinoctial orbital elements (GEqOE) with the
+automatic-differentiation-based Taylor integrator provided by \texttt{heyoka.py}.
+The resulting backend supports high-accuracy state propagation, dense output,
+automatic first-order variational equations for state transition matrix (STM)
+generation, and a clean path toward higher-order derivative propagation.
+The note records the mathematical formulation adopted in the code, the
+specialized right-hand-side (RHS) construction used for efficient force-model
+evaluation, the role of symbolic differentiation and just-in-time compilation in
+\texttt{heyoka.py}, and the practical implications for linear and nonlinear
+uncertainty propagation.
+\end{abstract}
+
+\section{Purpose and Scope}
+
+The GEqOE Taylor propagator was introduced to provide a modern, extensible
+alternative to the existing hand-derived GEqOE Taylor expansions in
+ASTRODYN-CORE. The implementation has four main goals:
+\begin{enumerate}
+    \item propagate the six-dimensional GEqOE state with an adaptive Taylor
+    integrator;
+    \item obtain variational dynamics automatically rather than through manual
+    Jacobian derivation;
+    \item support multiple perturbation models without re-deriving
+    orbit-element equations for every new force model; and
+    \item preserve the advantages of non-singular element propagation for
+    long-arc orbital dynamics and uncertainty transport.
+\end{enumerate}
+
+This note is not meant to replace the theoretical derivation of GEqOE by
+Ba\`u, Hernando-Ayuso, and Bombardelli. Instead, it documents the specific
+engineering choices made in the ASTRODYN-CORE implementation and explains why
+the combination of GEqOE and automatic-differentiation-driven Taylor
+integration is especially attractive for precise propagation and uncertainty
+analysis.
+
+\section{Current Capabilities}
+
+At the time of writing, the Python implementation in
+\texttt{src/astrodyn\_core/geqoe\_taylor/} provides the capabilities listed in
+\autoref{tab:capabilities}.
+
+\begin{table}[h]
+\centering
+\caption{Current capabilities of the GEqOE Taylor propagator.}
+\label{tab:capabilities}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.32\textwidth} >{\raggedright\arraybackslash}p{0.58\textwidth}}
+\toprule
+Capability & Status \\
+\midrule
+GEqOE state propagation & Implemented for the state
+$\bm{y}=(\nu,p_1,p_2,K,q_1,q_2)$ in physical units (km, s). \\
+Adaptive Taylor integration & Implemented via \texttt{heyoka.taylor\_adaptive}. \\
+Dense output & Implemented through \texttt{heyoka}'s grid propagation and local
+Taylor polynomial evaluation. \\
+Automatic STM generation & Implemented through
+\texttt{heyoka.var\_ode\_sys(..., order=1)}. \\
+J2-only fast path & Implemented, with hard-coded Section~7.1 simplifications
+from the GEqOE paper. \\
+General conservative / non-conservative path & Implemented for arbitrary
+perturbation models exposing the required symbolic interfaces. \\
+General zonal harmonics & Implemented through a dedicated fast path for
+$J_2$--$J_n$. \\
+Sun / Moon third-body forcing & Implemented using \texttt{heyoka}'s built-in
+ephemeris models, treated as non-conservative forcing. \\
+Higher-order variational equations & Not wrapped by a public convenience API
+yet, but structurally enabled by the \texttt{heyoka} backend. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Why GEqOE and Why Taylor Integration}
+
+The appeal of GEqOE is the same as in the original formulation: the elements are
+non-singular for circular and equatorial limits relevant to Earth-orbit
+propagation, while the equations remain compact enough to retain much of the
+geometric structure of perturbed two-body motion. The appeal of Taylor
+integration is complementary: once the RHS is represented symbolically, a Taylor
+method can exploit exact symbolic or algorithmic differentiation of the vector
+field rather than finite-difference approximations or repeated hand derivation.
+
+The specific value of combining both ideas is that GEqOE reduces the stiffness
+and coordinate-pathology issues often seen in Cartesian propagation for long
+arcs, while \texttt{heyoka} automates the otherwise tedious derivative
+machinery required by high-order Taylor stepping and variational propagation.
+The resulting architecture retains domain-specific orbital insight at the state
+representation level and generic differentiation / code-generation power at the
+integration level.
+
+\section{State Definition and the Choice of \texorpdfstring{$K$}{K}}
+
+The propagated state is
+\begin{equation}
+\bm{y} = (\nu, p_1, p_2, K, q_1, q_2).
+\end{equation}
+The original GEqOE formulation is commonly written with the generalized mean
+longitude $L$ as the fast angular variable. In the ASTRODYN-CORE
+implementation, however, the propagated angle is the generalized eccentric
+longitude $K$.
+
+This is not merely a convenience. The generalized Kepler equation,
+\begin{equation}
+L = K + p_1 \cos K - p_2 \sin K,
+\end{equation}
+is implicit in $K$ when $L$ is given. A symbolic expression system such as the
+one used by \texttt{heyoka.py} can represent algebraic compositions of
+elementary operations, but it cannot represent an internal Newton solve as part
+of a static symbolic RHS graph. Integrating $K$ instead of $L$ removes that
+obstacle. Once $K$ is part of the state, all required orbital quantities are
+available through explicit formulas.
+
+The principal intermediate quantities used throughout the implementation are
+\begin{align}
+a &= \left( \frac{\mu}{\nu^2} \right)^{1/3}, \\
+\beta &= \sqrt{1-p_1^2-p_2^2}, \qquad
+\alpha = \frac{1}{1+\beta}, \\
+r &= a(1-p_1\sin K-p_2\cos K), \\
+\dot{r} &= \frac{\sqrt{\mu a}}{r}(p_2\sin K-p_1\cos K).
+\end{align}
+The in-plane coordinates $(X,Y)$ and the physical angular momentum
+\begin{equation}
+h = \sqrt{c^2 - 2 r^2 U},
+\end{equation}
+are then built directly from the state and the disturbing potential.
+
+\section{RHS Construction in the Code}
+
+The file \texttt{rhs.py} builds a symbolic system of ODEs for the selected
+force model. The implementation uses three code paths:
+\begin{enumerate}
+    \item a \emph{J2-only fast path};
+    \item a \emph{zonal fast path} for conservative, time-independent zonal
+    harmonics; and
+    \item a \emph{general path} for arbitrary conservative and
+    non-conservative perturbations.
+\end{enumerate}
+
+\subsection{J2-only path}
+
+The pure-$J_2$ path uses the special structure identified in Section~7.1 of the
+GEqOE paper. In this regime the generalized energy is a first integral, so
+\begin{equation}
+\dot{\nu} = 0,
+\end{equation}
+and the combination $2U-rF_r$ simplifies to $-U$. The implementation therefore
+hard-codes the degree-2 zonal potential
+\begin{equation}
+U = -\frac{A}{r^3}(1-3\hat{z}^2), \qquad
+A = \frac{\mu J_2 R_e^2}{2},
+\end{equation}
+and avoids general gradient construction.
+
+This path is explicitly opt-in in the software design. A perturbation model must
+advertise \texttt{\_j2\_fast\_path=True}; static conservative behavior alone is
+not enough. This restriction is important because the path bakes in the exact
+Eq.~(56) potential and its associated simplifications.
+
+\subsection{Zonal fast path}
+
+For a general zonal expansion
+\begin{equation}
+U(\bm{r}) = \sum_{n \ge 2} \frac{\mu J_n R_e^n}{r^{n+1}} P_n(\hat{z}),
+\end{equation}
+the code exploits two structure-preserving identities:
+\begin{enumerate}
+    \item Euler homogeneity gives
+    \begin{equation}
+    2U-rF_r = \sum_n (1-n) U_n,
+    \end{equation}
+    removing the need for a full Cartesian gradient in that term;
+    \item because the position lies in the instantaneous orbital plane,
+    $F_h$ can be obtained from $\partial U / \partial \hat{z}$ without a full
+    three-dimensional detour.
+\end{enumerate}
+
+This path significantly reduces symbolic expression size for zonal models while
+keeping the equations exact for the represented potential.
+
+\subsection{General path}
+
+The general path reconstructs the Cartesian position and velocity symbolically,
+queries the perturbation model for
+\begin{equation}
+U, \qquad \nabla U, \qquad \bm{P}, \qquad U_t,
+\end{equation}
+and then assembles the full GEqOE equations. The total perturbing force is
+\begin{equation}
+\bm{F} = \bm{P} - \nabla U.
+\end{equation}
+
+The implementation computes $\dot{L}$ using the paper's compact formula and
+then derives $\dot{K}$ from the differentiated generalized Kepler equation:
+\begin{equation}
+\dot{K} = \frac{a}{r}\left( \dot{L} - \dot{p}_1 \cos K + \dot{p}_2 \sin K \right).
+\end{equation}
+This avoids a redundant alternative formula and ties the code directly to the
+element transformation used in the state definition.
+
+\section{How \texttt{heyoka.py} Enters the Picture}
+
+\subsection{Symbolic expression graph}
+
+\texttt{heyoka.py} is a Python interface to a high-performance Taylor
+integration backend based on symbolic expressions, automatic differentiation,
+and LLVM just-in-time compilation. In the Python API used here, the ODE system
+is specified as a list of state-derivative pairs built from symbolic variables
+created by \texttt{hy.make\_vars}. The entire GEqOE RHS is therefore assembled as
+a directed acyclic graph of elementary expressions.
+
+This matters in practice because once the RHS is available in symbolic form:
+\begin{enumerate}
+    \item the integrator can repeatedly differentiate it to obtain Taylor
+    coefficients automatically;
+    \item common subexpressions can be reused during code generation; and
+    \item sensitivity systems can be generated mechanically from the original
+    RHS rather than from hand-written Jacobians.
+\end{enumerate}
+
+\subsection{Adaptive Taylor stepping}
+
+State propagation is performed with \texttt{heyoka.taylor\_adaptive}. In the
+local \texttt{heyoka.py} documentation used during implementation review
+(version 7.9.2), \texttt{taylor\_adaptive} is the adaptive Taylor integrator
+constructor. In practical terms for this project, it provides:
+\begin{enumerate}
+    \item adaptive step-size control;
+    \item internal Taylor coefficient generation from the symbolic RHS;
+    \item dense output through evaluation of the local Taylor polynomial; and
+    \item JIT-compiled execution of the resulting recurrence.
+\end{enumerate}
+
+The ASTRODYN-CORE wrapper uses runtime parameters for the central body
+gravitational parameter and, in the J2 fast path, for the scalar coefficient
+$A$. This allows parameter changes without rebuilding the symbolic graph.
+
+\subsection{Compact mode and compilation trade-offs}
+
+As expression graphs grow, compile time can become the main cost rather than
+numerical stepping. The implementation therefore exposes \texttt{compact\_mode}
+in the integrator wrappers, and enables it by default for the STM integrator.
+This reflects the documented \texttt{heyoka} trade-off: compact code generation
+reduces compilation cost and memory pressure for large symbolic systems, at the
+price of some runtime performance.
+
+This trade-off is especially relevant for:
+\begin{itemize}
+    \item the 42-dimensional state-plus-STM system;
+    \item full third-body ephemeris models with large symbolic trees; and
+    \item future higher-order variational systems.
+\end{itemize}
+
+\subsection{Automatic variational equations}
+
+The most important enabler for uncertainty work is
+\texttt{heyoka.var\_ode\_sys}. In the documentation used for this project,
+\texttt{var\_ode\_sys} is the class representing variational ODE systems and
+supports a selectable differentiation order. The current wrapper builds
+\begin{equation}
+\texttt{var\_ode\_sys(sys, hy.var\_args.vars, order=1)},
+\end{equation}
+which augments the six-state GEqOE dynamics with the $6 \times 6$ first-order
+variational system.
+
+The immediate output is the STM
+\begin{equation}
+\Phi(t,t_0) = \frac{\partial \bm{y}(t)}{\partial \bm{y}(t_0)}.
+\end{equation}
+The deeper implication is that the same backend is designed to support higher
+variational orders. This is the key reason the present implementation should be
+viewed as more than a high-accuracy state propagator: it is a derivative-aware
+propagation framework.
+
+\subsection{Symbolic differentiation of force models}
+
+\texttt{heyoka.diff\_tensors} computes derivative tensors of symbolic vector
+functions with respect to variables or parameters. In this implementation it is
+used to avoid manual gradient derivation for general zonal models. A potential
+is built once with placeholder Cartesian variables, differentiated
+symbolically, and then specialized to the actual GEqOE-derived Cartesian
+expressions with substitution.
+
+This pattern has two consequences:
+\begin{enumerate}
+    \item adding a new conservative potential does not require hand-coding a
+    new analytic gradient if the potential can be expressed symbolically; and
+    \item the same mechanism can be extended to higher derivative tensors when
+    second-order or higher sensitivity information is needed.
+\end{enumerate}
+
+\section{Perturbation Modeling Strategy}
+
+The perturbation interface separates conservative potential terms from
+non-conservative forcing:
+\begin{equation}
+U(\bm{r},t) \quad \text{versus} \quad \bm{P}(\bm{r},\dot{\bm{r}},t).
+\end{equation}
+This separation is not cosmetic. In the GEqOE equations, the conservative
+potential alters the reference ellipse through $h$ and $c$, whereas
+non-conservative forcing enters the energy and force projections directly.
+
+The current implementation uses the following modeling choices:
+\begin{itemize}
+    \item Earth oblateness terms in $U$;
+    \item Sun and Moon third-body gravity in $\bm{P}$;
+    \item composite models that sum conservative and non-conservative pieces
+    while preserving this separation.
+\end{itemize}
+
+The third-body choice follows the numerical guidance reported in the GEqOE
+paper: although third-body gravity derives from a potential, treating it as
+forcing is often numerically more robust for Earth-bound orbit propagation.
+
+\section{Continuous-Thrust Extension}
+
+Phase 8a extends the same general GEqOE forcing path to continuous thrust by
+augmenting the propagated state with spacecraft mass:
+\begin{equation}
+    \bm{y}_{\mathrm{thrust}} =
+    (\nu, p_1, p_2, K, q_1, q_2, m).
+\end{equation}
+The thrust model is introduced as a non-conservative term $\bm{P}$ rather than
+as an artificial conservative potential. In the current implementation, a
+control law provides thrust force components in the RTN frame together with
+their magnitude and specific impulse, and a wrapper converts those quantities
+into Cartesian acceleration and mass depletion:
+\begin{equation}
+    \bm{T}_{\mathrm{RTN}} =
+    \begin{bmatrix}
+        T_r \\ T_t \\ T_n
+    \end{bmatrix},
+    \qquad
+    T = \|\bm{T}_{\mathrm{RTN}}\|_2
+    =
+    \sqrt{T_r^2 + T_t^2 + T_n^2},
+\end{equation}
+\begin{equation}
+    \bm{P}
+    =
+    \frac{1}{10^3\,m}
+    \left(
+        T_r \,\hat{\bm{e}}_r
+        +
+        T_t \,\hat{\bm{e}}_t
+        +
+        T_n \,\hat{\bm{e}}_n
+    \right),
+\end{equation}
+\begin{equation}
+    \dot{m} = -\frac{T}{g_0 I_{sp}}.
+\end{equation}
+Here $m$ is the propagated spacecraft mass in kilograms, the factor $10^3$
+converts newtons per kilogram into km/s$^2$, and
+$\{\hat{\bm{e}}_r,\hat{\bm{e}}_t,\hat{\bm{e}}_n\}$ is the instantaneous RTN
+frame reconstructed from the Cartesian state implied by the GEqOE variables.
+This is the exact implemented mapping in the current code base.
+
+\subsection{Implemented thrust-law families}
+
+The thrust-law interface is deliberately coefficientized: the law returns
+$T_r$, $T_t$, $T_n$, $T$, and $I_{sp}$ as symbolic expressions, while all
+control coefficients are exposed as \texttt{heyoka} runtime parameters
+\texttt{hy.par[i]}. Consequently, the same symbolic graph is used for state
+propagation, first-order variational equations, measurement Jacobians, and the
+current optimization layer.
+
+At the time of writing, three RTN thrust-law families are implemented.
+
+\paragraph{Constant RTN thrust.}
+For each component $c\in\{r,t,n\}$,
+\begin{equation}
+    T_c(t) = \bar{T}_c,
+\end{equation}
+with constant coefficients $(\bar{T}_r,\bar{T}_t,\bar{T}_n)$ and constant
+$I_{sp}$. This is the simplest continuous-thrust law and is used extensively in
+the current maneuver reconstruction and maneuver detection prototypes.
+
+\paragraph{Single-arc cubic Hermite thrust.}
+For each component $c\in\{r,t,n\}$, the implemented single-arc law is
+\begin{equation}
+    T_c(\tau)
+    =
+    h_{00}(\tau)\,T_{c,0}
+    +
+    h_{10}(\tau)\,S_{c,0}
+    +
+    h_{01}(\tau)\,T_{c,1}
+    +
+    h_{11}(\tau)\,S_{c,1},
+    \qquad
+    \tau = \frac{t}{\Delta t_{\mathrm{arc}}},
+\end{equation}
+with basis functions
+\begin{equation}
+    h_{00}(\tau)=2\tau^3-3\tau^2+1,
+    \qquad
+    h_{10}(\tau)=\tau^3-2\tau^2+\tau,
+\end{equation}
+\begin{equation}
+    h_{01}(\tau)=-2\tau^3+3\tau^2,
+    \qquad
+    h_{11}(\tau)=\tau^3-\tau^2.
+\end{equation}
+The coefficients $(T_{c,0},T_{c,1},S_{c,0},S_{c,1})$ are the implemented
+runtime parameters. This law is smooth on a single arc and is therefore well
+matched to Taylor integration and first-order variational analysis.
+
+\paragraph{Direct Fourier-in-$K$ thrust.}
+The newest implemented control family is a direct Fourier expansion in the
+propagated generalized eccentric longitude $K$. For each component
+$c\in\{r,t,n\}$ and chosen truncation order $N$,
+\begin{equation}
+    T_c(K)
+    =
+    a_{c,0}
+    +
+    \sum_{k=1}^{N}
+    \left[
+        a_{c,k}\cos\!\big(k(K-K_0)\big)
+        +
+        b_{c,k}\sin\!\big(k(K-K_0)\big)
+    \right],
+\end{equation}
+where $K_0$ is an optional phase origin. The implemented runtime parameters are
+the bias terms $a_{c,0}$ together with the cosine and sine coefficients
+$a_{c,k}$ and $b_{c,k}$ for each requested harmonic. Importantly, this law is
+\emph{not} an averaged generalized-TFC model. The series is evaluated
+pointwise during propagation inside the full GEqOE dynamics. No GEqOE
+mean-element reduction, no averaged coefficient elimination, and no closed-form
+control-distance metric are currently claimed by the implementation.
+
+\subsection{Exact first-order sensitivity path}
+
+The mass-augmented GEqOE builder reuses the existing general equations and
+appends only the scalar mass ODE, preserving derivative consistency between the
+force model, the state propagation, and the exposed variational equations. By
+constructing the augmented system with
+\texttt{hy.var\_args.vars | hy.var\_args.params}, the implemented backend
+propagates first-order sensitivities with respect to both the initial
+mass-augmented state and the selected thrust-law coefficients. If
+$\bm{x}_i\in\mathbb{R}^7$ denotes the initial state of arc $i$,
+$\bm{p}_i\in\mathbb{R}^{n_{p,i}}$ its selected runtime parameters, and
+\begin{equation}
+    \bm{\phi}_i(t;\bm{x}_i,\bm{p}_i)
+    \in \mathbb{R}^{7}
+\end{equation}
+the exact propagated arc state at time $t$, then the implementation exposes the
+matrices
+\begin{equation}
+    \Phi_{x,i}(t) = \frac{\partial \bm{\phi}_i}{\partial \bm{x}_i},
+    \qquad
+    \Phi_{p,i}(t) = \frac{\partial \bm{\phi}_i}{\partial \bm{p}_i},
+\end{equation}
+directly from the same symbolic graph used for the dynamics.
+
+\subsection{Implemented multiple-shooting transcription}
+
+For $N_{\mathrm{arc}}$ propagation arcs, the current transcription uses the
+flat decision vector
+\begin{equation}
+    \bm{z}
+    =
+    \left[
+        \bm{x}_0,\bm{p}_0,\bm{x}_1,\bm{p}_1,\ldots,
+        \bm{x}_{N_{\mathrm{arc}}-1},\bm{p}_{N_{\mathrm{arc}}-1}
+    \right]^\top.
+\end{equation}
+The exact continuity constraints are
+\begin{equation}
+    \bm{c}_i(\bm{z})
+    =
+    \bm{\phi}_i(\Delta t_i;\bm{x}_i,\bm{p}_i) - \bm{x}_{i+1}
+    =
+    \bm{0},
+    \qquad
+    i=0,\ldots,N_{\mathrm{arc}}-2.
+\end{equation}
+Optionally, selected outputs of the terminal arc can be bounded or fixed:
+\begin{equation}
+    \bm{\ell}_{f}
+    \le
+    \bm{S}_f\,
+    \bm{\phi}_{N_{\mathrm{arc}}-1}(\Delta t_{N_{\mathrm{arc}}-1};
+    \bm{x}_{N_{\mathrm{arc}}-1},\bm{p}_{N_{\mathrm{arc}}-1})
+    \le
+    \bm{u}_{f},
+\end{equation}
+where $\bm{S}_f$ is a row-selector matrix choosing the implemented subset of
+terminal outputs.
+
+\subsection{Implemented measurement transcription}
+
+The current sampled-measurement layer attaches observations directly to the
+same shooting problem. For a sample $j$ belonging to arc $i$ at local sample
+time $\tau_{ij}$, the predicted observation is
+\begin{equation}
+    \hat{\bm{y}}_{ij}
+    =
+    \bm{h}_{ij}
+    \!\left(
+        \bm{\phi}_i(\tau_{ij};\bm{x}_i,\bm{p}_i)
+    \right),
+\end{equation}
+where $\bm{h}_{ij}$ is the chosen local measurement model. The currently
+implemented observation families are
+\begin{equation}
+    \bm{h}_{\mathrm{pos}}(\bm{x}) =
+    \bm{r}_{\mathrm{I}}(\bm{x}),
+    \qquad
+    h_{\mathrm{range}}(\bm{x}) =
+    \left\|
+        \bm{r}_{\mathrm{I}}(\bm{x}) - \bm{r}_{\mathrm{ref}}
+    \right\|_2,
+\end{equation}
+that is, inertial Cartesian position and inertial one-way range to a fixed
+inertial reference point.
+
+The whitened residual for sample $j$ is
+\begin{equation}
+    \bm{r}_{ij}
+    =
+    \bm{W}_{ij}
+    \left(
+        \hat{\bm{y}}_{ij} - \bm{y}_{ij}
+    \right),
+\end{equation}
+with $\bm{W}_{ij}$ equal to the identity, a diagonal inverse-standard-deviation
+matrix, or the inverse Cholesky factor of a supplied covariance matrix. The
+implemented exact Jacobian block is obtained by chain rule:
+\begin{equation}
+    \frac{\partial \bm{r}_{ij}}{\partial \bm{x}_i}
+    =
+    \bm{W}_{ij}
+    \frac{\partial \bm{h}_{ij}}{\partial \bm{\phi}_i}
+    \Phi_{x,i}(\tau_{ij}),
+    \qquad
+    \frac{\partial \bm{r}_{ij}}{\partial \bm{p}_i}
+    =
+    \bm{W}_{ij}
+    \frac{\partial \bm{h}_{ij}}{\partial \bm{\phi}_i}
+    \Phi_{p,i}(\tau_{ij}).
+\end{equation}
+This is an exact first-order residual linearization with respect to the
+implemented decision variables; there is no separately coded estimator Jacobian.
+
+\subsection{Solver modes currently available}
+
+At present, all constrained solves use SciPy's \texttt{trust-constr} backend,
+but the objective models available on top of that backend are already distinct
+and should be stated explicitly.
+
+\paragraph{Minimum-propellant mode.}
+The prototype direct-design mode minimizes
+\begin{equation}
+    J_{\mathrm{prop}}(\bm{z})
+    =
+    m_0 - m_f,
+\end{equation}
+possibly augmented by optional quadratic smoothness penalties and terminal
+constraints. Since $J_{\mathrm{prop}}$ is linear in the decision variables once
+the propagated endpoint sensitivities are extracted, its exact objective
+Hessian is identically zero; only the constraint Jacobians are nontrivial.
+
+\paragraph{Measurement-fit mode.}
+The current maneuver-estimation mode minimizes
+\begin{equation}
+    J(\bm{z})
+    =
+    J_{\mathrm{meas}}(\bm{z})
+    +
+    J_{\mathrm{track}}(\bm{z})
+    +
+    J_{\mathrm{smooth}}(\bm{z}),
+\end{equation}
+with
+\begin{equation}
+    J_{\mathrm{meas}}(\bm{z})
+    =
+    \frac{\alpha}{2}
+    \sum_{i,j}
+    \|\bm{r}_{ij}\|_2^2,
+\end{equation}
+\begin{equation}
+    J_{\mathrm{track}}(\bm{z})
+    =
+    \frac{1}{2}
+    \sum_{\ell}
+    \frac{(z_\ell-z_\ell^\star)^2}{\sigma_\ell^2},
+\end{equation}
+\begin{equation}
+    J_{\mathrm{smooth}}(\bm{z})
+    =
+    \frac{1}{2}
+    \sum_{s}
+    \lambda_s
+    \sum_{i=0}^{N_{\mathrm{arc}}-2}
+    \left(
+        z_{i+1,s}-z_{i,s}
+    \right)^2.
+\end{equation}
+Here $\alpha$ is a global measurement weight,
+$z_\ell^\star$ and $\sigma_\ell$ are the implemented decision-tracking targets
+and standard deviations, and $\lambda_s$ are the implemented selector-specific
+smoothness weights.
+
+\paragraph{Hessian handling modes.}
+Two Hessian strategies are currently available for measurement fits:
+\begin{enumerate}
+    \item \emph{quasi-Newton mode}: the objective and all first-order
+    derivatives are exact, but the second-order update is delegated to the
+    optimizer's quasi-Newton machinery;
+    \item \emph{Gauss--Newton mode}: the code assembles the explicit quadratic
+    approximation
+    \begin{equation}
+        \bm{H}_{\mathrm{GN}}
+        =
+        \alpha\,\bm{J}_r^\top \bm{J}_r
+        +
+        \bm{H}_{\mathrm{track}}
+        +
+        \bm{H}_{\mathrm{smooth}},
+    \end{equation}
+    where $\bm{J}_r$ is the stacked exact residual Jacobian and
+    $\bm{H}_{\mathrm{track}}$, $\bm{H}_{\mathrm{smooth}}$ are the exact
+    quadratic Hessians of the regularization terms.
+\end{enumerate}
+In the present implementation, constrained multi-arc measurement fits default
+to the more robust quasi-Newton path, while explicit Gauss--Newton Hessians are
+available and used when appropriate. This distinction should be read as an
+implementation fact, not as a theoretical claim of full sparse second-order NLP
+support.
+
+\paragraph{Linearized local covariance mode.}
+After a constrained solve, the code can also report a first local covariance
+estimate from the same linearized transcription. If
+$\bm{A}_{\mathrm{eq}}$ denotes the stacked Jacobian of the equality constraints
+(continuity constraints, terminal equalities, and fixed bounds) and
+$\bm{N}$ spans its nullspace, then the reported covariance is
+\begin{equation}
+    \bm{P}_z
+    =
+    \bm{N}
+    \left(
+        \bm{N}^\top \bm{H} \bm{N}
+    \right)^{+}
+    \bm{N}^\top,
+\end{equation}
+where $(\cdot)^{+}$ denotes the Moore--Penrose pseudoinverse and $\bm{H}$ is
+the quadratic objective Hessian used by the solve model. This is a constrained
+local linearized covariance, not a full Bayesian posterior.
+
+It is useful to state the present maneuvering capability explicitly. The
+implemented maneuvering stack now supports:
+\begin{itemize}
+    \item direct propagation of low-thrust arcs in the full, non-averaged GEqOE
+    dynamics with propagated mass,
+    \item RTN-frame constant thrust and smooth single-arc cubic Hermite thrust
+    laws,
+    \item direct Fourier-in-$K$ RTN thrust laws evaluated in the same full
+    dynamics and exposed through runtime coefficients,
+    \item exact first-order sensitivities with respect to both the initial
+    augmented state and the thrust-law coefficients,
+    \item multi-arc multiple-shooting transcription with continuity
+    constraints,
+    \item bounded terminal-output constraints on the final arc,
+    \item quadratic cross-arc smoothness regularization of selected control
+    variables,
+    \item sampled-measurement residual assembly on top of the same shooting
+    transcription, and
+    \item a first toy observation type: inertial Cartesian position samples
+    with exact Jacobians obtained by chaining a local measurement map through
+    the propagated GEqOE sensitivities,
+    \item a second toy observation type: inertial one-way range to a fixed
+    inertial reference point, built on the same local Cartesian map, and
+    \item measurement-driven prototype solve specifications for weighted
+    residuals and quadratic maneuver-effort regularization.
+\end{itemize}
+This is already sufficient to study simple maneuver design and endpoint
+targeting problems in a derivative-consistent setting. What remains
+\emph{outside} the current implementation is equally important: richer sampled
+observation types (velocity, angles, line-of-sight, range-rate), sampled
+path-constraint handling along the arcs, richer weighted
+objectives (for example time-optimal or power-aware formulations), and
+alternative sparse NLP backends beyond the present SciPy prototype. These
+remaining items are architectural extensions, not blockers for the current
+maneuvering workflow.
+Also outside the current implementation is any GEqOE orbit-averaged or
+mean-element generalized-TFC law. Deriving such a reduction is a separate
+research problem and should not be conflated with the working full-dynamics
+Fourier machinery now present in the code.
+
+The present example suite makes these capabilities concrete in three different
+ways. First, a coefficient-level comparison against the earlier GEqOE J2 map
+shows that the shared Taylor derivatives up to fourth order agree on
+$(\nu, q_1, q_2, p_1, p_2)$ once the legacy normalized-time coefficients are
+scaled back to physical time. Second, a maneuver-profile gallery visualizes
+constant-thrust and smooth cubic-Hermite RTN laws together with their mass and
+orbital-energy response. Third, a synthetic position-fit experiment now uses
+the shared sampled-measurement layer to solve for an initial state and
+piecewise-constant low-thrust coefficients that best explain noisy inertial
+position samples, with a position-only toy observation model and exact
+measurement Jacobians. This is not yet a full orbit-determination system, but
+it is already a genuine maneuver-aware estimation prototype built directly on
+the new propagation machinery.
+
+The measurement interface is now slightly broader than that first toy problem.
+Both inertial Cartesian position and inertial one-way range can be represented
+as sampled observations, weighted in whitened measurement space, and
+transcribed through the same multiple-shooting residual assembly. In the
+current implementation, constrained multi-arc measurement solves use exact
+first-order residual/Jacobian information together with a prototype
+quasi-Newton solve path in SciPy, while an explicit Gauss--Newton objective
+Hessian remains available as an option. That distinction matters: the present
+code already provides derivative-consistent residual linearization, but it is
+not yet a full second-order sparse least-squares backend.
+
+The example suite reflects that staged scope. One reconstruction script fits
+piecewise-constant thrust directly from noisy inertial position samples, while
+another uses the same transcription with a mixed batch of inertial position and
+inertial range observations. These are still toy problems, but they already
+exercise the intended architectural bridge from GEqOE propagation to
+maneuver-aware measurement fitting.
+
+The implementation now also includes a first constrained local covariance
+estimate built from the same linearized solve model. In practical terms, the
+current code can report arc-local thrust estimates together with local standard
+deviations after a constrained measurement fit. A new maneuver-detection demo
+uses that capability to classify candidate thrust arcs by their significance
+under mixed position/range data, continuity constraints, fixed initial-state
+conditions, and terminal equalities. This is still a local linearized
+uncertainty treatment rather than a full Bayesian estimator, but it already
+turns the new measurement bridge into a concrete maneuver-detection workflow.
+
+One current prototype caveat should also be stated explicitly. The exact-zero
+constant-thrust case is still a numerical edge for the present sensitivity
+integrator, so the maneuver-detection example keeps nominally inactive arcs at
+a tiny positive thrust floor while still treating them as zero-thrust in the
+reported detection logic.
+
+\section{Time Handling for Time-Dependent Perturbations}
+
+One implementation detail is important enough to record explicitly for future
+users. The integrator wrappers pass a \emph{relative} symbolic time to
+time-dependent perturbation models:
+\begin{equation}
+t_{\mathrm{rel}} = \texttt{hy.time} - t_0.
+\end{equation}
+This means that an ephemeris model parameterized by an absolute epoch
+\texttt{epoch\_jd} interprets that epoch as the physical time corresponding to
+the initial state, independent of the external time origin used by the
+integrator.
+
+Without this convention, restarting a propagation segment at a nonzero
+integrator time would shift the Sun or Moon ephemeris phase. The present
+implementation avoids that failure mode and preserves consistency across
+segmented runs and offset time origins.
+
+\section{Dense Output and Map-Oriented Use}
+
+Because \texttt{heyoka} constructs a local Taylor expansion at each accepted
+step, dense output is available naturally. The ASTRODYN-CORE wrapper exposes
+this through propagation on a user-specified grid. In practice, this means that
+the solver can deliver:
+\begin{itemize}
+    \item state samples at arbitrary intermediate epochs;
+    \item STM samples on the same time grid when the augmented system is used;
+    \item a natural bridge to map-based workflows in estimation, targeting, and
+    uncertainty transport.
+\end{itemize}
+
+This dense-output capability is often underappreciated. For uncertainty work,
+the value is not merely convenience. If covariance transport, measurement
+linearization, or event-time sensitivity analysis requires synchronized outputs,
+the polynomial representation already built by the integrator makes those
+queries cheap relative to restarting propagation.
+
+\section{Uncertainty Propagation Perspective}
+
+\subsection{Linear covariance transport}
+
+The most immediate uncertainty application is covariance propagation. If the
+initial uncertainty in GEqOE space is represented by $P_0$, then the propagated
+linear covariance is
+\begin{equation}
+P(t) = \Phi(t,t_0)\, P_0\, \Phi(t,t_0)^\top.
+\end{equation}
+Because the STM is obtained from the exact symbolic RHS through automatic
+variational equations, this route avoids the mismatch that often appears when a
+high-fidelity state propagator is paired with an approximate or independently
+coded Jacobian.
+
+\subsection{Why Taylor plus AD is stronger than ``state only''}
+
+The combination of Taylor integration and AD is particularly attractive for
+uncertainty propagation for three reasons:
+\begin{enumerate}
+    \item \textbf{Derivative consistency.} The state and its variational
+    dynamics are derived from the same symbolic graph.
+    \item \textbf{High-order readiness.} Taylor methods already require repeated
+    derivative information of the vector field; extending the exposed
+    variational order is conceptually aligned with the underlying backend.
+    \item \textbf{Map construction.} Once first- and higher-order derivatives of
+    the flow are available, one can build local polynomial transport maps rather
+    than relying only on linearized covariance updates.
+\end{enumerate}
+
+\subsection{Path toward nonlinear uncertainty transport}
+
+The present public API exposes first-order variational equations only. However,
+the backend is already pointing toward more powerful workflows:
+\begin{itemize}
+    \item second-order state sensitivities for quadratic uncertainty transport;
+    \item higher-order polynomial state maps for strongly nonlinear regimes;
+    \item compiled evaluation of derivative-based surrogate maps for repeated
+    Monte Carlo or collocation use.
+\end{itemize}
+
+For highly nonlinear long-arc propagation, this is strategically important.
+Linear covariance transport remains useful, but it is often insufficient when
+orbital-element dispersion evolves through strongly nonlinear perturbation
+coupling. A derivative-rich Taylor backend creates a realistic route toward
+high-order uncertainty propagation without abandoning the force model fidelity
+or the element-based representation.
+
+\section{Why This Architecture Is Publication-Worthy}
+
+From a publication perspective, the novelty is not that GEqOE exists or that
+Taylor integration exists. The important point is the \emph{software-level
+fusion} of:
+\begin{enumerate}
+    \item a perturbation-aware, non-singular orbital element set;
+    \item symbolic RHS construction that respects the structure of those
+    elements;
+    \item automatic differentiation and JIT compilation through
+    \texttt{heyoka.py}; and
+    \item a derivative-oriented propagation workflow suitable for estimation and
+    uncertainty analysis.
+\end{enumerate}
+
+This combination yields a propagator that is not limited to ``integrate the
+state quickly.'' It is better viewed as a platform for high-order flow
+representation in a geometry-aware element space. That is the real strength of
+the implementation and the most promising angle for future methodological work.
+
+\section{Present Limitations and Immediate Extensions}
+
+The current implementation should still be described honestly:
+\begin{itemize}
+    \item the public convenience wrapper exposes only first-order variational
+    equations;
+    \item some force models, especially large ephemeris trees, can incur
+    substantial JIT compilation cost;
+    \item for extremely large symbolic models, a compiled Cowell acceleration
+    model may remain preferable;
+    \item a dedicated uncertainty API has not yet been built on top of the STM
+    integrator.
+\end{itemize}
+
+The most natural next extensions are:
+\begin{enumerate}
+    \item a public higher-order variational wrapper;
+    \item direct covariance / sigma-point / polynomial-map propagation helpers;
+    \item benchmark studies comparing GEqOE Taylor--AD propagation against
+    Cartesian Taylor and classical element formulations for both state and
+    uncertainty transport.
+\end{enumerate}
+
+\section{Conclusion}
+
+The ASTRODYN-CORE GEqOE Taylor propagator already demonstrates more than an
+implementation of the GEqOE equations in another integrator. It establishes a
+derivative-consistent propagation architecture in which orbit dynamics,
+variational dynamics, and force-model differentiation are all generated from a
+single symbolic description. The use of \texttt{heyoka.py} is central to this
+result: adaptive Taylor integration, symbolic differentiation, variational
+system generation, and JIT compilation are what make the approach practical.
+
+For future publications, the strongest message is that GEqOE plus Taylor plus
+automatic differentiation is a compelling framework for high-fidelity
+propagation \emph{and} for uncertainty transport. The existing implementation
+already supports accurate state propagation and STM generation; with modest API
+extensions, it can become a full high-order uncertainty-propagation engine.
+
+\begin{thebibliography}{9}
+
+\bibitem{bau2021geqoe}
+G.~Ba\`u, J.~Hernando-Ayuso, and C.~Bombardelli.
+\newblock A generalization of the equinoctial orbital elements.
+\newblock \emph{Celestial Mechanics and Dynamical Astronomy}, 133:50, 2021.
+
+\bibitem{heyoka_docs}
+\texttt{heyoka.py} documentation, local documentation index used during
+implementation review, version 7.9.2.
+\newblock Topics consulted include \texttt{taylor\_adaptive},
+\texttt{var\_ode\_sys}, \texttt{var\_args}, \texttt{diff\_tensors}, and
+compiled symbolic functions.
+
+\bibitem{astrodyn_arch}
+ASTRODYN-CORE internal documentation.
+\newblock \emph{GEqOE Taylor Propagator --- Architecture \& Design Decisions},
+\texttt{docs/geqoe\_taylor/architecture.md}.
+
+\end{thebibliography}
+
+\end{document}
