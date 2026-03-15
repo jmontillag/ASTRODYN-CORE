@@ -668,51 +668,82 @@ def mean_to_cartesian_w1_batch(a, e, inc, Om, om, M, mu, Re, J2):
 
 
 def osculating_to_mean_w1(osc_kep, mu, Re, J2, max_iter=20, tol=1e-12):
-    """Osculating Keplerian -> mean Keplerian via W₁ SP (Cartesian-space iteration).
+    """Osculating Keplerian -> mean Keplerian via W₁ SP (Lyddane-space iteration).
 
-    Uses the heyoka Lyddane forward map for consistency with the W₁
-    propagation pipeline.
+    Subtracts SP corrections directly in the non-singular Lyddane
+    representation [a, ecosω, esinω, I, Ω, M+ω] to avoid the O(J₂²)
+    error introduced by Cartesian-space subtraction.
     """
-    # Target osculating Cartesian
-    E_osc = solve_kepler(osc_kep[5], osc_kep[1])
-    f_osc = eccentric_to_true(E_osc, osc_kep[1])
-    r_target, v_target = keplerian_to_cartesian(*osc_kep[:5], f_osc, mu)
+    a_o, e_o, i_o, Om_o, om_o, M_o = osc_kep
 
-    mean_kep = np.array(osc_kep, dtype=float)
+    # Osculating state in Lyddane representation
+    osc_ecosw = e_o * np.cos(om_o)
+    osc_esinw = e_o * np.sin(om_o)
+    osc_Mpw = M_o + om_o
+    osc_a = float(a_o)
+    osc_I = float(i_o)
+    osc_Om = float(Om_o)
+
+    cf = _get_sp_heyoka_cfunc(mu, Re, J2)
+
+    # Initialize mean Lyddane to osculating
+    m_a = osc_a
+    m_ecosw = osc_ecosw
+    m_esinw = osc_esinw
+    m_I = osc_I
+    m_Om = osc_Om
+    m_Mpw = osc_Mpw
 
     for _ in range(max_iter):
-        a_m, e_m, i_m, Om_m, om_m, M_m = mean_kep
+        # Recover Keplerian from current mean Lyddane
+        m_e = np.sqrt(m_ecosw**2 + m_esinw**2)
+        m_om = np.arctan2(m_esinw, m_ecosw)
+        m_M = m_Mpw - m_om
 
-        # Unperturbed Cartesian from mean elements
-        E_m = solve_kepler(M_m, e_m)
-        f_m = eccentric_to_true(E_m, e_m)
-        r_unpert, v_unpert = keplerian_to_cartesian(a_m, e_m, i_m, Om_m, om_m, f_m, mu)
+        m_e = np.clip(m_e, 1e-15, 0.9999)
+        m_a = max(m_a, 100.0)
 
-        # Osculating Cartesian via heyoka Lyddane SP
-        r_fwd, v_fwd = mean_to_cartesian_heyoka(
-            a_m, e_m, i_m, Om_m, om_m, M_m, mu, Re, J2)
+        # Delaunay momenta
+        L = np.sqrt(mu * m_a)
+        G = L * np.sqrt(1.0 - m_e**2)
+        H = G * np.cos(m_I)
+        E = solve_kepler(m_M, m_e)
 
-        # SP displacement
-        sp_r = np.asarray(r_fwd).ravel() - np.asarray(r_unpert).ravel()
-        sp_v = np.asarray(v_fwd).ravel() - np.asarray(v_unpert).ravel()
+        # SP corrections in Lyddane form: [da, d(ecosw), d(esinw), dI, dOm, d(M+w)]
+        res = cf([E, m_om, L, G, H])
+        da = float(res[0])
+        d_ecosw = float(res[1])
+        d_esinw = float(res[2])
+        dI = float(res[3])
+        dOm = float(res[4])
+        d_Mpw = float(res[5])
 
-        # Mean Cartesian = target - SP
-        r_mean = np.asarray(r_target).ravel() - sp_r
-        v_mean = np.asarray(v_target).ravel() - sp_v
+        # Subtract in Lyddane space: mean = osc - sp(mean)
+        new_a = osc_a - da
+        new_ecosw = osc_ecosw - d_ecosw
+        new_esinw = osc_esinw - d_esinw
+        new_I = osc_I - dI
+        new_Om = osc_Om - dOm
+        new_Mpw = osc_Mpw - d_Mpw
 
-        new_kep = np.array(cartesian_to_keplerian(r_mean, v_mean, mu))
+        # Check convergence
+        conv_a = abs(new_a - m_a)
+        conv_e = np.sqrt((new_ecosw - m_ecosw)**2 + (new_esinw - m_esinw)**2)
+        m_a, m_ecosw, m_esinw, m_I, m_Om, m_Mpw = (
+            new_a, new_ecosw, new_esinw, new_I, new_Om, new_Mpw)
 
-        da = abs(new_kep[0] - mean_kep[0])
-        de = abs(new_kep[1] - mean_kep[1])
-        mean_kep = new_kep
-
-        mean_kep[0] = max(mean_kep[0], 100.0)
-        mean_kep[1] = np.clip(mean_kep[1], 1e-10, 0.9999)
-
-        if da < tol and de < tol:
+        if conv_a < tol and conv_e < tol:
             break
 
-    return tuple(mean_kep)
+    # Final recovery of Keplerian elements
+    m_e = np.sqrt(m_ecosw**2 + m_esinw**2)
+    m_om = np.arctan2(m_esinw, m_ecosw)
+    m_M = m_Mpw - m_om
+
+    m_e = np.clip(m_e, 1e-15, 0.9999)
+    m_a = max(m_a, 100.0)
+
+    return (m_a, m_e, m_I, m_Om, m_om, m_M)
 
 
 # ---------------------------------------------------------------------------
